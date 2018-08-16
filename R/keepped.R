@@ -3,6 +3,14 @@ keepped <- function(ped, candidate=NULL, gen=NULL, num=FALSE){
   ped_check <- checkped(ped)
   #pruning the pedigree by candidate
   if (!is.null(candidate)) {
+
+    if (!(class(candidate) %in% "character" )) {
+      candidate <- as.character(candidate)
+    }
+
+    if (!any(candidate %in% ped_check$Ind)) {
+      stop("not find candidate in the pedigree!")
+    }
     ped_num <- numped(ped_check)
     i <- 1
     #backward traverse
