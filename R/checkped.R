@@ -189,6 +189,7 @@ checkped <- function(ped, sex = NULL) {
       cbind(ped_parents, Gen = rep(i, nrow(ped_parents)))
     ped_offspring_DT <- do.call("rbind", ped_offspring_list)
 
+    # Individual generaton can be assigend here by their parents which are in the ped_offspring_DT
     if (sum(!(ped_new$Ind %chin% ped_offspring_DT$Ind)) > 0) {
       ped_other <- ped_new[!(Ind %chin% ped_offspring_DT$Ind)]
       ped_other <- cbind(ped_other, Gen = rep(i, nrow(ped_other)))
