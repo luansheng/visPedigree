@@ -254,6 +254,6 @@ checkped <- function(ped, sex = NULL) {
   if (!is.null(sex) & any(!is.na(ped_new$Dam))) {
     ped_new[Ind %chin% Dam,Sex:="female"]
   }
-
+  ped_new[,Sex:=tolower(Sex)]
   return(ped_new)
 }
