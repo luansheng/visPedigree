@@ -17,26 +17,26 @@ checkped <- function(ped, sex = NULL) {
            old = colnames(ped_new)[1:3],
            new = c("Ind", "Sire", "Dam"))
   setkey(ped_new, Ind, Sire, Dam)
-  #===detecting and setting missing values===========================================
+  #===detecting and setting missing values=============================================
   ped_new[, ":="(Ind = as.character(Ind),
                  Sire = as.character(Sire),
                  Dam = as.character(Dam))]
   #Individuals will be deleted if there are "", " ", "0", "*", "NA", and NA in the Ind column.
   if (any(ped_new$Ind %in% c("", " ", "0", "*", "NA", NA))) {
     warning("There are missing values in the inividual column. These records are discarded.")
-    warning("Please ensure first three columns of the pedigree are individual, sire, and dam.")
+    warning("Check the first three columns of the pedigree are individual, sire, and dam.")
     ped_new <-
       ped_new[-which(ped_new$Ind %in% c("", " ", "0", "*", "NA", NA))]
   }
   #Missing parents are shown by "", " ", "0", "*", and "NA" in the pedigree file, they are setted as NA
   if (length(ped_new[Sire %in% c("", " ", "0", "*", "NA"), Sire]) > 0) {
     ped_new[Sire %in% c("", " ", "0", "*", "NA"), Sire := NA]
-    warning("blank, Zero, asterisk, and NA means a missing parent in the sire column.")
+    warning("blank, Zero, asterisk, or NA means a missing parent in the sire column.")
   }
 
   if (length(ped_new[Dam %in% c("", " ", "0", "*", "NA"), Dam]) > 0) {
     ped_new[Dam %in% c("", " ", "0", "*", "NA"), Dam := NA]
-    warning("blank, Zero, asterisk, and NA means a missing parent in the dam column.")
+    warning("blank, Zero, asterisk, or NA means a missing parent in the dam column.")
   }
   #The programme will stop if there are no parents in the sire and dam columns.
   if (all(is.na(ped_new$Sire)) & all(is.na(ped_new$Dam))) {
@@ -44,7 +44,7 @@ checkped <- function(ped, sex = NULL) {
   }
 
 
-  #====Setting duplicated records===============================================
+  #====detect or delete duplicated records===============================================
   # If the duplicated records have the same individual, sire, and dam ID,
   # one record will be kept, other records will be deleted.
   if (anyDuplicated(ped_new, by = c("Ind", "Sire", "Dam")) > 0) {
@@ -59,7 +59,7 @@ checkped <- function(ped, sex = NULL) {
       paste(
         "The",
         ped_new_dup_num,
-        "duplicated individual, sire, and dam are deleted in the pedigree. Only the first",
+        "duplicated individual, sire, and dam IDs are deleted in the pedigree. Only the first",
         n,
         "records are shown"
       )
@@ -88,7 +88,7 @@ checkped <- function(ped, sex = NULL) {
       paste(
         "The",
         ped_new_dup_num,
-        "duplicated individual are found in the pedigree. Only the first",
+        "duplicated individual IDs are found in the pedigree. Only the first",
         n,
         "records are shown."
       )
@@ -103,7 +103,7 @@ checkped <- function(ped, sex = NULL) {
     stop("Please check the pedigree!")
   }
 
-  #===Checking parents' sex
+  #===find bisexual parents============================================================
   sires <- unique(ped_new$Sire)
   if (any(is.na(sires))) {
     sires <- sires[-which(is.na(sires))]
@@ -119,18 +119,27 @@ checkped <- function(ped, sex = NULL) {
     warning(paste(bisexual_parents, collapse = ", "))
   }
 
-  #===renewing pedigree by adding missing parents or founders=======================
-  sires_dams <- unique(c(sires, dams))
-  if (sum(!(sires_dams %chin% ped_new$Ind)) > 0) {
-    sires_dams_missing <- sires_dams[!(sires_dams %chin% ped_new$Ind)]
-    sires_dams_missing_DT <- setDT(list(
-      Ind = sires_dams_missing,
-      Sire = rep(NA, length(sires_dams_missing)),
-      Dam = rep(NA, length(sires_dams_missing))
+  #===renewing pedigree by adding missing parents or founders==========================
+  sire_dam_vect <- unique(c(sires, dams))
+  if (sum(!(sire_dam_vect %chin% ped_new$Ind)) > 0) {
+    sire_dam_vect_missing <- sire_dam_vect[!(sire_dam_vect %chin% ped_new$Ind)]
+    sire_dam_vect_missing_DT <- setDT(list(
+      Ind = sire_dam_vect_missing,
+      Sire = rep(NA, length(sire_dam_vect_missing)),
+      Dam = rep(NA, length(sire_dam_vect_missing))
     ))
-    ped_new <- rbind(sires_dams_missing_DT, ped_new, fill = TRUE)
+    ped_new <- rbind(sire_dam_vect_missing_DT, ped_new, fill = TRUE)
   }
 
+  #===detect pedigreeloop==============================================================
+  #find the loop between individual and sire.
+  # ped_new[!is.na(Sire),":="(IndSire=paste(Ind,Sire,sep=","),SireInd=paste(Sire,Ind,sep=","))]
+  # ind_sire_str_vect <- c(ped_new$IndSire,ped_new$SireInd)
+  # if (anyDuplicated(ind_sire_str_vect)) {
+  #   dup_ind_sire_str_vect <- ind_sire_str_vect[duplicated(ind_sire_str_vect)]
+  #   warning("The")
+  # }
+  # ped_new[!is.na(Dam),":="(IndDam=paste(Ind,Dam,sep=""),DamInd=paste(Dam,Ind,sep=""))]
 
   #===sorting parents in front of offspring in the individual column.
   ped_new[, SeqNum := seq(nrow(ped_new))]
@@ -163,17 +172,17 @@ checkped <- function(ped, sex = NULL) {
     na.rm = TRUE
   )) {
     ped_parents <- ped_new
-    ped_offspring_list <- vector("list", length(sires_dams))
+    ped_offspring_list <- vector("list", length(sire_dam_vect))
     i <- 1
-    while (sum(ped_parents$Ind %chin% sires_dams) > 0) {
-      ped_tmp_1 <- ped_parents[!(Ind %chin% sires_dams)]
-      ped_parents <- ped_parents[Ind %chin% sires_dams]
+    while (sum(ped_parents$Ind %chin% sire_dam_vect) > 0) {
+      ped_tmp_1 <- ped_parents[!(Ind %chin% sire_dam_vect)]
+      ped_parents <- ped_parents[Ind %chin% sire_dam_vect]
       ped_tmp_2 <-
         unique(rbind(ped_tmp_1[Sire %chin% ped_parents$Ind], ped_tmp_1[Dam %chin% ped_parents$Ind]))
       ped_offspring_list[[i]] <-
         cbind(ped_tmp_2, Gen = rep(i, nrow(ped_tmp_2)))
-      sires_dams <- unique(c(ped_parents$Sire, ped_parents$Dam))
-      sires_dams <- sires_dams[!is.na(sires_dams)]
+      sire_dam_vect <- unique(c(ped_parents$Sire, ped_parents$Dam))
+      sire_dam_vect <- sire_dam_vect[!is.na(sire_dam_vect)]
       i <- i + 1
     }
     ped_offspring_list[[i]] <-
@@ -247,7 +256,7 @@ checkped <- function(ped, sex = NULL) {
     ped_new[, Gen := NULL]
   }
 
-  #Add each individual sex when sex parameter is not NULL
+  #===Add each individual sex when the sex parameter is not NULL=======================
   if (!is.null(sex) & any(!is.na(ped_new$Sire))) {
     ped_new[Ind %chin% Sire,Sex:="male"]
   }
