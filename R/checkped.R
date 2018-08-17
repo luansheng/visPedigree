@@ -176,6 +176,9 @@ checkped <- function(ped, sex = NULL) {
     i <- 1
     while (sum(ped_parents$Ind %chin% sire_dam_vect) > 0) {
       ped_tmp_1 <- ped_parents[!(Ind %chin% sire_dam_vect)]
+      if (nrow(ped_tmp_1)==0) {
+        stop("Pedigree error! Pedigree loops were detected!")
+      }
       ped_parents <- ped_parents[Ind %chin% sire_dam_vect]
       ped_tmp_2 <-
         unique(rbind(ped_tmp_1[Sire %chin% ped_parents$Ind], ped_tmp_1[Dam %chin% ped_parents$Ind]))
@@ -220,7 +223,7 @@ checkped <- function(ped, sex = NULL) {
     ped_new_Gen[!is.na(GenSire) | !is.na(GenDam),
                 GenInterval := Gen - rowMaxs(as.matrix(.SD), na.rm = TRUE),
                 .SDcols = c("GenSire", "GenDam")]
-    # The Generation number of some indivduals may be not right. The individuals which have no progeny were classified in the maximum generation. The following code try to renew these individuals' Generation number by their parent's generation number. The interval on generation number between focus individual with their parents should be equal to 1. If the interval is > 1, the generation number of the foucus individual will be renewed as max(parents' generation number)+1.
+    # The Generation number of some indivduals may be not right. The individuals which have no progeny were classified in the maximum generation. The following code try to renew these individuals' Generation number by their parent's generation number. The right interval on generation number between focus individual with their parents should be equal to 1. If the interval is > 1, the generation number of the foucus individual will be renewed as max(parents' generation number)+1.
     while (max(ped_new_Gen$GenInterval, na.rm = TRUE) > 1) {
       ped_new_Gen[GenInterval > 1,
                   Gen := rowMaxs(as.matrix(.SD), na.rm = TRUE) + 1,
