@@ -8,7 +8,7 @@
 #' @importFrom matrixStats rowMaxs
 
 # checkped will add a new column: Sex
-checkped <- function(ped) {
+checkped <- function(ped,addgen=TRUE) {
   ped_new <- copy(ped)
   ped_is_DT <- "data.table" %in% class(ped_new)
   if (!ped_is_DT) {
@@ -162,8 +162,8 @@ checkped <- function(ped) {
       ped_new_test$SeqNumInd < ped_new_test$SeqNumDam
     ),
     na.rm = TRUE
-  )) {
-    ped_new <- sortped(ped_new)
+  ) | !("Gen" %in% colnames(ped_new)))  {
+    ped_new <- sortped(ped_new,addgen)
   }
 
   #===Add each individual sex==========================================================
