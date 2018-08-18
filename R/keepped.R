@@ -18,7 +18,7 @@ keepped <-
       ped_num <- numped(ped_check)
       if (direct %in% c("all")) {
         i <- 1
-        #backward traverse
+        # Trace from candidate to ancestry
         keep_ind_backward <- match(cand, ped_num$Ind)
         ind_n <- length(keep_ind_backward) + 1
         while (length(keep_ind_backward) != ind_n) {
@@ -36,7 +36,7 @@ keepped <-
         }
 
         i <- 1
-        #forward traverse
+        #Trace from candidate to descendant
         keep_ind_foreward <- match(cand, ped_num$Ind)
         ind_n <- length(keep_ind_foreward) + 1
         while (length(keep_ind_foreward) != ind_n) {
@@ -57,7 +57,7 @@ keepped <-
       }
 
       if (direct %in% c("up")) {
-        #backward traverse
+        #go to ancestry
         i <- 1
         keep_ind_backward <- match(cand, ped_num$Ind)
         ind_n <- length(keep_ind_backward) + 1
@@ -78,7 +78,7 @@ keepped <-
       }
 
       if (direct %in% c("down")) {
-        #forward traverse
+        #Trace from candidate to descendant
         i <- 1
         keep_ind_foreward <- match(cand, ped_num$Ind)
         ind_n <- length(keep_ind_foreward) + 1
