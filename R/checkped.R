@@ -7,6 +7,7 @@
 #' @import data.table
 #' @importFrom matrixStats rowMaxs
 
+# checkped will add a new column: Sex
 checkped <- function(ped) {
   ped_new <- copy(ped)
   ped_is_DT <- "data.table" %in% class(ped_new)
