@@ -1,4 +1,4 @@
-sortped <- function(ped) {
+sortped <- function(ped,addgen=TRUE) {
   ped_new <- copy(ped)
   sires <- unique(ped_new$Sire)
   dams  <- unique(ped_new$Dam)
@@ -100,5 +100,8 @@ sortped <- function(ped) {
     c(c("Ind", "Sire", "Dam"), ped_column_name[-which(ped_column_name %chin% c("Ind", "Sire", "Dam"))])
   ped_new <-
     ped_new_Gen[order(Gen), ped_column_name_new, with = FALSE]
+  if (!addgen) {
+    ped_new[,Gen:=NULL]
+  }
   return(ped_new)
 }
