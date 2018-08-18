@@ -2,6 +2,10 @@ sortped <- function(ped) {
   ped_new <- copy(ped)
   sires <- unique(ped_new$Sire)
   dams  <- unique(ped_new$Dam)
+  ped_new_colnames <- colnames(ped_new)
+  if ("Gen" %in% ped_new_colnames) {
+    ped_new[,Gen:=NULL]
+  }
   sire_dam_vect <- unique(c(sires, dams))
   ped_offspring_list <- vector("list", length(sire_dam_vect))
   ped_parents <- ped_new
@@ -96,5 +100,5 @@ sortped <- function(ped) {
     c(c("Ind", "Sire", "Dam"), ped_column_name[-which(ped_column_name %chin% c("Ind", "Sire", "Dam"))])
   ped_new <-
     ped_new_Gen[order(Gen), ped_column_name_new, with = FALSE]
-  return(ped_new[,Gen:=NULL])
+  return(ped_new)
 }
