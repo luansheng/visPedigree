@@ -2,10 +2,11 @@
 keepped <-
   function(ped,
            cand = NULL,
-           direct = "all",
-           gen = NULL,
-           num = FALSE) {
-    ped_check <- checkped(ped)
+           trace = "all",
+           tracegen = NULL,
+           addgen = TRUE,
+           addnum = FALSE) {
+    ped_check <- checkped(ped,addgen)
     #pruning the pedigree by candidate
     if (!is.null(cand)) {
       if (!(class(cand) %in% "character")) {
@@ -16,7 +17,7 @@ keepped <-
         stop("not find candidate in the pedigree!")
       }
       ped_num <- numped(ped_check)
-      if (direct %in% c("all")) {
+      if (trace %in% c("all")) {
         i <- 1
         # Trace from candidate to ancestry
         keep_ind_backward <- match(cand, ped_num$Ind)
@@ -27,8 +28,8 @@ keepped <-
             unique(c(unlist(ped_num[keep_ind_backward, c("SireNum", "DamNum")]), keep_ind_backward))
           keep_ind_backward <-
             keep_ind_backward[which(keep_ind_backward > 0)]
-          if (!is.null(gen)) {
-            if (i == gen) {
+          if (!is.null(tracegen)) {
+            if (i == tracegen) {
               break
             }
           }
@@ -46,8 +47,8 @@ keepped <-
                      ped_num[which(DamNum %in% keep_ind_foreward), IndNum], keep_ind_foreward))
           keep_ind_foreward <-
             keep_ind_foreward[which(keep_ind_foreward > 0)]
-          if (!is.null(gen)) {
-            if (i == gen) {
+          if (!is.null(tracegen)) {
+            if (i == tracegen) {
               break
             }
           }
@@ -56,7 +57,7 @@ keepped <-
         keep_ind <- unique(c(keep_ind_backward, keep_ind_foreward))
       }
 
-      if (direct %in% c("up")) {
+      if (trace %in% c("up")) {
         #go to ancestry
         i <- 1
         keep_ind_backward <- match(cand, ped_num$Ind)
@@ -67,8 +68,8 @@ keepped <-
             unique(c(unlist(ped_num[keep_ind_backward, c("SireNum", "DamNum")]), keep_ind_backward))
           keep_ind_backward <-
             keep_ind_backward[which(keep_ind_backward > 0)]
-          if (!is.null(gen)) {
-            if (i == gen) {
+          if (!is.null(tracegen)) {
+            if (i == tracegen) {
               break
             }
           }
@@ -77,7 +78,7 @@ keepped <-
         keep_ind <- unique(keep_ind_backward)
       }
 
-      if (direct %in% c("down")) {
+      if (trace %in% c("down")) {
         #Trace from candidate to descendant
         i <- 1
         keep_ind_foreward <- match(cand, ped_num$Ind)
@@ -89,8 +90,8 @@ keepped <-
                      ped_num[which(DamNum %in% keep_ind_foreward), IndNum], keep_ind_foreward))
           keep_ind_foreward <-
             keep_ind_foreward[which(keep_ind_foreward > 0)]
-          if (!is.null(gen)) {
-            if (i == gen) {
+          if (!is.null(tracegen)) {
+            if (i == tracegen) {
               break
             }
           }
@@ -106,14 +107,14 @@ keepped <-
                      DamNum = NULL)]
 
       #insure the pruned pedigree with the missing parents.
-      ped_new <- checkped(ped_new)
+      ped_new <- checkped(ped_new,addgen)
 
     } else {
       ped_new <- ped_check
     }
 
     #converting individual, sire, and dam IDs to sequential integer
-    if (num) {
+    if (addnum) {
       ped_new <- numped(ped_new)
     }
     return(ped_new)
