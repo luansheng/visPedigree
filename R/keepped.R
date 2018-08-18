@@ -1,20 +1,20 @@
 #' @import data.table
-keepped <- function(ped, candidate=NULL, gen=NULL, num=FALSE){
+keepped <- function(ped, cand=NULL, gen=NULL, num=FALSE){
   ped_check <- checkped(ped)
   #pruning the pedigree by candidate
-  if (!is.null(candidate)) {
+  if (!is.null(cand)) {
 
-    if (!(class(candidate) %in% "character" )) {
-      candidate <- as.character(candidate)
+    if (!(class(cand) %in% "character" )) {
+      cand <- as.character(cand)
     }
 
-    if (!any(candidate %in% ped_check$Ind)) {
+    if (!any(cand %in% ped_check$Ind)) {
       stop("not find candidate in the pedigree!")
     }
     ped_num <- numped(ped_check)
     i <- 1
     #backward traverse
-    keep_ind_backward <- match(candidate,ped_num$Ind)
+    keep_ind_backward <- match(cand,ped_num$Ind)
     ind_n <- length(keep_ind_backward) + 1
     while (length(keep_ind_backward) != ind_n) {
       ind_n <- length(keep_ind_backward)
@@ -30,7 +30,7 @@ keepped <- function(ped, candidate=NULL, gen=NULL, num=FALSE){
 
     i <- 1
     #forward traverse
-    keep_ind_foreward <- match(candidate,ped_num$Ind)
+    keep_ind_foreward <- match(cand,ped_num$Ind)
     ind_n <- length(keep_ind_foreward) + 1
     while (length(keep_ind_foreward) != ind_n) {
       ind_n <- length(keep_ind_foreward)
