@@ -7,8 +7,8 @@ numped <- function(ped) {
   setnames(ped_new,
            old = colnames(ped_new)[1:3],
            new = c("Ind", "Sire", "Dam"))
-  setkey(ped_new,Ind,Sire,Dam)
   ped_new[,IndNum:=seq(nrow(ped_new))]
+  setkey(ped_new,Ind,Sire,Dam)
   ped_new_num <- merge(ped_new,ped_new[,.(Ind,IndNum)],by.x="Sire",by.y="Ind",all.x=TRUE)
   setnames(ped_new_num,c("IndNum.x","IndNum.y"),c("IndNum","SireNum"))
   ped_new_num <- merge(ped_new_num,ped_new_num[,.(Ind,IndNum)],by.x="Dam",by.y="Ind",all.x=TRUE)
