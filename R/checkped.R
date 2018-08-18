@@ -162,7 +162,7 @@ checkped <- function(ped,addgen=TRUE) {
       ped_new_test$SeqNumInd < ped_new_test$SeqNumDam
     ),
     na.rm = TRUE
-  ) | !("Gen" %in% colnames(ped_new)))  {
+  ) | addgen)  {
     ped_new <- sortped(ped_new,addgen)
   }
 
