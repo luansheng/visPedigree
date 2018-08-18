@@ -7,6 +7,16 @@ numped <- function(ped) {
   setnames(ped_new,
            old = colnames(ped_new)[1:3],
            new = c("Ind", "Sire", "Dam"))
+  ped_new_colnames <- colnames(ped_new)
+  if ("IndNum" %in% ped_new_colnames) {
+    ped_new[,IndNum:=NULL]
+  }
+  if ("SireNum" %in% ped_new_colnames) {
+    ped_new[,SireNum:=NULL]
+  }
+  if ("DamNum" %in% ped_new_colnames) {
+    ped_new[,DamNum:=NULL]
+  }
   ped_new[,IndNum:=seq(nrow(ped_new))]
   setkey(ped_new,Ind,Sire,Dam)
   ped_new_num <- merge(ped_new,ped_new[,.(Ind,IndNum)],by.x="Sire",by.y="Ind",all.x=TRUE)
