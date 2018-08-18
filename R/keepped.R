@@ -6,7 +6,7 @@ keepped <-
            tracegen = NULL,
            addgen = TRUE,
            addnum = FALSE) {
-    ped_check <- checkped(ped,addgen)
+    ped_check <- checkped(ped, addgen)
     #pruning the pedigree by candidate
     if (!is.null(cand)) {
       if (!(class(cand) %in% "character")) {
@@ -58,7 +58,7 @@ keepped <-
       }
 
       if (trace %in% c("up")) {
-        #go to ancestry
+        # Trace from candidate to ancestry
         i <- 1
         keep_ind_backward <- match(cand, ped_num$Ind)
         ind_n <- length(keep_ind_backward) + 1
@@ -107,7 +107,7 @@ keepped <-
                      DamNum = NULL)]
 
       #insure the pruned pedigree with the missing parents.
-      ped_new <- checkped(ped_new,addgen)
+      ped_new <- checkped(ped_new, addgen)
 
     } else {
       ped_new <- ped_check
