@@ -5,7 +5,11 @@ tidyped <-
            trace = "up",
            tracegen = NULL,
            addgen = TRUE,
-           addnum = FALSE) {
+           addnum = TRUE) {
+    ped_colnames <- colnames(ped)
+    if (c("Cand") %in% ped_colnames) {
+      ped[,Cand:=NULL]
+    }
     ped_check <- checkped(ped, addgen)
     #pruning the pedigree by candidate
     if (!is.null(cand)) {
@@ -15,6 +19,9 @@ tidyped <-
 
       if (!any(cand %in% ped_check$Ind)) {
         stop("not find candidate in the pedigree!")
+      } else {
+        ped_check[Ind %chin% cand,Cand:=TRUE]
+        ped_check[!(Ind %chin% cand),Cand:=FALSE]
       }
       ped_num <- numped(ped_check)
       if (trace %in% c("all")) {
