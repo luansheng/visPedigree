@@ -10,6 +10,7 @@ sortped <- function(ped,addgen=TRUE) {
   ped_offspring_list <- vector("list", length(sire_dam_vect))
   ped_parents <- ped_new
   i <- 1
+  next_gen_parents <- vector("character",length(sire_dam_vect))
   while (sum(ped_parents$Ind %chin% sire_dam_vect) > 0) {
     # The Offspring' pedigree are subsetted
     ped_offspring_1 <- ped_parents[!(Ind %chin% sire_dam_vect)]
@@ -22,7 +23,10 @@ sortped <- function(ped,addgen=TRUE) {
     ped_parents <- ped_parents[Ind %chin% sire_dam_vect]
     # Delete individuals without parents and offspring simultaneously from the offspring pedigree
     ped_offspring_2 <-
-      unique(rbind(ped_offspring_1[Sire %chin% ped_parents$Ind], ped_offspring_1[Dam %chin% ped_parents$Ind]))
+      unique(rbind(ped_offspring_1[Sire %chin% ped_parents$Ind],
+                   ped_offspring_1[Dam %chin% ped_parents$Ind],
+                   ped_offspring_1[Ind %chin% next_gen_parents]))
+    next_gen_parents <- unique(c(ped_offspring_2$Sire,ped_offspring_2$Dam))
     ped_offspring_list[[i]] <-
       cbind(ped_offspring_2, Gen = rep(i, nrow(ped_offspring_2)))
     sire_dam_vect <- unique(c(ped_parents$Sire, ped_parents$Dam))
