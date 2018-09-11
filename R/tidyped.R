@@ -24,96 +24,65 @@ tidyped <-
         ped_check[!(Ind %chin% cand),Cand:=FALSE]
       }
       ped_num <- numped(ped_check)
+      if (trace %in% c("up","all")) {
+        # Trace from candidate to ancestry
+        i <- 1
+        keep_ind_backward <- match(cand, ped_num$Ind)
+        ind_n <- length(keep_ind_backward) + 1
+        while (length(keep_ind_backward) != ind_n) {
+          ind_n <- length(keep_ind_backward)
+          keep_ind_backward <-
+            unique(c(unlist(ped_num[keep_ind_backward, c("SireNum", "DamNum")]), keep_ind_backward))
+          keep_ind_backward <-
+            keep_ind_backward[which(keep_ind_backward > 0)]
+          if (!is.null(tracegen)) {
+            if (i == tracegen) {
+              break
+            }
+          }
+          i <- i + 1
+        }
+        keep_ind_backward <- unique(keep_ind_backward)
+      }
+
+      if (trace %in% c("down","all")) {
+        #Trace from candidate to descendant
+        i <- 1
+        keep_ind_foreward <- match(cand, ped_num$Ind)
+        ind_n <- length(keep_ind_foreward) + 1
+        while (length(keep_ind_foreward) != ind_n) {
+          ind_n <- length(keep_ind_foreward)
+          keep_ind_foreward <-
+            unique(c(ped_num[which(SireNum %in% keep_ind_foreward), IndNum],
+                     ped_num[which(DamNum %in% keep_ind_foreward), IndNum], keep_ind_foreward))
+          keep_ind_foreward <-
+            keep_ind_foreward[which(keep_ind_foreward > 0)]
+          if (!is.null(tracegen)) {
+            if (i == tracegen) {
+              break
+            }
+          }
+          i <- i + 1
+        }
+        keep_ind_foreward <- unique(keep_ind_foreward)
+      }
+
+      if (trace %in% c("up","all")) {
+        keep_ind <- keep_ind_backward
+        ped_up <- ped_num[sort(keep_ind)]
+        ped_up <- ped_up[((SireNum %in% keep_ind) | (DamNum %in% keep_ind))]
+        ped_new <- ped_up
+      }
+      if (trace %in% c("down","all")) {
+        keep_ind <- keep_ind_foreward
+        ped_down <- ped_num[sort(keep_ind)]
+        ped_down <- ped_down[((SireNum %in% keep_ind) | (DamNum %in% keep_ind))]
+        ped_down[!(SireNum %in% keep_ind),Sire:=NA]
+        ped_down[!(DamNum %in% keep_ind),Dam:=NA]
+        ped_new <- ped_down
+      }
       if (trace %in% c("all")) {
-        i <- 1
-        # Trace from candidate to ancestry
-        keep_ind_backward <- match(cand, ped_num$Ind)
-        ind_n <- length(keep_ind_backward) + 1
-        while (length(keep_ind_backward) != ind_n) {
-          ind_n <- length(keep_ind_backward)
-          keep_ind_backward <-
-            unique(c(unlist(ped_num[keep_ind_backward, c("SireNum", "DamNum")]), keep_ind_backward))
-          keep_ind_backward <-
-            keep_ind_backward[which(keep_ind_backward > 0)]
-          if (!is.null(tracegen)) {
-            if (i == tracegen) {
-              break
-            }
-          }
-          i <- i + 1
-        }
-
-        i <- 1
-        #Trace from candidate to descendant
-        keep_ind_foreward <- match(cand, ped_num$Ind)
-        ind_n <- length(keep_ind_foreward) + 1
-        while (length(keep_ind_foreward) != ind_n) {
-          ind_n <- length(keep_ind_foreward)
-          keep_ind_foreward <-
-            unique(c(ped_num[which(SireNum %in% keep_ind_foreward), IndNum],
-                     ped_num[which(DamNum %in% keep_ind_foreward), IndNum], keep_ind_foreward))
-          keep_ind_foreward <-
-            keep_ind_foreward[which(keep_ind_foreward > 0)]
-          if (!is.null(tracegen)) {
-            if (i == tracegen) {
-              break
-            }
-          }
-          i <- i + 1
-        }
-        keep_ind <- unique(c(keep_ind_backward, keep_ind_foreward))
-      }
-
-      if (trace %in% c("up")) {
-        # Trace from candidate to ancestry
-        i <- 1
-        keep_ind_backward <- match(cand, ped_num$Ind)
-        ind_n <- length(keep_ind_backward) + 1
-        while (length(keep_ind_backward) != ind_n) {
-          ind_n <- length(keep_ind_backward)
-          keep_ind_backward <-
-            unique(c(unlist(ped_num[keep_ind_backward, c("SireNum", "DamNum")]), keep_ind_backward))
-          keep_ind_backward <-
-            keep_ind_backward[which(keep_ind_backward > 0)]
-          if (!is.null(tracegen)) {
-            if (i == tracegen) {
-              break
-            }
-          }
-          i <- i + 1
-        }
-        keep_ind <- unique(keep_ind_backward)
-      }
-
-      if (trace %in% c("down")) {
-        #Trace from candidate to descendant
-        i <- 1
-        keep_ind_foreward <- match(cand, ped_num$Ind)
-        ind_n <- length(keep_ind_foreward) + 1
-        while (length(keep_ind_foreward) != ind_n) {
-          ind_n <- length(keep_ind_foreward)
-          keep_ind_foreward <-
-            unique(c(ped_num[which(SireNum %in% keep_ind_foreward), IndNum],
-                     ped_num[which(DamNum %in% keep_ind_foreward), IndNum], keep_ind_foreward))
-          keep_ind_foreward <-
-            keep_ind_foreward[which(keep_ind_foreward > 0)]
-          if (!is.null(tracegen)) {
-            if (i == tracegen) {
-              break
-            }
-          }
-          i <- i + 1
-        }
-        keep_ind <- unique(keep_ind_foreward)
-      }
-
-      if (trace == "up") {
-        ped_new <- ped_num[sort(keep_ind)]
-      }
-      if (trace == "down") {
-        ped_new <- ped_num[((SireNum %in% keep_ind) | (DamNum %in% keep_ind))]
-        ped_new <- ped_new[!(SireNum %in% keep_ind),Sire:=NA]
-        ped_new <- ped_new[!(DamNum %in% keep_ind),Dam:=NA]
+        ped_new <- unique(rbind(ped_up,ped_down))
       }
 
       ped_new[, ":="(IndNum = NULL,
