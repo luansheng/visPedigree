@@ -1,9 +1,3 @@
-################################################
-#Adapted from part of the 'prepPed' function
-# written by Matthew Wolak
-#in the 'nadiv' package
-################################################
-
 #' @import data.table
 #' @importFrom matrixStats rowMaxs
 
@@ -24,20 +18,21 @@ checkped <- function(ped,addgen=TRUE) {
                  Dam = as.character(Dam))]
   #Individuals will be deleted if there are "", " ", "0", "*", "NA", and NA in the Ind column.
   if (any(ped_new$Ind %in% c("", " ", "0", "*", "NA", NA))) {
-    warning("There are missing values in the inividual column. These records are discarded.")
-    warning("Check the first three columns of the pedigree are individual, sire, and dam.")
+    warning("There are missing values in the inividual column of the pedigree. These records are discarded.")
+    warning("Individual, sire, and dam must be the first three columns of the pedigree.")
     ped_new <-
       ped_new[-which(ped_new$Ind %in% c("", " ", "0", "*", "NA", NA))]
   }
-  #Missing parents are shown by "", " ", "0", "*", and "NA" in the pedigree file, they are setted as NA
+  # Missing parents are shown by "", " ", "0", "*", and "NA" in the pedigree file,
+  # they are setted as NA
   if (length(ped_new[Sire %in% c("", " ", "0", "*", "NA"), Sire]) > 0) {
     ped_new[Sire %in% c("", " ", "0", "*", "NA"), Sire := NA]
-    warning("blank, Zero, asterisk, or NA means a missing parent in the sire column.")
+    warning("Blank, Zero, asterisk, or NA are read as a missing parent in the sire column of the pedigree.")
   }
 
   if (length(ped_new[Dam %in% c("", " ", "0", "*", "NA"), Dam]) > 0) {
     ped_new[Dam %in% c("", " ", "0", "*", "NA"), Dam := NA]
-    warning("blank, Zero, asterisk, or NA means a missing parent in the dam column.")
+    warning("Blank, Zero, asterisk, or NA are read as a missing parent in the dam column of the pedigree.")
   }
   #The programme will stop if there are no parents in the sire and dam columns.
   if (all(is.na(ped_new$Sire)) & all(is.na(ped_new$Dam))) {
