@@ -107,8 +107,15 @@ tidyped <-
         keep_ind <- unique(keep_ind_foreward)
       }
 
+      if (trace == "up") {
+        ped_new <- ped_num[sort(keep_ind)]
+      }
+      if (trace == "down") {
+        ped_new <- ped_num[((SireNum %in% keep_ind) | (DamNum %in% keep_ind))]
+        ped_new <- ped_new[!(SireNum %in% keep_ind),Sire:=NA]
+        ped_new <- ped_new[!(DamNum %in% keep_ind),Dam:=NA]
+      }
 
-      ped_new <- ped_num[sort(keep_ind)]
       ped_new[, ":="(IndNum = NULL,
                      SireNum = NULL,
                      DamNum = NULL)]
