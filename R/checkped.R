@@ -9,7 +9,7 @@ checkped <- function(ped,addgen=TRUE) {
     setDT(ped_new)
   }
   setnames(ped_new,
-           old = colnames(ped_new)[,1:3],
+           old = colnames(ped_new)[1:3],
            new = c("Ind", "Sire", "Dam"))
   setkey(ped_new, Ind, Sire, Dam)
   #===detecting and setting missing values=============================================
