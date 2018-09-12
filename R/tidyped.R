@@ -13,12 +13,12 @@ tidyped <-
     ped_check <- checkped(ped, addgen)
     #pruning the pedigree by candidate
     if (!is.null(cand)) {
-      if (!(class(cand) %in% "character")) {
+      if (!all(class(cand) %in% c("character"))) {
         cand <- as.character(cand)
       }
 
       if (!any(cand %in% ped_check$Ind)) {
-        stop("not find candidate in the pedigree!")
+        stop("Some candidates are not in the pedigree!")
       } else {
         ped_check[Ind %chin% cand,Cand:=TRUE]
         ped_check[!(Ind %chin% cand),Cand:=FALSE]
