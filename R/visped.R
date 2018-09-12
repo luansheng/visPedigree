@@ -2,105 +2,148 @@
 #' @import igraph
 
 visped <- function(ped,
-                   compact = FALSE, cex=NULL) {
+                   compact = FALSE, cex=NULL, show=TRUE) {
   ped_new <- copy(ped)
   # Convertting pedigree to node and edge two data.table
-  ped_igraph <- ped2igraph(ped_new,compact)
-  #ped_igraph$node <- sortnode(ped_igraph$node)
-  real_node <- ped_igraph$node[nodetype %in% c("real","compact")]
-  gen_node_num <- real_node[nodetype %in% c("real","compact")][,.N,by=gen]
-  max_size_gen <-  max(gen_node_num$N,na.rm=TRUE)
+  ped_igraph <- ped2igraph(ped_new, compact)
+  real_node <- ped_igraph$node[nodetype %in% c("real", "compact")]
+  gen_node_num <- real_node[, .N, by = gen]
+  gen_max_size <-  max(gen_node_num$N, na.rm = TRUE)
 
 
   # The maximum width of a pdf file is 200 inch
   pdf_max_width = 200
-  cexs <-  seq(from=0.1, to =1, by=0.05)
+  cexs <-  seq(from = 0.1, to = 1, by = 0.05)
   best_cex <- 0
-  max_strwidth_label <- real_node[which.max(strwidth(real_node$label,cex = 1, units="inches")),label]
+  max_strwidth_label <- real_node[which.max(strwidth(real_node$label, cex = 1, units = "inches")), label]
   for (i in length(cexs):1) {
     # Obtaining the maximum width of a node's label: inch
-    label_max_width <- max(strwidth(max_strwidth_label,cex=cexs[i], units="inches"),na.rm = TRUE)
-    if (max_size_gen <= 16 & label_max_width < 0.8) {label_max_width = 0.8}
-    if ((label_max_width * max_size_gen) < pdf_max_width ) {
-      best_cex <- cexs[i]*0.7
+    label_max_width <-
+      max(strwidth(max_strwidth_label, cex = cexs[i], units = "inches"),
+          na.rm = TRUE)
+    if (gen_max_size <= 16 &
+        label_max_width < 0.8) {
+      label_max_width = 0.8
+    }
+    if ((label_max_width * gen_max_size) < pdf_max_width) {
+      best_cex <- cexs[i] * 0.7
       break
     }
   }
   if (best_cex == 0) {
-    stop("Too many individuals (>=", max_size_gen,
-         ") in one genrations!!! please visualize the pedigree by setting the compact parameter to TRUE.")
+    stop(
+      "Too many individuals (>=",
+      gen_max_size,
+      ") in one genrations!!! please visualize the pedigree by setting the parameter compact = TRUE."
+    )
   }
 
-  hgap <- round(1/max_size_gen,8)
-  max_gen_num <- max(real_node$gen,na.rm=TRUE)
-  ped_igraph$node[nodetype %in% c("real","compact"),layer:=2*gen]
-  ped_igraph$node[nodetype %in% c("virtual"),layer:=2*gen-1]
-  max_layer <- max(ped_igraph$node$layer, na.rm=TRUE)
+  hgap <- round(1 / gen_max_size, 8)
+  gen_num <- max(real_node$gen, na.rm = TRUE)
+  max_layer <- max(ped_igraph$node$layer, na.rm = TRUE)
   # The mean space between two near nodes in each generation are obtained by the
   # normalized axis x from the layout_with_sugiyama
-  layers <-  vector(mode = "list",length = max_layer)
+  layers <-  vector(mode = "list", length = max_layer)
   k <- 1
   for (i in max_layer:1) {
-    layers[[k]] <- ped_igraph$node[layer==i,id]
+    layers[[k]] <- ped_igraph$node[layer == i, id]
     k <- k + 1
   }
-  g <- graph_from_data_frame(ped_igraph$edge,directed = TRUE,ped_igraph$node)
-  l <- layout_with_sugiyama(g, layers=apply(sapply(layers,function(x) V(g)$name %in% x)
-                                            ,1
-                                            ,which),
-                            hgap=hgap)$layout
-  l <- norm_coords(l,xmin=0 ,xmax = 1,ymin=0,ymax = 1)
-  ped_igraph$node <- cbind(ped_igraph$node,x=l[,1],y=l[,2])
-  real_node <- ped_igraph$node[nodetype %in% c("real","compact")]
-  x_stats_gen <- real_node[,.(.N,range= max(x,na.rm=TRUE)-min(x,na.rm=TRUE)),by=gen]
-  x_stats_gen[range>0 & N>1,":="(meanspace=range/(N-1))]
+  g <- graph_from_data_frame(ped_igraph$edge, directed = TRUE, ped_igraph$node)
+  l <- layout_with_sugiyama(g,
+        layers = apply(sapply(layers, function(x)
+          V(g)$name %in% x)
+          , 1
+          , which),
+        hgap = hgap,
+        maxiter = 120,
+        attributes = "all")$layout
+  l <- norm_coords(l,
+        xmin = 0,
+        xmax = 1,
+        ymin = 0,
+        ymax = 1)
+  ped_igraph$node <- cbind(ped_igraph$node, x = l[, 1], y = l[, 2])
+  real_node <- ped_igraph$node[nodetype %in% c("real", "compact")]
 
-  # adjust the space between two nodes to mean space in each generation
-  real_node <- real_node[order(gen,id)]
-  for (i in 1:max_gen_num) {
-    x1 <- sort(real_node[gen == i, x])
-    node_num <- length(x1)
-    if (node_num > 1) {
-      x2 <- x1[1] + seq(from=0,to=node_num-1)*x_stats_gen[gen==i,meanspace]
-      real_node[gen == i,x:=x2]
+
+  # adjust the space between two nodes in each generation
+  if (gen_max_size >= 2) {
+    x_stats_gen <-
+      real_node[, .(.N, range = max(x, na.rm = TRUE) - min(x, na.rm = TRUE)),
+                by =gen]
+    x_stats_gen[range > 0 & N > 1, ":="(meanspace = range / (N - 1))]
+    l_x_range <- range(l[, 1], na.rm = TRUE)
+    l_x_distance <- diff(l_x_range)
+    max_gen_mean_space <- max(x_stats_gen$meanspace, na.rm = TRUE)
+    for (i in 1:gen_num) {
+      v_rank <- rank(real_node[gen == i, x], na.last = TRUE)
+      node_num <- length(v_rank)
+      if (node_num >= 2) {
+        x_distance_1 <- diff(range(real_node[gen == i, x], na.rm = TRUE))
+        x_distance_2 <- (node_num - 1) * max_gen_mean_space
+        if (x_distance_2 > l_x_distance) {
+          x_distance_2 <- l_x_distance
+        }
+        mean_space <- round(x_distance_2 / (node_num - 1), 8)
+        a <- x_distance_2 - x_distance_1
+        x_min <- min(real_node[gen == i, x], na.rm = TRUE)
+        b <- x_min - a
+        if (b > 0) {
+          x_min <- b
+        } else {
+          x_min <- 0
+        }
+        x_new <- x_min + seq(from = 0, to = node_num - 1) * mean_space
+        real_node[gen == i, x := x_new[v_rank]]
+      }
     }
+    ped_igraph$node[nodetype %in% c("real", "compact")] <-
+      real_node
   }
-  ped_igraph$node[nodetype %in% c("real","compact")] <-  real_node
 
   # adjust the virtual nodes's x axis pos to that of the first small real node in the same family
   virtual_node <- ped_igraph$node[nodetype %in% c("virtual")]
-  virtual_node <- virtual_node[order(gen,id)]
-  for (i in 2:max_gen_num) {
-    label_1 <- real_node[gen==i,familylabel]
-    label_2 <- virtual_node[gen==i,familylabel]
+  for (i in 2:gen_num) {
+    label_1 <- real_node[gen == i, familylabel]
+    label_2 <- virtual_node[gen == i, familylabel]
 
-    x1 <- real_node[gen==i,x]
-    x2 <- x1[match(label_2,label_1)]
-    virtual_node[gen==i,x:= x2]
+    x1 <- real_node[gen == i, x]
+    x2 <- x1[match(label_2, label_1)]
+    virtual_node[gen == i, x := x2]
   }
   ped_igraph$node[nodetype %in% c("virtual")] <- virtual_node
-  l[,1] <- ped_igraph$node[match(V(g)$name,as.character(id)),x]
+  # l[,1] <- ped_igraph$node[match(V(g)$name,as.character(id)),x]
+  l[, 1] <- ped_igraph$node[, x]
+
 
   #=== Rescale canvas' size, node's size and edge's size ==============================
   # calculate the width of each node: inch
   node_width <- label_max_width
-  min_node_space <- min(x_stats_gen[meanspace>0,meanspace],na.rm=TRUE)
-  f <- 1
-  if (!is.infinite(min_node_space)) {
+  if (gen_max_size >= 2) {
+    x_stats_gen <-
+      real_node[, .(.N, range = max(x, na.rm = TRUE) - min(x, na.rm = TRUE)),
+                by = gen]
+    x_stats_gen[range > 0 & N > 1, ":="(meanspace = range / (N - 1))]
+    min_node_space <-
+      min(x_stats_gen[meanspace > 0, meanspace], na.rm = TRUE)
+    f <- 1
     if (max(x_stats_gen$N) <= 16) {
       # increase large space between two nodes when the node number is small
-      f <- 3*round(node_width / min_node_space, 8)
+      f <- 3 * round(node_width / min_node_space, 8)
     }
     else {
       # keep samll space between two nodes when the node number are big
       f <- round(node_width / min_node_space, 8)
     }
+  } else {
+    f <- 1
   }
-  x_f <- f*(l[,1])
+  x_f <- f * (l[, 1])
   # Setting the width of the canvas
   # Adding extra 6 node width to the canvas's width to decerase node size when only have one node in one layer
   # because node size is equal to the percentage of node width to the canvas width
-  width <- max(x_f,na.rm=TRUE) -min(x_f,na.rm = TRUE) + 6*node_width
+  width <- max(x_f, na.rm = TRUE) - min(x_f, na.rm = TRUE) + 6 * node_width
 
   # The maximum width or height for a pdf file is 200 inch
   pdf_maximum_width <- pdf_maximum_height <- pdf_max_width
@@ -112,40 +155,60 @@ visped <- function(ped,
 
   # inch
   gen_height <- 0.618
-  if (height < max_gen_num * (gen_height+node_width)) {
-    height <- max_gen_num * (gen_height+node_width)
+  if (height < gen_num * (node_width) + 3 * node_width) {
+    height <- gen_num * (node_width) + 3 * node_width
   }
   if (height > pdf_maximum_height) {
     height <- pdf_maximum_height
   }
 
   # vertes_size is a percentage of the width of the graph
-  vertex_size <- round(node_width*100/width,8)
-  edge_size <- vertex_size*0.001
-  edge_arrow_size <- vertex_size*0.002
-  edge_arrow_width <- vertex_size*0.006
-  V(g)$size[V(g)$nodetype %in% c("real","compact")] = vertex_size
-  if (is.null(cex) & (best_cex >0) ) {
-    V(g)$label.cex[V(g)$nodetype %in% c("real","compact")] = best_cex
+  vertex_size <- round(node_width * 100 / width, 8)
+  edge_size <- vertex_size * 0.001
+  edge_arrow_size <- vertex_size * 0.002
+  edge_arrow_width <- vertex_size * 0.006
+  V(g)$size[V(g)$nodetype %in% c("real", "compact")] = vertex_size
+  if (is.null(cex) & (best_cex > 0)) {
+    V(g)$label.cex[V(g)$nodetype %in% c("real", "compact")] = best_cex
   } else {
-    V(g)$label.cex[V(g)$nodetype %in% c("real","compact")] = cex
+    V(g)$label.cex[V(g)$nodetype %in% c("real", "compact")] = cex
   }
   E(g)$size = edge_size
   E(g)$arrow.size = edge_arrow_size
   E(g)$arrow.width = edge_arrow_width
-  plot.igraph(g,rescale=FALSE,xlim = c(0-vertex_size/100,1+vertex_size/100),
-              ylim = c(1+vertex_size/100,0-vertex_size/100),layout=l,asp=0)
-  pdf(file="output.pdf",width = width, height = height)
-  plot.igraph(g,rescale=FALSE,xlim = c(0-vertex_size/100,1+vertex_size/100),
-               ylim = c(1+vertex_size/100,0-vertex_size/100),layout=l,asp=0)
-  dev.off()
-  message("The HD graph of pedigree is saved in the ", getwd(), "/output.pdf file")
-  if (is.null(cex)) {
-    message(paste("The cex for individual label is ",best_cex,".",sep=""))
-  } else {
-    message(paste("The cex for individual label is ",cex,".",sep=""))
+  if (show) {
+    plot.igraph(
+      g,
+      rescale = FALSE,
+      xlim = c(0 - vertex_size / 100, 1 + vertex_size / 100),
+      ylim = c(1 + vertex_size / 100, 0 - vertex_size / 100),
+      layout = l,
+      asp = 0
+    )
   }
-  message("Please decease or increase the value of cex  paremter and rerun visped() function when the label's width is longer or shorter than that of the circle in the output.pdf file")
+  pdf(file = "output.pdf",
+      width = width,
+      height = height)
+  plot.igraph(
+    g,
+    rescale = FALSE,
+    xlim = c(0 - vertex_size / 100, 1 + vertex_size / 100),
+    ylim = c(1 + vertex_size / 100, 0 - vertex_size / 100),
+    layout = l,
+    asp = 0
+  )
+  dev.off()
+  message("The HD graph of pedigree is saved in the ",
+          getwd(),
+          "/output.pdf file")
+  if (is.null(cex)) {
+    message(paste("The cex for individual label is ", best_cex, ".", sep = ""))
+  } else {
+    message(paste("The cex for individual label is ", cex, ".", sep = ""))
+  }
+  message(
+    "Please decease or increase the value of cex  paremter and rerun visped() function when the label's width is longer or shorter than that of the circle in the output.pdf file"
+  )
 
 }
 
@@ -272,6 +335,9 @@ ped2igraph <- function(ped,compact=TRUE) {
       familynum
     )]), fill = TRUE)
   ped_node[is.na(nodetype),nodetype:="virtual"]
+  ped_node[nodetype %in% c("real","compact"),layer:=2*gen-1]
+  ped_node[nodetype %in% c("virtual"),layer:=2*(gen-1)]
+
 
   #=== Set default shape, size and color for male and female===========================
   # Setting the default attributes of nodes
@@ -283,7 +349,7 @@ ped2igraph <- function(ped,compact=TRUE) {
   #ped_node[, ":="(shape = "circle", frame.color=NA, color="#9cb383",size = 15)]
   ped_node[nodetype %in% c("compact"), ":="(shape="square")]
   # Setting virtual size of nodes to 0.0001
-  ped_node[id > max_id,":="(shape="none",label="",size=0.0001)]
+  ped_node[id > max_id,":="(shape="none",label="",size=0)]
   # Setting male and female's color
   ped_node[sex %in% c("male"), ":="(frame.color="#0e8dbb", color = "#119ecc")]
   ped_node[sex %in% c("female"), ":="(frame.color="#e6a11f", color = "#f4b131")]
@@ -306,23 +372,10 @@ ped2igraph <- function(ped,compact=TRUE) {
   old_names <- colnames(ped_node)
   new_names <- c("id",old_names[!(old_names %in% c("id"))])
   ped_node <- ped_node[,new_names,with=FALSE]
-  ped_node <- ped_node[order(id)]
+  ped_node <- ped_node[order(layer,id)]
 
   return(list(node = ped_node, edge = ped_edge))
 
 }
 
-sortnode <- function(node) {
-  if (!is.data.table(node)) {
-    stop("nodes need to be data.table type.")
-  }
-  each_family_size <- node[, .N, by=.(sirelabel,damlabel)]
-  setnames(each_family_size,c("N"),c("familysize"))
-  new_node <- merge(node,each_family_size,by=c("sirelabel","damlabel"),all.x=TRUE)
-  new_node[is.na(sirelabel) & is.na(damlabel), familysize:=0]
-  old_names <- colnames(new_node)
-  new_names <- c("id",old_names[!(old_names %in% c("id"))])
-  new_node <- new_node[,new_names,with=FALSE]
-  return(new_node[order(gen,familysize,sirelabel,damlabel)])
-}
 
