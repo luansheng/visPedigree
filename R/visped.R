@@ -11,6 +11,7 @@ visped <- function(ped,
   gen_max_size <-  max(gen_node_num$N, na.rm = TRUE)
 
 
+  #=== Obtaining the width of a node's label =====================================================
   # The maximum width of a pdf file is 200 inch
   pdf_max_width = 200
   cexs <-  seq(from = 0.1, to = 1, by = 0.05)
@@ -18,11 +19,11 @@ visped <- function(ped,
   max_strwidth_label <- real_node[which.max(strwidth(real_node$label, cex = 1, units = "inches")), label]
   for (i in length(cexs):1) {
     # Obtaining the maximum width of a node's label: inch
-    label_max_width <-
-      max(strwidth(max_strwidth_label, cex = cexs[i], units = "inches"),
+    label_max_width <- max(strwidth(max_strwidth_label, cex = cexs[i], units = "inches"),
           na.rm = TRUE)
-    if (gen_max_size <= 16 &
-        label_max_width < 0.8) {
+    # Fixing the width of the node when the number of nodes (individuals) in one generation is small
+    # The unit of 0.8 is inch, about 2cm for the width of one node
+    if (gen_max_size <= 16 & label_max_width < 0.8) {
       label_max_width = 0.8
     }
     if ((label_max_width * gen_max_size) < pdf_max_width) {
@@ -34,10 +35,12 @@ visped <- function(ped,
     stop(
       "Too many individuals (>=",
       gen_max_size,
-      ") in one genrations!!! please visualize the pedigree by setting the parameter compact = TRUE."
+      paste(") in one genration!!! please remove full-sib individuals using the parameter compact = TRUE,",
+            "rerun visped() function",sep=" ")
     )
   }
 
+  #=== Generating the hierarchy layout of all nodes using the sugiyama algorithm =======
   hgap <- round(1 / gen_max_size, 8)
   gen_num <- max(real_node$gen, na.rm = TRUE)
   max_layer <- max(ped_igraph$node$layer, na.rm = TRUE)
@@ -64,10 +67,9 @@ visped <- function(ped,
         ymin = 0,
         ymax = 1)
   ped_igraph$node <- cbind(ped_igraph$node, x = l[, 1], y = l[, 2])
+
+  #=== Adjusting space between two nodes (individuals) in x axis for each generation ==
   real_node <- ped_igraph$node[nodetype %in% c("real", "compact")]
-
-
-  # adjust the space between two nodes in each generation
   if (gen_max_size >= 2) {
     x_stats_gen <-
       real_node[, .(.N, range = max(x, na.rm = TRUE) - min(x, na.rm = TRUE)),
@@ -102,15 +104,14 @@ visped <- function(ped,
       real_node
   }
 
-  # adjust the virtual nodes's x axis pos to that of the first small real node in the same family
+  #=== Matching a virtual node's x pos to the samllest position of the full-sib =======
+  # A virutal node is a tie between two parents and their progenies
   virtual_node <- ped_igraph$node[nodetype %in% c("virtual")]
   for (i in 2:gen_num) {
-    label_1 <- real_node[gen == i, familylabel]
-    label_2 <- virtual_node[gen == i, familylabel]
-
-    x1 <- real_node[gen == i, x]
-    x2 <- x1[match(label_2, label_1)]
-    virtual_node[gen == i, x := x2]
+    real_family_min_x <- real_node[gen == i, .(minx = min(x,na.rm=TRUE)),by=c("familylabel")]
+    virtual_family_label <- virtual_node[gen == i, familylabel]
+    min_x <- real_family_min_x[match(virtual_family_label, familylabel),minx]
+    virtual_node[gen == i, x := min_x]
   }
   ped_igraph$node[nodetype %in% c("virtual")] <- virtual_node
   # l[,1] <- ped_igraph$node[match(V(g)$name,as.character(id)),x]
@@ -141,7 +142,8 @@ visped <- function(ped,
   }
   x_f <- f * (l[, 1])
   # Setting the width of the canvas
-  # Adding extra 6 node width to the canvas's width to decerase node size when only have one node in one layer
+  # Adding extra 6 node width to the canvas's width to decerase node size
+  # when only have one node in one layer
   # because node size is equal to the percentage of node width to the canvas width
   width <- max(x_f, na.rm = TRUE) - min(x_f, na.rm = TRUE) + 6 * node_width
 
@@ -162,12 +164,12 @@ visped <- function(ped,
     height <- pdf_maximum_height
   }
 
-  # vertes_size is a percentage of the width of the graph
-  vertex_size <- round(node_width * 100 / width, 8)
-  edge_size <- vertex_size * 0.001
-  edge_arrow_size <- vertex_size * 0.002
-  edge_arrow_width <- vertex_size * 0.006
-  V(g)$size[V(g)$nodetype %in% c("real", "compact")] = vertex_size
+  # vertes_size is a percentage of the width of node to graph
+  node_size <- round(node_width * 100 / width, 8)
+  edge_size <- node_size * 0.001
+  edge_arrow_size <- node_size * 0.002
+  edge_arrow_width <- node_size * 0.006
+  V(g)$size[V(g)$nodetype %in% c("real", "compact")] = node_size
   if (is.null(cex) & (best_cex > 0)) {
     V(g)$label.cex[V(g)$nodetype %in% c("real", "compact")] = best_cex
   } else {
@@ -180,8 +182,8 @@ visped <- function(ped,
     plot.igraph(
       g,
       rescale = FALSE,
-      xlim = c(0 - vertex_size / 100, 1 + vertex_size / 100),
-      ylim = c(1 + vertex_size / 100, 0 - vertex_size / 100),
+      xlim = c(0 - node_size / 100, 1 + node_size / 100),
+      ylim = c(1 + node_size / 100, 0 - node_size / 100),
       layout = l,
       asp = 0
     )
@@ -192,8 +194,8 @@ visped <- function(ped,
   plot.igraph(
     g,
     rescale = FALSE,
-    xlim = c(0 - vertex_size / 100, 1 + vertex_size / 100),
-    ylim = c(1 + vertex_size / 100, 0 - vertex_size / 100),
+    xlim = c(0 - node_size / 100, 1 + node_size / 100),
+    ylim = c(1 + node_size / 100, 0 - node_size / 100),
     layout = l,
     asp = 0
   )
@@ -207,8 +209,9 @@ visped <- function(ped,
     message(paste("The cex for individual label is ", cex, ".", sep = ""))
   }
   message(
-    "Please decease or increase the value of cex  paremter and rerun visped() function when the label's width is longer or shorter than that of the circle in the output.pdf file"
-  )
+    paste("Please decease or increase the value of cex  paremter and rerun visped() function",
+          "when the label's width is longer or shorter than that of the circle in the output.pdf file",
+          sep=" "))
 
 }
 
