@@ -1,111 +1,133 @@
 sortped <- function(ped,addgen=TRUE) {
   ped_new <- copy(ped)
-  sires <- unique(ped_new$Sire)
-  dams  <- unique(ped_new$Dam)
   ped_new_colnames <- colnames(ped_new)
   if ("Gen" %in% ped_new_colnames) {
     ped_new[,Gen:=NULL]
   }
-  sire_dam_vect <- unique(c(sires, dams))
-  ped_offspring_list <- vector("list", length(sire_dam_vect))
-  ped_parents <- ped_new
-  i <- 1
-  next_gen_parents <- vector("character",length(sire_dam_vect))
-  while (sum(ped_parents$Ind %chin% sire_dam_vect) > 0) {
-    # The Offspring' pedigree are subsetted
-    ped_offspring_1 <- ped_parents[!(Ind %chin% sire_dam_vect)]
+  sire_dam_v <- unique(c(ped_new$Sire,ped_new$Dam))
+  sire_dam_v <- sire_dam_v[!is.na(sire_dam_v)]
+  ped_parent_dt <- ped_new
+  ind_trace_gen_dt <- setDT(list(Ind=ped_parent_dt$Ind,TraceGen=rep(0,nrow(ped_parent_dt))))
+  while (sum(ped_parent_dt$Ind %chin% sire_dam_v) > 0) {
+    #=== Detect pedigree loop =========================================================
+    # The progeny's pedigree is subsetted
+    ped_progeny <- ped_parent_dt[!(Ind %chin% sire_dam_v)]
     # No offspring are subsetted because pedigree loops may cause IDs of Ind column are equal
     # to IDs of the Sire and Dam columns
-    if (nrow(ped_offspring_1) == 0) {
-      stop("Pedigree error! Pedigree loops were detected!")
+    if (nrow(ped_progeny) == 0) {
+      stop("Pedigree error! Pedigree loops are detected!")
     }
+    # Add tracing generation number
+    ind_trace_gen_dt[Ind %chin% sire_dam_v,TraceGen:=TraceGen+1]
     # The parents' pedigree are subsetted
-    ped_parents <- ped_parents[Ind %chin% sire_dam_vect]
-    # Delete individuals without parents and offspring simultaneously from the offspring pedigree
-    ped_offspring_2 <-
-      unique(rbind(ped_offspring_1[Sire %chin% ped_parents$Ind],
-                   ped_offspring_1[Dam %chin% ped_parents$Ind],
-                   ped_offspring_1[Ind %chin% next_gen_parents]))
-    next_gen_parents <- unique(c(ped_offspring_2$Sire,ped_offspring_2$Dam))
-    ped_offspring_list[[i]] <-
-      cbind(ped_offspring_2, Gen = rep(i, nrow(ped_offspring_2)))
-    sire_dam_vect <- unique(c(ped_parents$Sire, ped_parents$Dam))
-    sire_dam_vect <- sire_dam_vect[!is.na(sire_dam_vect)]
-    i <- i + 1
+    ped_parent_dt <- ped_parent_dt[Ind %chin% sire_dam_v]
+    sire_dam_v <- unique(c(ped_parent_dt$Sire,ped_parent_dt$Dam))
+    sire_dam_v <- sire_dam_v[!is.na(sire_dam_v)]
+    if (length(sire_dam_v[!is.na(sire_dam_v)])==0) {
+      break
+    }
   }
-  ped_offspring_list[[i]] <-
-    cbind(ped_parents, Gen = rep(i, nrow(ped_parents)))
-  ped_offspring_DT <- do.call("rbind", ped_offspring_list)
 
-  if (sum(!(ped_new$Ind %chin% ped_offspring_DT$Ind)) > 0) {
-    ped_other <- ped_new[!(Ind %chin% ped_offspring_DT$Ind)]
-    ped_other <- cbind(ped_other, Gen = rep(i, nrow(ped_other)))
-    ped_new <- rbind(ped_offspring_DT, ped_other)
-  } else {
-    ped_new <- ped_offspring_DT
+  # assign the progenis with parents but without progeny to the minimum tracing generation of parents - 1
+  ped_trace_gen_dt <- merge(ped_new,ind_trace_gen_dt,by=c("Ind"),all.x=TRUE)
+  setnames(ped_trace_gen_dt,old=c("TraceGen"),new=c("TraceGenInd"))
+  ped_trace_gen_dt <- merge(ped_trace_gen_dt,ind_trace_gen_dt,by.x=c("Sire"),by.y=c("Ind"),all.x=TRUE)
+  setnames(ped_trace_gen_dt,old=c("TraceGen"),new=c("TraceGenSire"))
+  ped_trace_gen_dt <- merge(ped_trace_gen_dt,ind_trace_gen_dt,by.x=c("Dam"),by.y=c("Ind"),all.x=TRUE)
+  setnames(ped_trace_gen_dt,old=c("TraceGen"),new=c("TraceGenDam"))
+  ped_trace_gen_dt[(TraceGenInd==0) & ((!is.na(Sire)) | (!is.na(Dam))),
+                 TraceGenInd:=(apply(as.matrix(.SD),1,function(x) min(x,na.rm=TRUE))-1),
+                 .SDcols=c("TraceGenSire","TraceGenDam")]
+
+  # Setting the individuals witout parents and progenies as founders
+  max_trace_gen_num <- max(ind_trace_gen_dt$TraceGen,na.rm = TRUE)
+  ped_trace_gen_dt[(TraceGenInd==0) & (is.na(Sire) & is.na(Dam)),TraceGenInd:=max_trace_gen_num]
+
+  # full-sib individuals have the same tracing generation number
+  ped_trace_gen_dt[!is.na(Sire) | !is.na(Dam),FamilyLabel:=paste(Sire,Dam,sep="")]
+  fullsib_max_gen_dt <- ped_trace_gen_dt[(!is.na(Sire)) | (!is.na(Dam))][, .(MaxTraceGen=max(TraceGenInd,na.rm=TRUE)),
+                                       by=c("FamilyLabel")]
+  ped_trace_gen_dt <- merge(ped_trace_gen_dt,
+                          fullsib_max_gen_dt,
+                          by=c("FamilyLabel"),
+                          all.x=TRUE)
+  ped_trace_gen_dt[!is.na(FamilyLabel),TraceGenInd:=MaxTraceGen]
+
+  # if an individual has not parents, it's generation number will be same with that of it's mater
+  ind_no_parents_v <- ped_trace_gen_dt[is.na(Sire) & is.na(Dam), Ind]
+  if (length(ind_no_parents_v) > 0) {
+    sire_gen_dt <-
+      unique(ped_trace_gen_dt[((Sire %chin% ind_no_parents_v) &
+                                 (TraceGenSire < TraceGenDam)), .(Sire, TraceGenDam)])
+    if (nrow(sire_gen_dt) > 0) {
+      ped_trace_gen_dt[((Sire %chin% ind_no_parents_v) &
+                          (TraceGenSire < TraceGenDam)), ":="(TraceGenSire = TraceGenDam)]
+      ped_trace_gen_dt[match(sire_gen_dt$Sire, Ind), TraceGenInd := sire_gen_dt$TraceGenDam]
+    }
+    dam_gen_dt <-
+      unique(ped_trace_gen_dt[((Dam %chin% ind_no_parents_v) &
+                                 (TraceGenDam < TraceGenSire)), .(Dam, TraceGenSire)])
+    if (nrow(dam_gen_dt) > 0) {
+      ped_trace_gen_dt[((Dam %chin% ind_no_parents_v) &
+                          (TraceGenDam < TraceGenSire)), ":="(TraceGenDam = TraceGenSire)]
+      ped_trace_gen_dt[match(dam_gen_dt$Dam, Ind), TraceGenInd := dam_gen_dt$TraceGenSire]
+    }
   }
-  ped_new[, Gen := (-1) * Gen + i + 1]
-  ped_new_Gen <-
-    merge(ped_new,
-          ped_new[, .(Ind, Gen)],
-          by.x = "Sire",
-          by.y = "Ind",
-          all.x = TRUE)
-  ped_new_Gen <-
-    merge(
-      ped_new_Gen,
-      ped_new[, .(Ind, Gen)],
-      by.x = "Dam",
-      by.y = "Ind",
-      all.x = TRUE
-    )
-  setnames(ped_new_Gen,
-           c("Gen.x", "Gen.y", "Gen"),
-           c("Gen", "GenSire", "GenDam"))
-  ped_new_Gen[!is.na(GenSire) | !is.na(GenDam),
-              GenInterval := Gen - rowMaxs(as.matrix(.SD), na.rm = TRUE),
-              .SDcols = c("GenSire", "GenDam")]
-  # The generation number of some indivduals may be not right.
-  # The individuals which have no progeny were classified in the maximum generation.
-  # The following code try to renew these individuals' generation number by their parent's generation number.
-  # The right interval on generation number between focus individual with their parents should be equal to 1.
-  # If the interval is > 1, the generation number of the foucus individual will be renewed as
-  # max(parents' generation number)+1.
-  while (max(ped_new_Gen$GenInterval, na.rm = TRUE) > 1) {
-    ped_new_Gen[GenInterval > 1,
-                Gen := rowMaxs(as.matrix(.SD), na.rm = TRUE) + 1,
-                .SDcols = c("GenSire", "GenDam")]
-    ped_new_Gen[, ":="(GenSire = NULL, GenDam = NULL)]
-    ped_new_Gen <- merge(
-      ped_new_Gen,
-      ped_new_Gen[, .(Ind, Gen)],
+
+  # The tracing generation number of some indivduals may be not right.
+  # The following code try to renew individual tracing generation number
+  # by the difference with that of parent
+  # The tracing generation number of an individual will be renewed as
+  # min(parents' tracing generation number)-1, if interval on tracing generation number
+  # between it and it's parents is greater than 1.
+  ped_trace_gen_dt[!is.na(TraceGenSire) | !is.na(TraceGenDam),
+              TraceGenInterval := apply(as.matrix(.SD), 1, function(x) min(x, na.rm = TRUE)) - TraceGenInd,
+              .SDcols = c("TraceGenSire", "TraceGenDam")]
+  while (max(ped_trace_gen_dt$TraceGenInterval, na.rm = TRUE) > 1) {
+    ped_trace_gen_dt[TraceGenInterval > 1,
+                TraceGenInd := apply(as.matrix(.SD), 1, function(x) min(x, na.rm = TRUE)) - 1,
+                .SDcols = c("TraceGenSire", "TraceGenDam")]
+    ped_trace_gen_dt[, ":="(TraceGenSire = NULL, TraceGenDam = NULL)]
+    ped_trace_gen_dt <- merge(
+      ped_trace_gen_dt,
+      ped_trace_gen_dt[, .(Ind, TraceGenInd)],
       by.x = "Sire",
       by.y = "Ind",
       all.x = TRUE
     )
-    setnames(ped_new_Gen, c("Gen.x", "Gen.y"), c("Gen", "GenSire"))
-    ped_new_Gen <- merge(
-      ped_new_Gen,
-      ped_new_Gen[, .(Ind, Gen)],
+    setnames(ped_trace_gen_dt, c("TraceGenInd.x", "TraceGenInd.y"), c("TraceGenInd", "TraceGenSire"))
+    ped_trace_gen_dt <- merge(
+      ped_trace_gen_dt,
+      ped_trace_gen_dt[, .(Ind, TraceGenInd)],
       by.x = "Dam",
       by.y = "Ind",
       all.x = TRUE
     )
-    setnames(ped_new_Gen, c("Gen.x", "Gen.y"), c("Gen", "GenDam"))
-    ped_new_Gen[!is.na(GenSire) | !is.na(GenDam),
-                GenInterval := Gen - rowMaxs(as.matrix(.SD), na.rm = TRUE),
-                .SDcols = c("GenSire", "GenDam")]
+    setnames(ped_trace_gen_dt, c("TraceGenInd.x", "TraceGenInd.y"), c("TraceGenInd", "TraceGenDam"))
+    ped_trace_gen_dt[!is.na(TraceGenSire) | !is.na(TraceGenDam),
+                TraceGenInterval :=  apply(as.matrix(.SD), 1, function(x) min(x,na.rm = TRUE)) - TraceGenInd,
+                .SDcols = c("TraceGenSire", "TraceGenDam")]
   }
-  ped_new_Gen[, ":="(GenSire = NULL,
-                     GenDam = NULL,
-                     GenInterval = NULL)]
-  ped_column_name <- colnames(ped_new_Gen)
+
+  ped_trace_gen_dt[, ":="(TraceGenSire = NULL,
+                     TraceGenDam = NULL,
+                     TraceGenInterval = NULL,
+                     FamilyLabel = NULL,
+                     MaxTraceGen = NULL)]
+  ped_trace_gen_dt[, TraceGenInd := TraceGenInd + 1]
+  max_trace_gen <- max(ped_trace_gen_dt$TraceGenInd)
+  # convet the tracing generation to real generation
+  ped_trace_gen_dt[, Gen := (-1) * TraceGenInd + max_trace_gen + 1]
+  ped_trace_gen_dt[,TraceGenInd:=NULL]
+  ped_column_name <- colnames(ped_trace_gen_dt)
   ped_column_name_new <-
     c(c("Ind", "Sire", "Dam"), ped_column_name[-which(ped_column_name %chin% c("Ind", "Sire", "Dam"))])
   ped_new <-
-    ped_new_Gen[order(Gen), ped_column_name_new, with = FALSE]
+    ped_trace_gen_dt[order(Gen,Ind), ped_column_name_new, with = FALSE]
   if (!addgen) {
     ped_new[,Gen:=NULL]
   }
   return(ped_new)
 }
+
+
