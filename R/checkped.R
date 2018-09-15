@@ -1,5 +1,5 @@
 #' @import data.table
-#' @importFrom matrixStats rowMaxs
+
 
 # checkped will add a new column: Sex
 checkped <- function(ped,addgen=TRUE) {
@@ -36,7 +36,7 @@ checkped <- function(ped,addgen=TRUE) {
   }
   #The programme will stop if there are no parents in the sire and dam columns.
   if (all(is.na(ped_new$Sire)) & all(is.na(ped_new$Dam))) {
-    stop("All dams and sires are missing")
+    stop("All dams and sires are missing! No pedigee! Please check it!")
   }
 
 
