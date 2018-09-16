@@ -1,4 +1,21 @@
+#' Tidy and prepare a pedigree
+#'
+#' \code{tidyped} function checks, sorts and returns a tidy pedigree.
+#'
+#' This function takes a pedigree, checks duplicated, bisexual individuals, detects pedigree loop, adds missing founders, and sorts the pedigree. If the parameter \emph{cand} contains individuals's IDs, then only these individuals and their ancestors will be kept in the pedigree. The tracing direction and tracing generation number can be provided when the parameter \emphs{cand} is not NULL. Individual virtual generation will be infered and added when the parameter \emph{addgen} is TRUE. Individual numeric pedigree will be added when the parameter \emph{addnum} is TRUE. Individual sex will be added if there is no "Sex" column in the pedigee. If the pedigree includes the column \emph{Sex}, then individuals's sexes need to be recoded as "male" and "female". Missing sexes will be identified from the pedigree structure if possible.
+#'
+#' The first three columns in the pedigree must be individual, sire and dam identification. Names of the three columns are assigend by users, but their orders must be not changded in the pedigree. Individual ID should not be coded as "", " ", "0", "*", and "NA", these individuals will be deleted from the pedigree. Missing parents should be denoted by either "NA", "0", "*". " " and "" should be recoded as missing parents, but not be recommended.
+#'
+#'
 #' @import data.table
+#' @param ped Data table from data.table or data frame including the pedigree, which have the first three columns individual, sire and dam IDs. More columns, such as sex, generation can be included in the pedigree file.
+#' @param cand Vector of charactor including individual IDs, or NULL. Only the candidates and their ancestors will be kept in the pedigree if this parameter is not NULL.
+#' @param trace A variate of charactor about how to trace pedigree, . "up" means tracing candidates's pedigree to ancestors, "down" means tracing candidates's pedigree to progenies, "all" means tracing candidaes's pedigree to ancestors and progenies simutaneously. This paramters can be used only if the cand parameter is not NULL. The defaulted value is "up".
+#' @param tracegen An integer means the number of tracing generation.
+#' @param addgen A logical parameter indicates whether individual generation number will be added in the retrued data.table. The default values is TRUE, then individual generation number will be added.
+#' @param addnum A logical parameter indicates wheter numeric pedigree will be added in the returned data.table. The defaulted value is TRUE, then three new columns of IndNum, SireNum and DamNum will be added.
+#'
+#' @export
 tidyped <-
   function(ped,
            cand = NULL,
