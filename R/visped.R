@@ -1,5 +1,6 @@
 #' @import data.table
 #' @import igraph
+#' @export
 
 visped <- function(ped,
                    compact = FALSE, cex=NULL, show=TRUE) {
