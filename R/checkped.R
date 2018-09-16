@@ -161,16 +161,36 @@ checkped <- function(ped,addgen=TRUE) {
     ped_new <- sortped(ped_new,addgen)
   }
 
-  #===Add each individual sex==========================================================
-  if (any(!is.na(ped_new$Sire))) {
-    ped_new[Ind %chin% Sire,Sex:="male"]
+  #===Add individual sex==========================================================
+  col_names <- colnames(ped_new)
+  if (!("Sex" %in% col_names)) {
+    if (any(!is.na(ped_new$Sire))) {
+      ped_new[Ind %chin% Sire, Sex:="male"]
+    }
+    if (any(!is.na(ped_new$Dam))) {
+      ped_new[Ind %chin% Dam, Sex:="female"]
+    }
   }
-  if (any(!is.na(ped_new$Dam))) {
-    ped_new[Ind %chin% Dam,Sex:="female"]
+  if ("Sex" %in% col_names) {
+    if (length(ped_new[Sex %in% c("", " ", "NA"), Sex]) > 0) {
+      ped_new[Sex %in% c("", " ", "NA"), Sex := NA]
+      warning("Blank and NA are recoded as a missing sex in the Sex column of the pedigree.")
+    }
+
+    if (any(!is.na(ped_new$Sire))) {
+      ped_new[is.na(Sex) & (Ind %chin% Sire), Sex:="male"]
+    }
+    if (any(!is.na(ped_new$Dam))) {
+      ped_new[is.na(Sex) & (Ind %chin% Dam), Sex:="female"]
+    }
   }
   if (any(c(!is.na(ped_new$Sire),!is.na(ped_new$Dam)))) {
-    ped_new[,Sex:=tolower(Sex)]
+    ped_new[!is.na(Sex),Sex:=tolower(Sex)]
+    sex_name <- unique(ped_new[!is.na(Sex),Sex])
+    if (!all(sex_name %in% c("male","female"))) {
+      message("There are other sexes except male and female in the Sex column!")
+      message(paste("Sex:",paste(sex_name,collapse = " "),sep=" "))
+    }
   }
-
   return(ped_new)
 }
