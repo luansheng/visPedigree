@@ -11,10 +11,10 @@ sortped <- function(ped,addgen=TRUE) {
   while (sum(ped_parent_dt$Ind %chin% sire_dam_v) > 0) {
     #=== Detect pedigree loop =========================================================
     # The progeny's pedigree is subsetted
-    ped_progeny <- ped_parent_dt[!(Ind %chin% sire_dam_v)]
+    ped_progeny_dt <- ped_parent_dt[!(Ind %chin% sire_dam_v)]
     # No offspring are subsetted because pedigree loops may cause IDs of Ind column are equal
     # to IDs of the Sire and Dam columns
-    if (nrow(ped_progeny) == 0) {
+    if (nrow(ped_progeny_dt) == 0) {
       stop("Pedigree error! Pedigree loops are detected!")
     }
     # Add tracing generation number
@@ -40,8 +40,8 @@ sortped <- function(ped,addgen=TRUE) {
                  .SDcols=c("TraceGenSire","TraceGenDam")]
 
   # Setting the individuals witout parents and progenies as founders
-  max_trace_gen_num <- max(ind_trace_gen_dt$TraceGen,na.rm = TRUE)
-  ped_trace_gen_dt[(TraceGenInd==0) & (is.na(Sire) & is.na(Dam)),TraceGenInd:=max_trace_gen_num]
+  max_trace_gen_num_s <- max(ind_trace_gen_dt$TraceGen,na.rm = TRUE)
+  ped_trace_gen_dt[(TraceGenInd==0) & (is.na(Sire) & is.na(Dam)),TraceGenInd:=max_trace_gen_num_s]
 
   # full-sib individuals have the same tracing generation number
   ped_trace_gen_dt[!is.na(Sire) | !is.na(Dam),FamilyLabel:=paste(Sire,Dam,sep="")]
