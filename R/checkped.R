@@ -112,7 +112,7 @@ checkped <- function(ped,addgen=TRUE) {
   bisexual_parents <- sires[sires %chin% dams]
   if (length(bisexual_parents) > 0) {
     warning("The following individuals are simultaneously bisexual.")
-    warning(paste(bisexual_parents, collapse = ", "))
+    warning(paste(sort(unique(bisexual_parents)), collapse = ", "))
   }
 
   #===renewing pedigree by adding missing parents or founders==========================
@@ -128,33 +128,15 @@ checkped <- function(ped,addgen=TRUE) {
   }
 
   #===sorting parents in front of offspring in the individual column.
-  ped_new[, SeqNumInd := seq(nrow(ped_new))]
-  ped_new_test <-
-    merge(ped_new,
-          ped_new[, .(Ind, SeqNumInd)],
-          by.x = "Sire",
-          by.y = "Ind",
-          all.x = TRUE)
-  ped_new[, SeqNumInd := NULL]
-  setnames(ped_new_test,
-           c("SeqNumInd.x", "SeqNumInd.y"),
-           c("SeqNumInd", "SeqNumSire"))
-  ped_new_test <-
-    merge(
-      ped_new_test,
-      ped_new_test[, .(Ind, SeqNumInd)],
-      by.x = "Dam",
-      by.y = "Ind",
-      all.x = TRUE
-    )
-  setnames(ped_new_test,
-           c("SeqNumInd.x", "SeqNumInd.y"),
-           c("SeqNumInd", "SeqNumDam"))
+  SeqNumInd <- SeqNumSire <- SeqNumDam <- NULL
+  ped_new[, SeqNumInd := .I]
+  ped_new[,SeqNumSire:=SeqNumInd[match(Sire,Ind)]]
+  ped_new[,SeqNumDam:=SeqNumInd[match(Dam,Ind)]]
   # Individuals are resorted  if their order are not right.
   if (any(
     c(
-      ped_new_test$SeqNumInd < ped_new_test$SeqNumSire,
-      ped_new_test$SeqNumInd < ped_new_test$SeqNumDam
+      ped_new$SeqNumInd < ped_new$SeqNumSire,
+      ped_new$SeqNumInd < ped_new$SeqNumDam
     ),
     na.rm = TRUE
   ) | addgen)  {
