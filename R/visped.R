@@ -2,8 +2,10 @@
 #' @import igraph
 #' @export
 
+`:=` = function(...) NULL
+
 visped <- function(ped,
-                   compact = FALSE, cex=NULL, show=TRUE) {
+                   compact = FALSE, cex=NULL, show=TRUE, file="output.pdf") {
   ped_new <- copy(ped)
   # Convertting pedigree to node and edge two data.table
   ped_igraph <- ped2igraph(ped_new, compact)
@@ -75,6 +77,7 @@ visped <- function(ped,
     x_stats_gen <-
       real_node[, .(.N, range = max(x, na.rm = TRUE) - min(x, na.rm = TRUE)),
                 by =gen]
+    meanspace = NULL # due to NSE notes in R CMD check
     x_stats_gen[range > 0 & N > 1, ":="(meanspace = range / (N - 1))]
     l_x_range <- range(l[, 1], na.rm = TRUE)
     l_x_distance <- diff(l_x_range)
@@ -189,7 +192,7 @@ visped <- function(ped,
       asp = 0
     )
   }
-  pdf(file = "output.pdf",
+  pdf(file = file,
       width = width,
       height = height)
   plot.igraph(
@@ -201,18 +204,18 @@ visped <- function(ped,
     asp = 0
   )
   dev.off()
-  message("The HD graph of pedigree is saved in the ",
+  message(paste("The HD graph of pedigree is saved in the ",
           getwd(),
-          "/output.pdf file")
+          "/",file," file",sep=""))
   if (is.null(cex)) {
     message(paste("The cex for individual label is ", best_cex, ".", sep = ""))
   } else {
     message(paste("The cex for individual label is ", cex, ".", sep = ""))
   }
   message(
-    paste("Please decease or increase the value of cex  paremter and rerun visped() function",
-          "when the label's width is longer or shorter than that of the circle in the output.pdf file",
-          sep=" "))
+    paste("Please decease or increase the value of cex  paremter and rerun visped() function ",
+          "when the label's width is longer or shorter than that of the circle in the ",file," file",
+          sep=""))
 
 }
 
@@ -255,6 +258,7 @@ ped2igraph <- function(ped,compact=TRUE) {
 
   # Adding two new columns family label (column name: familylabel) and it's numeric id
   # (column name: familynum) in the ped_node
+  familylabel = NULL # due to NSE notes in R CMD check
   ped_node[!(is.na(sirelabel) &
                is.na(damlabel)),
            familylabel := paste(sirelabel, damlabel, sep = "")]
@@ -279,6 +283,7 @@ ped2igraph <- function(ped,compact=TRUE) {
   # Real nodes are all individuals in the pedigree.
   # Compact nodes are full-sib individuals with parents, but without progeny,
   # they exist only when the "compact" paramete is TRUE
+  nodetype = NULL # due to NSE notes in R CMD check
   ped_node[,nodetype:="real"]
 
   #=== Compact the pedigree============================================================
@@ -291,13 +296,13 @@ ped2igraph <- function(ped,compact=TRUE) {
     ped_node_1 <- ped_node[!(label %in% sire_dam_label)]
 
     # Moreover, finding full-sib individuals
-    N_by_family <- ped_node_1[,.N,by=.(familylabel,sex)]
-    if (max(N_by_family$N,na.rm=TRUE)>=2) {
-      ped_node_1 <- merge(ped_node_1, N_by_family,by=c("familylabel","sex"),all.x=TRUE)
-      setnames(ped_node_1,c("N"),c("familysize"))
+    ped_node_1[,N:=.N,by=.(familylabel,sex)]
+    setnames(ped_node_1,c("N"),c("familysize"))
+    if (max(ped_node_1$familysize,na.rm=TRUE)>=2) {
       # The full-sib individuals in a family will be compacted if the family size >= 2
       fullsib_id_DT <- ped_node_1[familysize >=2]
       fullsib_ids <- fullsib_id_DT$id
+      familylabelsex = NULL # due to NSE notes in R CMD check
       fullsib_id_DT[,familylabelsex:=paste(familylabel,sex,sep="")]
       # Generating a compact family dataset, only including maximum three individuals for
       # each family: male, female and unknown sex individuals
@@ -321,6 +326,7 @@ ped2igraph <- function(ped,compact=TRUE) {
   # Delete duplicated edges from familynum to parents
   ped_edge <- unique(ped_edge)
   ped_edge <- ped_edge[order(from, to)]
+  size = arrow.size = arrow.width = color = curved = NULL # due to NSE notes in R CMD check
   # grey
   #ped_edge[,":="(size=1,arrow.size=1,arrow.width=1,color="#9d96ad",curved=0.15)]
   #ped_edge[,":="(size=1,arrow.size=1,arrow.width=1,color="#a69f89",curved=0.15)]
@@ -339,16 +345,18 @@ ped2igraph <- function(ped,compact=TRUE) {
       familynum
     )]), fill = TRUE)
   ped_node[is.na(nodetype),nodetype:="virtual"]
+  layer = NULL # due to NSE notes in R CMD check
   ped_node[nodetype %in% c("real","compact"),layer:=2*gen-1]
   ped_node[nodetype %in% c("virtual"),layer:=2*(gen-1)]
 
 
   #=== Set default shape, size and color for male and female===========================
   # Setting the default attributes of nodes
-  # Notes: size = 5 means the width of a circle node account for 5% of the whole width
+  # Notes: size = 15 means the width of a circle node account for 15% of the whole width
   # of the graph
   #ped_node[, ":="(shape = "circle", frame.color="#8495e8", color="#9daaea",size = 15)]
   #ped_node[, ":="(shape = "circle", frame.color="black", color="#aaa16c",size = 15)]
+  shape = frame.color = color = size = label.color = NULL
   ped_node[, ":="(shape = "circle", frame.color="#7fae59", color="#9cb383",size = 15, label.color="#0d0312")]
   #ped_node[, ":="(shape = "circle", frame.color=NA, color="#9cb383",size = 15)]
   ped_node[nodetype %in% c("compact"), ":="(shape="square")]
@@ -368,14 +376,14 @@ ped2igraph <- function(ped,compact=TRUE) {
   # Sorting the from and to columns as the first two columns in the ped_edge
   old_names <- colnames(ped_edge)
   new_names <- c(c("from","to"),old_names[!(old_names %in% c("from","to"))])
-  ped_edge <- ped_edge[,new_names,with=FALSE]
+  ped_edge <- ped_edge[, ..new_names]
   ped_edge <- ped_edge[order(from,to)]
 
 
   # Sorting the id column as the first column in the ped_node
   old_names <- colnames(ped_node)
   new_names <- c("id",old_names[!(old_names %in% c("id"))])
-  ped_node <- ped_node[,new_names,with=FALSE]
+  ped_node <- ped_node[, ..new_names]
   ped_node <- ped_node[order(layer,id)]
 
   return(list(node = ped_node, edge = ped_edge))
