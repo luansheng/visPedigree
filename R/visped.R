@@ -24,7 +24,8 @@ visped <- function(ped,
     # Obtaining the maximum width of a node's label: inch
     label_max_width <- max(strwidth(max_strwidth_label, cex = cexs[i], units = "inches"),
           na.rm = TRUE)
-    # Fixing the width of the node when the number of nodes (individuals) in one generation is small
+    # Fixing the width of the node when the number of nodes (individuals)
+    # in one generation is small
     # The unit of 0.8 is inch, about 2cm for the width of one node
     if (gen_max_size <= 16 & label_max_width < 0.8) {
       label_max_width = 0.8
@@ -368,7 +369,9 @@ ped2igraph <- function(ped,compact=TRUE) {
 
   # The edge color is same with the color of the it's "to" node.
   min_familynum <- min(family_num$familynum)
-  ped_edge <- merge(ped_edge, ped_node[,.(id,tonodecolor=color)],by.x="to", by.y="id",all.x=TRUE)
+  ped_edge <- merge(ped_edge,
+                    ped_node[,.(id,tonodecolor=color)],
+                    by.x="to", by.y="id",all.x=TRUE)
   ped_edge[from >= min_familynum,":="(color=tonodecolor)]
   ped_edge[from < min_familynum,":="(curved=0)]
 
