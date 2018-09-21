@@ -143,6 +143,9 @@ checkped <- function(ped,addgen=TRUE) {
     ped_new <- sortped(ped_new,addgen)
   }
 
+  # delete internal fields
+  ped_new[,":="(SeqNumInd=NULL,SeqNumSire=NULL,SeqNumDam=NULL)]
+
   #===Add individual sex==========================================================
   col_names <- colnames(ped_new)
   if (!("Sex" %in% col_names)) {
