@@ -39,9 +39,13 @@ tidyped <-
            addgen = TRUE,
            addnum = TRUE) {
     ped_colnames <- colnames(ped)
-    if (c("Cand") %in% ped_colnames) {
-      ped[,Cand:=NULL]
+    if (!is.null(cand)) {
+      if (c("Cand") %in% ped_colnames) {
+        ped[,Cand:=NULL]
+        warning("The column Cand of the original pedigree is deleted.")
+      }
     }
+
     ped_check <- checkped(ped, addgen)
     #pruning the pedigree by candidate
     if (!is.null(cand)) {
@@ -131,6 +135,12 @@ tidyped <-
     #Converting individual, sire, and dam IDs to sequential integer
     if (addnum) {
       ped_new <- numped(ped_new)
+    }
+
+    # add a new column Cand
+    if (!is.null(cand)) {
+      Cand <- NULL
+      ped_new[,Cand := Ind %in% cand]
     }
     return(ped_new)
   }
