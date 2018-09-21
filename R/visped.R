@@ -5,7 +5,7 @@
 `:=` = function(...) NULL
 
 visped <- function(ped,
-                   compact = FALSE, cex=NULL, show=TRUE, file="output.pdf") {
+                   compact = FALSE, cex = NULL, showgraph = TRUE, outline = FALSE, file = "output.pdf") {
   ped_new <- copy(ped)
   # Convertting pedigree to node and edge two data.table
   ped_igraph <- ped2igraph(ped_new, compact)
@@ -35,13 +35,14 @@ visped <- function(ped,
       break
     }
   }
-  if (best_cex == 0) {
-    stop(
-      "Too many individuals (>=",
-      gen_max_size,
-      paste(") in one genration!!! please remove full-sib individuals using the parameter compact = TRUE,",
-            "rerun visped() function",sep=" ")
-    )
+
+  if (best_cex == 0 & !outline) {
+     stop(
+       "Too many individuals (>=",
+       gen_max_size,
+       ") in one generation!!! Two choices:\n", "1. Removing full-sib individuals using the parameter compact = TRUE; or, \n",
+       "2. Visualizing all nodes without labels using the parameter outline = TRUE.\n",
+       "Rerun visped() function!")
   }
 
   #=== Generating the hierarchy layout of all nodes using the sugiyama algorithm =======
@@ -74,7 +75,7 @@ visped <- function(ped,
 
   #=== Adjusting space between two nodes (individuals) in x axis for each generation ==
   real_node <- ped_igraph$node[nodetype %in% c("real", "compact")]
-  if (gen_max_size >= 2) {
+  if ((!outline) & gen_max_size >= 2) {
     x_stats_gen <-
       real_node[, .(.N, range = max(x, na.rm = TRUE) - min(x, na.rm = TRUE)),
                 by =gen]
@@ -105,8 +106,7 @@ visped <- function(ped,
         real_node[gen == i, x := x_new[v_rank]]
       }
     }
-    ped_igraph$node[nodetype %in% c("real", "compact")] <-
-      real_node
+    ped_igraph$node[nodetype %in% c("real", "compact")] <- real_node
   }
 
   #=== Matching a virtual node's x pos to the samllest position of the full-sib =======
@@ -126,39 +126,52 @@ visped <- function(ped,
   #=== Rescale canvas' size, node's size and edge's size ==============================
   # calculate the width of each node: inch
   node_width <- label_max_width
-  if (gen_max_size >= 2) {
-    x_stats_gen <-
-      real_node[, .(.N, range = max(x, na.rm = TRUE) - min(x, na.rm = TRUE)),
-                by = gen]
-    x_stats_gen[range > 0 & N > 1, ":="(meanspace = range / (N - 1))]
-    min_node_space <-
-      min(x_stats_gen[meanspace > 0, meanspace], na.rm = TRUE)
-    f <- 1
-    if (max(x_stats_gen$N) <= 16) {
-      # increase large space between two nodes when the node number is small
-      f <- 3 * round(node_width / min_node_space, 8)
+  if (!outline) {
+    if (gen_max_size >= 2) {
+      x_stats_gen <-
+        real_node[, .(.N, range = max(x, na.rm = TRUE) - min(x, na.rm = TRUE)),
+                  by = gen]
+      x_stats_gen[range > 0 & N > 1, ":="(meanspace = range / (N - 1))]
+      min_node_space <-
+        min(x_stats_gen[meanspace > 0, meanspace], na.rm = TRUE)
+      f <- 1
+      if (max(x_stats_gen$N) <= 16) {
+        # increase large space between two nodes when the node number is small
+        f <- 3 * round(node_width / min_node_space, 8)
+      }
+      else {
+        # keep samll space between two nodes when the node number are big
+        f <- round(node_width / min_node_space, 8)
+      }
+    } else {
+      f <- 1
     }
-    else {
-      # keep samll space between two nodes when the node number are big
-      f <- round(node_width / min_node_space, 8)
-    }
-  } else {
-    f <- 1
+    x_f <- f * (l[, 1])
+    # Setting the width of the canvas
+    # Adding extra 6 node width to the canvas's width to decerase node size
+    # when only have one node in one layer
+    # because node size is equal to the percentage of node width to the canvas width
+    canvas_width_s <- max(x_f, na.rm = TRUE) - min(x_f, na.rm = TRUE) + 6 * node_width
   }
-  x_f <- f * (l[, 1])
-  # Setting the width of the canvas
-  # Adding extra 6 node width to the canvas's width to decerase node size
-  # when only have one node in one layer
-  # because node size is equal to the percentage of node width to the canvas width
-  width <- max(x_f, na.rm = TRUE) - min(x_f, na.rm = TRUE) + 6 * node_width
+  if (outline) {
+    node_width <- 0.0001
+    node_space_v <- seq(from=label_max_width, to=node_width,by=-0.0001)
+    canvas_width_v <- node_space_v * gen_max_size
+    canvas_width_v <- sort(canvas_width_v)
+    canvas_width_s <- max(canvas_width_v[canvas_width_v < pdf_max_width])
+  }
 
   # The maximum width or height for a pdf file is 200 inch
   pdf_maximum_width <- pdf_maximum_height <- pdf_max_width
-  if (width > pdf_maximum_width) {
-    width <- pdf_maximum_width
+  if (canvas_width_s > pdf_maximum_width) {
+    canvas_width_s <- pdf_maximum_width
+  }
+  if (canvas_width_s <= 10) {
+    canvas_width_s <- 10
   }
 
-  height <- width * 0.618
+
+  height <- canvas_width_s * 0.618
 
   # inch
   gen_height <- 0.618
@@ -170,20 +183,25 @@ visped <- function(ped,
   }
 
   # vertes_size is a percentage of the width of node to graph
-  node_size <- round(node_width * 100 / width, 8)
+  node_size <- round(node_width * 100 / canvas_width_s, 8)
   edge_size <- node_size * 0.001
   edge_arrow_size <- node_size * 0.002
   edge_arrow_width <- node_size * 0.006
   V(g)$size[V(g)$nodetype %in% c("real", "compact")] = node_size
-  if (is.null(cex) & (best_cex > 0)) {
-    V(g)$label.cex[V(g)$nodetype %in% c("real", "compact")] = best_cex
-  } else {
-    V(g)$label.cex[V(g)$nodetype %in% c("real", "compact")] = cex
+  if (outline) {
+    V(g)$label <- ""
+  }
+  if (!outline) {
+    if (is.null(cex) & (best_cex > 0)) {
+      V(g)$label.cex[V(g)$nodetype %in% c("real", "compact")] = best_cex
+    } else {
+      V(g)$label.cex[V(g)$nodetype %in% c("real", "compact")] = cex
+    }
   }
   E(g)$size = edge_size
   E(g)$arrow.size = edge_arrow_size
   E(g)$arrow.width = edge_arrow_width
-  if (show) {
+  if (showgraph) {
     plot.igraph(
       g,
       rescale = FALSE,
@@ -194,7 +212,7 @@ visped <- function(ped,
     )
   }
   pdf(file = file,
-      width = width,
+      width = canvas_width_s,
       height = height)
   plot.igraph(
     g,
@@ -208,15 +226,17 @@ visped <- function(ped,
   message(paste("The HD graph of pedigree is saved in the ",
           getwd(),
           "/",file," file",sep=""))
-  if (is.null(cex)) {
-    message(paste("The cex for individual label is ", best_cex, ".", sep = ""))
-  } else {
-    message(paste("The cex for individual label is ", cex, ".", sep = ""))
+  if (!outline) {
+    if (is.null(cex)) {
+      message(paste("The cex for individual label is ", best_cex, ".", sep = ""))
+    } else {
+      message(paste("The cex for individual label is ", cex, ".", sep = ""))
+    }
+    message(
+      paste("Please decrease or increase the value of the paremter cex and rerun visped() function ",
+            "when the label's width is longer or shorter than that of the circle in the ",file," file",
+            sep=""))
   }
-  message(
-    paste("Please decease or increase the value of cex  paremter and rerun visped() function ",
-          "when the label's width is longer or shorter than that of the circle in the ",file," file",
-          sep=""))
 
 }
 
