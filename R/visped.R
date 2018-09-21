@@ -36,7 +36,7 @@ visped <- function(ped,
     }
   }
 
-  if (best_cex == 0 & !outline) {
+  if (!outline & best_cex == 0) {
      stop(
        "Too many individuals (>=",
        gen_max_size,
@@ -125,7 +125,7 @@ visped <- function(ped,
 
   #=== Rescale canvas' size, node's size and edge's size ==============================
   # calculate the width of each node: inch
-  node_width <- label_max_width
+  node_width_s <- label_max_width
   if (!outline) {
     if (gen_max_size >= 2) {
       x_stats_gen <-
@@ -137,11 +137,11 @@ visped <- function(ped,
       f <- 1
       if (max(x_stats_gen$N) <= 16) {
         # increase large space between two nodes when the node number is small
-        f <- 3 * round(node_width / min_node_space, 8)
+        f <- 3 * round(node_width_s / min_node_space, 8)
       }
       else {
         # keep samll space between two nodes when the node number are big
-        f <- round(node_width / min_node_space, 8)
+        f <- round(node_width_s / min_node_space, 8)
       }
     } else {
       f <- 1
@@ -151,12 +151,18 @@ visped <- function(ped,
     # Adding extra 6 node width to the canvas's width to decerase node size
     # when only have one node in one layer
     # because node size is equal to the percentage of node width to the canvas width
-    canvas_width_s <- max(x_f, na.rm = TRUE) - min(x_f, na.rm = TRUE) + 6 * node_width
+    canvas_width_s <- max(x_f, na.rm = TRUE) - min(x_f, na.rm = TRUE) + 6 * node_width_s
   }
+
+  # Finding better node_width when the number of nodes is not too big.
   if (outline) {
-    node_width <- 0.0001
-    node_space_v <- seq(from=label_max_width, to=node_width,by=-0.0001)
-    canvas_width_v <- node_space_v * gen_max_size
+    # About < 20,000,000 nodes could be shown in one generation
+    node_width_s <- 0.0001
+    node_width_v <- seq(from=label_max_width, to=node_width_s,by=-0.0001)
+    canvas_width_v <- node_width_v * gen_max_size
+    if (min(canvas_width_v,na.rm = TRUE) > pdf_max_width) {
+      stop("The outline of the pedigree is not shwon due to too many nodes in one genertion")
+    }
     canvas_width_v <- sort(canvas_width_v)
     canvas_width_s <- max(canvas_width_v[canvas_width_v < pdf_max_width])
   }
@@ -175,15 +181,15 @@ visped <- function(ped,
 
   # inch
   gen_height <- 0.618
-  if (height < gen_num * (node_width) + 3 * node_width) {
-    height <- gen_num * (node_width) + 3 * node_width
+  if (height < gen_num * (node_width_s) + 3 * node_width_s) {
+    height <- gen_num * (node_width_s) + 3 * node_width_s
   }
   if (height > pdf_maximum_height) {
     height <- pdf_maximum_height
   }
 
   # vertes_size is a percentage of the width of node to graph
-  node_size <- round(node_width * 100 / canvas_width_s, 8)
+  node_size <- round(node_width_s * 100 / canvas_width_s, 8)
   edge_size <- node_size * 0.001
   edge_arrow_size <- node_size * 0.002
   edge_arrow_width <- node_size * 0.006
