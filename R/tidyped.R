@@ -8,7 +8,7 @@
 #'
 #'
 #' @param ped Data table from data.table or data frame including the pedigree, which have the first three columns individual, sire and dam IDs. More columns, such as sex, generation can be included in the pedigree file.
-#' @param cand Vector of charactor including individual IDs, or NULL. Only the candidates and their ancestors will be kept in the pedigree if this parameter is not NULL.
+#' @param cand Vector of charactor including individual IDs, or NULL. Only the candidates and their ancestors will be kept in the pedigree if this parameter is not NULL. A new column Cand will be added in the returned data.table.
 #' @param trace A variate of charactor about how to trace pedigree, . "up" means tracing candidates's pedigree to ancestors, "down" means tracing candidates's pedigree to progenies, "all" means tracing candidaes's pedigree to ancestors and progenies simutaneously. This parameter can be used only if the cand parameter is not NULL. The defaulted value is "up".
 #' @param tracegen An integer means the number of tracing generation.
 #' @param addgen A logical parameter indicates whether individual generation number will be added in the retrued data.table. The default values is TRUE, then individual generation number will be added.
@@ -39,11 +39,26 @@ tidyped <-
            addgen = TRUE,
            addnum = TRUE) {
     ped_colnames <- colnames(ped)
+
+    # Delete Cand column
     if (!is.null(cand)) {
       if (c("Cand") %in% ped_colnames) {
         ped[,Cand:=NULL]
         warning("The column Cand of the original pedigree is deleted.")
       }
+    }
+
+    # The Gen column will be deleted
+    if (c("Gen") %in% ped_colnames) {
+        warning("The column Gen of the original pedigree will be deleted.")
+    }
+
+    # IndNum SireNum or DamNum columns will be deleted
+    three_num_columns <- c("IndNum","SireNum", "DamNum")
+    if (any(three_num_columns %in% ped_colnames)) {
+      exist_columns <- three_num_columns[three_num_columns %in% ped_colnames]
+      warning("The columns ", paste(exist_columns,collapse = ","),
+              " of the original pedigree  will be deleted.")
     }
 
     ped_check <- checkped(ped, addgen)
