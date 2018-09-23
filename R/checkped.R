@@ -13,6 +13,7 @@ checkped <- function(ped,addgen=TRUE) {
            new = c("Ind", "Sire", "Dam"))
   setkey(ped_new, Ind, Sire, Dam)
   #===detecting and setting missing values=============================================
+  Ind <- Sire <- Dam <- NULL
   ped_new[, ":="(Ind = as.character(Ind),
                  Sire = as.character(Sire),
                  Dam = as.character(Dam))]
@@ -148,6 +149,7 @@ checkped <- function(ped,addgen=TRUE) {
 
   #===Add individual sex==========================================================
   col_names <- colnames(ped_new)
+  Sex <- NULL
   if (!("Sex" %in% col_names)) {
     if (any(!is.na(ped_new$Sire))) {
       ped_new[Ind %chin% Sire, Sex:="male"]

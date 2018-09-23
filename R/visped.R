@@ -36,6 +36,8 @@
 #'
 #' @import data.table
 #' @import igraph
+#' @importFrom grDevices pdf dev.off
+#' @importFrom graphics strwidth
 #' @export
 visped <- function(ped,
                    compact = FALSE, outline = FALSE, cex = NULL, showgraph = TRUE, file = NULL) {
@@ -359,8 +361,8 @@ ped2igraph <- function(ped,compact=TRUE) {
     ped_node_1 <- ped_node[!(label %in% sire_dam_label)]
 
     # Moreover, finding full-sib individuals
-    ped_node_1[,N:=.N,by=.(familylabel,sex)]
-    setnames(ped_node_1,c("N"),c("familysize"))
+    familysize <- NULL
+    ped_node_1[,familysize:=.N,by=.(familylabel,sex)]
     if (max(ped_node_1$familysize,na.rm=TRUE)>=2) {
       # The full-sib individuals in a family will be compacted if the family size >= 2
       fullsib_id_DT <- ped_node_1[familysize >=2]

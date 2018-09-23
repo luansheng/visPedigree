@@ -8,6 +8,7 @@ numped <- function(ped) {
            old = colnames(ped_new)[1:3],
            new = c("Ind", "Sire", "Dam"))
   ped_new_colnames <- colnames(ped_new)
+  IndNum <- SireNum <- DamNum <- NULL
   if ("IndNum" %in% ped_new_colnames) {
     ped_new[,IndNum:=NULL]
   }
@@ -18,7 +19,6 @@ numped <- function(ped) {
     ped_new[,DamNum:=NULL]
   }
   ped_new[,IndNum:=.I]
-  setkey(ped_new,Ind,Sire,Dam)
   ped_new[,SireNum:=IndNum[match(Sire,Ind)]]
   ped_new[,DamNum:=IndNum[match(Dam,Ind)]]
   ped_new[is.na(SireNum),SireNum:=0]
