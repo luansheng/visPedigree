@@ -1,0 +1,17 @@
+packrat/lib*/
+.Rproj.user
+keeppedback.R
+prepareped.R
+packrat
+packrat/src/
+Improving_Walkers_Algorithm_to_Run_in_Linear_Time.pdf
+fullsib.pdf
+output.pdf
+g2016G0to2017G1Data.csv
+g2016G0to2017G1Ped.csv
+growth20152017data.csv
+growth2017ped.csv
+pruneped.R
+sorped.csv
+sorpednew.csv
+testped.csv
