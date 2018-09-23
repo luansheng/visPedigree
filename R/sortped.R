@@ -28,7 +28,7 @@ sortped <- function(ped,addgen=TRUE) {
     }
   }
 
-  # assign the progenis with parents but without progeny to the minimum tracing generation of parents - 1
+  # Assigning the progenis with parents but without progeny to the minimum tracing generation of parents - 1
   ped_trace_gen_dt <- merge(ped_new,ind_trace_gen_dt,by=c("Ind"),all.x=TRUE)
   setnames(ped_trace_gen_dt,old=c("TraceGen"),new=c("TraceGenInd"))
   TraceGenSire = TraceGenDam = NULL
