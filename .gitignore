@@ -1,0 +1,7 @@
+packrat/lib*/
+.Rproj.user
+.bak
+packrat
+packrat/src/
+output.pdf
+tests
