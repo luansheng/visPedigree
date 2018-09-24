@@ -18,7 +18,7 @@ visped(ped, compact = FALSE, outline = FALSE, cex = NULL,
 
 \item{showgraph}{A logical value indicating whether a plot will be shown in the defaulted graphic device, such as the Plots panel of Rstudio. It is useful for quick viewing of the pedigree graph without opening the pdf file. However, the graph on the defaulted graphic device may be not legible, such as overlapped labels, aliasing lines. It's a good choice to set \code{showgraph = FALSE} when the pedigree is large. The default value is TRUE.}
 
-\item{file}{NULL or a character value means the output pdf file name of the pedigree graph. The graph in the pdf file is a vector drawing, is legible and labels isn't overlapped especially when the number of individuals is big and width of the individual label is long in one generation. It is recommended that the pedigree graph is saved in the pdf file. The default value is NULL.}
+\item{file}{NULL or a character value means the output pdf file name of the pedigree graph. The graph in the pdf file is a legible vector drawing, and labels isn't overlapped especially when the number of individuals is big and width of the individual label is long in one generation. It is recommended that the pedigree graph is saved in the pdf file. The default value is NULL.}
 }
 \value{
 No returned values. The graph will be plotted directly on graphic devices.
