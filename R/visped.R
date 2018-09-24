@@ -280,10 +280,13 @@ visped <- function(ped,
     } else {
       message(paste("The cex for individual label is ", cex, ".", sep = ""))
     }
-    message(
-      paste("Please decrease or increase the value of the paremter cex and rerun visped() function ",
-            "when the label's width is longer or shorter than that of the circle in the ",file," file",
-            sep=""))
+    message("Please decrease the value of the paremter cex if the label's width is longer than that of the circle or square in the graph.")
+    message("Please increase the value of the paremter cex if the label's width is shorter than that of the circle or square in the graph.")
+  }
+  if (is.null(file)) {
+    message("It is recommended that the pedigree graph is saved in the pdf file using the parameter file")
+    message("The graph in the pdf file is a vector drawing, is legible and labels isn't overlapped especially")
+    message("when the number of individuals is big and width of the individual label is long in one generation.")
   }
 
 }
