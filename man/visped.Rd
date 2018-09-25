@@ -10,7 +10,7 @@ visped(ped, compact = FALSE, outline = FALSE, cex = NULL,
 \arguments{
 \item{ped}{A data.table including the pedigree tidied by the \code{\link{tidyped}} function with the parameter \code{addnum=TRUE}. It is recommended that the pedigree is tidied and pruned by candidates using the \code{\link{tidyped}} function with the not null parameter \code{cand}.}
 
-\item{compact}{A logical value indicating whether IDs of full-sib individuals in one generation will be deleted and replaced with the number of full-sib individuals. The default value is FALSE. For example, if there are 100 full-sib individuals in one generation, they will be deleted from the pedigree and be replaced with one individual label of "100" when \code{compact = TRUE}. The default value is FALSE}
+\item{compact}{A logical value indicating whether IDs of full-sib individuals in one generation will be deleted and replaced with the number of full-sib individuals. For example, if there are 100 full-sib individuals in one generation, they will be deleted from the pedigree and be replaced with one individual label of "100" when \code{compact = TRUE}. The default value is FALSE}
 
 \item{outline}{A logical value indicating whether shapes without label will be shown. A graph of the pedigree without individuals' label is shown when setting \code{outline = TRUE}. It is very useful for viewing the outline of the pedigree and finding the immigrant individuals in each generation when the width of a pedigree graph is longer than the maximum width (200 inches) of the pdf file. The defaulted value is FALSE.}
 
@@ -18,7 +18,7 @@ visped(ped, compact = FALSE, outline = FALSE, cex = NULL,
 
 \item{showgraph}{A logical value indicating whether a plot will be shown in the defaulted graphic device, such as the Plots panel of Rstudio. It is useful for quick viewing of the pedigree graph without opening the pdf file. However, the graph on the defaulted graphic device may be not legible, such as overlapped labels, aliasing lines. It's a good choice to set \code{showgraph = FALSE} when the pedigree is large. The default value is TRUE.}
 
-\item{file}{NULL or a character value means the output pdf file name of the pedigree graph. The graph in the pdf file is a legible vector drawing, and labels isn't overlapped especially when the number of individuals is big and width of the individual label is long in one generation. It is recommended that the pedigree graph is saved in the pdf file. The default value is NULL.}
+\item{file}{NULL or a character value means whether the pedigree graph will be saved in a pdf file. The graph in the pdf file is a legible vector drawing, and labels isn't overlapped especially when the number of individuals is big and width of the individual label is long in one generation. It is recommended that saving a pedigree graph in the pdf file. The default value is NULL.}
 }
 \value{
 No returned values. The graph will be plotted directly on graphic devices.
@@ -27,7 +27,7 @@ No returned values. The graph will be plotted directly on graphic devices.
 \code{visped} function draws a graph of a full or compact pedigree.
 }
 \details{
-This function takes a pedigree tidied by the \code{\link{tidyped}} function, outputs a hierarchical graph for all individuals in the pedigree. The graph can be shown on the defaulted graphic device and be written as a pdf file. The graph in the pdf file is a vector drawing, is legible and isn't overlapped especially when the number of individuals is big and the width of individual label is long in one generation. This function can draw the graph of a very large pedigree (> 10,000 individuals per generation) by compacting the full-sib individuals. It is especially effective for drawing the pedigree of aquatic animal, which usually including many full-sib families per generation in the nucleus breeding population. The outline of a pedigree without individuals' label still is shown if the width of a pedigree graph is longer than the maximum width (200 inches) of the pdf file.
+This function takes a pedigree tidied by the \code{\link{tidyped}} function, outputs a hierarchical graph for all individuals in the pedigree. The graph can be shown on the defaulted graphic device and be saved in a pdf file. The graph in the pdf file is a vector drawing, is legible and isn't overlapped. It is especially useful when the number of individuals is big and the width of individual label is long in one generation. This function can draw the graph of a very large pedigree (> 10,000 individuals per generation) by compacting the full-sib individuals. It is very effective for drawing the pedigree of aquatic animal, which usually including many full-sib families per generation in the nucleus breeding population. The outline of a pedigree without individuals' label is still shown if the width of a pedigree graph is longer than the maximum width (200 inches) of the pdf file.
 
 In the graph, two shapes and three colors are used. Circle is for individual, square is for family. Dark sky blue means male, dark golden rod means female, dark olive green means unknown sex. For example, one circle with dark sky blue means a male individual; One square with dark golden rod means all female individuals in a full-sib family when \code{compact = TRUE}.
 }
