@@ -28,12 +28,12 @@ checkped <- function(ped,addgen=TRUE) {
   # they are setted as NA
   if (length(ped_new[Sire %in% c("", " ", "0", "*", "NA"), Sire]) > 0) {
     ped_new[Sire %in% c("", " ", "0", "*", "NA"), Sire := NA]
-    warning("Blank, Zero, asterisk, or NA are read as a missing parent in the sire column of the pedigree.")
+    warning("Blank, Zero, asterisk, or character NA is recognized as a missing dam and is replaced with missing value NA in the sire column of the pedigree.")
   }
 
   if (length(ped_new[Dam %in% c("", " ", "0", "*", "NA"), Dam]) > 0) {
     ped_new[Dam %in% c("", " ", "0", "*", "NA"), Dam := NA]
-    warning("Blank, Zero, asterisk, or NA are read as a missing parent in the dam column of the pedigree.")
+    warning("Blank, Zero, asterisk, or NA is recognized as a missing sire and is replaced with missing value NA in the dam column of the pedigree.")
   }
   #The programme will stop if there are no parents in the sire and dam columns.
   if (all(is.na(ped_new$Sire)) & all(is.na(ped_new$Dam))) {
