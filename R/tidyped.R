@@ -2,7 +2,7 @@
 #'
 #' \code{tidyped} function checks, sorts, traces, and returns a trimmed pedigree.
 #'
-#' This function takes a pedigree, checks duplicated, bisexual individuals, detects pedigree loop, adds missing founders, sorts the pedigree, and traces the pedigree of the candidates. If the parameter \emph{cand} contains individuals's IDs, then only these individuals and their ancestors or descendants will be kept in the pedigree. The tracing direction and tracing generation number can be provided when the parameters \emph{trace} and \emph{tracegen} are not NULL. Individual virtual generation will be infered and assigned when the parameter \emph{addgen} is TRUE. Individual numeric pedigree will be generated when the parameter \emph{addnum} is TRUE. All individuals's sex will be inferred if there is not sexual information in the pedigee. If the pedigree includes the column \strong{Sex}, then individuals's sexes need to be recoded as "male", "female", or NA (unknown sex). Missing sexes will be identified from the pedigree structure and be added if possible.
+#' This function takes a pedigree, checks duplicated, bisexual individuals, detects pedigree loop, adds missing founders, sorts the pedigree, and traces the pedigree of the candidates. If the parameter \emph{cand} contains individuals's IDs, then only these individuals and their ancestors or descendants will be kept in the pedigree. The tracing direction and tracing generation number can be provided when the parameters \emph{trace} and \emph{tracegen} are not NULL. Individual virtual generation will be infered and assigned when the parameter \emph{addgen} is TRUE. Numeric pedigree will be generated when the parameter \emph{addnum} is TRUE. All individuals's sex will be inferred if there is not sexual information in the pedigee. If the pedigree includes the column \strong{Sex}, then individuals's sexes need to be recoded as "male", "female", or NA (unknown sex). Missing sexes will be identified from the pedigree structure and be added if possible.
 #'
 #' @param ped A data.table or data frame including the pedigree, which including the first three columns: \strong{individual}, \strong{sire} and \strong{dam} IDs. More columns, such as sex, generation can be included in the pedigree file. Names of the three columns can be assigend as you would like, but their orders must be not changded in the pedigree. Individual ID should not be coded as "", " ", "0", asterisk, and "NA", otherwise these individuals will be deleted from the pedigree. Missing parents should be denoted by either "NA", "0", asterisk. Space and "" will also be recoded as missing parents, but not be recommended.
 #' @param cand A character vector including individual IDs, or NULL. Only the candidates and their ancestors and offspring will be kept in the pedigree if this parameter is not NULL.
@@ -54,7 +54,7 @@ tidyped <-
 
     # The Gen column will be deleted
     if (c("Gen") %in% ped_colnames) {
-        warning("The column Gen of the original pedigree will be deleted.")
+        warning("The column Gen of the original pedigree is deleted.")
     }
 
     # IndNum SireNum or DamNum columns will be deleted
@@ -62,7 +62,7 @@ tidyped <-
     if (any(three_num_columns %in% ped_colnames)) {
       exist_columns <- three_num_columns[three_num_columns %in% ped_colnames]
       warning("The columns ", paste(exist_columns,collapse = ","),
-              " of the original pedigree  will be deleted.")
+              " of the original pedigree are deleted.")
     }
 
     ped_check <- checkped(ped, addgen)
