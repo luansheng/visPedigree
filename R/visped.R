@@ -41,20 +41,20 @@
 #' @export
 visped <- function(ped,
                    compact = FALSE, outline = FALSE, cex = NULL, showgraph = TRUE, file = NULL) {
-  # IndNum, SireNum, and DamNum columns are used as ids to node and edges
+  # IndNum, SireNum, and DamNum columns are used as IDs to node and edges
   ped_col_names <- names(ped)
   if (!all(c("IndNum", "SireNum", "DamNum") %in% ped_col_names)) {
     stop("The pedigree need to be firstly trimmed by the tidyped() function!")
   }
   ped_new <- copy(ped)
-  # Convertting pedigree to node and edge two data.table
+  # Convertting pedigree to nodes and edges data.table
   ped_igraph <- ped2igraph(ped_new, compact)
   real_node <- ped_igraph$node[nodetype %in% c("real", "compact")]
   gen_node_num <- real_node[, .N, by = gen]
   gen_max_size <-  max(gen_node_num$N, na.rm = TRUE)
 
 
-  #=== Obtaining the width of a node's label =====================================================
+  #=== Obtaining the maximum width of nodes' label =====================================================
   # The maximum width of a pdf file is 200 inch
   pdf_max_width = 200
   cexs <-  seq(from = 0.1, to = 1, by = 0.05)
@@ -64,8 +64,7 @@ visped <- function(ped,
     # Obtaining the maximum width of a node's label: inch
     label_max_width <- max(strwidth(max_strwidth_label, cex = cexs[i], units = "inches"),
           na.rm = TRUE)
-    # Fixing the width of the node when the number of nodes (individuals)
-    # in one generation is small
+    # Fixing the width of the node when the number of nodes (individuals) is small in one generation 
     # The unit of 0.8 is inch, about 2cm for the width of one node
     if (gen_max_size <= 16 & label_max_width < 0.8) {
       label_max_width = 0.8
@@ -89,8 +88,7 @@ visped <- function(ped,
   hgap <- round(1 / gen_max_size, 8)
   gen_num <- max(real_node$gen, na.rm = TRUE)
   max_layer <- max(ped_igraph$node$layer, na.rm = TRUE)
-  # The mean space between two near nodes in each generation are obtained by the
-  # normalized axis x from the layout_with_sugiyama
+  # Restoring the IDs for all nodes in each layer
   layers <-  vector(mode = "list", length = max_layer)
   k <- 1
   for (i in max_layer:1) {
@@ -196,7 +194,7 @@ visped <- function(ped,
 
   # Finding better node_width when the number of nodes is not too big.
   if (outline) {
-    # About < 20,000,000 nodes could be shown in one generation
+    # Maybe < 20,000,000 nodes could be shown in one generation
     node_width_s <- 0.0001
     node_width_v <- seq(from=label_max_width, to=node_width_s,by=-0.0001)
     canvas_width_v <- node_width_v * gen_max_size
@@ -228,7 +226,7 @@ visped <- function(ped,
     height <- pdf_maximum_height
   }
 
-  # vertes_size is a percentage of the width of node to graph
+  # node_size is a percentage of the width of node to graph
   node_size <- round(node_width_s * 100 / canvas_width_s, 8)
   edge_size <- node_size * 0.001
   edge_arrow_size <- node_size * 0.002
