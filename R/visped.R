@@ -10,7 +10,7 @@
 #' @param compact A logical value indicating whether IDs of full-sib individuals in one generation will be deleted and replaced with the number of full-sib individuals. For example, if there are 100 full-sib individuals in one generation, they will be deleted from the pedigree and be replaced with one individual label of "100" when \code{compact = TRUE}. The default value is FALSE
 #' @param outline A logical value indicating whether shapes without label will be shown. A graph of the pedigree without individuals' label is shown when setting \code{outline = TRUE}. It is very useful for viewing the outline of the pedigree and finding the immigrant individuals in each generation when the width of a pedigree graph is longer than the maximum width (200 inches) of the pdf file. The defaulted value is FALSE.
 #' @param cex NULL or a numeric value changing the size of individual label shown in the graph. \emph{cex} is a abbreviation of character expansion factor. \code{visped} function will try to guess (\code{cex=NULL}) the matched cex value and returned it in the messages. According to the returned cex of the last run, this parameter should be increased if the label's width is longer than that of the shape in the output pdf file; Contrariwise, this parameter should be decreased if the label's width is shorter than that of the shape in the output pdf file; then rerunning \code{visped} function. The default value is NULL.
-#' @param showgraph A logical value indicating whether a plot will be shown in the defaulted graphic device, such as the Plots panel of Rstudio. It is useful for quick viewing of the pedigree graph without opening the pdf file. However, the graph on the defaulted graphic device may be not legible, such as overlapped labels, aliasing lines. It's a good choice to set \code{showgraph = FALSE} when the pedigree is large. The default value is TRUE.
+#' @param showgraph A logical value indicating whether a plot will be shown in the defaulted graphic device, such as the Plots panel of Rstudio. It is useful for quick viewing of the pedigree graph without opening the pdf file. However, the graph on the defaulted graphic device may be not legible, such as overlapped labels, aliasing lines due to the restricted width and height. It's a good choice to set \code{showgraph = FALSE} when the pedigree is large. The default value is TRUE.
 #' @param file NULL or a character value means whether the pedigree graph will be saved in a pdf file. The graph in the pdf file is a legible vector drawing, and labels isn't overlapped especially when the number of individuals is big and width of the individual label is long in one generation. It is recommended that saving a pedigree graph in the pdf file. The default value is NULL.
 #' @return No returned values. The graph will be plotted directly on graphic devices.
 #'
@@ -64,7 +64,7 @@ visped <- function(ped,
     # Obtaining the maximum width of a node's label: inch
     label_max_width <- max(strwidth(max_strwidth_label, cex = cexs[i], units = "inches"),
           na.rm = TRUE)
-    # Fixing the width of the node when the number of nodes (individuals) is small in one generation 
+    # Fixing the width of the node when the number of nodes (individuals) is small in one generation
     # The unit of 0.8 is inch, about 2cm for the width of one node
     if (gen_max_size <= 16 & label_max_width < 0.8) {
       label_max_width = 0.8
