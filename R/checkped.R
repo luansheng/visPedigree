@@ -7,7 +7,7 @@
 #' @param addgen A logical value indicates whether individual generation number will be generated. The default values is TRUE, then a new column named \strong{Gen} will be added in the returned data.table.
 #'
 #' @return A data.table including the checked pedigree is returned. Individual, sire and dam ID columns are renamed as \strong{Ind}, \strong{Sire} and \strong{Dam}. Missing parent is replacted with the default missing value \strong{NA}. The column \strong{Sex} includes individuals' sex (male or female, NA for unknown sex). The column \strong{Gen} will be included when the parameter \emph{addgen} is TRUE. Ind, Sire, Dam and Sex columns are character; The Gen column is integer.
-#'
+#' @keywords internal
 #' @import data.table
 checkped <- function(ped,addgen=TRUE) {
   ped_new <- copy(ped)

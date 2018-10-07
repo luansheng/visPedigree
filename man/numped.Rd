@@ -13,8 +13,9 @@ numped(ped)
 A data.table including the new integer columns (IndNum, SireNum and DamNum) in the pedigree.
 }
 \description{
-\code{numped} function replaces individual IDs with integers in the pedigree.
+\code{numped} function generates integer IDs for Ind, Sire and Dam IDs in the pedigree.
 }
 \details{
 This function takes a pedigree, assigns individual IDs to continuous integers 1...n.
 }
+\keyword{internal}

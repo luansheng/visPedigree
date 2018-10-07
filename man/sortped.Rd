@@ -20,3 +20,4 @@ A data.table including the resorted pedigree is returned. The individual generat
 \details{
 This function takes a pedigree, assigns individuals to different generations, sort parents before offspring.
 }
+\keyword{internal}

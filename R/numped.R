@@ -1,12 +1,12 @@
 #' Number a pedigree
 #'
-#' \code{numped} function replaces individual IDs with integers in the pedigree.
+#' \code{numped} function generates integer IDs for Ind, Sire and Dam IDs in the pedigree.
 #'
 #' This function takes a pedigree, assigns individual IDs to continuous integers 1...n.
 #' @param ped A data.table or data frame including the pedigree, in which the names of the first three columns are \strong{Ind}, \strong{Sire} and \strong{Dam}. Missing parent has been replaced with the default missing value \strong{NA}.
 #'
 #' @return A data.table including the new integer columns (IndNum, SireNum and DamNum) in the pedigree.
-#'
+#' @keywords internal
 #' @import data.table
 numped <- function(ped) {
   ped_new <- copy(ped)

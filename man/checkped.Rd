@@ -20,3 +20,4 @@ A data.table including the checked pedigree is returned. Individual, sire and da
 \details{
 This function takes a pedigree, detects missaing parents, checks duplicated, bisexual individuals,  adds missing founders, and sorts the pedigree. All individuals's sex will be inferred if there is not sexual information in the pedigee. If the pedigree includes the column \strong{Sex}, then individuals's sexes need to be recoded as "male", "female", or NA (unknown sex). Missing sexes will be identified from the pedigree structure and be added if possible.
 }
+\keyword{internal}
