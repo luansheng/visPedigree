@@ -1,3 +1,15 @@
+#' Sort a pedigree
+#'
+#' \code{sortped} function assigns generations and sorts a pedigree .
+#'
+#' This function takes a pedigree, assigns individuals to different generations, sort parents before offspring.
+#'
+#' @param ped A data.table or data frame including the pedigree, in which the names of the first three columns are \strong{Ind}, \strong{Sire} and \strong{Dam}. Missing parent has been replaced with the default missing value \strong{NA}.
+#' @param addgen A logical value indicates whether the individual generation number will be inferred. The default values is TRUE, then a new column named \strong{Gen} will be added in the returned data.table.
+#'
+#' @return A data.table including the resorted pedigree is returned. The individual generation is inferred and a new column \strong{Gen} is added when the parameter \emph{addgen} is TRUE. The Gen column is integer.
+#'
+#' @import data.table
 sortped <- function(ped,addgen=TRUE) {
   ped_new <- copy(ped)
   ped_new_colnames <- colnames(ped_new)
@@ -97,7 +109,7 @@ sortped <- function(ped,addgen=TRUE) {
                      MaxTraceGen = NULL)]
   ped_trace_gen_dt[, TraceGenInd := TraceGenInd + 1]
   max_trace_gen <- max(ped_trace_gen_dt$TraceGenInd)
-  # convert the tracing generation to real generation
+  # Convert the tracing generation to real generation
   ped_trace_gen_dt[, Gen := (-1) * TraceGenInd + max_trace_gen + 1]
   ped_trace_gen_dt[,TraceGenInd:=NULL]
   ped_column_name <- colnames(ped_trace_gen_dt)
