@@ -278,8 +278,8 @@ visped <- function(ped,
     } else {
       message(paste("The cex for individual label is ", cex, ".", sep = ""))
     }
-    message("Please decrease the value of the paremter cex if the label's width is longer than that of the circle or square in the graph.")
-    message("Please increase the value of the paremter cex if the label's width is shorter than that of the circle or square in the graph.")
+    message("Please decrease or increase the value of the paremter cex if the label's width is longer or shorter than that of the circle or square in the graph.")
+
   }
   if (is.null(file)) {
     message("It is recommended that the pedigree graph is saved in the pdf file using the parameter file")
@@ -395,7 +395,8 @@ ped2igraph <- function(ped,compact=TRUE) {
   # grey
   #ped_edge[,":="(size=1,arrow.size=1,arrow.width=1,color="#9d96ad",curved=0.15)]
   #ped_edge[,":="(size=1,arrow.size=1,arrow.width=1,color="#a69f89",curved=0.15)]
-  ped_edge[,":="(size=1,arrow.size=1,arrow.width=1,color="#afa8be",curved=0.10)]
+  #ped_edge[,":="(size=1,arrow.size=1,arrow.width=1,color="#afa8be",curved=0.10)]
+  ped_edge[,":="(size=1,arrow.size=1,arrow.width=1,color="#333333",curved=0.10)]
   # Add familynum as new virtual nodes
   ped_node <-
     rbind(ped_node, unique(ped_node[familynum > 0, .(
