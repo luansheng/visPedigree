@@ -33,15 +33,18 @@ checkped <- function(ped,addgen=TRUE) {
   }
   # Missing parents are shown by "", " ", "0", "*", and "NA" in the pedigree file,
   # they are setted as NA
+  if ((length(ped_new[Sire %in% c("", " ", "0", "*", "NA"), Sire]) > 0) | (length(ped_new[Dam %in% c("", " ", "0", "*", "NA"), Dam]) > 0)) {
+    warning("In the sire or dam column, Blank, Zero, asterisk, or character NA is recognized as a missing parent and is replaced with the missing value NA.")
+  }
+
   if (length(ped_new[Sire %in% c("", " ", "0", "*", "NA"), Sire]) > 0) {
     ped_new[Sire %in% c("", " ", "0", "*", "NA"), Sire := NA]
-    warning("Blank, Zero, asterisk, or character NA is recognized as a missing dam and is replaced with missing value NA in the sire column of the pedigree.")
   }
 
   if (length(ped_new[Dam %in% c("", " ", "0", "*", "NA"), Dam]) > 0) {
     ped_new[Dam %in% c("", " ", "0", "*", "NA"), Dam := NA]
-    warning("Blank, Zero, asterisk, or NA is recognized as a missing sire and is replaced with missing value NA in the dam column of the pedigree.")
   }
+
   #The programme will stop if there are no parents in the sire and dam columns.
   if (all(is.na(ped_new$Sire)) & all(is.na(ped_new$Dam))) {
     stop("All dams and sires are missing! No pedigee! Please check it!")
