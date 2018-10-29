@@ -215,15 +215,15 @@ visped <- function(ped,
   }
 
 
-  height <- canvas_width_s * 0.618
+  canvas_height <- canvas_width_s * 0.618
 
   # inch
   gen_height <- 0.618
-  if (height < gen_num * (node_width_s) + 3 * node_width_s) {
-    height <- gen_num * (node_width_s) + 3 * node_width_s
+  if (canvas_height < gen_num * (node_width_s) + 3 * node_width_s) {
+    canvas_height <- gen_num * (node_width_s) + 3 * node_width_s
   }
-  if (height > pdf_maximum_height) {
-    height <- pdf_maximum_height
+  if (canvas_height > pdf_maximum_height) {
+    canvas_height <- pdf_maximum_height
   }
 
   # node_size is a percentage of the width of node to graph
@@ -258,7 +258,7 @@ visped <- function(ped,
   if (!is.null(file)) {
     pdf(file = file,
         width = canvas_width_s,
-        height = height)
+        height = canvas_height)
     plot.igraph(
       g,
       rescale = FALSE,
