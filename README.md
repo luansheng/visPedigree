@@ -13,6 +13,6 @@ This package takes a pedigree, checks duplicated, bisexual individuals, detects 
    install_github("luansheng/visPedigree")
    ```
 ## Vignette
+English link: https://luansheng.netlify.com/post/vispedigree-use-guide/      
 Simplified Chinese link: https://luansheng.netlify.com/post/the-first-package-vispedigree-0-1/     
-English link: https://luansheng.netlify.com/post/vispedigree-use-guide/
 
