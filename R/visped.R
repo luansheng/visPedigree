@@ -245,6 +245,8 @@ visped <- function(ped,
   E(g)$size = edge_size
   E(g)$arrow.size = edge_arrow_size
   E(g)$arrow.width = edge_arrow_width
+
+  #===Draw the peidgree================================================================
   if (showgraph) {
     plot.igraph(
       g,
