@@ -12,7 +12,7 @@
 
 <meta name="author" content="Sheng Luan" />
 
-<meta name="date" content="2018-11-15" />
+<meta name="date" content="2018-11-16" />
 
 <title>1. How to tidy a pedigree</title>
 
@@ -280,7 +280,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 
 <h1 class="title toc-ignore">1. How to tidy a pedigree</h1>
 <h4 class="author"><em>Sheng Luan</em></h4>
-<h4 class="date"><em>2018-11-15</em></h4>
+<h4 class="date"><em>2018-11-16</em></h4>
 
 
 
@@ -304,17 +304,13 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <a class="sourceLine" id="cb1-2" data-line-number="2"><span class="cf">if</span> (<span class="op">!</span>is_installed) {</a>
 <a class="sourceLine" id="cb1-3" data-line-number="3">  <span class="kw">install.packages</span>(<span class="st">&quot;devtools&quot;</span>)</a>
 <a class="sourceLine" id="cb1-4" data-line-number="4">  <span class="kw">suppressPackageStartupMessages</span>(<span class="kw">require</span>(devtools))</a>
-<a class="sourceLine" id="cb1-5" data-line-number="5">} <span class="cf">else</span> {</a>
-<a class="sourceLine" id="cb1-6" data-line-number="6">  <span class="kw">suppressPackageStartupMessages</span>(<span class="kw">require</span>(devtools))</a>
-<a class="sourceLine" id="cb1-7" data-line-number="7">}</a></code></pre></div>
+<a class="sourceLine" id="cb1-5" data-line-number="5">}</a></code></pre></div>
 <p>If the visPedigree package is not found in the library, please install it from github, then load it. The package is developed and depends on data.table and igraph packages. If these two packages are not installed, they will be installed together.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw">suppressPackageStartupMessages</span>(is_installed &lt;-<span class="st"> </span><span class="kw">require</span>(visPedigree))</a>
 <a class="sourceLine" id="cb2-2" data-line-number="2"><span class="cf">if</span> (<span class="op">!</span>is_installed) {</a>
 <a class="sourceLine" id="cb2-3" data-line-number="3">  <span class="kw">install_github</span>(<span class="st">&quot;luansheng/visPedigree&quot;</span>)  </a>
 <a class="sourceLine" id="cb2-4" data-line-number="4">  <span class="kw">suppressPackageStartupMessages</span>(<span class="kw">require</span>(visPedigree))</a>
-<a class="sourceLine" id="cb2-5" data-line-number="5">} <span class="cf">else</span> {</a>
-<a class="sourceLine" id="cb2-6" data-line-number="6">  <span class="kw">suppressPackageStartupMessages</span>(<span class="kw">require</span>(visPedigree))</a>
-<a class="sourceLine" id="cb2-7" data-line-number="7">}</a></code></pre></div>
+<a class="sourceLine" id="cb2-5" data-line-number="5">}</a></code></pre></div>
 </div>
 <div id="pedigree-format-specification" class="section level2">
 <h2><a id="2">2. Pedigree format specification</a></h2>

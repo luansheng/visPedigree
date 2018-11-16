@@ -38,8 +38,6 @@ suppressPackageStartupMessages(is_installed <- require(devtools))
 if (!is_installed) {
   install.packages("devtools")
   suppressPackageStartupMessages(require(devtools))
-} else {
-  suppressPackageStartupMessages(require(devtools))
 }
 ```
 
@@ -48,8 +46,6 @@ If the visPedigree package is not found in the library, please install it from g
 suppressPackageStartupMessages(is_installed <- require(visPedigree))
 if (!is_installed) {
   install_github("luansheng/visPedigree")  
-  suppressPackageStartupMessages(require(visPedigree))
-} else {
   suppressPackageStartupMessages(require(visPedigree))
 }
 ```
