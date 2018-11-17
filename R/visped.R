@@ -490,13 +490,15 @@ repeloverlap <- function(x) {
     for (i in 1:dup_num) {
       rank_left <- which(unique_elements==x_dt_dup[i,x])
       # for c(1,2,3,4,5,5,6,6)
-      if ((rank_left == unique_elements_num-1) & (which(unique_elements==x_dt_dup[i+1,x]) == unique_elements_num)) {
-        rank_right <- rank_left+1
-        range <- unique_elements[rank_right]-unique_elements[rank_left]
-        break_num <- x_dt_dup[i,N]+x_dt_dup[i+1,N]-1
-        break_length <- range/break_num
-        y[[i]] <- c(x_dt_dup[i,x],x_dt_dup[i+1,x],unique_elements[rank_left]+break_length*seq(break_num-1))
-        break
+      if (i == (dup_num-1)) {
+        if ((rank_left == unique_elements_num-1) & (which(unique_elements==x_dt_dup[i+1,x]) == unique_elements_num)) {
+          rank_right <- rank_left+1
+          range <- unique_elements[rank_right]-unique_elements[rank_left]
+          break_num <- x_dt_dup[i,N]+x_dt_dup[i+1,N]-1
+          break_length <- range/break_num
+          y[[i]] <- c(x_dt_dup[i,x],x_dt_dup[i+1,x],unique_elements[rank_left]+break_length*seq(break_num-1))
+          break
+        }
       }
 
       break_num <- x_dt_dup[i,N]
