@@ -41,6 +41,10 @@
 #' @export
 visped <- function(ped,
                    compact = FALSE, outline = FALSE, cex = NULL, showgraph = TRUE, file = NULL) {
+  # Reserved digits
+  fixed_digits <- 7
+  # Digits when calculating
+  options(digits=20)
   # IndNum, SireNum, and DamNum columns are used as IDs to node and edges
   ped_col_names <- names(ped)
   if (!all(c("IndNum", "SireNum", "DamNum") %in% ped_col_names)) {
@@ -111,8 +115,19 @@ visped <- function(ped,
         ymax = 1)
   ped_igraph$node <- cbind(ped_igraph$node, x = l[, 1], y = l[, 2])
 
-  #=== Adjusting space between two nodes (individuals) in x axis for each generation ==
+
   real_node <- ped_igraph$node[nodetype %in% c("real", "compact")]
+  #===Repelling duplicated x positions=================================================
+   for (i in 1:gen_num) {
+    v_rank <- rank(real_node[gen == i, x], na.last = TRUE, ties.method = "first")
+    x_sorted <- sort(real_node[gen == i, x])
+    x_sorted <- round(x_sorted,fixed_digits)
+    x_new <- repeloverlap(x_sorted)
+    real_node[gen == i, x := x_new[v_rank]]
+   }
+  ped_igraph$node[nodetype %in% c("real", "compact")] <- real_node
+
+  #=== Adjusting space between two nodes (individuals) in x axis for each generation ==
   if ((!outline) & gen_max_size >= 2) {
     x_stats_gen <-
       real_node[, .(.N, range = max(x, na.rm = TRUE) - min(x, na.rm = TRUE)),
@@ -123,7 +138,7 @@ visped <- function(ped,
     l_x_distance <- diff(l_x_range)
     max_gen_mean_space <- max(x_stats_gen$meanspace, na.rm = TRUE)
     for (i in 1:gen_num) {
-      v_rank <- rank(real_node[gen == i, x], na.last = TRUE)
+      v_rank <- rank(real_node[gen == i, x], na.last = TRUE, ties.method = "first")
       node_num <- length(v_rank)
       if (node_num >= 2) {
         x_distance_1 <- diff(range(real_node[gen == i, x], na.rm = TRUE))
@@ -161,7 +176,7 @@ visped <- function(ped,
   l[, 1] <- ped_igraph$node[, x]
 
 
-  #=== Rescale canvas' size, node's size and edge's size ==============================
+  #=== Rescalling canvas' size, node's size and edge's size ==============================
   # calculate the width of each node: inch
   node_width_s <- label_max_width
   if (!outline) {
@@ -287,7 +302,7 @@ visped <- function(ped,
     message("It is recommended that the pedigree graph is saved in the pdf file using the parameter file")
     message("The graph in the pdf file is a vector drawing: shapes, labels and lines are legible; shapes and labels isn't overlapped.")
   }
-
+  options(digits=7)
 }
 
 ped2igraph <- function(ped,compact=TRUE) {
@@ -462,3 +477,43 @@ ped2igraph <- function(ped,compact=TRUE) {
 
 `:=` = function(...) NULL
 
+#=== Repelling the overlapping positions of nodes
+repeloverlap <- function(x) {
+  if (anyDuplicated(x)>0) {
+    x_dt <- as.data.table(x)
+    x_dt_times <- x_dt[,.N,by=x]
+    unique_elements <- sort(x_dt_times[,x])
+    unique_elements_num <- length(unique_elements)
+    x_dt_dup <- x_dt_times[N>1]
+    dup_num <- nrow(x_dt_dup)
+    y <- vector(mode = "list",length = dup_num)
+    for (i in 1:dup_num) {
+      rank_left <- which(unique_elements==x_dt_dup[i,x])
+      # for c(1,2,3,4,5,5,6,6)
+      if ((rank_left == unique_elements_num-1) & (which(unique_elements==x_dt_dup[i+1,x]) == unique_elements_num)) {
+        rank_right <- rank_left+1
+        range <- unique_elements[rank_right]-unique_elements[rank_left]
+        break_num <- x_dt_dup[i,N]+x_dt_dup[i+1,N]-1
+        break_length <- range/break_num
+        y[[i]] <- c(x_dt_dup[i,x],x_dt_dup[i+1,x],unique_elements[rank_left]+break_length*seq(break_num-1))
+        break
+      }
+
+      break_num <- x_dt_dup[i,N]
+      # for c(1,1,2,3,4,5,6)
+      if (rank_left < unique_elements_num) {
+        rank_right <- rank_left+1
+      }
+      # for c(1,1,2,3,4,5,6,6)
+      if (rank_left == unique_elements_num) {
+        rank_right <-  rank_left
+        rank_left <- rank_left-1
+      }
+      range <- unique_elements[rank_right]-unique_elements[rank_left]
+      break_length <- range/break_num
+      y[[i]] <- c(x_dt_dup[i,x],unique_elements[rank_left]+break_length*seq(break_num-1))
+    }
+    return(sort(union(unique_elements, do.call("c",y))))
+  }
+  return(x)
+}
