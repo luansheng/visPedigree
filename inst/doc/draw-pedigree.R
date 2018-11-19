@@ -32,11 +32,11 @@ visped(tidy_simple_ped)
 suppressMessages(visped(tidy_simple_ped, showgraph = FALSE, file="simpleped.pdf"))
 
 ## ----deepped, eval=FALSE-------------------------------------------------
-#  cand_J11_labels <- deep_ped[(substr(Ind, 1, 3) == "J11"), Ind]
+#  cand_J11_labels <- deep_ped[(substr(Ind, 1, 3) == "K11"), Ind]
 #  visped(tidyped(deep_ped, cand = cand_J11_labels, tracegen = 3))
 
 ## ----reduceped1, fig.width=6.5, fig.height=6.5---------------------------
-cand_J11_labels <- deep_ped[(substr(Ind,1,3) == "J11"),Ind]
+cand_J11_labels <- deep_ped[(substr(Ind,1,3) == "K11"),Ind]
 visped(
   tidyped(
     deep_ped,
@@ -77,8 +77,8 @@ suppressMessages(visped(
 
 ## ----pedofoneind, fig.width=6.5, fig.height=6.5--------------------------
 suppressWarnings(J110550G_ped <-
-                   tidyped(deep_ped, cand = "J110550G"))
-suppressMessages(visped(J110550G_ped, showgraph = TRUE, file = "J110550Gped.pdf"))
+                   tidyped(deep_ped, cand = "K110550H"))
+suppressMessages(visped(J110550G_ped, showgraph = TRUE, file = "K110550HGped.pdf"))
 
 ## ----optiMate, fig.width=6.5, fig.height=6.5-----------------------------
 cand_2007_G8_labels <-

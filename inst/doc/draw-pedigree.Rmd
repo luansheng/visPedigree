@@ -75,7 +75,7 @@ After opening the [simpleped.PDF](simpleped.PDF) file and you'll see a high defi
 
 Warning messages will be shown when you try to draw the pedigree graph of the deep_ped dataset.
 ```{r deepped, eval=FALSE}
-cand_J11_labels <- deep_ped[(substr(Ind, 1, 3) == "J11"), Ind]
+cand_J11_labels <- deep_ped[(substr(Ind, 1, 3) == "K11"), Ind]
 visped(tidyped(deep_ped, cand = cand_J11_labels, tracegen = 3))
 ```
 
@@ -90,7 +90,7 @@ The function indicates that too many individuals in one generation to draw a ped
 
 First, let's try the compact parameter and output it in the deepped1.pdf file. The figure on the default graphic device has serious overlapping problems due to the large number of individuals and the limited plot size.
 ```{r reduceped1, fig.width=6.5, fig.height=6.5}
-cand_J11_labels <- deep_ped[(substr(Ind,1,3) == "J11"),Ind]
+cand_J11_labels <- deep_ped[(substr(Ind,1,3) == "K11"),Ind]
 visped(
   tidyped(
     deep_ped,
@@ -144,11 +144,11 @@ suppressMessages(visped(
 #### <a id="4.4.1">4.4.1 An analysis of founders for an individual</a>    
 Selective breeding is actually a process of enrichment of the desirable minor genes dispersed among multiple founders through successive mating for multiple generations. The support theory behind it is the well-known minor polygene hypothesis.
 
-We select the individual "J110550G" in the deep_ped dataset to visualize its pedigree. The pdf pedigree is [here](J110550Gped.pdf).
+We select the individual "J110550G" in the deep_ped dataset to visualize its pedigree. The pdf pedigree is [here](K110550HGped.pdf).
 ```{r pedofoneind, fig.width=6.5, fig.height=6.5}
 suppressWarnings(J110550G_ped <-
-                   tidyped(deep_ped, cand = "J110550G"))
-suppressMessages(visped(J110550G_ped, showgraph = TRUE, file = "J110550Gped.pdf"))
+                   tidyped(deep_ped, cand = "K110550H"))
+suppressMessages(visped(J110550G_ped, showgraph = TRUE, file = "K110550HGped.pdf"))
 ```
 
 As you can see from the figure above, the number of founder individuals (without parents) of the J110550G individual is `r nrow(J110550G_ped[is.na(Sire) & is.na(Dam)])`.This means that this individual has accumulated a number of favorable genes from the founders, so that the breeding object trait will be improved with great genetic gain.
