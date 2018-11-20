@@ -477,11 +477,11 @@ ped2igraph <- function(ped,compact=TRUE) {
 
 `:=` = function(...) NULL
 
-#' Repel the overlapping positions of nodes
+#' Repel the overlapping nodes in x axis.
 #'
 #' \code{repeloverlap} function converts repeated axis x positions to continuous positions.
 #'
-#' This function takes a vector including axis x positions with repeated values of nodes, converts the repeated values of one x position to continuous positions. x = c(1.2,2.1,2.1,2.1,3.2,4.6,5.7); bl <- (3.2-2.1)/3; transformed x = c(1.2,2.1,2.1+bl,2.1+2*bl,3.2,4.6,5.7)
+#' This function takes a vector including axis x positions with repeated values, converts the repeated values of one x position to continuous positions. For example, x = c(1.2,2.1,2.1,2.1,3.2,4.6,5.7), where 2.1 is a axis x position with two repeated values; bl <- (3.2-2.1)/3; transformed x = c(1.2,2.1,2.1+bl,2.1+2*bl,3.2,4.6,5.7)
 #' @param x A vector including x positions with repeated values
 #' @return A vector including x positions with unique values
 #' @keywords internal
