@@ -479,15 +479,12 @@ ped2igraph <- function(ped,compact=TRUE) {
 
 #' Repel the overlapping positions of nodes
 #'
-#' \code{repeloverlap} function converts repeated x positions to continuous positions.
+#' \code{repeloverlap} function converts repeated axis x positions to continuous positions.
 #'
-#' This function takes a pedigree tidied by the \code{\link{tidyped}} function, outputs a hierarchical graph for all individuals in the pedigree. The graph can be shown on the defaulted graphic device and be saved in a pdf file. The graph in the pdf file is a vector drawing, is legible and isn't overlapped. It is especially useful when the number of individuals is big and the width of individual label is long in one generation. This function can draw the graph of a very large pedigree (> 10,000 individuals per generation) by compacting the full-sib individuals. It is very effective for drawing the pedigree of aquatic animal, which usually including many full-sib families per generation in the nucleus breeding population. The outline of a pedigree without individuals' label is still shown if the width of a pedigree graph is longer than the maximum width (200 inches) of the pdf file.
-#'
-#' In the graph, two shapes and three colors are used. Circle is for individual, square is for family. Dark sky blue means male, dark golden rod means female, dark olive green means unknown sex. For example, one circle with dark sky blue means a male individual; One square with dark golden rod means all female individuals in a full-sib family when \code{compact = TRUE}.
-#'
-#' @param ped A data.table including the pedigree tidied by the \code{\link{tidyped}} function with the parameter \code{addnum=TRUE}. It is recommended that the pedigree is tidied and pruned by candidates using the \code{\link{tidyped}} function with the not null parameter \code{cand}.
-#'
-#' @export                            
+#' This function takes a vector including axis x positions with repeated values of nodes, converts the repeated values of one x position to continuous positions. x = c(1.2,2.1,2.1,2.1,3.2,4.6,5.7); bl <- (3.2-2.1)/3; transformed x = c(1.2,2.1,2.1+bl,2.1+2*bl,3.2,4.6,5.7)
+#' @param x A vector including x positions with repeated values
+#' @return A vector including x positions with unique values
+#' @keywords internal
 repeloverlap <- function(x) {
   if (anyDuplicated(x)>0) {
     x_dt <- as.data.table(x)
