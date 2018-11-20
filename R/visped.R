@@ -458,14 +458,14 @@ ped2igraph <- function(ped,compact=TRUE) {
   ped_edge[from < min_familynum,":="(curved=0)]
 
 
-  # Sorting the from and to columns as the first two columns in the ped_edge
+  # Sorting the "from" and "to" columns as the first two columns in the ped_edge
   old_names <- colnames(ped_edge)
   new_names <- c(c("from","to"),old_names[!(old_names %in% c("from","to"))])
   ped_edge <- ped_edge[, ..new_names]
   ped_edge <- ped_edge[order(from,to)]
 
 
-  # Sorting the id column as the first column in the ped_node
+  # Sorting the "id" column as the first column in the ped_node
   old_names <- colnames(ped_node)
   new_names <- c("id",old_names[!(old_names %in% c("id"))])
   ped_node <- ped_node[, ..new_names]
@@ -477,11 +477,23 @@ ped2igraph <- function(ped,compact=TRUE) {
 
 `:=` = function(...) NULL
 
-#=== Repelling the overlapping positions of nodes
+#' Repel the overlapping positions of nodes
+#'
+#' \code{repeloverlap} function converts repeated x positions to continuous positions.
+#'
+#' This function takes a pedigree tidied by the \code{\link{tidyped}} function, outputs a hierarchical graph for all individuals in the pedigree. The graph can be shown on the defaulted graphic device and be saved in a pdf file. The graph in the pdf file is a vector drawing, is legible and isn't overlapped. It is especially useful when the number of individuals is big and the width of individual label is long in one generation. This function can draw the graph of a very large pedigree (> 10,000 individuals per generation) by compacting the full-sib individuals. It is very effective for drawing the pedigree of aquatic animal, which usually including many full-sib families per generation in the nucleus breeding population. The outline of a pedigree without individuals' label is still shown if the width of a pedigree graph is longer than the maximum width (200 inches) of the pdf file.
+#'
+#' In the graph, two shapes and three colors are used. Circle is for individual, square is for family. Dark sky blue means male, dark golden rod means female, dark olive green means unknown sex. For example, one circle with dark sky blue means a male individual; One square with dark golden rod means all female individuals in a full-sib family when \code{compact = TRUE}.
+#'
+#' @param ped A data.table including the pedigree tidied by the \code{\link{tidyped}} function with the parameter \code{addnum=TRUE}. It is recommended that the pedigree is tidied and pruned by candidates using the \code{\link{tidyped}} function with the not null parameter \code{cand}.
+#'
+#' @export                            
 repeloverlap <- function(x) {
   if (anyDuplicated(x)>0) {
     x_dt <- as.data.table(x)
+    # The number of the x postions with duplicated values
     x_dt_times <- x_dt[,.N,by=x]
+    # The number of the x postions with unique value
     unique_elements <- sort(x_dt_times[,x])
     unique_elements_num <- length(unique_elements)
     x_dt_dup <- x_dt_times[N>1]
@@ -489,7 +501,8 @@ repeloverlap <- function(x) {
     y <- vector(mode = "list",length = dup_num)
     for (i in 1:dup_num) {
       rank_left <- which(unique_elements==x_dt_dup[i,x])
-      # for c(1,2,3,4,5,5,6,6)
+      # For the last two x positions with repeated values
+      # For example, c(1,2,3,4,5,5,6,6)
       if (i == (dup_num-1)) {
         if ((rank_left == unique_elements_num-1) & (which(unique_elements==x_dt_dup[i+1,x]) == unique_elements_num)) {
           rank_right <- rank_left+1
@@ -500,13 +513,14 @@ repeloverlap <- function(x) {
           break
         }
       }
-
       break_num <- x_dt_dup[i,N]
-      # for c(1,1,2,3,4,5,6)
+      # For the repeated values which are not in the end.
+      # For example, c(1,1,2,3,4,5,6)
       if (rank_left < unique_elements_num) {
         rank_right <- rank_left+1
       }
-      # for c(1,1,2,3,4,5,6,6)
+      # For the last one repeated value
+      # for example, c(1,1,2,3,4,5,6,6)
       if (rank_left == unique_elements_num) {
         rank_right <-  rank_left
         rank_left <- rank_left-1
