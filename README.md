@@ -18,5 +18,8 @@ This package takes a pedigree, checks duplicated, bisexual individuals, detects 
    ```
 ## Vignette
 English link: https://luansheng.netlify.com/post/vispedigree-use-guide/      
-Simplified Chinese link: https://luansheng.netlify.com/post/the-first-package-vispedigree-0-1/     
+Simplified Chinese link: https://luansheng.netlify.com/post/the-first-package-vispedigree-0-1/   
+
+## Citation
+LUAN Sheng. visPedigree: A package for tidying and drawing animal pedigree. URL https://github.com/luansheng/visPedigree.
 
