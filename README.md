@@ -17,7 +17,7 @@ More complex pedigree graphs can be found in the following [vignette links](#vig
    install_github("luansheng/visPedigree")
    ```
    
-<a id="vignette">## Vignette</a>
+## <a id="vignette">Vignette</a>
 English link: https://luansheng.netlify.com/post/vispedigree-use-guide/      
 Simplified Chinese link: https://luansheng.netlify.com/post/the-first-package-vispedigree-0-1/   
 
