@@ -73,16 +73,19 @@ tidyped <-
       }
 
       if (!any(cand %in% ped_check$Ind)) {
-        stop("Some candidates are not in the pedigree!")
+        stop("No candidates are not in the pedigree!")
       } else {
         ped_check[Ind %chin% cand,Cand:=TRUE]
         ped_check[!(Ind %chin% cand),Cand:=FALSE]
       }
       ped_num <- numped(ped_check)
+      cand_num <- match(cand, ped_num$Ind, nomatch = 0)
       if (trace %in% c("up","all")) {
         # Trace from candidate to ancestry
         i <- 1
-        keep_ind_backward <- match(cand, ped_num$Ind)
+        keep_ind_backward <- cand_num
+        keep_ind_backward <-
+          keep_ind_backward[which(keep_ind_backward > 0)]
         ind_n <- length(keep_ind_backward) + 1
         while (length(keep_ind_backward) != ind_n) {
           ind_n <- length(keep_ind_backward)
@@ -103,7 +106,9 @@ tidyped <-
       if (trace %in% c("down","all")) {
         #Trace from candidate to descendant
         i <- 1
-        keep_ind_foreward <- match(cand, ped_num$Ind)
+        keep_ind_foreward <- cand_num
+        keep_ind_foreward <-
+          keep_ind_foreward[which(keep_ind_foreward > 0)]
         ind_n <- length(keep_ind_foreward) + 1
         while (length(keep_ind_foreward) != ind_n) {
           ind_n <- length(keep_ind_foreward)
@@ -125,7 +130,6 @@ tidyped <-
       if (trace %in% c("up","all")) {
         keep_ind <- keep_ind_backward
         ped_up <- ped_num[sort(keep_ind)]
-        ped_up <- ped_up[((SireNum %in% keep_ind) | (DamNum %in% keep_ind))]
         ped_new <- ped_up
       }
       if (trace %in% c("down","all")) {
