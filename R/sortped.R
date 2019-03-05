@@ -50,23 +50,18 @@ sortped <- function(ped,addgen=TRUE) {
   ped_trace_gen_dt[(TraceGenInd==0) & ((!is.na(Sire)) | (!is.na(Dam))),
                  TraceGenInd := apply(as.matrix(.SD),1,function(x) min(x,na.rm=TRUE))-1,
                  .SDcols=c("TraceGenSire","TraceGenDam")]
-  # Refreshing the tracing number of the Sire and Dams.
-  ped_trace_gen_dt[, TraceGenSire := TraceGenInd[match(Sire,Ind)]]
-  ped_trace_gen_dt[, TraceGenDam := TraceGenInd[match(Dam,Ind)]]
 
   # Setting the individuals without parents and progenies as founders
   max_trace_gen_num_s <- max(ind_trace_gen_dt$TraceGen,na.rm = TRUE)
   ped_trace_gen_dt[(TraceGenInd==0) & (is.na(Sire) & is.na(Dam)),TraceGenInd:=max_trace_gen_num_s]
-  # Refreshing the tracing number of the Sire and Dams.
-  ped_trace_gen_dt[, TraceGenSire := TraceGenInd[match(Sire,Ind)]]
-  ped_trace_gen_dt[, TraceGenDam := TraceGenInd[match(Dam,Ind)]]
 
   # full-sib individuals have the same tracing generation number
   ped_trace_gen_dt[!is.na(Sire) | !is.na(Dam),FamilyLabel:=paste(Sire,Dam,sep="")]
   ped_trace_gen_dt[(!is.na(Sire)) | (!is.na(Dam)), MaxTraceGen:=max(TraceGenInd,na.rm=TRUE),
                                        by=c("FamilyLabel")]
   ped_trace_gen_dt[!is.na(FamilyLabel),TraceGenInd:=MaxTraceGen]
-  # Refreshing the tracing number of the Sire and Dams.
+
+    # Refreshing the tracing number of the Sire and Dams.
   ped_trace_gen_dt[, TraceGenSire := TraceGenInd[match(Sire,Ind)]]
   ped_trace_gen_dt[, TraceGenDam := TraceGenInd[match(Dam,Ind)]]
 
