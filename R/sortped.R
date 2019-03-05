@@ -40,25 +40,35 @@ sortped <- function(ped,addgen=TRUE) {
     }
   }
 
-  # Assigning the progenis with parents but without progeny to the minimum tracing generation of parents - 1
+  # Assigning the progenies with parents but without progeny to the minimum tracing generation of parents - 1
   ped_trace_gen_dt <- merge(ped_new,ind_trace_gen_dt,by=c("Ind"),all.x=TRUE)
   setnames(ped_trace_gen_dt,old=c("TraceGen"),new=c("TraceGenInd"))
   TraceGenSire = TraceGenDam = NULL
-  ped_trace_gen_dt[,TraceGenSire:=TraceGenInd[match(Sire,Ind)]]
-  ped_trace_gen_dt[,TraceGenDam:=TraceGenInd[match(Dam,Ind)]]
+  # Refreshing the tracing number of the Sire and Dams.
+  ped_trace_gen_dt[, TraceGenSire := TraceGenInd[match(Sire,Ind)]]
+  ped_trace_gen_dt[, TraceGenDam := TraceGenInd[match(Dam,Ind)]]
   ped_trace_gen_dt[(TraceGenInd==0) & ((!is.na(Sire)) | (!is.na(Dam))),
-                 TraceGenInd:=(apply(as.matrix(.SD),1,function(x) min(x,na.rm=TRUE))-1),
+                 TraceGenInd := apply(as.matrix(.SD),1,function(x) min(x,na.rm=TRUE))-1,
                  .SDcols=c("TraceGenSire","TraceGenDam")]
+  # Refreshing the tracing number of the Sire and Dams.
+  ped_trace_gen_dt[, TraceGenSire := TraceGenInd[match(Sire,Ind)]]
+  ped_trace_gen_dt[, TraceGenDam := TraceGenInd[match(Dam,Ind)]]
 
-  # Setting the individuals witout parents and progenies as founders
+  # Setting the individuals without parents and progenies as founders
   max_trace_gen_num_s <- max(ind_trace_gen_dt$TraceGen,na.rm = TRUE)
   ped_trace_gen_dt[(TraceGenInd==0) & (is.na(Sire) & is.na(Dam)),TraceGenInd:=max_trace_gen_num_s]
+  # Refreshing the tracing number of the Sire and Dams.
+  ped_trace_gen_dt[, TraceGenSire := TraceGenInd[match(Sire,Ind)]]
+  ped_trace_gen_dt[, TraceGenDam := TraceGenInd[match(Dam,Ind)]]
 
   # full-sib individuals have the same tracing generation number
   ped_trace_gen_dt[!is.na(Sire) | !is.na(Dam),FamilyLabel:=paste(Sire,Dam,sep="")]
   ped_trace_gen_dt[(!is.na(Sire)) | (!is.na(Dam)), MaxTraceGen:=max(TraceGenInd,na.rm=TRUE),
                                        by=c("FamilyLabel")]
   ped_trace_gen_dt[!is.na(FamilyLabel),TraceGenInd:=MaxTraceGen]
+  # Refreshing the tracing number of the Sire and Dams.
+  ped_trace_gen_dt[, TraceGenSire := TraceGenInd[match(Sire,Ind)]]
+  ped_trace_gen_dt[, TraceGenDam := TraceGenInd[match(Dam,Ind)]]
 
   # if an individual has not parents, it's generation number will be same with that of it's mater
   ind_no_parents_v <- ped_trace_gen_dt[is.na(Sire) & is.na(Dam), Ind]
@@ -81,6 +91,10 @@ sortped <- function(ped,addgen=TRUE) {
     }
   }
 
+  # Refreshing the tracing number of the Sire and Dams.
+  ped_trace_gen_dt[, TraceGenSire := TraceGenInd[match(Sire,Ind)]]
+  ped_trace_gen_dt[, TraceGenDam := TraceGenInd[match(Dam,Ind)]]
+
   # The tracing generation number of some indivduals may be not right.
   # The following code try to renew individual tracing generation number
   # by the difference with that of parent
@@ -95,20 +109,21 @@ sortped <- function(ped,addgen=TRUE) {
                 TraceGenInd := apply(as.matrix(.SD), 1, function(x) min(x, na.rm = TRUE)) - 1,
                 .SDcols = c("TraceGenSire", "TraceGenDam")]
     ped_trace_gen_dt[, ":="(TraceGenSire = NULL, TraceGenDam = NULL)]
-    ped_trace_gen_dt[,TraceGenSire:=TraceGenInd[match(Sire,Ind)]]
-    ped_trace_gen_dt[,TraceGenDam:=TraceGenInd[match(Dam,Ind)]]
+    # Refreshing the tracing number of the Sire and Dams.
+    ped_trace_gen_dt[, TraceGenSire := TraceGenInd[match(Sire,Ind)]]
+    ped_trace_gen_dt[, TraceGenDam := TraceGenInd[match(Dam,Ind)]]
     ped_trace_gen_dt[!is.na(TraceGenSire) | !is.na(TraceGenDam),
                 TraceGenInterval :=  apply(as.matrix(.SD), 1, function(x) min(x,na.rm = TRUE)) - TraceGenInd,
                 .SDcols = c("TraceGenSire", "TraceGenDam")]
   }
 
   ped_trace_gen_dt[, ":="(TraceGenSire = NULL,
-                     TraceGenDam = NULL,
-                     TraceGenInterval = NULL,
-                     FamilyLabel = NULL,
-                     MaxTraceGen = NULL)]
+                      TraceGenDam = NULL,
+                      TraceGenInterval = NULL,
+                      FamilyLabel = NULL,
+                      MaxTraceGen = NULL)]
   ped_trace_gen_dt[, TraceGenInd := TraceGenInd + 1]
-  max_trace_gen <- max(ped_trace_gen_dt$TraceGenInd)
+  max_trace_gen <- max(ped_trace_gen_dt$TraceGenInd, na.rm = TRUE)
   # Convert the tracing generation to real generation
   ped_trace_gen_dt[, Gen := (-1) * TraceGenInd + max_trace_gen + 1]
   ped_trace_gen_dt[,TraceGenInd:=NULL]
