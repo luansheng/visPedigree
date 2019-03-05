@@ -1,3 +1,8 @@
+# Changes in version 0.2.3 released on 05 Mar 2019
+## New features
+## Bug fixes
+1. The generation number of individuals is not inferred rightly.
+
 # Changes in version 0.2.2 released on 28 Jan 2019
 ## New features
 ## Bug fixes
