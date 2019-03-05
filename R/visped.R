@@ -46,10 +46,19 @@ visped <- function(ped,
   # Digits when calculating
   options(digits=20)
   # IndNum, SireNum, and DamNum columns are used as IDs to node and edges
-  ped_col_names <- names(ped)
-  if (!all(c("IndNum", "SireNum", "DamNum") %in% ped_col_names)) {
+  #ped_col_names <- names(ped)
+  # if (!all(c("IndNum", "SireNum", "DamNum") %in% ped_col_names)) {
+  #   stop("The pedigree need to be firstly trimmed by the tidyped() function!")
+  # }
+
+  if (is.null(attributes(ped)$tidyped)) {
     stop("The pedigree need to be firstly trimmed by the tidyped() function!")
+  } else {
+    if (!attr(ped,"tidyped")) {
+     stop("The pedigree need to be firstly trimmed by the tidyped() function!")
+    }
   }
+
   ped_new <- copy(ped)
   # Convertting pedigree to nodes and edges data.table
   ped_igraph <- ped2igraph(ped_new, compact)

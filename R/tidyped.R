@@ -42,6 +42,9 @@ tidyped <-
            tracegen = NULL,
            addgen = TRUE,
            addnum = TRUE) {
+
+    attr(ped,"tidyped") <- FALSE
+
     ped_colnames <- colnames(ped)
 
     # Delete Cand column
@@ -165,5 +168,6 @@ tidyped <-
       Cand <- NULL
       ped_new[,Cand := Ind %in% cand]
     }
+    attr(ped_new,"tidyped") <- TRUE
     return(ped_new)
   }
