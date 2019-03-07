@@ -61,7 +61,7 @@ sortped <- function(ped,addgen=TRUE) {
                                        by=c("FamilyLabel")]
   ped_trace_gen_dt[!is.na(FamilyLabel),TraceGenInd:=MaxTraceGen]
 
-    # Refreshing the tracing number of the Sire and Dams.
+  # Refreshing the tracing number of the Sire and Dams.
   ped_trace_gen_dt[, TraceGenSire := TraceGenInd[match(Sire,Ind)]]
   ped_trace_gen_dt[, TraceGenDam := TraceGenInd[match(Dam,Ind)]]
 
@@ -76,6 +76,11 @@ sortped <- function(ped,addgen=TRUE) {
                           (TraceGenSire < TraceGenDam)), ":="(TraceGenSire = TraceGenDam)]
       ped_trace_gen_dt[match(sire_gen_dt$Sire, Ind), TraceGenInd := sire_gen_dt$TraceGenDam]
     }
+
+    # Refreshing the tracing number of the Sire and Dams.
+    ped_trace_gen_dt[, TraceGenSire := TraceGenInd[match(Sire,Ind)]]
+    ped_trace_gen_dt[, TraceGenDam := TraceGenInd[match(Dam,Ind)]]
+
     dam_gen_dt <-
       unique(ped_trace_gen_dt[((Dam %chin% ind_no_parents_v) &
                                  (TraceGenDam < TraceGenSire)), .(Dam, TraceGenSire)])
