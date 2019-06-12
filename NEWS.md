@@ -1,4 +1,4 @@
-# Changes in version 0.2.4 released on 05 Mar 2019
+# Changes in version 0.2.4 released on 12 June 2019
 ## New features
 ## Bug fixes
 1. The data.table used as the input parameter 'ped' may be changed in tidyped() and visped().
