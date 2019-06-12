@@ -11,10 +11,6 @@
 #' @import data.table
 checkped <- function(ped,addgen=TRUE) {
   ped_new <- copy(ped)
-  ped_is_DT <- "data.table" %in% class(ped_new)
-  if (!ped_is_DT) {
-    setDT(ped_new)
-  }
   setnames(ped_new,
            old = colnames(ped_new)[1:3],
            new = c("Ind", "Sire", "Dam"))

@@ -42,7 +42,12 @@ tidyped <-
            tracegen = NULL,
            addgen = TRUE,
            addnum = TRUE) {
-
+    ped_is_DT <- "data.table" %in% class(ped)
+    if (!ped_is_DT) {
+      ped <- as.data.table(ped)
+    } else {
+      ped <- copy(ped)
+    }
     attr(ped,"tidyped") <- FALSE
 
     ped_colnames <- colnames(ped)

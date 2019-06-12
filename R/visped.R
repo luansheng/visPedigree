@@ -41,6 +41,7 @@
 #' @export
 visped <- function(ped,
                    compact = FALSE, outline = FALSE, cex = NULL, showgraph = TRUE, file = NULL) {
+  ped <- copy(ped)
   # Reserved digits
   fixed_digits <- 7
   # Digits when calculating
