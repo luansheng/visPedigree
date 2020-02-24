@@ -1,3 +1,8 @@
+# Changes in version 0.2.4.1 released on 12 June 2019
+## New features
+## Bug fixes
+1. An unexpected column with the name as NA occured when a tidyped object is tidyed again using the tidyped()
+
 # Changes in version 0.2.4 released on 12 June 2019
 ## New features
 ## Bug fixes
