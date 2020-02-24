@@ -44,18 +44,18 @@ tidyped <-
            addnum = TRUE) {
     ped_is_DT <- "data.table" %in% class(ped)
     if (!ped_is_DT) {
-      ped <- as.data.table(ped)
+      ped_inter <- as.data.table(ped)
     } else {
-      ped <- copy(ped)
+      ped_inter <- copy(ped)
     }
-    attr(ped,"tidyped") <- FALSE
+    attr(ped_inter,"tidyped") <- FALSE
 
-    ped_colnames <- colnames(ped)
+    ped_colnames <- colnames(ped_inter)
 
     # Delete Cand column
     if (!is.null(cand)) {
       if (c("Cand") %in% ped_colnames) {
-        ped[,Cand:=NULL]
+        ped_inter[,Cand:=NULL]
         warning("The column Cand of the original pedigree is deleted.")
       }
     }
@@ -73,7 +73,7 @@ tidyped <-
               " of the original pedigree are deleted.")
     }
 
-    ped_check <- checkped(ped, addgen)
+    ped_check <- checkped(ped_inter, addgen)
     #pruning the pedigree by candidate
     if (!is.null(cand)) {
       if (!all(class(cand) %in% c("character"))) {

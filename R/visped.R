@@ -41,7 +41,16 @@
 #' @export
 visped <- function(ped,
                    compact = FALSE, outline = FALSE, cex = NULL, showgraph = TRUE, file = NULL) {
-  ped <- copy(ped)
+  if (is.null(attributes(ped)$tidyped)) {
+    stop("The pedigree need to be firstly trimmed by the tidyped() function!")
+  } else {
+    if (!attr(ped,"tidyped")) {
+     stop("The pedigree need to be firstly trimmed by the tidyped() function!")
+    }
+  }
+  ped_new <- copy(ped)
+
+  # Convertting pedigree to nodes and edges data.table
   # Reserved digits
   fixed_digits <- 7
   # Digits when calculating
@@ -52,16 +61,6 @@ visped <- function(ped,
   #   stop("The pedigree need to be firstly trimmed by the tidyped() function!")
   # }
 
-  if (is.null(attributes(ped)$tidyped)) {
-    stop("The pedigree need to be firstly trimmed by the tidyped() function!")
-  } else {
-    if (!attr(ped,"tidyped")) {
-     stop("The pedigree need to be firstly trimmed by the tidyped() function!")
-    }
-  }
-
-  ped_new <- copy(ped)
-  # Convertting pedigree to nodes and edges data.table
   ped_igraph <- ped2igraph(ped_new, compact)
   real_node <- ped_igraph$node[nodetype %in% c("real", "compact")]
   gen_node_num <- real_node[, .N, by = gen]
