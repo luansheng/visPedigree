@@ -1,4 +1,4 @@
-# Changes in version 0.2.5 released on 24 Feb 2020
+# Changes in version 0.2.5 released on 25 Feb 2020
 ## New features
 ## Bug fixes
 1. The tidyped() does not work with trace='all' in [certain cases](https://github.com/luansheng/visPedigree/issues/2#issue-568599008)
