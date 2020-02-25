@@ -136,25 +136,35 @@ tidyped <-
       }
 
       if (trace %in% c("up","all")) {
-        keep_ind <- keep_ind_backward
-        ped_up <- ped_num[sort(keep_ind)]
+        ped_up <- ped_num[sort(keep_ind_backward)]
+        ped_up <- ped_up[,TraceDirec:=rep("up",nrow(ped_up))]
         ped_new <- ped_up
       }
-      if (trace %in% c("down","all")) {
-        keep_ind <- keep_ind_foreward
-        ped_down <- ped_num[sort(keep_ind)]
-        ped_down <- ped_down[((SireNum %in% keep_ind) | (DamNum %in% keep_ind))]
-        ped_down[!(SireNum %in% keep_ind),Sire:=NA]
-        ped_down[!(DamNum %in% keep_ind),Dam:=NA]
-        ped_new <- ped_down
+
+      if (trace %in% c("down", "all")) {
+        ped_down <- ped_num[sort(keep_ind_foreward)]
+        ped_down <-
+          ped_down[((SireNum %in% keep_ind_foreward) |
+                      (DamNum %in% keep_ind_foreward))]
+        ped_down <- ped_down[,TraceDirec:=rep("down",nrow(ped_down))]
+        if (trace %in% c("down")) {
+          ped_down[!(SireNum %in% keep_ind_foreward), Sire := NA]
+          ped_down[!(DamNum %in% keep_ind_foreward), Dam := NA]
+          ped_new <- ped_down
+        }
       }
+
       if (trace %in% c("all")) {
-        ped_new <- unique(rbind(ped_up,ped_down))
+        # The duplicated rows from ped_down are deleted because fromLast=FALSE
+        ped_new <- unique(rbind(ped_up,ped_down),by=c("Ind","Sire","Dam"),fromLast=FALSE)
+        ped_new[(TraceDirec == "down") & !(SireNum %in% keep_ind_foreward),Sire:=NA]
+        ped_new[(TraceDirec == "down") & !(DamNum %in% keep_ind_foreward),Dam:=NA]
       }
 
       ped_new[, ":="(IndNum = NULL,
                      SireNum = NULL,
-                     DamNum = NULL)]
+                     DamNum = NULL,
+                     TraceDirec = NULL)]
 
       #insure the pruned pedigree with the missing parents.
       ped_new <- checkped(ped_new, addgen)
