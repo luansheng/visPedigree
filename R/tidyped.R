@@ -96,16 +96,16 @@ tidyped <-
           keep_ind_backward[which(keep_ind_backward > 0)]
         ind_n <- length(keep_ind_backward) + 1
         while (length(keep_ind_backward) != ind_n) {
-          ind_n <- length(keep_ind_backward)
-          keep_ind_backward <-
-            unique(c(unlist(ped_num[keep_ind_backward, c("SireNum", "DamNum")]), keep_ind_backward))
-          keep_ind_backward <-
-            keep_ind_backward[which(keep_ind_backward > 0)]
           if (!is.null(tracegen)) {
             if (i == tracegen) {
               break
             }
           }
+          ind_n <- length(keep_ind_backward)
+          keep_ind_backward <-
+            unique(c(unlist(ped_num[keep_ind_backward, c("SireNum", "DamNum")]), keep_ind_backward))
+          keep_ind_backward <-
+            keep_ind_backward[which(keep_ind_backward > 0)]
           i <- i + 1
         }
         keep_ind_backward <- unique(keep_ind_backward)
@@ -119,17 +119,17 @@ tidyped <-
           keep_ind_foreward[which(keep_ind_foreward > 0)]
         ind_n <- length(keep_ind_foreward) + 1
         while (length(keep_ind_foreward) != ind_n) {
+          if (!is.null(tracegen)) {
+            if (i == tracegen) {
+              break
+            }
+          }
           ind_n <- length(keep_ind_foreward)
           keep_ind_foreward <-
             unique(c(ped_num[which(SireNum %in% keep_ind_foreward), IndNum],
                      ped_num[which(DamNum %in% keep_ind_foreward), IndNum], keep_ind_foreward))
           keep_ind_foreward <-
             keep_ind_foreward[which(keep_ind_foreward > 0)]
-          if (!is.null(tracegen)) {
-            if (i == tracegen) {
-              break
-            }
-          }
           i <- i + 1
         }
         keep_ind_foreward <- unique(keep_ind_foreward)
