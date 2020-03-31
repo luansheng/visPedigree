@@ -7,7 +7,7 @@
 #' @param ped A data.table or data frame including the pedigree, which including the first three columns: \strong{individual}, \strong{sire} and \strong{dam} IDs. More columns, such as sex, generation can be included in the pedigree file. Names of the three columns can be assigend as you would like, but their orders must be not changded in the pedigree. Individual ID should not be coded as "", " ", "0", asterisk, and "NA", otherwise these individuals will be deleted from the pedigree. Missing parents should be denoted by either "NA", "0", asterisk. Space and "" will also be recoded as missing parents, but not be recommended.
 #' @param cand A character vector including individual IDs, or NULL. Only the candidates and their ancestors and offspring will be kept in the pedigree if this parameter is not NULL.
 #' @param trace A character value implying how to trace the pedigree of the candidates, is equal to "\strong{up}", "\strong{down}", or "\strong{all}". "up" means tracing candidates's pedigree to ancestors; "down" means tracing candidates's pedigree to descendants, "all" means tracing candidaes' pedigree to ancestors and descendants simutaneously. This parameter can be used only if the \emph{cand} parameter is not NULL. The defaulted value is "up".
-#' @param tracegen An integer means the number of tracing generation. This paramter can only be used when the \emph{trace} parameter is not NULL. All generations of the candidates will be traced when the parameter tracegen is NULL.
+#' @param tracegen An integer means the number of tracing generation. This paramter can only be used when the \emph{trace} parameter is not NULL. All generations of the candidates will be traced when the parameter tracegen is NULL or 0.
 #' @param addgen A logical value indicates whether individual generation number will be generated. The default values is TRUE, then a new column named \strong{Gen} will be added in the returned data.table.
 #' @param addnum A logical value indicates whether numeric pedigree will be generated. The defaulted value is TRUE, then three new columns of \strong{IndNum}, \strong{SireNum} and \strong{DamNum} will be added in the returned data.table.
 #'
@@ -49,6 +49,32 @@ tidyped <-
       ped_inter <- copy(ped)
     }
     attr(ped_inter,"tidyped") <- FALSE
+
+    if (is.character(trace)) {
+      if (!trace %in% c("up","down", "all")) {
+        stop("The trace parameter only is assigned using \"up\", \"down\" or \"all\"!")
+      }
+    } else {
+        stop("The trace parameter only is assigned using \"up\", \"down\" or \"all\"!")
+    }
+
+    if (!is.null(tracegen)) {
+      if (is.numeric(tracegen)) {
+        if (!tracegen == floor(tracegen)) {
+          stop("The tracegen parameter need to be an integer!")
+        }
+      } else {
+        stop("The tracegen parameter need to be an integer!")
+      }
+    }
+
+    if (!is.logical(addgen)) {
+      stop("The addgen parameter only is assigned using TRUE or FALSE")
+    }
+
+    if (!is.logical(addnum)) {
+      stop("The addnum parameter only is assigned using TRUE or FALSE")
+    }
 
     ped_colnames <- colnames(ped_inter)
 
