@@ -107,7 +107,7 @@ tidyped <-
       }
 
       if (!any(cand %in% ped_check$Ind)) {
-        stop("No candidates are not in the pedigree!")
+        stop("No candidates are in the pedigree!")
       } else {
         ped_check[Ind %chin% cand,Cand:=TRUE]
         ped_check[!(Ind %chin% cand),Cand:=FALSE]
@@ -145,17 +145,17 @@ tidyped <-
           keep_ind_foreward[which(keep_ind_foreward > 0)]
         ind_n <- length(keep_ind_foreward) + 1
         while (length(keep_ind_foreward) != ind_n) {
-          if (!is.null(tracegen)) {
-            if (i == tracegen) {
-              break
-            }
-          }
           ind_n <- length(keep_ind_foreward)
           keep_ind_foreward <-
             unique(c(ped_num[which(SireNum %in% keep_ind_foreward), IndNum],
                      ped_num[which(DamNum %in% keep_ind_foreward), IndNum], keep_ind_foreward))
           keep_ind_foreward <-
             keep_ind_foreward[which(keep_ind_foreward > 0)]
+          if (!is.null(tracegen)) {
+            if (i == tracegen) {
+              break
+            }
+          }
           i <- i + 1
         }
         keep_ind_foreward <- unique(keep_ind_foreward)
