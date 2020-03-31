@@ -1,4 +1,4 @@
-# Changes in version 0.2.6 released on 25 Feb 2020
+# Changes in version 0.2.6 released on 31 Mar 2020
 ## New features
 ## Bug fixes
 1. Fixed a bug that the number of generations for candidates would be traced to n+1 when tracegen=n. This bug is found by Mianyu Liu.
