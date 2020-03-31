@@ -14,7 +14,7 @@ tidyped(ped, cand = NULL, trace = "up", tracegen = NULL,
 
 \item{trace}{A character value implying how to trace the pedigree of the candidates, is equal to "\strong{up}", "\strong{down}", or "\strong{all}". "up" means tracing candidates's pedigree to ancestors; "down" means tracing candidates's pedigree to descendants, "all" means tracing candidaes' pedigree to ancestors and descendants simutaneously. This parameter can be used only if the \emph{cand} parameter is not NULL. The defaulted value is "up".}
 
-\item{tracegen}{An integer means the number of tracing generation. This paramter can only be used when the \emph{trace} parameter is not NULL. All generations of the candidates will be traced when the parameter tracegen is NULL.}
+\item{tracegen}{An integer means the number of tracing generation. This paramter can only be used when the \emph{trace} parameter is not NULL. All generations of the candidates will be traced when the parameter tracegen is NULL or 0.}
 
 \item{addgen}{A logical value indicates whether individual generation number will be generated. The default values is TRUE, then a new column named \strong{Gen} will be added in the returned data.table.}
 
