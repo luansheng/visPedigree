@@ -2,11 +2,11 @@
 #'
 #' \code{checkped} function checks a pedigree.
 #'
-#' This function takes a pedigree, detects missaing parents, checks duplicated, bisexual individuals,  adds missing founders, and sorts the pedigree. All individuals's sex will be inferred if there is not sexual information in the pedigee. If the pedigree includes the column \strong{Sex}, then individuals's sexes need to be recoded as "male", "female", or NA (unknown sex). Missing sexes will be identified from the pedigree structure and be added if possible.
-#' @param ped A data.table or data frame including the pedigree, which including the first three columns: \strong{individual}, \strong{sire} and \strong{dam} IDs. More columns, such as sex, generation can be included in the pedigree file. Names of the three columns can be assigend as you would like, but their orders must be not changded in the pedigree. Individual ID should not be coded as "", " ", "0", asterisk, and "NA", otherwise these individuals will be deleted from the pedigree. Missing parents should be denoted by either "NA", "0", asterisk. Space and "" will also be recoded as missing parents, but not be recommended.
-#' @param addgen A logical value indicates whether individual generation number will be generated. The default values is TRUE, then a new column named \strong{Gen} will be added in the returned data.table.
+#' This function takes a pedigree, detects missing parents, checks duplicated or bisexual individuals, adds missing founders, and sorts the pedigree. All individuals' sex will be inferred if there is no sexual information in the pedigree. If the pedigree includes the column \strong{Sex}, then individuals' sexes need to be recoded as "male", "female", or NA (unknown sex). Missing sexes will be identified from the pedigree structure and be added if possible.
+#' @param ped A data.table or data frame with the pedigree, which including the first three columns: \strong{individual}, \strong{sire} and \strong{dam} IDs. More columns, such as sex and generation can be included in the pedigree file. Names of the three columns can be assigned as you would like, but their orders must not be changed in the pedigree. Individual ID should not be coded as "", " ", "0", asterisk, and "NA", otherwise these individuals will be deleted from the pedigree. Missing parents should be denoted by either "NA", "0", asterisk. Space and "" will also be recoded as missing parents, but not be recommended.
+#' @param addgen A logical value indicates whether the generation number of an individual will be generated. The default value is TRUE, then a new column named \strong{Gen} will be added to the returned data.table.
 #'
-#' @return A data.table including the checked pedigree is returned. Individual, sire and dam ID columns are renamed as \strong{Ind}, \strong{Sire} and \strong{Dam}. Missing parent is replacted with the default missing value \strong{NA}. The column \strong{Sex} includes individuals' sex (male or female, NA for unknown sex). The column \strong{Gen} will be included when the parameter \emph{addgen} is TRUE. Ind, Sire, Dam and Sex columns are character; The Gen column is integer.
+#' @return A data.table with the checked pedigree is returned. Individual, sire, and dam ID columns are renamed as \strong{Ind}, \strong{Sire} and \strong{Dam}. A Missing parent is replacted with the default missing value \strong{NA}. The column \strong{Sex} includes individuals' sex (male or female, NA for unknown sex). The column \strong{Gen} will be included when the parameter \emph{addgen} is TRUE. Ind, Sire, Dam, and Sex columns are character; The Gen column is an integer type.
 #' @keywords internal
 #' @import data.table
 checkped <- function(ped,addgen=TRUE) {
@@ -28,7 +28,7 @@ checkped <- function(ped,addgen=TRUE) {
       ped_new[-which(ped_new$Ind %in% c("", " ", "0", "*", "NA", NA))]
   }
   # Missing parents are shown by "", " ", "0", "*", and "NA" in the pedigree file,
-  # they are setted as NA
+  # they are set as NA
   if ((length(ped_new[Sire %in% c("", " ", "0", "*", "NA"), Sire]) > 0) | (length(ped_new[Dam %in% c("", " ", "0", "*", "NA"), Dam]) > 0)) {
     warning("In the sire or dam column, Blank, Zero, asterisk, or character NA is recognized as a missing parent and is replaced with the missing value NA.")
   }
@@ -41,7 +41,7 @@ checkped <- function(ped,addgen=TRUE) {
     ped_new[Dam %in% c("", " ", "0", "*", "NA"), Dam := NA]
   }
 
-  #The programme will stop if there are no parents in the sire and dam columns.
+  #The program will stop if no parents are in the sire and dam columns.
   if (all(is.na(ped_new$Sire)) & all(is.na(ped_new$Dam))) {
     stop("All dams and sires are missing! No pedigee! Please check it!")
   }
@@ -64,7 +64,7 @@ checkped <- function(ped,addgen=TRUE) {
         ped_new_dup_num,
         "duplicated individual, sire, and dam IDs are deleted in the pedigree. Only the first",
         n,
-        "records are shown"
+        "records are shown."
       )
     )
     for (i in 1:n) {
@@ -77,7 +77,7 @@ checkped <- function(ped,addgen=TRUE) {
     ped_new <- unique(ped_new, by = c("Ind", "Sire", "Dam"))
   }
   # If the duplicated records only have the same individual ID,
-  #  and their sire and dam ID are different,
+  #  and their sire and dam IDs are different,
   # this program will stop because it is a fatal error.
   if (anyDuplicated(ped_new, by = c("Ind")) > 0) {
     ped_new_dup <-
@@ -139,7 +139,7 @@ checkped <- function(ped,addgen=TRUE) {
   ped_new[, SeqNumInd := .I]
   ped_new[,SeqNumSire:=SeqNumInd[match(Sire,Ind)]]
   ped_new[,SeqNumDam:=SeqNumInd[match(Dam,Ind)]]
-  # Individuals are resorted  if their order are not right.
+  # Individuals are resorted if their orders are not right.
   if (any(
     c(
       ped_new$SeqNumInd < ped_new$SeqNumSire,
