@@ -1,0 +1,127 @@
+# visPedigree
+
+Tidying and Visualizing Animal Pedigrees
+
+The `visPedigree` package provides tools to check for duplicate and
+bisexual individuals, detect pedigree loops, add missing founders, sort
+parents before offspring, and trace the pedigrees of specified
+candidates. It generates hierarchical graphs for all individuals in a
+pedigree and can handle very large datasets (\> 10,000 individuals per
+generation) by compacting full-sib groups. It is particularly effective
+for aquatic animal pedigrees, which often include numerous full-sib
+families per generation in nucleus breeding populations.
+
+More complex pedigree graphs and usage examples can be found in the
+package vignettes.
+
+## Installation
+
+### From CRAN
+
+*(Note: The package is preparing for submission and not yet available on
+CRAN)*
+
+``` r
+# install.packages("visPedigree")
+```
+
+### From GitHub
+
+You can install the development version from GitHub using the `devtools`
+package:
+
+``` r
+# install.packages("devtools")
+devtools::install_github("luansheng/visPedigree")
+```
+
+## Quick Start
+
+``` r
+library(visPedigree)
+
+# Example 1: Tidy and visualize a small pedigree
+# Draw the pedigree, compacting full-sib individuals and highlighting candidates.
+# Note: the compacted candidates are also highlighted here.
+cands <- c("Y", "Z1", "Z2")
+small_ped |>
+  tidyped(cand = cands) |>
+  visped(compact = TRUE, highlight = cands)
+
+# Example 2: Calculate and show inbreeding coefficients
+library(data.table)
+data.table(
+  Ind = c("A", "B", "C", "D", "E"),
+  Sire = c(NA, NA, "A", "C", "C"),
+  Dam = c(NA, NA, "B", "B", "D"),
+  Sex = c("male", "female", "male", "female", "male")
+) |>
+  tidyped(inbreed = TRUE) |>
+  visped(highlight = c("E"), showf = TRUE)
+
+# Example 3: Summarize pedigree statistics
+# Get a quick overview of the pedigree structure
+small_ped |>
+  tidyped() |>
+  summary()
+```
+
+## Citation
+
+LUAN Sheng (2018). visPedigree: A package for tidying and visualizing
+animal pedigrees. URL <https://github.com/luansheng/visPedigree>.
+
+# Package index
+
+## Core Functions
+
+Main tools for processing and visualizing animal pedigrees.
+
+- [`tidyped()`](https://luansheng.github.io/visPedigree/reference/tidyped.md)
+  : Tidy and prepare a pedigree using graph theory
+- [`visped()`](https://luansheng.github.io/visPedigree/reference/visped.md)
+  : Visualize a tidy pedigree
+
+## Pedigree Analysis
+
+Functions for genealogical and genetic computations.
+
+- [`inbreed()`](https://luansheng.github.io/visPedigree/reference/inbreed.md)
+  : Calculate inbreeding coefficients
+
+## Datasets
+
+Built-in pedigree examples for testing and demonstration.
+
+- [`big_family_size_ped`](https://luansheng.github.io/visPedigree/reference/big_family_size_ped.md)
+  : A large pedigree with big family sizes
+- [`deep_ped`](https://luansheng.github.io/visPedigree/reference/deep_ped.md)
+  : A deep pedigree
+- [`loop_ped`](https://luansheng.github.io/visPedigree/reference/loop_ped.md)
+  : A pedigree with loops
+- [`simple_ped`](https://luansheng.github.io/visPedigree/reference/simple_ped.md)
+  : A simple pedigree
+- [`small_ped`](https://luansheng.github.io/visPedigree/reference/small_ped.md)
+  : A small pedigree
+
+## S3 Methods
+
+Generic methods for ‘tidyped’ objects.
+
+- [`plot(`*`<tidyped>`*`)`](https://luansheng.github.io/visPedigree/reference/plot.tidyped.md)
+  : Plot a tidy pedigree
+- [`summary(`*`<tidyped>`*`)`](https://luansheng.github.io/visPedigree/reference/summary.tidyped.md)
+  : Summary method for tidyped objects
+- [`print(`*`<summary.tidyped>`*`)`](https://luansheng.github.io/visPedigree/reference/print.summary.tidyped.md)
+  : Print method for summary.tidyped
+- [`print(`*`<tidyped>`*`)`](https://luansheng.github.io/visPedigree/reference/print.tidyped.md)
+  : Print method for tidyped pedigree
+
+# Articles
+
+### All vignettes
+
+- [2. How to draw a
+  pedigree](https://luansheng.github.io/visPedigree/articles/draw-pedigree.md):
+- [1. How to tidy a
+  pedigree](https://luansheng.github.io/visPedigree/articles/tidy-pedigree.md):

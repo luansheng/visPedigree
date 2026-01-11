@@ -1,0 +1,202 @@
+# Changelog
+
+## Changes in version 0.7.1 released on 11 Jan 2026
+
+### Performance optimizations
+
+1.  **Large Pedigree Performance**: Optimized `visped` performance for
+    displaying large pedigrees through efficient attribute handling and
+    vectorized rendering. Computation time for 100k+ individuals reduced
+    significantly by avoiding redundant `igraph` attribute lookups.
+2.  **Vectorized Tracing**: Refactored `trace_ped_candidates` in
+    `tidyped` to use vectorized
+    [`igraph::neighborhood`](https://r.igraph.org/reference/ego.html)
+    calls, achieving ~150x speedup for large candidate lists (e.g., 37k
+    candidates in a 178k individual pedigree traced in ~1.2s).
+3.  **Early Filtering**: Implemented unified early filtering of isolated
+    individuals (Gen 0) in `prepare_ped_graph` to streamline downstream
+    graph conversion and layout algorithms.
+
+### Improvements
+
+1.  **User Feedback**: Standardized filtering notifications. The message
+    “Note: Removed N isolated individuals…” now appears consistently for
+    all pedigree sizes when Gen 0 individuals are present.
+2.  **Refined Tracing**: Corrected `trace = "all"` logic in both
+    `tidyped` and `visped`. It now correctly retrieves the union of
+    ancestors and descendants (“up” + “down”) instead of the entire
+    connected component (undirected search).
+
+## Changes in version 0.7.0 released on 10 Jan 2026
+
+### Breaking changes & Major Refactoring
+
+1.  **Graph-based `tidyped` Core**: Reimplemented the pedigree tidying
+    engine using formal graph theory principles (Directed Acyclic
+    Graphs). Improved loop detection and generation inference accuracy
+    using topological sorting.
+2.  **Modular Architecture**: Split the monolithic `visped.R` into
+    functional modules: `visped_layout.R`, `visped_graph.R`,
+    `visped_style.R`, and `visped_render.R` for better maintainability.
+
+### New features
+
+1.  **New Parameters in
+    [`visped()`](https://luansheng.github.io/visPedigree/reference/visped.md)**:
+    - `pagewidth`: Allows users to specify the PDF page width (default
+      200 inches) to accommodate different pedigree scales.
+    - `symbolsize`: A scaling factor (default 1) to adjust node sizes
+      relative to label dimensions, providing finer control over
+      whitespace.
+2.  **Two-Pass Rendering Engine**: Introduced a two-pass strategy in
+    [`plot_ped_igraph()`](https://luansheng.github.io/visPedigree/reference/plot_ped_igraph.md)
+    to ensure edges connect exactly at node centers, eliminating visual
+    gaps in vector PDF outputs.
+3.  **Enhanced Highlighting**: Added support for real-time ancestry and
+    descendant highlighting via the `trace` parameter in
+    [`visped()`](https://luansheng.github.io/visPedigree/reference/visped.md).
+
+### Bug fixes
+
+1.  Fixed rendering failure in `outline = TRUE` mode by correcting
+    attribute indexing in the graph object.
+2.  modernized the unit testing suite to `testthat` 3rd edition,
+    removing all legacy `context()` warnings.
+3.  Improved coordinate calculation precision to prevent overlapping in
+    high-density generations.
+
+## Changes in version 0.6.2 released on 01 Jan 2026
+
+### New features
+
+1.  Added [`summary()`](https://rdrr.io/r/base/summary.html) method for
+    `tidyped` objects to provide quick pedigree statistics (number of
+    individuals, founders, sex distribution, etc.).
+
+### Bug fixes
+
+1.  Fixed an issue where `tidyped(..., inbreed=TRUE)` failed due to
+    incorrect class assignment order.
+2.  Fixed `visped(..., showf=TRUE)` to gracefully handle missing `f`
+    columns by warning the user instead of erroring.
+3.  Fixed broken internal navigation links in package vignettes.
+
+## Changes in version 0.6.1 released on 30 Dec 2025
+
+### New features
+
+1.  Implemented opaque highlighting effects for better visualization
+    clarity.
+2.  Added `trace` option to
+    [`visped()`](https://luansheng.github.io/visPedigree/reference/visped.md)
+    to control ancestry tracing direction.
+
+## Changes in version 0.6.0 released on 28 Dec 2025
+
+### New features
+
+1.  Implemented strict S3 class structure for `tidyped` objects with
+    [`new_tidyped()`](https://luansheng.github.io/visPedigree/reference/new_tidyped.md)
+    constructor and
+    [`validate_tidyped()`](https://luansheng.github.io/visPedigree/reference/validate_tidyped.md)
+    validator to ensure data integrity.
+
+## Changes in version 0.5.0 released on 26 Dec 2025
+
+### New features
+
+1.  Added `highlight` parameter to
+    [`visped()`](https://luansheng.github.io/visPedigree/reference/visped.md)
+    function. Users can now highlight specific individuals using a
+    character vector of IDs or a list for custom colors.
+2.  Added `showf` parameter to
+    [`visped()`](https://luansheng.github.io/visPedigree/reference/visped.md)
+    function to display inbreeding coefficients on the pedigree graph.
+3.  Added `inbreed` parameter to
+    [`tidyped()`](https://luansheng.github.io/visPedigree/reference/tidyped.md)
+    function to calculate inbreeding coefficients using the `nadiv`
+    package.
+4.  Refactored
+    [`inbreed()`](https://luansheng.github.io/visPedigree/reference/inbreed.md)
+    function as a standalone tool that operates on `tidyped` objects.
+5.  Optimized
+    [`repeloverlap()`](https://luansheng.github.io/visPedigree/reference/repeloverlap.md)
+    function using `data.table` for significantly better performance.
+
+### Bug fixes
+
+1.  Fixed a critical crash in
+    [`visped()`](https://luansheng.github.io/visPedigree/reference/visped.md)
+    when combining `compact = TRUE`, `highlight`, and `showf = TRUE` by
+    refactoring
+    [`ped2igraph()`](https://luansheng.github.io/visPedigree/reference/ped2igraph.md)
+    to delay label modification until after layout calculation.
+2.  Fixed documentation grammar and phrasing across all functions for
+    CRAN compliance.
+3.  Fixed `R CMD check` notes related to `data.table` non-standard
+    evaluation by adding `R/globals.R`.
+
+## Changes in version 0.4.1 released on 25 Dec 2025
+
+## Changes in version 0.2.6 released on 31 Mar 2020
+
+### New features
+
+### Bug fixes
+
+1.  Fixed a bug that the number of generations for candidates would be
+    traced to n+1 when tracegen=n. This bug is found by Mianyu Liu.
+
+## Changes in version 0.2.5 released on 25 Feb 2020
+
+### New features
+
+### Bug fixes
+
+1.  The tidyped() does not work with trace=‘all’ in [certain
+    cases](https://github.com/luansheng/visPedigree/issues/2#issue-568599008)
+
+## Changes in version 0.2.4.1 released on 24 Feb 2020
+
+### New features
+
+### Bug fixes
+
+1.  An unexpected column with the name as NA occured when a tidyped
+    object is tidyed again using the tidyped()
+
+## Changes in version 0.2.4 released on 12 June 2019
+
+### New features
+
+### Bug fixes
+
+1.  The data.table used as the input parameter ‘ped’ may be changed in
+    tidyped() and visped().
+
+## Changes in version 0.2.3 released on 05 Mar 2019
+
+### New features
+
+### Bug fixes
+
+1.  The generation number of individuals is not inferred rightly.
+
+## Changes in version 0.2.2 released on 28 Jan 2019
+
+### New features
+
+### Bug fixes
+
+1.  The tidied pedigree will not include the candidates which are not in
+    the Ind column of the origin pedigree when the cand parameter is not
+    NULL.
+
+## Changes in version 0.2.1 released on 17 Nov 2018
+
+### New features
+
+### Bug fixes
+
+1.  Repel the overlapping nodes due to very small differences (digits
+    \> 7) among x positions of nodes
