@@ -138,7 +138,10 @@ cand_list <- c("J5X804", "J3Y620")
 tidy_ped_all <- tidyped(simple_ped, cand = cand_list, trace = "all")
 
 # Check for loops (will error if loops exist)
-# tidyped(loop_ped)
+try(tidyped(loop_ped))
+#> Error : Pedigree error! Pedigree loops detected:
+#>  M -> P -> R -> T -> V -> M
+#> F -> E -> C -> A -> F
 
 # Example with a large pedigree: extract 2 generations of ancestors for 2007 candidates
 cand_2007 <- big_family_size_ped[Year == 2007, Ind]

@@ -18,3 +18,7 @@ print(x, ...)
 - ...:
 
   Additional arguments passed to the data.table print method
+
+## Value
+
+The input object, invisibly.

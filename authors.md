@@ -7,7 +7,7 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/luansheng/visPedigree/blob/v0.7.1/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/luansheng/visPedigree/blob/master/DESCRIPTION)
 
 Luan S (2026). *visPedigree: Tidying and Visualizing Animal Pedigrees*.
 R package version 0.7.1, <https://github.com/luansheng/visPedigree>.
