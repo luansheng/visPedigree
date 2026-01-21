@@ -1,5 +1,110 @@
 # Changelog
 
+## Changes in version 1.0.0 released on 20 Jan 2026
+
+### New Features
+
+1.  **Family Assignment and Summary**:
+    - [`tidyped()`](https://luansheng.github.io/visPedigree/reference/tidyped.md)
+      now automatically assigns and includes a `Family` column,
+      identifying full-sib groups.
+    - [`summary.tidyped()`](https://luansheng.github.io/visPedigree/reference/summary.tidyped.md)
+      has been updated to provide family statistics (count, sizes, top
+      largest families) and richer offspring analysis.
+2.  **Pedigree Splitting (`splitped`)**: Added
+    [`splitped()`](https://luansheng.github.io/visPedigree/reference/splitped.md)
+    function to detect and split disconnected pedigree components. It
+    efficiently identifies independent sub-populations (connected
+    components) using graph theory, excludes isolated individuals, and
+    returns a list of re-indexed `tidyped` objects ready for separate
+    analysis or visualization.
+3.  **Comprehensive Matrix Support**:
+    [`pedmatrix()`](https://luansheng.github.io/visPedigree/reference/pedmatrix.md)
+    now fully supports 6 types of genetic relationship matrices:
+    Additive (A, Ainv), Dominance (D, Dinv), and Additive-by-Additive
+    Epistatic (AA, AAinv).
+4.  **Relationship Matrix Visualization (`vismat`)**: Added
+    [`vismat()`](https://luansheng.github.io/visPedigree/reference/vismat.md)
+    function for visualizing relationship matrices (A, D, AA, etc.) with
+    heatmaps and histograms. It supports `pedmatrix` objects, `tidyped`
+    objects (auto-calculates A matrix), and standard matrices. Heatmaps
+    can be annotated with family groups when a pedigree is provided.
+
+### CRAN Submission & Internal Improvements
+
+This release marks the first stable version 1.0.0, polished for CRAN.
+
+1.  **Portable Compilation**: Standardized `src/Makevars` for
+    cross-platform compatibility (removed GNU/platform-specific
+    extensions).
+2.  **Dependencies**: Moved `RcppArmadillo` to `LinkingTo` to optimize
+    package structure.
+3.  **Documentation & S3**: Fixed `vignette` generation, resolved `diag`
+    S3 method dispatch, and cleaned up documentation for CRAN
+    compliance.
+
+## Changes in version 0.7.3 released on 13 Jan 2026
+
+### New behavior (BREAKING)
+
+1.  **Simplified
+    [`pedmatrix()`](https://luansheng.github.io/visPedigree/reference/pedmatrix.md)
+    return and single-method enforcement**:
+    [`pedmatrix()`](https://luansheng.github.io/visPedigree/reference/pedmatrix.md)
+    now requires a single `method` argument (e.g., `method = "A").` When
+    a single method is requested, the function returns the corresponding
+    matrix or vector directly (not a named list). Requesting multiple
+    methods in one call will now raise an error. Use repeated calls for
+    multiple outputs.
+
+### New features
+
+1.  **High-Performance Genetic Relationship Calculations**: Introduced
+    [`pedmatrix()`](https://luansheng.github.io/visPedigree/reference/pedmatrix.md)
+    function implemented in Rcpp for efficient computation of:
+    - Additive relationship matrix (A) using the tabular recursive
+      algorithm.
+    - Sparse inverse additive matrix (A-Inverse) using Henderson’s
+      rules.
+    - Dominance matrix (D) using the tabular approach.
+    - Inbreeding coefficients (f) using the Meuwissen & Luo (1992)
+      path-tracing algorithm.
+
+### Improvements
+
+1.  **Default Inbreeding Calculation Method**: The
+    [`inbreed()`](https://luansheng.github.io/visPedigree/reference/inbreed.md)
+    function now uses the native Rcpp implementation by default, moving
+    the `nadiv` package to `Suggests`.
+2.  **Documentation and Website**: Updated package documentation and
+    vignettes to reflect new features and improvements. The official
+    package website is available at
+    <https://luansheng.github.io/visPedigree/>.
+
+## Changes in version 0.7.2 released on 12 Jan 2026
+
+### New features
+
+1.  **Flexible Generation Assignment**: Added `genmethod` parameter to
+    [`tidyped()`](https://luansheng.github.io/visPedigree/reference/tidyped.md).
+    Users can now choose between `"top"` (top-aligned, default) and
+    `"bottom"` (bottom-aligned) methods for generation inference.
+    - The `"top"` method aligns founders at Generation 1, which is more
+      appropriate for biological pedigrees and prevents “founder drift”
+      in pedigrees with varying depths.
+    - The `"bottom"` method aligns terminal nodes at the bottom, useful
+      for visualizing introductions of unrelated exogenous parents.
+
+### Improvements
+
+1.  **Default Logic Change**: Switched the default generation assignment
+    method to `"top"` (top-down) for more intuitive biological
+    visualization.
+2.  **Pkgdown Documentation**: Generated and published the official
+    package website at <https://luansheng.github.io/visPedigree/>.
+3.  **Automated CI/CD**: Added GitHub Actions workflow for automatic
+    documentation updates and deployment via GitHub Pages.
+
 ## Changes in version 0.7.1 released on 11 Jan 2026
 
 ### Performance optimizations

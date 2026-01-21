@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">visPedigree</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,6 +34,7 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/draw-pedigree.html">2. How to draw a pedigree</a></li>
+    <li><a class="dropdown-item" href="../articles/relationship-matrix.html">3. Calculation and visualization of relationship matrix</a></li>
     <li><a class="dropdown-item" href="../articles/tidy-pedigree.html">1. How to tidy a pedigree</a></li>
   </ul>
 </li>
@@ -60,7 +61,7 @@
       <h1>1. How to tidy a pedigree</h1>
                         <h4 data-toc-skip class="author">Sheng Luan</h4>
             
-            <h4 data-toc-skip class="date">2026-01-16</h4>
+            <h4 data-toc-skip class="date">2026-01-21</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/luansheng/visPedigree/blob/master/vignettes/tidy-pedigree.Rmd" class="external-link"><code>vignettes/tidy-pedigree.Rmd</code></a></small>
       <div class="d-none name"><code>tidy-pedigree.Rmd</code></div>
@@ -115,7 +116,9 @@ displays. The main contents of this guide are as follows:</p>
 individual</a><br>
 3.4 <a href="#id_3.4">Creating an integer pedigree</a><br>
 3.5 <a href="#id_3.5">Calculating inbreeding coefficients</a><br>
-3.6 <a href="#id_3.6">Summarizing the pedigree</a>
+3.6 <a href="#id_3.6">Customizing generation assignment</a><br>
+3.7 <a href="#id_3.7">Summarizing the pedigree</a><br>
+3.8 <a href="#id_3.8">Splitting large pedigrees</a>
 </li>
 </ol>
 <div class="section level2">
@@ -211,8 +214,8 @@ bisexual conflict.</p>
 <code class="sourceCode R"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/copy.html" class="external-link">copy</a></span><span class="op">(</span><span class="va">simple_ped</span><span class="op">)</span></span>
 <span><span class="va">x</span><span class="op">[</span><span class="va">ID</span> <span class="op">==</span> <span class="st">"J2F588"</span>, <span class="va">Sire</span> <span class="op">:=</span> <span class="st">"J0Z167"</span><span class="op">]</span></span>
 <span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tidyped.html">tidyped</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in validate_and_prepare_ped(ped): Bisexual individuals found (both Sire</span></span>
-<span><span class="co">#&gt; and Dam): J0Z167</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #BBBB00; font-weight: bold;">Error</span><span style="font-weight: bold;">:</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> Sex conflict detected: The following individual(s) appear as both Sire and Dam: J0Z167. This is biologically impossible. Please check and correct the pedigree data.</span></span></code></pre></div>
 <p>The <code><a href="../reference/tidyped.html">tidyped()</a></code> function sorts the pedigree, replaces
 missing parents with <code>NA</code>, ensures parents precede their
 offspring, and adds missing founders.</p>
@@ -220,24 +223,32 @@ offspring, and adds missing founders.</p>
 <code class="sourceCode R"><span><span class="va">tidy_simple_ped</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tidyped.html">tidyped</a></span><span class="op">(</span><span class="va">simple_ped</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">tidy_simple_ped</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Tidy Pedigree Object</span></span>
-<span><span class="co">#&gt;       Ind   Sire    Dam    Sex   Gen IndNum SireNum DamNum</span></span>
-<span><span class="co">#&gt;    &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;int&gt;  &lt;int&gt;   &lt;int&gt;  &lt;int&gt;</span></span>
-<span><span class="co">#&gt; 1: J0C032   &lt;NA&gt;   &lt;NA&gt; female     1      1       0      0</span></span>
-<span><span class="co">#&gt; 2: J0C185   &lt;NA&gt;   &lt;NA&gt; female     1      2       0      0</span></span>
-<span><span class="co">#&gt; 3: J0C231   &lt;NA&gt;   &lt;NA&gt; female     1      3       0      0</span></span>
-<span><span class="co">#&gt; 4: J0C317   &lt;NA&gt;   &lt;NA&gt;   male     1      4       0      0</span></span>
-<span><span class="co">#&gt; 5: J0C450   &lt;NA&gt;   &lt;NA&gt; female     1      5       0      0</span></span>
-<span><span class="co">#&gt; 6: J0C561   &lt;NA&gt;   &lt;NA&gt;   male     1      6       0      0</span></span>
+<span><span class="co">#&gt;       Ind   Sire    Dam    Sex   Gen IndNum SireNum DamNum Family FamilySize</span></span>
+<span><span class="co">#&gt;    &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;int&gt;  &lt;int&gt;   &lt;int&gt;  &lt;int&gt; &lt;char&gt;      &lt;int&gt;</span></span>
+<span><span class="co">#&gt; 1: J0C032   &lt;NA&gt;   &lt;NA&gt; female     1      1       0      0   &lt;NA&gt;          1</span></span>
+<span><span class="co">#&gt; 2: J0C185   &lt;NA&gt;   &lt;NA&gt; female     1      2       0      0   &lt;NA&gt;          1</span></span>
+<span><span class="co">#&gt; 3: J0C231   &lt;NA&gt;   &lt;NA&gt; female     1      3       0      0   &lt;NA&gt;          1</span></span>
+<span><span class="co">#&gt; 4: J0C317   &lt;NA&gt;   &lt;NA&gt;   male     1      4       0      0   &lt;NA&gt;          1</span></span>
+<span><span class="co">#&gt; 5: J0C355   &lt;NA&gt;   &lt;NA&gt; female     1      5       0      0   &lt;NA&gt;          1</span></span>
+<span><span class="co">#&gt; 6: J0C450   &lt;NA&gt;   &lt;NA&gt; female     1      6       0      0   &lt;NA&gt;          1</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="va">tidy_simple_ped</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Tidy Pedigree Object</span></span>
-<span><span class="co">#&gt;       Ind   Sire    Dam    Sex   Gen IndNum SireNum DamNum</span></span>
-<span><span class="co">#&gt;    &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;int&gt;  &lt;int&gt;   &lt;int&gt;  &lt;int&gt;</span></span>
-<span><span class="co">#&gt; 1: J1C802 J0Z333 J0C355   male     5     54      47     46</span></span>
-<span><span class="co">#&gt; 2: J4E185 J3L886 J3X697 female     5     55      48     49</span></span>
-<span><span class="co">#&gt; 3: J4Y326 J3Y620 J3Y771   male     5     56      50     51</span></span>
-<span><span class="co">#&gt; 4: J1C929 J0Z511 J0Z444   male     6     57      53     52</span></span>
-<span><span class="co">#&gt; 5: J2Y434 J1C802 J1H419 female     6     58      54     28</span></span>
-<span><span class="co">#&gt; 6: J5X804 J4Y326 J4E185 female     6     59      56     55</span></span>
+<span><span class="co">#&gt;       Ind   Sire    Dam    Sex   Gen IndNum SireNum DamNum        Family</span></span>
+<span><span class="co">#&gt;    &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;int&gt;  &lt;int&gt;   &lt;int&gt;  &lt;int&gt;        &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1: J3X697 J2Z903   &lt;NA&gt; female     4     54      52      0          &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 2: J3Y620 J2C161 J2Z411   male     4     55      45     51 J2C161xJ2Z411</span></span>
+<span><span class="co">#&gt; 3: J3Y771 J2G465 J2X544 female     4     56      48     49 J2G465xJ2X544</span></span>
+<span><span class="co">#&gt; 4: J4E185 J3L886 J3X697 female     5     57      53     54 J3L886xJ3X697</span></span>
+<span><span class="co">#&gt; 5: J4Y326 J3Y620 J3Y771   male     5     58      55     56 J3Y620xJ3Y771</span></span>
+<span><span class="co">#&gt; 6: J5X804 J4Y326 J4E185 female     6     59      58     57 J4Y326xJ4E185</span></span>
+<span><span class="co">#&gt;    FamilySize</span></span>
+<span><span class="co">#&gt;         &lt;int&gt;</span></span>
+<span><span class="co">#&gt; 1:          1</span></span>
+<span><span class="co">#&gt; 2:          1</span></span>
+<span><span class="co">#&gt; 3:          1</span></span>
+<span><span class="co">#&gt; 4:          1</span></span>
+<span><span class="co">#&gt; 5:          1</span></span>
+<span><span class="co">#&gt; 6:          1</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">tidy_simple_ped</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 59</span></span></code></pre></div>
 <p>In the resulting <code>tidy_simple_ped</code>, founders are added
@@ -257,14 +268,14 @@ automatically added to the tidied output.</p>
 <span>  <span class="fu"><a href="../reference/tidyped.html">tidyped</a></span><span class="op">(</span><span class="va">simple_ped</span>, addgen <span class="op">=</span> <span class="cn">FALSE</span>, addnum <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">tidy_simple_ped_no_gen_num</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Tidy Pedigree Object</span></span>
-<span><span class="co">#&gt;       Ind   Sire    Dam    Sex</span></span>
-<span><span class="co">#&gt;    &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;char&gt;</span></span>
-<span><span class="co">#&gt; 1: J0Z938   &lt;NA&gt;   &lt;NA&gt;   male</span></span>
-<span><span class="co">#&gt; 2: J0Z333   &lt;NA&gt;   &lt;NA&gt;   male</span></span>
-<span><span class="co">#&gt; 3: J0C561   &lt;NA&gt;   &lt;NA&gt;   male</span></span>
-<span><span class="co">#&gt; 4: J0Z475   &lt;NA&gt;   &lt;NA&gt;   male</span></span>
-<span><span class="co">#&gt; 5: J0Z511   &lt;NA&gt;   &lt;NA&gt;   male</span></span>
-<span><span class="co">#&gt; 6: J0Z664   &lt;NA&gt;   &lt;NA&gt;   male</span></span></code></pre></div>
+<span><span class="co">#&gt;       Ind   Sire    Dam    Sex Family FamilySize</span></span>
+<span><span class="co">#&gt;    &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;char&gt;      &lt;int&gt;</span></span>
+<span><span class="co">#&gt; 1: J0Z938   &lt;NA&gt;   &lt;NA&gt;   male   &lt;NA&gt;          1</span></span>
+<span><span class="co">#&gt; 2: J0Z333   &lt;NA&gt;   &lt;NA&gt;   male   &lt;NA&gt;          1</span></span>
+<span><span class="co">#&gt; 3: J0C561   &lt;NA&gt;   &lt;NA&gt;   male   &lt;NA&gt;          1</span></span>
+<span><span class="co">#&gt; 4: J0Z475   &lt;NA&gt;   &lt;NA&gt;   male   &lt;NA&gt;          1</span></span>
+<span><span class="co">#&gt; 5: J0Z511   &lt;NA&gt;   &lt;NA&gt;   male   &lt;NA&gt;          1</span></span>
+<span><span class="co">#&gt; 6: J0Z664   &lt;NA&gt;   &lt;NA&gt;   male   &lt;NA&gt;          1</span></span></code></pre></div>
 <p>Once tidied, you can use <code><a href="https://rdatatable.gitlab.io/data.table/reference/fwrite.html" class="external-link">data.table::fwrite()</a></code> to export
 the pedigree for genetic evaluation software like ASReml.</p>
 </div>
@@ -315,14 +326,22 @@ ancestors/descendants are retained.</p>
 <span>  <span class="fu"><a href="../reference/tidyped.html">tidyped</a></span><span class="op">(</span>ped <span class="op">=</span> <span class="va">tidy_simple_ped_no_gen_num</span>, cand <span class="op">=</span> <span class="st">"J5X804"</span><span class="op">)</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="va">tidy_simple_ped_J5X804_ancestors</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Tidy Pedigree Object</span></span>
-<span><span class="co">#&gt;       Ind   Sire    Dam    Sex   Gen IndNum SireNum DamNum   Cand</span></span>
-<span><span class="co">#&gt;    &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;int&gt;  &lt;int&gt;   &lt;int&gt;  &lt;int&gt; &lt;lgcl&gt;</span></span>
-<span><span class="co">#&gt; 1: J3X697 J2Z903   &lt;NA&gt; female     4     45      43      0  FALSE</span></span>
-<span><span class="co">#&gt; 2: J3Y620 J2C161 J2Z411   male     4     46      37     42  FALSE</span></span>
-<span><span class="co">#&gt; 3: J3Y771 J2G465 J2X544 female     4     47      40     41  FALSE</span></span>
-<span><span class="co">#&gt; 4: J4E185 J3L886 J3X697 female     5     48      44     45  FALSE</span></span>
-<span><span class="co">#&gt; 5: J4Y326 J3Y620 J3Y771   male     5     49      46     47  FALSE</span></span>
-<span><span class="co">#&gt; 6: J5X804 J4Y326 J4E185 female     6     50      49     48   TRUE</span></span></code></pre></div>
+<span><span class="co">#&gt;       Ind   Sire    Dam    Sex        Family FamilySize   Gen IndNum SireNum</span></span>
+<span><span class="co">#&gt;    &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;char&gt;        &lt;char&gt;      &lt;int&gt; &lt;int&gt;  &lt;int&gt;   &lt;int&gt;</span></span>
+<span><span class="co">#&gt; 1: J3X697 J2Z903   &lt;NA&gt; female          &lt;NA&gt;          1     4     45      43</span></span>
+<span><span class="co">#&gt; 2: J3Y620 J2C161 J2Z411   male J2C161xJ2Z411          1     4     46      37</span></span>
+<span><span class="co">#&gt; 3: J3Y771 J2G465 J2X544 female J2G465xJ2X544          1     4     47      40</span></span>
+<span><span class="co">#&gt; 4: J4E185 J3L886 J3X697 female J3L886xJ3X697          1     5     48      44</span></span>
+<span><span class="co">#&gt; 5: J4Y326 J3Y620 J3Y771   male J3Y620xJ3Y771          1     5     49      46</span></span>
+<span><span class="co">#&gt; 6: J5X804 J4Y326 J4E185 female J4Y326xJ4E185          1     6     50      49</span></span>
+<span><span class="co">#&gt;    DamNum   Cand</span></span>
+<span><span class="co">#&gt;     &lt;int&gt; &lt;lgcl&gt;</span></span>
+<span><span class="co">#&gt; 1:      0  FALSE</span></span>
+<span><span class="co">#&gt; 2:     42  FALSE</span></span>
+<span><span class="co">#&gt; 3:     41  FALSE</span></span>
+<span><span class="co">#&gt; 4:     45  FALSE</span></span>
+<span><span class="co">#&gt; 5:     47  FALSE</span></span>
+<span><span class="co">#&gt; 6:     48   TRUE</span></span></code></pre></div>
 <p>By default, the function traces ancestors. You can limit the number
 of generations using <code>tracegen</code>. If <code>tracegen</code> is
 <code>NULL</code>, all available generations are traced.</p>
@@ -333,15 +352,24 @@ of generations using <code>tracegen</code>. If <code>tracegen</code> is
 <span>  tracegen <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">tidy_simple_ped_J5X804_ancestors_2</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Tidy Pedigree Object</span></span>
-<span><span class="co">#&gt;       Ind   Sire    Dam    Sex   Gen IndNum SireNum DamNum   Cand</span></span>
-<span><span class="co">#&gt;    &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;int&gt;  &lt;int&gt;   &lt;int&gt;  &lt;int&gt; &lt;lgcl&gt;</span></span>
-<span><span class="co">#&gt; 1: J3L886   &lt;NA&gt;   &lt;NA&gt;   male     1      1       0      0  FALSE</span></span>
-<span><span class="co">#&gt; 2: J3X697   &lt;NA&gt;   &lt;NA&gt; female     1      2       0      0  FALSE</span></span>
-<span><span class="co">#&gt; 3: J3Y620   &lt;NA&gt;   &lt;NA&gt;   male     1      3       0      0  FALSE</span></span>
-<span><span class="co">#&gt; 4: J3Y771   &lt;NA&gt;   &lt;NA&gt; female     1      4       0      0  FALSE</span></span>
-<span><span class="co">#&gt; 5: J4E185 J3L886 J3X697 female     2      5       1      2  FALSE</span></span>
-<span><span class="co">#&gt; 6: J4Y326 J3Y620 J3Y771   male     2      6       3      4  FALSE</span></span>
-<span><span class="co">#&gt; 7: J5X804 J4Y326 J4E185 female     3      7       6      5   TRUE</span></span></code></pre></div>
+<span><span class="co">#&gt;       Ind   Sire    Dam    Sex        Family FamilySize   Gen IndNum SireNum</span></span>
+<span><span class="co">#&gt;    &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;char&gt;        &lt;char&gt;      &lt;int&gt; &lt;int&gt;  &lt;int&gt;   &lt;int&gt;</span></span>
+<span><span class="co">#&gt; 1: J3L886   &lt;NA&gt;   &lt;NA&gt;   male          &lt;NA&gt;          1     1      1       0</span></span>
+<span><span class="co">#&gt; 2: J3X697   &lt;NA&gt;   &lt;NA&gt; female          &lt;NA&gt;          1     1      2       0</span></span>
+<span><span class="co">#&gt; 3: J3Y620   &lt;NA&gt;   &lt;NA&gt;   male          &lt;NA&gt;          1     1      3       0</span></span>
+<span><span class="co">#&gt; 4: J3Y771   &lt;NA&gt;   &lt;NA&gt; female          &lt;NA&gt;          1     1      4       0</span></span>
+<span><span class="co">#&gt; 5: J4E185 J3L886 J3X697 female J3L886xJ3X697          1     2      5       1</span></span>
+<span><span class="co">#&gt; 6: J4Y326 J3Y620 J3Y771   male J3Y620xJ3Y771          1     2      6       3</span></span>
+<span><span class="co">#&gt; 7: J5X804 J4Y326 J4E185 female J4Y326xJ4E185          1     3      7       6</span></span>
+<span><span class="co">#&gt;    DamNum   Cand</span></span>
+<span><span class="co">#&gt;     &lt;int&gt; &lt;lgcl&gt;</span></span>
+<span><span class="co">#&gt; 1:      0  FALSE</span></span>
+<span><span class="co">#&gt; 2:      0  FALSE</span></span>
+<span><span class="co">#&gt; 3:      0  FALSE</span></span>
+<span><span class="co">#&gt; 4:      0  FALSE</span></span>
+<span><span class="co">#&gt; 5:      2  FALSE</span></span>
+<span><span class="co">#&gt; 6:      4  FALSE</span></span>
+<span><span class="co">#&gt; 7:      5   TRUE</span></span></code></pre></div>
 <p>The code above traces the ancestors of <code>J5X804</code> back two
 generations.</p>
 <p>To trace descendants, set <code>trace = 'down'</code>.</p>
@@ -358,14 +386,22 @@ simultaneously.</li>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">tidy_simple_ped_J0Z990_offspring</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Tidy Pedigree Object</span></span>
 <span><span class="co">#&gt; Index: &lt;Sex&gt;</span></span>
-<span><span class="co">#&gt;       Ind   Sire    Dam    Sex   Gen IndNum SireNum DamNum   Cand</span></span>
-<span><span class="co">#&gt;    &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;int&gt;  &lt;int&gt;   &lt;int&gt;  &lt;int&gt; &lt;lgcl&gt;</span></span>
-<span><span class="co">#&gt; 1: J0Z990   &lt;NA&gt;   &lt;NA&gt;   male     1      1       0      0   TRUE</span></span>
-<span><span class="co">#&gt; 2: J1I438 J0Z990   &lt;NA&gt;   male     2      2       1      0  FALSE</span></span>
-<span><span class="co">#&gt; 3: J2G465 J1I438   &lt;NA&gt;   male     3      3       2      0  FALSE</span></span>
-<span><span class="co">#&gt; 4: J3Y771 J2G465   &lt;NA&gt; female     4      4       3      0  FALSE</span></span>
-<span><span class="co">#&gt; 5: J4Y326   &lt;NA&gt; J3Y771   male     5      5       0      4  FALSE</span></span>
-<span><span class="co">#&gt; 6: J5X804 J4Y326   &lt;NA&gt; female     6      6       5      0  FALSE</span></span></code></pre></div>
+<span><span class="co">#&gt;       Ind   Sire    Dam    Sex Family FamilySize   Gen IndNum SireNum DamNum</span></span>
+<span><span class="co">#&gt;    &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;char&gt;      &lt;int&gt; &lt;int&gt;  &lt;int&gt;   &lt;int&gt;  &lt;int&gt;</span></span>
+<span><span class="co">#&gt; 1: J0Z990   &lt;NA&gt;   &lt;NA&gt;   male   &lt;NA&gt;          1     1      1       0      0</span></span>
+<span><span class="co">#&gt; 2: J1I438 J0Z990   &lt;NA&gt;   male   &lt;NA&gt;          1     2      2       1      0</span></span>
+<span><span class="co">#&gt; 3: J2G465 J1I438   &lt;NA&gt;   male   &lt;NA&gt;          1     3      3       2      0</span></span>
+<span><span class="co">#&gt; 4: J3Y771 J2G465   &lt;NA&gt; female   &lt;NA&gt;          1     4      4       3      0</span></span>
+<span><span class="co">#&gt; 5: J4Y326   &lt;NA&gt; J3Y771   male   &lt;NA&gt;          1     5      5       0      4</span></span>
+<span><span class="co">#&gt; 6: J5X804 J4Y326   &lt;NA&gt; female   &lt;NA&gt;          1     6      6       5      0</span></span>
+<span><span class="co">#&gt;      Cand</span></span>
+<span><span class="co">#&gt;    &lt;lgcl&gt;</span></span>
+<span><span class="co">#&gt; 1:   TRUE</span></span>
+<span><span class="co">#&gt; 2:  FALSE</span></span>
+<span><span class="co">#&gt; 3:  FALSE</span></span>
+<span><span class="co">#&gt; 4:  FALSE</span></span>
+<span><span class="co">#&gt; 5:  FALSE</span></span>
+<span><span class="co">#&gt; 6:  FALSE</span></span></code></pre></div>
 <p>Tracing the descendants of <code>J0Z990</code> reveals a total of 5
 individuals.</p>
 </div>
@@ -383,14 +419,14 @@ disabled with <code>addnum = FALSE</code>.</p>
 <span>  <span class="fu"><a href="../reference/tidyped.html">tidyped</a></span><span class="op">(</span>ped <span class="op">=</span> <span class="va">tidy_simple_ped_no_gen_num</span>, addnum <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">tidy_simple_ped_with_int</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Tidy Pedigree Object</span></span>
-<span><span class="co">#&gt;       Ind   Sire    Dam    Sex   Gen IndNum SireNum DamNum</span></span>
-<span><span class="co">#&gt;    &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;int&gt;  &lt;int&gt;   &lt;int&gt;  &lt;int&gt;</span></span>
-<span><span class="co">#&gt; 1: J0C032   &lt;NA&gt;   &lt;NA&gt; female     1      1       0      0</span></span>
-<span><span class="co">#&gt; 2: J0C185   &lt;NA&gt;   &lt;NA&gt; female     1      2       0      0</span></span>
-<span><span class="co">#&gt; 3: J0C231   &lt;NA&gt;   &lt;NA&gt; female     1      3       0      0</span></span>
-<span><span class="co">#&gt; 4: J0C317   &lt;NA&gt;   &lt;NA&gt;   male     1      4       0      0</span></span>
-<span><span class="co">#&gt; 5: J0C450   &lt;NA&gt;   &lt;NA&gt; female     1      5       0      0</span></span>
-<span><span class="co">#&gt; 6: J0C561   &lt;NA&gt;   &lt;NA&gt;   male     1      6       0      0</span></span></code></pre></div>
+<span><span class="co">#&gt;       Ind   Sire    Dam    Sex Family FamilySize   Gen IndNum SireNum DamNum</span></span>
+<span><span class="co">#&gt;    &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;char&gt;      &lt;int&gt; &lt;int&gt;  &lt;int&gt;   &lt;int&gt;  &lt;int&gt;</span></span>
+<span><span class="co">#&gt; 1: J0C032   &lt;NA&gt;   &lt;NA&gt; female   &lt;NA&gt;          1     1      1       0      0</span></span>
+<span><span class="co">#&gt; 2: J0C185   &lt;NA&gt;   &lt;NA&gt; female   &lt;NA&gt;          1     1      2       0      0</span></span>
+<span><span class="co">#&gt; 3: J0C231   &lt;NA&gt;   &lt;NA&gt; female   &lt;NA&gt;          1     1      3       0      0</span></span>
+<span><span class="co">#&gt; 4: J0C317   &lt;NA&gt;   &lt;NA&gt;   male   &lt;NA&gt;          1     1      4       0      0</span></span>
+<span><span class="co">#&gt; 5: J0C355   &lt;NA&gt;   &lt;NA&gt; female   &lt;NA&gt;          1     1      5       0      0</span></span>
+<span><span class="co">#&gt; 6: J0C450   &lt;NA&gt;   &lt;NA&gt; female   &lt;NA&gt;          1     1      6       0      0</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="id_3-5">3.5 Calculating inbreeding coefficients<a class="anchor" aria-label="anchor" href="#id_3-5"></a>
@@ -419,50 +455,155 @@ the <code>f</code> column.</li>
 <span><span class="va">tidy_test</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tidyped.html">tidyped</a></span><span class="op">(</span><span class="va">test_ped</span>, inbreed <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">tidy_test</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Tidy Pedigree Object</span></span>
-<span><span class="co">#&gt;       Ind   Sire    Dam    Sex   Gen IndNum SireNum DamNum     f</span></span>
-<span><span class="co">#&gt;    &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;int&gt;  &lt;int&gt;   &lt;int&gt;  &lt;int&gt; &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      A   &lt;NA&gt;   &lt;NA&gt;   male     1      1       0      0 0.000</span></span>
-<span><span class="co">#&gt; 2:      B   &lt;NA&gt;   &lt;NA&gt; female     1      2       0      0 0.000</span></span>
-<span><span class="co">#&gt; 3:      C      A      B   male     2      3       1      2 0.000</span></span>
-<span><span class="co">#&gt; 4:      D      C      B female     3      4       3      2 0.250</span></span>
-<span><span class="co">#&gt; 5:      E      C      D   male     4      5       3      4 0.375</span></span>
+<span><span class="co">#&gt;       Ind   Sire    Dam    Sex   Gen IndNum SireNum DamNum Family FamilySize</span></span>
+<span><span class="co">#&gt;    &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;int&gt;  &lt;int&gt;   &lt;int&gt;  &lt;int&gt; &lt;char&gt;      &lt;int&gt;</span></span>
+<span><span class="co">#&gt; 1:      A   &lt;NA&gt;   &lt;NA&gt;   male     1      1       0      0   &lt;NA&gt;          1</span></span>
+<span><span class="co">#&gt; 2:      B   &lt;NA&gt;   &lt;NA&gt; female     1      2       0      0   &lt;NA&gt;          1</span></span>
+<span><span class="co">#&gt; 3:      C      A      B   male     2      3       1      2    AxB          1</span></span>
+<span><span class="co">#&gt; 4:      D      C      B female     3      4       3      2    CxB          1</span></span>
+<span><span class="co">#&gt; 5:      E      C      D   male     4      5       3      4    CxD          1</span></span>
+<span><span class="co">#&gt;        f</span></span>
+<span><span class="co">#&gt;    &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: 0.000</span></span>
+<span><span class="co">#&gt; 2: 0.000</span></span>
+<span><span class="co">#&gt; 3: 0.000</span></span>
+<span><span class="co">#&gt; 4: 0.250</span></span>
+<span><span class="co">#&gt; 5: 0.375</span></span>
 <span></span>
 <span><span class="co"># Option 2: Calculate after tidying</span></span>
 <span><span class="va">tidy_test</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/inbreed.html">inbreed</a></span><span class="op">(</span><span class="fu"><a href="../reference/tidyped.html">tidyped</a></span><span class="op">(</span><span class="va">test_ped</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="id_3-6">3.6 Summarizing the pedigree<a class="anchor" aria-label="anchor" href="#id_3-6"></a>
+<h3 id="id_3-6">3.6 Customizing generation assignment<a class="anchor" aria-label="anchor" href="#id_3-6"></a>
+</h3>
+<p>Generation inference is essential for pedigree visualization.
+<code><a href="../reference/tidyped.html">tidyped()</a></code> provides two methods for assigning generation
+numbers via the <code>genmethod</code> parameter:</p>
+<ul>
+<li>
+<strong>“top” (default)</strong>: Top-aligned (depth-based).
+Founders are assigned to Generation 1. This is the optimal scheme for
+most biological pedigrees as it ensures all founders start at the top,
+preventing them from “drifting” to lower generations if they have fewer
+descendants.</li>
+<li>
+<strong>“bottom”</strong>: Bottom-aligned (height-based).
+Generations are counted from the bottom up, aligning terminal nodes
+(offspring with no further descendants) at the highest generation
+number. This is useful when you want to show that all current
+populations are at the same level, or when introducing unrelated
+exogenous parents in later years.</li>
+</ul>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Default behavior (Top-Down): J2Y434 is at Gen 3</span></span>
+<span><span class="va">tidy_top</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tidyped.html">tidyped</a></span><span class="op">(</span><span class="va">simple_ped</span>, genmethod <span class="op">=</span> <span class="st">"top"</span><span class="op">)</span></span>
+<span><span class="va">tidy_top</span><span class="op">[</span><span class="va">Ind</span> <span class="op">==</span> <span class="st">"J2Y434"</span><span class="op">]</span></span>
+<span><span class="co">#&gt; Tidy Pedigree Object</span></span>
+<span><span class="co">#&gt;       Ind   Sire    Dam    Sex   Gen IndNum SireNum DamNum        Family</span></span>
+<span><span class="co">#&gt;    &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;int&gt;  &lt;int&gt;   &lt;int&gt;  &lt;int&gt;        &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1: J2Y434 J1C802 J1H419 female     3     50      29     34 J1C802xJ1H419</span></span>
+<span><span class="co">#&gt;    FamilySize</span></span>
+<span><span class="co">#&gt;         &lt;int&gt;</span></span>
+<span><span class="co">#&gt; 1:          1</span></span>
+<span></span>
+<span><span class="co"># Bottom-Up behavior: J2Y434 is at Gen 6</span></span>
+<span><span class="va">tidy_bottom</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tidyped.html">tidyped</a></span><span class="op">(</span><span class="va">simple_ped</span>, genmethod <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span></span>
+<span><span class="va">tidy_bottom</span><span class="op">[</span><span class="va">Ind</span> <span class="op">==</span> <span class="st">"J2Y434"</span><span class="op">]</span></span>
+<span><span class="co">#&gt; Tidy Pedigree Object</span></span>
+<span><span class="co">#&gt;       Ind   Sire    Dam    Sex   Gen IndNum SireNum DamNum        Family</span></span>
+<span><span class="co">#&gt;    &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;int&gt;  &lt;int&gt;   &lt;int&gt;  &lt;int&gt;        &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1: J2Y434 J1C802 J1H419 female     6     58      53     54 J1C802xJ1H419</span></span>
+<span><span class="co">#&gt;    FamilySize</span></span>
+<span><span class="co">#&gt;         &lt;int&gt;</span></span>
+<span><span class="co">#&gt; 1:          1</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="id_3-7">3.7 Summarizing the pedigree<a class="anchor" aria-label="anchor" href="#id_3-7"></a>
 </h3>
 <p>The <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> method provides a quick overview of the
 pedigree statistics, including the number of individuals, sex
 distribution, founders, and isolated individuals. If inbreeding
 coefficients have been calculated (column <code>f</code>), the summary
 will also include descriptive statistics of inbreeding.</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Summarize the tidied pedigree</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">tidy_simple_ped</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Pedigree Summary:</span></span>
-<span><span class="co">#&gt; -----------------</span></span>
+<span><span class="co">#&gt; Pedigree Summary</span></span>
+<span><span class="co">#&gt; ================</span></span>
+<span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Total Individuals:  59 </span></span>
-<span><span class="co">#&gt;   - Males:    29 </span></span>
-<span><span class="co">#&gt;   - Females:  30 </span></span>
+<span><span class="co">#&gt;   - Males:    29 (49.2%) </span></span>
+<span><span class="co">#&gt;   - Females:  30 (50.8%) </span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Founders (parents unknown):  28 </span></span>
-<span><span class="co">#&gt; Maximum Generation:  6</span></span>
+<span><span class="co">#&gt; Pedigree Structure:</span></span>
+<span><span class="co">#&gt;   - Founders (no parents):   28 </span></span>
+<span><span class="co">#&gt;   - Both parents known:      28 </span></span>
+<span><span class="co">#&gt;   - Sire only known:         2 </span></span>
+<span><span class="co">#&gt;   - Dam only known:          1 </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Generation:</span></span>
+<span><span class="co">#&gt;   - Maximum:  6 </span></span>
+<span><span class="co">#&gt;   - Distribution:</span></span>
+<span><span class="co">#&gt;       Gen 1: 28 individuals</span></span>
+<span><span class="co">#&gt;       Gen 2: 16 individuals</span></span>
+<span><span class="co">#&gt;       Gen 3: 8 individuals</span></span>
+<span><span class="co">#&gt;       Gen 4: 4 individuals</span></span>
+<span><span class="co">#&gt;       Gen 5: 2 individuals</span></span>
+<span><span class="co">#&gt;       Gen 6: 1 individuals</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Reproduction:</span></span>
+<span><span class="co">#&gt;   - Individuals with offspring:  56 </span></span>
+<span><span class="co">#&gt;   - Sires:  28  (Mean=1.1, Max=2 offspring)</span></span>
+<span><span class="co">#&gt;   - Dams:   28  (Mean=1.0, Max=2 offspring)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Full-sibling Families:</span></span>
+<span><span class="co">#&gt;   - Number of families:      27 </span></span>
+<span><span class="co">#&gt;   - Mean family size:        1.04</span></span>
+<span><span class="co">#&gt;   - Maximum family size:     2 </span></span>
+<span><span class="co">#&gt;   - Top families by size:</span></span>
+<span><span class="co">#&gt;       J0Z475xJ0C612: 2</span></span>
+<span><span class="co">#&gt;       J0C317xJ0C450: 1</span></span>
+<span><span class="co">#&gt;       J0C561xJ0C032: 1</span></span>
+<span><span class="co">#&gt;       J0C583xJ0Z380: 1</span></span>
+<span><span class="co">#&gt;       J0C591xJ0C231: 1</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ================</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="id_3-8">3.8 Splitting large pedigrees<a class="anchor" aria-label="anchor" href="#id_3-8"></a>
+</h3>
+<p>For extremely large pedigrees, it is sometimes useful to split them
+into disconnected subsets or “sub-pedigrees”. The
+<code><a href="../reference/splitped.html">splitped()</a></code> function automatically detects disconnected
+components (families that share no ancestors) and splits the pedigree
+into a list of smaller <code>tidyped</code> objects.</p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Split the pedigree into components</span></span>
+<span><span class="va">sub_pedigrees</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/splitped.html">splitped</a></span><span class="op">(</span><span class="va">tidy_simple_ped</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Summarize with inbreeding info</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">tidy_test</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Pedigree Summary:</span></span>
-<span><span class="co">#&gt; -----------------</span></span>
-<span><span class="co">#&gt; Total Individuals:  5 </span></span>
-<span><span class="co">#&gt;   - Males:    3 </span></span>
-<span><span class="co">#&gt;   - Females:  2 </span></span>
+<span><span class="co"># View summary of the split result</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">sub_pedigrees</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Summary of Pedigree Split</span></span>
+<span><span class="co">#&gt; =========================</span></span>
+<span><span class="co">#&gt; Total individuals in groups: 59 </span></span>
+<span><span class="co">#&gt; Isolated individuals (Gen=0): 0 </span></span>
+<span><span class="co">#&gt; Grand total: 59 </span></span>
+<span><span class="co">#&gt; Number of groups:  2 </span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Founders (parents unknown):  2 </span></span>
-<span><span class="co">#&gt; Maximum Generation:  4 </span></span>
+<span><span class="co">#&gt; Size statistics:</span></span>
+<span><span class="co">#&gt;   Min:     3 </span></span>
+<span><span class="co">#&gt;   Max:     56 </span></span>
+<span><span class="co">#&gt;   Mean:    29.5 </span></span>
+<span><span class="co">#&gt;   Median:  29.5 </span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Inbreeding coefficients:</span></span>
-<span><span class="co">#&gt;   - All:        Mean=0.1250, Min=0.0000, Max=0.3750</span></span></code></pre></div>
+<span><span class="co">#&gt; Connectivity: Pedigree contains disconnected groups</span></span>
+<span></span>
+<span><span class="co"># Access a specific sub-pedigree</span></span>
+<span><span class="co"># first_sub &lt;- sub_pedigrees[[1]]</span></span></code></pre></div>
+<hr>
+<p><strong>See Also:</strong> -
+<code><a href="../articles/draw-pedigree.html">vignette("draw-pedigree", package = "visPedigree")</a></code> -
+<code><a href="../articles/relationship-matrix.html">vignette("relationship-matrix", package = "visPedigree")</a></code></p>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

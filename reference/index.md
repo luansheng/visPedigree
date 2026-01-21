@@ -8,6 +8,21 @@ Main tools for processing and visualizing animal pedigrees.
   : Tidy and prepare a pedigree using graph theory
 - [`visped()`](https://luansheng.github.io/visPedigree/reference/visped.md)
   : Visualize a tidy pedigree
+- [`splitped()`](https://luansheng.github.io/visPedigree/reference/splitped.md)
+  : Split Pedigree into Disconnected Groups
+
+## Relationship Matrices
+
+Tools for computing and analyzing genetic relationship matrices.
+
+- [`pedmatrix()`](https://luansheng.github.io/visPedigree/reference/pedmatrix.md)
+  : Genetic Relationship Matrices and Inbreeding Coefficients
+- [`expand_pedmatrix()`](https://luansheng.github.io/visPedigree/reference/expand_pedmatrix.md)
+  : Expand a Compact Pedigree Matrix to Full Dimensions
+- [`query_relationship()`](https://luansheng.github.io/visPedigree/reference/query_relationship.md)
+  : Query Relationship Coefficients from a Pedigree Matrix
+- [`vismat()`](https://luansheng.github.io/visPedigree/reference/vismat.md)
+  : Visualize Relationship Matrices
 
 ## Pedigree Analysis
 
@@ -33,13 +48,17 @@ Built-in pedigree examples for testing and demonstration.
 
 ## S3 Methods
 
-Generic methods for ‘tidyped’ objects.
+Generic methods for ‘tidyped’ and ‘pedmatrix’ objects.
 
 - [`plot(`*`<tidyped>`*`)`](https://luansheng.github.io/visPedigree/reference/plot.tidyped.md)
   : Plot a tidy pedigree
 - [`summary(`*`<tidyped>`*`)`](https://luansheng.github.io/visPedigree/reference/summary.tidyped.md)
   : Summary method for tidyped objects
+- [`summary_pedmatrix()`](https://luansheng.github.io/visPedigree/reference/summary_pedmatrix.md)
+  : Summary Statistics for Pedigree Matrices
 - [`print(`*`<summary.tidyped>`*`)`](https://luansheng.github.io/visPedigree/reference/print.summary.tidyped.md)
   : Print method for summary.tidyped
 - [`print(`*`<tidyped>`*`)`](https://luansheng.github.io/visPedigree/reference/print.tidyped.md)
   : Print method for tidyped pedigree
+- [`diag()`](https://luansheng.github.io/visPedigree/reference/diag.md)
+  : Extract Matrix Diagonals

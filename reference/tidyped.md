@@ -20,6 +20,7 @@ tidyped(
   addgen = TRUE,
   addnum = TRUE,
   inbreed = FALSE,
+  genmethod = "top",
   ...
 )
 ```
@@ -72,6 +73,14 @@ tidyped(
   coefficients. Default is FALSE. If TRUE, an **f** column is added to
   the output.
 
+- genmethod:
+
+  A character value specifying the generation assignment method:
+  "**top**" or "**bottom**". "top" (top-aligned) assigns generations
+  from parents to offspring, starting founders at Gen 1. "bottom"
+  (bottom-aligned) assigns generations from offspring to parents,
+  aligning terminal nodes at the bottom. Default is "top".
+
 - ...:
 
   Additional arguments passed to
@@ -85,20 +94,33 @@ Missing parents are replaced with **NA**. The **Sex** column contains
 "male", "female", or NA. The **Cand** column is included if `cand` is
 not NULL. The **Gen** column is included if `addgen` is TRUE. The
 **IndNum**, **SireNum**, and **DamNum** columns are included if `addnum`
-is TRUE. The **f** column is included if `inbreed` is TRUE.
+is TRUE. The **Family** and **FamilySize** columns identify full-sibling
+families (e.g., "A x B" for offspring of sire A and dam B). The **f**
+column is included if `inbreed` is TRUE.
 
 ## Details
 
 Compared to the legacy version, this function handles cyclic pedigrees
 more robustly by detecting and reporting loops, and it is generally
 faster for large pedigrees due to the use of sparse graph algorithms
-from the `igraph` package. Generation assignment is performed using a
-topological sorting-based algorithm that ensures parents are always
-placed in a generation strictly above their offspring (TGI algorithm).
+from the `igraph` package. Generation assignment can be performed using
+either a top-down approach (default, aligning founders at the top) or a
+bottom-up approach (aligning terminal nodes at the bottom).
 
 ## See also
 
 [`summary.tidyped`](https://luansheng.github.io/visPedigree/reference/summary.tidyped.md)
+for summarizing tidyped objects
+[`visped`](https://luansheng.github.io/visPedigree/reference/visped.md)
+for visualizing pedigree structure
+[`pedmatrix`](https://luansheng.github.io/visPedigree/reference/pedmatrix.md)
+for computing relationship matrices
+[`vismat`](https://luansheng.github.io/visPedigree/reference/vismat.md)
+for visualizing relationship matrices
+[`splitped`](https://luansheng.github.io/visPedigree/reference/splitped.md)
+for splitting pedigree into connected components
+[`inbreed`](https://luansheng.github.io/visPedigree/reference/inbreed.md)
+for calculating inbreeding coefficients
 
 ## Examples
 
@@ -110,27 +132,35 @@ library(data.table)
 tidy_ped <- tidyped(simple_ped)
 head(tidy_ped)
 #> Tidy Pedigree Object
-#>       Ind   Sire    Dam    Sex   Gen IndNum SireNum DamNum
-#>    <char> <char> <char> <char> <int>  <int>   <int>  <int>
-#> 1: J0C032   <NA>   <NA> female     1      1       0      0
-#> 2: J0C185   <NA>   <NA> female     1      2       0      0
-#> 3: J0C231   <NA>   <NA> female     1      3       0      0
-#> 4: J0C317   <NA>   <NA>   male     1      4       0      0
-#> 5: J0C450   <NA>   <NA> female     1      5       0      0
-#> 6: J0C561   <NA>   <NA>   male     1      6       0      0
+#>       Ind   Sire    Dam    Sex   Gen IndNum SireNum DamNum Family FamilySize
+#>    <char> <char> <char> <char> <int>  <int>   <int>  <int> <char>      <int>
+#> 1: J0C032   <NA>   <NA> female     1      1       0      0   <NA>          1
+#> 2: J0C185   <NA>   <NA> female     1      2       0      0   <NA>          1
+#> 3: J0C231   <NA>   <NA> female     1      3       0      0   <NA>          1
+#> 4: J0C317   <NA>   <NA>   male     1      4       0      0   <NA>          1
+#> 5: J0C355   <NA>   <NA> female     1      5       0      0   <NA>          1
+#> 6: J0C450   <NA>   <NA> female     1      6       0      0   <NA>          1
 
 # Trace ancestors of a specific individual within 2 generations
 tidy_ped_tracegen <- tidyped(simple_ped, cand = "J5X804", trace = "up", tracegen = 2)
 head(tidy_ped_tracegen)
 #> Tidy Pedigree Object
-#>       Ind   Sire    Dam    Sex   Gen IndNum SireNum DamNum   Cand
-#>    <char> <char> <char> <char> <int>  <int>   <int>  <int> <lgcl>
-#> 1: J3L886   <NA>   <NA>   male     1      1       0      0  FALSE
-#> 2: J3X697   <NA>   <NA> female     1      2       0      0  FALSE
-#> 3: J3Y620   <NA>   <NA>   male     1      3       0      0  FALSE
-#> 4: J3Y771   <NA>   <NA> female     1      4       0      0  FALSE
-#> 5: J4E185 J3L886 J3X697 female     2      5       1      2  FALSE
-#> 6: J4Y326 J3Y620 J3Y771   male     2      6       3      4  FALSE
+#>       Ind   Sire    Dam    Sex   Gen IndNum SireNum DamNum        Family
+#>    <char> <char> <char> <char> <int>  <int>   <int>  <int>        <char>
+#> 1: J3L886   <NA>   <NA>   male     1      1       0      0          <NA>
+#> 2: J3X697   <NA>   <NA> female     1      2       0      0          <NA>
+#> 3: J3Y620   <NA>   <NA>   male     1      3       0      0          <NA>
+#> 4: J3Y771   <NA>   <NA> female     1      4       0      0          <NA>
+#> 5: J4E185 J3L886 J3X697 female     2      5       1      2 J3L886xJ3X697
+#> 6: J4Y326 J3Y620 J3Y771   male     2      6       3      4 J3Y620xJ3Y771
+#>    FamilySize   Cand
+#>         <int> <lgcl>
+#> 1:          1  FALSE
+#> 2:          1  FALSE
+#> 3:          1  FALSE
+#> 4:          1  FALSE
+#> 5:          1  FALSE
+#> 6:          1  FALSE
 
 # Trace both ancestors and descendants for multiple candidates
 # This is highly optimized and works quickly even on 100k+ individuals
@@ -148,17 +178,46 @@ cand_2007 <- big_family_size_ped[Year == 2007, Ind]
 # \donttest{
 tidy_big <- tidyped(big_family_size_ped, cand = cand_2007, trace = "up", tracegen = 2)
 summary(tidy_big)
-#> Pedigree Summary:
-#> -----------------
-#> Total Individuals:  81766 
-#>   - Males:    185 
-#>   - Females:  261 
-#>   - Unknown Sex:  81320 
+#> Pedigree Summary
+#> ================
 #> 
-#> Founders (parents unknown):  447 
-#> Isolated Individuals (Gen 0):  351 
-#> Maximum Generation:  4 
+#> Total Individuals:  81766 
+#>   - Males:    185 (0.2%) 
+#>   - Females:  261 (0.3%) 
+#>   - Unknown:  81320 (99.5%) 
+#> 
+#> Pedigree Structure:
+#>   - Founders (no parents):   447 
+#>   - Both parents known:      81319 
+#>   - Isolated (Gen 0):        351 
+#> 
+#> Generation:
+#>   - Maximum:  4 
+#>   - Distribution:
+#>       Gen 0: 351 individuals
+#>       Gen 1: 96 individuals
+#>       Gen 2: 164 individuals
+#>       Gen 3: 44146 individuals
+#>       Gen 4: 37009 individuals
+#> 
+#> Reproduction:
+#>   - Individuals with offspring:  446 
+#>   - Sires:  185  (Mean=439.6, Max=930 offspring)
+#>   - Dams:   261  (Mean=311.6, Max=469 offspring)
+#> 
+#> Full-sibling Families:
+#>   - Number of families:      261 
+#>   - Mean family size:        311.57
+#>   - Maximum family size:     469 
+#>   - Top families by size:
+#>       6040x6Z30: 469
+#>       6040x6Z3Z: 461
+#>       6007x6074: 459
+#>       60Z6x6089: 459
+#>       60Z8x609Y: 455
+#> 
 #> Candidates Traced:  81506 
 #> 
+#> ================
 # }
 ```

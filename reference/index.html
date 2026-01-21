@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">visPedigree</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -19,6 +19,7 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/draw-pedigree.html">2. How to draw a pedigree</a></li>
+    <li><a class="dropdown-item" href="../articles/relationship-matrix.html">3. Calculation and visualization of relationship matrix</a></li>
     <li><a class="dropdown-item" href="../articles/tidy-pedigree.html">1. How to tidy a pedigree</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -59,6 +60,50 @@
 
         </dt>
         <dd>Visualize a tidy pedigree</dd>
+
+        <dt>
+
+          <code><a href="splitped.html">splitped()</a></code>
+
+        </dt>
+        <dd>Split Pedigree into Disconnected Groups</dd>
+      </dl></div><div class="section level2">
+      <h2 id="relationship-matrices">Relationship Matrices<a class="anchor" aria-label="anchor" href="#relationship-matrices"></a></h2>
+
+      <div class="section-desc"><p>Tools for computing and analyzing genetic relationship matrices.</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="pedmatrix.html">pedmatrix()</a></code>
+
+        </dt>
+        <dd>Genetic Relationship Matrices and Inbreeding Coefficients</dd>
+
+        <dt>
+
+          <code><a href="expand_pedmatrix.html">expand_pedmatrix()</a></code>
+
+        </dt>
+        <dd>Expand a Compact Pedigree Matrix to Full Dimensions</dd>
+
+        <dt>
+
+          <code><a href="query_relationship.html">query_relationship()</a></code>
+
+        </dt>
+        <dd>Query Relationship Coefficients from a Pedigree Matrix</dd>
+
+        <dt>
+
+          <code><a href="vismat.html">vismat()</a></code>
+
+        </dt>
+        <dd>Visualize Relationship Matrices</dd>
       </dl></div><div class="section level2">
       <h2 id="pedigree-analysis">Pedigree Analysis<a class="anchor" aria-label="anchor" href="#pedigree-analysis"></a></h2>
 
@@ -122,7 +167,7 @@
       </dl></div><div class="section level2">
       <h2 id="s-methods">S3 Methods<a class="anchor" aria-label="anchor" href="#s-methods"></a></h2>
 
-      <div class="section-desc"><p>Generic methods for ‘tidyped’ objects.</p></div>
+      <div class="section-desc"><p>Generic methods for ‘tidyped’ and ‘pedmatrix’ objects.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -145,6 +190,13 @@
 
         <dt>
 
+          <code><a href="summary_pedmatrix.html">summary_pedmatrix()</a></code>
+
+        </dt>
+        <dd>Summary Statistics for Pedigree Matrices</dd>
+
+        <dt>
+
           <code><a href="print.summary.tidyped.html">print(<i>&lt;summary.tidyped&gt;</i>)</a></code>
 
         </dt>
@@ -156,6 +208,13 @@
 
         </dt>
         <dd>Print method for tidyped pedigree</dd>
+
+        <dt>
+
+          <code><a href="diag.html">diag()</a></code>
+
+        </dt>
+        <dd>Extract Matrix Diagonals</dd>
       </dl></div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

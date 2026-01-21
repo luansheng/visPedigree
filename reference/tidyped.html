@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">visPedigree</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -19,6 +19,7 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/draw-pedigree.html">2. How to draw a pedigree</a></li>
+    <li><a class="dropdown-item" href="../articles/relationship-matrix.html">3. Calculation and visualization of relationship matrix</a></li>
     <li><a class="dropdown-item" href="../articles/tidy-pedigree.html">1. How to tidy a pedigree</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -52,6 +53,7 @@
 <span>  addgen <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  addnum <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  inbreed <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  genmethod <span class="op">=</span> <span class="st">"top"</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -88,21 +90,30 @@
 <dd><p>A logical value indicating whether to calculate inbreeding coefficients. Default is FALSE. If TRUE, an <strong>f</strong> column is added to the output.</p></dd>
 
 
+<dt id="arg-genmethod">genmethod<a class="anchor" aria-label="anchor" href="#arg-genmethod"></a></dt>
+<dd><p>A character value specifying the generation assignment method: "<strong>top</strong>" or "<strong>bottom</strong>". "top" (top-aligned) assigns generations from parents to offspring, starting founders at Gen 1. "bottom" (bottom-aligned) assigns generations from offspring to parents, aligning terminal nodes at the bottom. Default is "top".</p></dd>
+
+
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Additional arguments passed to <code><a href="inbreed.html">inbreed</a></code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A <code>tidyped</code> object (which inherits from <code>data.table</code>). Individual, sire, and dam ID columns are renamed to <strong>Ind</strong>, <strong>Sire</strong>, and <strong>Dam</strong>. Missing parents are replaced with <strong>NA</strong>. The <strong>Sex</strong> column contains "male", "female", or NA. The <strong>Cand</strong> column is included if <code>cand</code> is not NULL. The <strong>Gen</strong> column is included if <code>addgen</code> is TRUE. The <strong>IndNum</strong>, <strong>SireNum</strong>, and <strong>DamNum</strong> columns are included if <code>addnum</code> is TRUE. The <strong>f</strong> column is included if <code>inbreed</code> is TRUE.</p>
+    <p>A <code>tidyped</code> object (which inherits from <code>data.table</code>). Individual, sire, and dam ID columns are renamed to <strong>Ind</strong>, <strong>Sire</strong>, and <strong>Dam</strong>. Missing parents are replaced with <strong>NA</strong>. The <strong>Sex</strong> column contains "male", "female", or NA. The <strong>Cand</strong> column is included if <code>cand</code> is not NULL. The <strong>Gen</strong> column is included if <code>addgen</code> is TRUE. The <strong>IndNum</strong>, <strong>SireNum</strong>, and <strong>DamNum</strong> columns are included if <code>addnum</code> is TRUE. The <strong>Family</strong> and <strong>FamilySize</strong> columns identify full-sibling families (e.g., "A x B" for offspring of sire A and dam B). The <strong>f</strong> column is included if <code>inbreed</code> is TRUE.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Compared to the legacy version, this function handles cyclic pedigrees more robustly by detecting and reporting loops, and it is generally faster for large pedigrees due to the use of sparse graph algorithms from the <code>igraph</code> package. Generation assignment is performed using a topological sorting-based algorithm that ensures parents are always placed in a generation strictly above their offspring (TGI algorithm).</p>
+    <p>Compared to the legacy version, this function handles cyclic pedigrees more robustly by detecting and reporting loops, and it is generally faster for large pedigrees due to the use of sparse graph algorithms from the <code>igraph</code> package. Generation assignment can be performed using either a top-down approach (default, aligning founders at the top) or a bottom-up approach (aligning terminal nodes at the bottom).</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="summary.tidyped.html">summary.tidyped</a></code></p></div>
+    <div class="dont-index"><p><code><a href="summary.tidyped.html">summary.tidyped</a></code> for summarizing tidyped objects
+<code><a href="visped.html">visped</a></code> for visualizing pedigree structure
+<code><a href="pedmatrix.html">pedmatrix</a></code> for computing relationship matrices
+<code><a href="vismat.html">vismat</a></code> for visualizing relationship matrices
+<code><a href="splitped.html">splitped</a></code> for splitting pedigree into connected components
+<code><a href="inbreed.html">inbreed</a></code> for calculating inbreeding coefficients</p></div>
     </div>
 
     <div class="section level2">
@@ -114,27 +125,35 @@
 <span class="r-in"><span><span class="va">tidy_ped</span> <span class="op">&lt;-</span> <span class="fu">tidyped</span><span class="op">(</span><span class="va">simple_ped</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">tidy_ped</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Tidy Pedigree Object</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       Ind   Sire    Dam    Sex   Gen IndNum SireNum DamNum</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;int&gt;  &lt;int&gt;   &lt;int&gt;  &lt;int&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1: J0C032   &lt;NA&gt;   &lt;NA&gt; female     1      1       0      0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2: J0C185   &lt;NA&gt;   &lt;NA&gt; female     1      2       0      0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3: J0C231   &lt;NA&gt;   &lt;NA&gt; female     1      3       0      0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4: J0C317   &lt;NA&gt;   &lt;NA&gt;   male     1      4       0      0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5: J0C450   &lt;NA&gt;   &lt;NA&gt; female     1      5       0      0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6: J0C561   &lt;NA&gt;   &lt;NA&gt;   male     1      6       0      0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       Ind   Sire    Dam    Sex   Gen IndNum SireNum DamNum Family FamilySize</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;int&gt;  &lt;int&gt;   &lt;int&gt;  &lt;int&gt; &lt;char&gt;      &lt;int&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1: J0C032   &lt;NA&gt;   &lt;NA&gt; female     1      1       0      0   &lt;NA&gt;          1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2: J0C185   &lt;NA&gt;   &lt;NA&gt; female     1      2       0      0   &lt;NA&gt;          1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3: J0C231   &lt;NA&gt;   &lt;NA&gt; female     1      3       0      0   &lt;NA&gt;          1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4: J0C317   &lt;NA&gt;   &lt;NA&gt;   male     1      4       0      0   &lt;NA&gt;          1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5: J0C355   &lt;NA&gt;   &lt;NA&gt; female     1      5       0      0   &lt;NA&gt;          1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6: J0C450   &lt;NA&gt;   &lt;NA&gt; female     1      6       0      0   &lt;NA&gt;          1</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Trace ancestors of a specific individual within 2 generations</span></span></span>
 <span class="r-in"><span><span class="va">tidy_ped_tracegen</span> <span class="op">&lt;-</span> <span class="fu">tidyped</span><span class="op">(</span><span class="va">simple_ped</span>, cand <span class="op">=</span> <span class="st">"J5X804"</span>, trace <span class="op">=</span> <span class="st">"up"</span>, tracegen <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">tidy_ped_tracegen</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Tidy Pedigree Object</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       Ind   Sire    Dam    Sex   Gen IndNum SireNum DamNum   Cand</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;int&gt;  &lt;int&gt;   &lt;int&gt;  &lt;int&gt; &lt;lgcl&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1: J3L886   &lt;NA&gt;   &lt;NA&gt;   male     1      1       0      0  FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2: J3X697   &lt;NA&gt;   &lt;NA&gt; female     1      2       0      0  FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3: J3Y620   &lt;NA&gt;   &lt;NA&gt;   male     1      3       0      0  FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4: J3Y771   &lt;NA&gt;   &lt;NA&gt; female     1      4       0      0  FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5: J4E185 J3L886 J3X697 female     2      5       1      2  FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6: J4Y326 J3Y620 J3Y771   male     2      6       3      4  FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       Ind   Sire    Dam    Sex   Gen IndNum SireNum DamNum        Family</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;int&gt;  &lt;int&gt;   &lt;int&gt;  &lt;int&gt;        &lt;char&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1: J3L886   &lt;NA&gt;   &lt;NA&gt;   male     1      1       0      0          &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2: J3X697   &lt;NA&gt;   &lt;NA&gt; female     1      2       0      0          &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3: J3Y620   &lt;NA&gt;   &lt;NA&gt;   male     1      3       0      0          &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4: J3Y771   &lt;NA&gt;   &lt;NA&gt; female     1      4       0      0          &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5: J4E185 J3L886 J3X697 female     2      5       1      2 J3L886xJ3X697</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6: J4Y326 J3Y620 J3Y771   male     2      6       3      4 J3Y620xJ3Y771</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    FamilySize   Cand</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         &lt;int&gt; &lt;lgcl&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1:          1  FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2:          1  FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3:          1  FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4:          1  FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5:          1  FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6:          1  FALSE</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Trace both ancestors and descendants for multiple candidates</span></span></span>
 <span class="r-in"><span><span class="co"># This is highly optimized and works quickly even on 100k+ individuals</span></span></span>
@@ -152,18 +171,47 @@
 <span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="va">tidy_big</span> <span class="op">&lt;-</span> <span class="fu">tidyped</span><span class="op">(</span><span class="va">big_family_size_ped</span>, cand <span class="op">=</span> <span class="va">cand_2007</span>, trace <span class="op">=</span> <span class="st">"up"</span>, tracegen <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">tidy_big</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Pedigree Summary:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -----------------</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Total Individuals:  81766 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - Males:    185 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - Females:  261 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - Unknown Sex:  81320 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Pedigree Summary</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ================</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Founders (parents unknown):  447 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Isolated Individuals (Gen 0):  351 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Maximum Generation:  4 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Total Individuals:  81766 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Males:    185 (0.2%) </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Females:  261 (0.3%) </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Unknown:  81320 (99.5%) </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Pedigree Structure:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Founders (no parents):   447 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Both parents known:      81319 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Isolated (Gen 0):        351 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Generation:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Maximum:  4 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Distribution:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       Gen 0: 351 individuals</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       Gen 1: 96 individuals</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       Gen 2: 164 individuals</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       Gen 3: 44146 individuals</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       Gen 4: 37009 individuals</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Reproduction:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Individuals with offspring:  446 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Sires:  185  (Mean=439.6, Max=930 offspring)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Dams:   261  (Mean=311.6, Max=469 offspring)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Full-sibling Families:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Number of families:      261 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Mean family size:        311.57</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Maximum family size:     469 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Top families by size:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       6040x6Z30: 469</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       6040x6Z3Z: 461</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       6007x6074: 459</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       60Z6x6089: 459</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       60Z8x609Y: 455</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Candidates Traced:  81506 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ================</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

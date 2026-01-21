@@ -49,7 +49,7 @@ tidy_small_ped <-
   tidyped(ped = small_ped,
           cand = c("Y", "Z1", "Z2"))
 visped(tidy_small_ped, compact = TRUE, file = tempfile(fileext = ".pdf"))
-#> Pedigree saved to: /tmp/RtmpfyUoqF/file1e573c2ba50b.pdf
+#> Pedigree saved to: /tmp/Rtmp7I4J87/file1f0a1502949f.pdf
 #> Label cex: 0.65. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 ```
 
@@ -202,8 +202,8 @@ visped(
   showgraph = TRUE,
   file = tempfile(fileext = ".pdf")
 )
-#> Pedigree saved to: /tmp/RtmpfyUoqF/file1e57ca97447.pdf
-#> Label cex: 0.5525. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.
+#> Pedigree saved to: /tmp/Rtmp7I4J87/file1f0a482f7ea7.pdf
+#> Label cex: 0.6175. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 ```
 
 ![](draw-pedigree_files/figure-html/reduceped1-1.png)
@@ -233,7 +233,7 @@ visped(
   showgraph = FALSE,
   file = tempfile(fileext = ".pdf")
 )
-#> Pedigree saved to: /tmp/RtmpfyUoqF/file1e5736e69504.pdf
+#> Pedigree saved to: /tmp/Rtmp7I4J87/file1f0a1a6fdb33.pdf
 #> Label cex: 0.83. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 ```
 
@@ -347,3 +347,9 @@ from 54 full-sib families in the generation of grandparent.
 Approximately 25 parents originate from just two full-sib families due
 to the application of optimum contribution theory, accounting for 13.44%
 of all parents.
+
+------------------------------------------------------------------------
+
+**See Also:** -
+[`vignette("tidy-pedigree", package = "visPedigree")`](https://luansheng.github.io/visPedigree/articles/tidy-pedigree.md) -
+[`vignette("relationship-matrix", package = "visPedigree")`](https://luansheng.github.io/visPedigree/articles/relationship-matrix.md)

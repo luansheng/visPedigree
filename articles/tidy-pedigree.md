@@ -43,7 +43,9 @@ as follows:
     3.3 [Tracing the pedigree of a specific individual](#id_3.3)  
     3.4 [Creating an integer pedigree](#id_3.4)  
     3.5 [Calculating inbreeding coefficients](#id_3.5)  
-    3.6 [Summarizing the pedigree](#id_3.6)
+    3.6 [Customizing generation assignment](#id_3.6)  
+    3.7 [Summarizing the pedigree](#id_3.7)  
+    3.8 [Splitting large pedigrees](#id_3.8)
 
 ## 1. Installation of the visPedigree package
 
@@ -151,8 +153,8 @@ will detect this bisexual conflict.
 x <- data.table::copy(simple_ped)
 x[ID == "J2F588", Sire := "J0Z167"]
 y <- tidyped(x)
-#> Warning in validate_and_prepare_ped(ped): Bisexual individuals found (both Sire
-#> and Dam): J0Z167
+#> Error:
+#> ! Sex conflict detected: The following individual(s) appear as both Sire and Dam: J0Z167. This is biologically impossible. Please check and correct the pedigree data.
 ```
 
 The
@@ -164,24 +166,32 @@ parents precede their offspring, and adds missing founders.
 tidy_simple_ped <- tidyped(simple_ped)
 head(tidy_simple_ped)
 #> Tidy Pedigree Object
-#>       Ind   Sire    Dam    Sex   Gen IndNum SireNum DamNum
-#>    <char> <char> <char> <char> <int>  <int>   <int>  <int>
-#> 1: J0C032   <NA>   <NA> female     1      1       0      0
-#> 2: J0C185   <NA>   <NA> female     1      2       0      0
-#> 3: J0C231   <NA>   <NA> female     1      3       0      0
-#> 4: J0C317   <NA>   <NA>   male     1      4       0      0
-#> 5: J0C450   <NA>   <NA> female     1      5       0      0
-#> 6: J0C561   <NA>   <NA>   male     1      6       0      0
+#>       Ind   Sire    Dam    Sex   Gen IndNum SireNum DamNum Family FamilySize
+#>    <char> <char> <char> <char> <int>  <int>   <int>  <int> <char>      <int>
+#> 1: J0C032   <NA>   <NA> female     1      1       0      0   <NA>          1
+#> 2: J0C185   <NA>   <NA> female     1      2       0      0   <NA>          1
+#> 3: J0C231   <NA>   <NA> female     1      3       0      0   <NA>          1
+#> 4: J0C317   <NA>   <NA>   male     1      4       0      0   <NA>          1
+#> 5: J0C355   <NA>   <NA> female     1      5       0      0   <NA>          1
+#> 6: J0C450   <NA>   <NA> female     1      6       0      0   <NA>          1
 tail(tidy_simple_ped)
 #> Tidy Pedigree Object
-#>       Ind   Sire    Dam    Sex   Gen IndNum SireNum DamNum
-#>    <char> <char> <char> <char> <int>  <int>   <int>  <int>
-#> 1: J1C802 J0Z333 J0C355   male     5     54      47     46
-#> 2: J4E185 J3L886 J3X697 female     5     55      48     49
-#> 3: J4Y326 J3Y620 J3Y771   male     5     56      50     51
-#> 4: J1C929 J0Z511 J0Z444   male     6     57      53     52
-#> 5: J2Y434 J1C802 J1H419 female     6     58      54     28
-#> 6: J5X804 J4Y326 J4E185 female     6     59      56     55
+#>       Ind   Sire    Dam    Sex   Gen IndNum SireNum DamNum        Family
+#>    <char> <char> <char> <char> <int>  <int>   <int>  <int>        <char>
+#> 1: J3X697 J2Z903   <NA> female     4     54      52      0          <NA>
+#> 2: J3Y620 J2C161 J2Z411   male     4     55      45     51 J2C161xJ2Z411
+#> 3: J3Y771 J2G465 J2X544 female     4     56      48     49 J2G465xJ2X544
+#> 4: J4E185 J3L886 J3X697 female     5     57      53     54 J3L886xJ3X697
+#> 5: J4Y326 J3Y620 J3Y771   male     5     58      55     56 J3Y620xJ3Y771
+#> 6: J5X804 J4Y326 J4E185 female     6     59      58     57 J4Y326xJ4E185
+#>    FamilySize
+#>         <int>
+#> 1:          1
+#> 2:          1
+#> 3:          1
+#> 4:          1
+#> 5:          1
+#> 6:          1
 nrow(tidy_simple_ped)
 #> [1] 59
 ```
@@ -205,14 +215,14 @@ tidy_simple_ped_no_gen_num <-
   tidyped(simple_ped, addgen = FALSE, addnum = FALSE)
     head(tidy_simple_ped_no_gen_num)
 #> Tidy Pedigree Object
-#>       Ind   Sire    Dam    Sex
-#>    <char> <char> <char> <char>
-#> 1: J0Z938   <NA>   <NA>   male
-#> 2: J0Z333   <NA>   <NA>   male
-#> 3: J0C561   <NA>   <NA>   male
-#> 4: J0Z475   <NA>   <NA>   male
-#> 5: J0Z511   <NA>   <NA>   male
-#> 6: J0Z664   <NA>   <NA>   male
+#>       Ind   Sire    Dam    Sex Family FamilySize
+#>    <char> <char> <char> <char> <char>      <int>
+#> 1: J0Z938   <NA>   <NA>   male   <NA>          1
+#> 2: J0Z333   <NA>   <NA>   male   <NA>          1
+#> 3: J0C561   <NA>   <NA>   male   <NA>          1
+#> 4: J0Z475   <NA>   <NA>   male   <NA>          1
+#> 5: J0Z511   <NA>   <NA>   male   <NA>          1
+#> 6: J0Z664   <NA>   <NA>   male   <NA>          1
 ```
 
 Once tidied, you can use
@@ -272,14 +282,22 @@ tidy_simple_ped_J5X804_ancestors <-
   tidyped(ped = tidy_simple_ped_no_gen_num, cand = "J5X804")
   tail(tidy_simple_ped_J5X804_ancestors)
 #> Tidy Pedigree Object
-#>       Ind   Sire    Dam    Sex   Gen IndNum SireNum DamNum   Cand
-#>    <char> <char> <char> <char> <int>  <int>   <int>  <int> <lgcl>
-#> 1: J3X697 J2Z903   <NA> female     4     45      43      0  FALSE
-#> 2: J3Y620 J2C161 J2Z411   male     4     46      37     42  FALSE
-#> 3: J3Y771 J2G465 J2X544 female     4     47      40     41  FALSE
-#> 4: J4E185 J3L886 J3X697 female     5     48      44     45  FALSE
-#> 5: J4Y326 J3Y620 J3Y771   male     5     49      46     47  FALSE
-#> 6: J5X804 J4Y326 J4E185 female     6     50      49     48   TRUE
+#>       Ind   Sire    Dam    Sex        Family FamilySize   Gen IndNum SireNum
+#>    <char> <char> <char> <char>        <char>      <int> <int>  <int>   <int>
+#> 1: J3X697 J2Z903   <NA> female          <NA>          1     4     45      43
+#> 2: J3Y620 J2C161 J2Z411   male J2C161xJ2Z411          1     4     46      37
+#> 3: J3Y771 J2G465 J2X544 female J2G465xJ2X544          1     4     47      40
+#> 4: J4E185 J3L886 J3X697 female J3L886xJ3X697          1     5     48      44
+#> 5: J4Y326 J3Y620 J3Y771   male J3Y620xJ3Y771          1     5     49      46
+#> 6: J5X804 J4Y326 J4E185 female J4Y326xJ4E185          1     6     50      49
+#>    DamNum   Cand
+#>     <int> <lgcl>
+#> 1:      0  FALSE
+#> 2:     42  FALSE
+#> 3:     41  FALSE
+#> 4:     45  FALSE
+#> 5:     47  FALSE
+#> 6:     48   TRUE
 ```
 
 By default, the function traces ancestors. You can limit the number of
@@ -293,15 +311,24 @@ tidy_simple_ped_J5X804_ancestors_2 <-
   tracegen = 2)
   print(tidy_simple_ped_J5X804_ancestors_2)
 #> Tidy Pedigree Object
-#>       Ind   Sire    Dam    Sex   Gen IndNum SireNum DamNum   Cand
-#>    <char> <char> <char> <char> <int>  <int>   <int>  <int> <lgcl>
-#> 1: J3L886   <NA>   <NA>   male     1      1       0      0  FALSE
-#> 2: J3X697   <NA>   <NA> female     1      2       0      0  FALSE
-#> 3: J3Y620   <NA>   <NA>   male     1      3       0      0  FALSE
-#> 4: J3Y771   <NA>   <NA> female     1      4       0      0  FALSE
-#> 5: J4E185 J3L886 J3X697 female     2      5       1      2  FALSE
-#> 6: J4Y326 J3Y620 J3Y771   male     2      6       3      4  FALSE
-#> 7: J5X804 J4Y326 J4E185 female     3      7       6      5   TRUE
+#>       Ind   Sire    Dam    Sex        Family FamilySize   Gen IndNum SireNum
+#>    <char> <char> <char> <char>        <char>      <int> <int>  <int>   <int>
+#> 1: J3L886   <NA>   <NA>   male          <NA>          1     1      1       0
+#> 2: J3X697   <NA>   <NA> female          <NA>          1     1      2       0
+#> 3: J3Y620   <NA>   <NA>   male          <NA>          1     1      3       0
+#> 4: J3Y771   <NA>   <NA> female          <NA>          1     1      4       0
+#> 5: J4E185 J3L886 J3X697 female J3L886xJ3X697          1     2      5       1
+#> 6: J4Y326 J3Y620 J3Y771   male J3Y620xJ3Y771          1     2      6       3
+#> 7: J5X804 J4Y326 J4E185 female J4Y326xJ4E185          1     3      7       6
+#>    DamNum   Cand
+#>     <int> <lgcl>
+#> 1:      0  FALSE
+#> 2:      0  FALSE
+#> 3:      0  FALSE
+#> 4:      0  FALSE
+#> 5:      2  FALSE
+#> 6:      4  FALSE
+#> 7:      5   TRUE
 ```
 
 The code above traces the ancestors of `J5X804` back two generations.
@@ -321,14 +348,22 @@ tidy_simple_ped_J0Z990_offspring <-
   print(tidy_simple_ped_J0Z990_offspring)
 #> Tidy Pedigree Object
 #> Index: <Sex>
-#>       Ind   Sire    Dam    Sex   Gen IndNum SireNum DamNum   Cand
-#>    <char> <char> <char> <char> <int>  <int>   <int>  <int> <lgcl>
-#> 1: J0Z990   <NA>   <NA>   male     1      1       0      0   TRUE
-#> 2: J1I438 J0Z990   <NA>   male     2      2       1      0  FALSE
-#> 3: J2G465 J1I438   <NA>   male     3      3       2      0  FALSE
-#> 4: J3Y771 J2G465   <NA> female     4      4       3      0  FALSE
-#> 5: J4Y326   <NA> J3Y771   male     5      5       0      4  FALSE
-#> 6: J5X804 J4Y326   <NA> female     6      6       5      0  FALSE
+#>       Ind   Sire    Dam    Sex Family FamilySize   Gen IndNum SireNum DamNum
+#>    <char> <char> <char> <char> <char>      <int> <int>  <int>   <int>  <int>
+#> 1: J0Z990   <NA>   <NA>   male   <NA>          1     1      1       0      0
+#> 2: J1I438 J0Z990   <NA>   male   <NA>          1     2      2       1      0
+#> 3: J2G465 J1I438   <NA>   male   <NA>          1     3      3       2      0
+#> 4: J3Y771 J2G465   <NA> female   <NA>          1     4      4       3      0
+#> 5: J4Y326   <NA> J3Y771   male   <NA>          1     5      5       0      4
+#> 6: J5X804 J4Y326   <NA> female   <NA>          1     6      6       5      0
+#>      Cand
+#>    <lgcl>
+#> 1:   TRUE
+#> 2:  FALSE
+#> 3:  FALSE
+#> 4:  FALSE
+#> 5:  FALSE
+#> 6:  FALSE
 ```
 
 Tracing the descendants of `J0Z990` reveals a total of 5 individuals.
@@ -349,14 +384,14 @@ tidy_simple_ped_with_int <-
   tidyped(ped = tidy_simple_ped_no_gen_num, addnum = TRUE)
 head(tidy_simple_ped_with_int)
 #> Tidy Pedigree Object
-#>       Ind   Sire    Dam    Sex   Gen IndNum SireNum DamNum
-#>    <char> <char> <char> <char> <int>  <int>   <int>  <int>
-#> 1: J0C032   <NA>   <NA> female     1      1       0      0
-#> 2: J0C185   <NA>   <NA> female     1      2       0      0
-#> 3: J0C231   <NA>   <NA> female     1      3       0      0
-#> 4: J0C317   <NA>   <NA>   male     1      4       0      0
-#> 5: J0C450   <NA>   <NA> female     1      5       0      0
-#> 6: J0C561   <NA>   <NA>   male     1      6       0      0
+#>       Ind   Sire    Dam    Sex Family FamilySize   Gen IndNum SireNum DamNum
+#>    <char> <char> <char> <char> <char>      <int> <int>  <int>   <int>  <int>
+#> 1: J0C032   <NA>   <NA> female   <NA>          1     1      1       0      0
+#> 2: J0C185   <NA>   <NA> female   <NA>          1     1      2       0      0
+#> 3: J0C231   <NA>   <NA> female   <NA>          1     1      3       0      0
+#> 4: J0C317   <NA>   <NA>   male   <NA>          1     1      4       0      0
+#> 5: J0C355   <NA>   <NA> female   <NA>          1     1      5       0      0
+#> 6: J0C450   <NA>   <NA> female   <NA>          1     1      6       0      0
 ```
 
 ### 3.5 Calculating inbreeding coefficients
@@ -386,19 +421,67 @@ test_ped <- data.table(
 tidy_test <- tidyped(test_ped, inbreed = TRUE)
 head(tidy_test)
 #> Tidy Pedigree Object
-#>       Ind   Sire    Dam    Sex   Gen IndNum SireNum DamNum     f
-#>    <char> <char> <char> <char> <int>  <int>   <int>  <int> <num>
-#> 1:      A   <NA>   <NA>   male     1      1       0      0 0.000
-#> 2:      B   <NA>   <NA> female     1      2       0      0 0.000
-#> 3:      C      A      B   male     2      3       1      2 0.000
-#> 4:      D      C      B female     3      4       3      2 0.250
-#> 5:      E      C      D   male     4      5       3      4 0.375
+#>       Ind   Sire    Dam    Sex   Gen IndNum SireNum DamNum Family FamilySize
+#>    <char> <char> <char> <char> <int>  <int>   <int>  <int> <char>      <int>
+#> 1:      A   <NA>   <NA>   male     1      1       0      0   <NA>          1
+#> 2:      B   <NA>   <NA> female     1      2       0      0   <NA>          1
+#> 3:      C      A      B   male     2      3       1      2    AxB          1
+#> 4:      D      C      B female     3      4       3      2    CxB          1
+#> 5:      E      C      D   male     4      5       3      4    CxD          1
+#>        f
+#>    <num>
+#> 1: 0.000
+#> 2: 0.000
+#> 3: 0.000
+#> 4: 0.250
+#> 5: 0.375
 
 # Option 2: Calculate after tidying
 tidy_test <- inbreed(tidyped(test_ped))
 ```
 
-### 3.6 Summarizing the pedigree
+### 3.6 Customizing generation assignment
+
+Generation inference is essential for pedigree visualization.
+[`tidyped()`](https://luansheng.github.io/visPedigree/reference/tidyped.md)
+provides two methods for assigning generation numbers via the
+`genmethod` parameter:
+
+- **“top” (default)**: Top-aligned (depth-based). Founders are assigned
+  to Generation 1. This is the optimal scheme for most biological
+  pedigrees as it ensures all founders start at the top, preventing them
+  from “drifting” to lower generations if they have fewer descendants.
+- **“bottom”**: Bottom-aligned (height-based). Generations are counted
+  from the bottom up, aligning terminal nodes (offspring with no further
+  descendants) at the highest generation number. This is useful when you
+  want to show that all current populations are at the same level, or
+  when introducing unrelated exogenous parents in later years.
+
+``` r
+# Default behavior (Top-Down): J2Y434 is at Gen 3
+tidy_top <- tidyped(simple_ped, genmethod = "top")
+tidy_top[Ind == "J2Y434"]
+#> Tidy Pedigree Object
+#>       Ind   Sire    Dam    Sex   Gen IndNum SireNum DamNum        Family
+#>    <char> <char> <char> <char> <int>  <int>   <int>  <int>        <char>
+#> 1: J2Y434 J1C802 J1H419 female     3     50      29     34 J1C802xJ1H419
+#>    FamilySize
+#>         <int>
+#> 1:          1
+
+# Bottom-Up behavior: J2Y434 is at Gen 6
+tidy_bottom <- tidyped(simple_ped, genmethod = "bottom")
+tidy_bottom[Ind == "J2Y434"]
+#> Tidy Pedigree Object
+#>       Ind   Sire    Dam    Sex   Gen IndNum SireNum DamNum        Family
+#>    <char> <char> <char> <char> <int>  <int>   <int>  <int>        <char>
+#> 1: J2Y434 J1C802 J1H419 female     6     58      53     54 J1C802xJ1H419
+#>    FamilySize
+#>         <int>
+#> 1:          1
+```
+
+### 3.7 Summarizing the pedigree
 
 The [`summary()`](https://rdrr.io/r/base/summary.html) method provides a
 quick overview of the pedigree statistics, including the number of
@@ -409,26 +492,84 @@ will also include descriptive statistics of inbreeding.
 ``` r
 # Summarize the tidied pedigree
 summary(tidy_simple_ped)
-#> Pedigree Summary:
-#> -----------------
+#> Pedigree Summary
+#> ================
+#> 
 #> Total Individuals:  59 
-#>   - Males:    29 
-#>   - Females:  30 
+#>   - Males:    29 (49.2%) 
+#>   - Females:  30 (50.8%) 
 #> 
-#> Founders (parents unknown):  28 
-#> Maximum Generation:  6
-
-# Summarize with inbreeding info
-summary(tidy_test)
-#> Pedigree Summary:
-#> -----------------
-#> Total Individuals:  5 
-#>   - Males:    3 
-#>   - Females:  2 
+#> Pedigree Structure:
+#>   - Founders (no parents):   28 
+#>   - Both parents known:      28 
+#>   - Sire only known:         2 
+#>   - Dam only known:          1 
 #> 
-#> Founders (parents unknown):  2 
-#> Maximum Generation:  4 
+#> Generation:
+#>   - Maximum:  6 
+#>   - Distribution:
+#>       Gen 1: 28 individuals
+#>       Gen 2: 16 individuals
+#>       Gen 3: 8 individuals
+#>       Gen 4: 4 individuals
+#>       Gen 5: 2 individuals
+#>       Gen 6: 1 individuals
 #> 
-#> Inbreeding coefficients:
-#>   - All:        Mean=0.1250, Min=0.0000, Max=0.3750
+#> Reproduction:
+#>   - Individuals with offspring:  56 
+#>   - Sires:  28  (Mean=1.1, Max=2 offspring)
+#>   - Dams:   28  (Mean=1.0, Max=2 offspring)
+#> 
+#> Full-sibling Families:
+#>   - Number of families:      27 
+#>   - Mean family size:        1.04
+#>   - Maximum family size:     2 
+#>   - Top families by size:
+#>       J0Z475xJ0C612: 2
+#>       J0C317xJ0C450: 1
+#>       J0C561xJ0C032: 1
+#>       J0C583xJ0Z380: 1
+#>       J0C591xJ0C231: 1
+#> 
+#> ================
 ```
+
+### 3.8 Splitting large pedigrees
+
+For extremely large pedigrees, it is sometimes useful to split them into
+disconnected subsets or “sub-pedigrees”. The
+[`splitped()`](https://luansheng.github.io/visPedigree/reference/splitped.md)
+function automatically detects disconnected components (families that
+share no ancestors) and splits the pedigree into a list of smaller
+`tidyped` objects.
+
+``` r
+# Split the pedigree into components
+sub_pedigrees <- splitped(tidy_simple_ped)
+
+# View summary of the split result
+summary(sub_pedigrees)
+#> Summary of Pedigree Split
+#> =========================
+#> Total individuals in groups: 59 
+#> Isolated individuals (Gen=0): 0 
+#> Grand total: 59 
+#> Number of groups:  2 
+#> 
+#> Size statistics:
+#>   Min:     3 
+#>   Max:     56 
+#>   Mean:    29.5 
+#>   Median:  29.5 
+#> 
+#> Connectivity: Pedigree contains disconnected groups
+
+# Access a specific sub-pedigree
+# first_sub <- sub_pedigrees[[1]]
+```
+
+------------------------------------------------------------------------
+
+**See Also:** -
+[`vignette("draw-pedigree", package = "visPedigree")`](https://luansheng.github.io/visPedigree/articles/draw-pedigree.md) -
+[`vignette("relationship-matrix", package = "visPedigree")`](https://luansheng.github.io/visPedigree/articles/relationship-matrix.md)

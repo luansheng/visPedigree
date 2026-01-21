@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">visPedigree</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -19,6 +19,7 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/draw-pedigree.html">2. How to draw a pedigree</a></li>
+    <li><a class="dropdown-item" href="../articles/relationship-matrix.html">3. Calculation and visualization of relationship matrix</a></li>
     <li><a class="dropdown-item" href="../articles/tidy-pedigree.html">1. How to tidy a pedigree</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -56,7 +57,7 @@
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Additional arguments passed to <code><a href="https://rdrr.io/pkg/nadiv/man/makeTinv.html" class="external-link">makeDiiF</a></code>.</p></dd>
+<dd><p>Additional arguments (currently ignored).</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -65,7 +66,7 @@
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>This function takes a pedigree tidied by the <code><a href="tidyped.html">tidyped</a></code> function and calculates the inbreeding coefficients using the <code>makeDiiF</code> function from the <strong>nadiv</strong> package. It prefers using numeric columns (<strong>IndNum</strong>, <strong>SireNum</strong>, <strong>DamNum</strong>) if available, which is faster and more robust.</p>
+    <p>This function takes a pedigree tidied by the <code><a href="tidyped.html">tidyped</a></code> function and calculates the inbreeding coefficients using optimized C++ code based on the Meuwissen &amp; Luo (1992) algorithm. It is significantly faster than standard R implementations for large pedigrees.</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

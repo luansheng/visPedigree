@@ -11,8 +11,8 @@
 <script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Tidying and Visualizing Animal Pedigrees">
-<meta name="description" content="Built on graph theory and the high-performance data.table framework, this package provides a comprehensive suite of tools for tidying, pruning, and visualizing animal pedigrees. By modeling pedigrees as directed acyclic graphs using igraph, it ensures robust loop detection, efficient generation assignment, and sophisticated hierarchical layouts. Key features include standardizing pedigree formats, flexible ancestry tracing, and generating legible vector-based PDF graphs. A unique compaction algorithm enables the visualization of massive pedigrees (e.g., in aquaculture selective breeding population) by grouping full-sib families, maintaining structural clarity without overcrowding.">
-<meta property="og:description" content="Built on graph theory and the high-performance data.table framework, this package provides a comprehensive suite of tools for tidying, pruning, and visualizing animal pedigrees. By modeling pedigrees as directed acyclic graphs using igraph, it ensures robust loop detection, efficient generation assignment, and sophisticated hierarchical layouts. Key features include standardizing pedigree formats, flexible ancestry tracing, and generating legible vector-based PDF graphs. A unique compaction algorithm enables the visualization of massive pedigrees (e.g., in aquaculture selective breeding population) by grouping full-sib families, maintaining structural clarity without overcrowding.">
+<meta name="description" content="Built on graph theory and the high-performance data.table framework, this package provides a comprehensive suite of tools for tidying, analyzing, and visualizing animal pedigrees. By modeling pedigrees as directed acyclic graphs using igraph, it ensures robust loop detection, efficient generation assignment, and optimal sub-population splitting. Key features include standardizing pedigree formats, flexible ancestry tracing, and generating legible vector-based PDF graphs. A unique compaction algorithm enables the visualization of massive pedigrees by grouping full-sib families. Furthermore, the package implements high-performance C++ algorithms for calculating and visualizing genetic relationship matrices (A, D, AA, and their inverses) and inbreeding coefficients.">
+<meta property="og:description" content="Built on graph theory and the high-performance data.table framework, this package provides a comprehensive suite of tools for tidying, analyzing, and visualizing animal pedigrees. By modeling pedigrees as directed acyclic graphs using igraph, it ensures robust loop detection, efficient generation assignment, and optimal sub-population splitting. Key features include standardizing pedigree formats, flexible ancestry tracing, and generating legible vector-based PDF graphs. A unique compaction algorithm enables the visualization of massive pedigrees by grouping full-sib families. Furthermore, the package implements high-performance C++ algorithms for calculating and visualizing genetic relationship matrices (A, D, AA, and their inverses) and inbreeding coefficients.">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="index.html">visPedigree</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,6 +36,7 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="articles/draw-pedigree.html">2. How to draw a pedigree</a></li>
+    <li><a class="dropdown-item" href="articles/relationship-matrix.html">3. Calculation and visualization of relationship matrix</a></li>
     <li><a class="dropdown-item" href="articles/tidy-pedigree.html">1. How to tidy a pedigree</a></li>
   </ul>
 </li>

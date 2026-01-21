@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">visPedigree</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -19,6 +19,7 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/draw-pedigree.html">2. How to draw a pedigree</a></li>
+    <li><a class="dropdown-item" href="../articles/relationship-matrix.html">3. Calculation and visualization of relationship matrix</a></li>
     <li><a class="dropdown-item" href="../articles/tidy-pedigree.html">1. How to tidy a pedigree</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -37,6 +38,80 @@
       <small>Source: <a href="https://github.com/luansheng/visPedigree/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.0.0" id="changes-in-version-100-released-on-20-jan-2026">Changes in version 1.0.0 released on 20 Jan 2026<a class="anchor" aria-label="anchor" href="#changes-in-version-100-released-on-20-jan-2026"></a></h2>
+<div class="section level3">
+<h3 id="new-features-1-0-0">New Features<a class="anchor" aria-label="anchor" href="#new-features-1-0-0"></a></h3>
+<ol style="list-style-type: decimal"><li>
+<strong>Family Assignment and Summary</strong>:
+<ul><li>
+<code><a href="../reference/tidyped.html">tidyped()</a></code> now automatically assigns and includes a <code>Family</code> column, identifying full-sib groups.</li>
+<li>
+<code><a href="../reference/summary.tidyped.html">summary.tidyped()</a></code> has been updated to provide family statistics (count, sizes, top largest families) and richer offspring analysis.</li>
+</ul></li>
+<li>
+<strong>Pedigree Splitting (<code>splitped</code>)</strong>: Added <code><a href="../reference/splitped.html">splitped()</a></code> function to detect and split disconnected pedigree components. It efficiently identifies independent sub-populations (connected components) using graph theory, excludes isolated individuals, and returns a list of re-indexed <code>tidyped</code> objects ready for separate analysis or visualization.</li>
+<li>
+<strong>Comprehensive Matrix Support</strong>: <code><a href="../reference/pedmatrix.html">pedmatrix()</a></code> now fully supports 6 types of genetic relationship matrices: Additive (A, Ainv), Dominance (D, Dinv), and Additive-by-Additive Epistatic (AA, AAinv).</li>
+<li>
+<strong>Relationship Matrix Visualization (<code>vismat</code>)</strong>: Added <code><a href="../reference/vismat.html">vismat()</a></code> function for visualizing relationship matrices (A, D, AA, etc.) with heatmaps and histograms. It supports <code>pedmatrix</code> objects, <code>tidyped</code> objects (auto-calculates A matrix), and standard matrices. Heatmaps can be annotated with family groups when a pedigree is provided.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="cran-submission--internal-improvements-1-0-0">CRAN Submission &amp; Internal Improvements<a class="anchor" aria-label="anchor" href="#cran-submission--internal-improvements-1-0-0"></a></h3>
+<p>This release marks the first stable version 1.0.0, polished for CRAN.</p>
+<ol style="list-style-type: decimal"><li>
+<strong>Portable Compilation</strong>: Standardized <code>src/Makevars</code> for cross-platform compatibility (removed GNU/platform-specific extensions).</li>
+<li>
+<strong>Dependencies</strong>: Moved <code>RcppArmadillo</code> to <code>LinkingTo</code> to optimize package structure.</li>
+<li>
+<strong>Documentation &amp; S3</strong>: Fixed <code>vignette</code> generation, resolved <code>diag</code> S3 method dispatch, and cleaned up documentation for CRAN compliance.</li>
+</ol></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.7.3" id="changes-in-version-073-released-on-13-jan-2026">Changes in version 0.7.3 released on 13 Jan 2026<a class="anchor" aria-label="anchor" href="#changes-in-version-073-released-on-13-jan-2026"></a></h2>
+<div class="section level3">
+<h3 id="new-behavior-breaking-0-7-3">New behavior (BREAKING)<a class="anchor" aria-label="anchor" href="#new-behavior-breaking-0-7-3"></a></h3>
+<ol style="list-style-type: decimal"><li>
+<strong>Simplified <code><a href="../reference/pedmatrix.html">pedmatrix()</a></code> return and single-method enforcement</strong>: <code><a href="../reference/pedmatrix.html">pedmatrix()</a></code> now requires a single <code>method</code> argument (e.g., <code>method = "A").</code> When a single method is requested, the function returns the corresponding matrix or vector directly (not a named list). Requesting multiple methods in one call will now raise an error. Use repeated calls for multiple outputs.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="new-features-0-7-3">New features<a class="anchor" aria-label="anchor" href="#new-features-0-7-3"></a></h3>
+<ol style="list-style-type: decimal"><li>
+<strong>High-Performance Genetic Relationship Calculations</strong>: Introduced <code><a href="../reference/pedmatrix.html">pedmatrix()</a></code> function implemented in Rcpp for efficient computation of:
+<ul><li>Additive relationship matrix (A) using the tabular recursive algorithm.</li>
+<li>Sparse inverse additive matrix (A-Inverse) using Henderson’s rules.</li>
+<li>Dominance matrix (D) using the tabular approach.</li>
+<li>Inbreeding coefficients (f) using the Meuwissen &amp; Luo (1992) path-tracing algorithm.</li>
+</ul></li>
+</ol></div>
+<div class="section level3">
+<h3 id="improvements-0-7-3">Improvements<a class="anchor" aria-label="anchor" href="#improvements-0-7-3"></a></h3>
+<ol style="list-style-type: decimal"><li>
+<strong>Default Inbreeding Calculation Method</strong>: The <code><a href="../reference/inbreed.html">inbreed()</a></code> function now uses the native Rcpp implementation by default, moving the <code>nadiv</code> package to <code>Suggests</code>.</li>
+<li>
+<strong>Documentation and Website</strong>: Updated package documentation and vignettes to reflect new features and improvements. The official package website is available at <a href="https://luansheng.github.io/visPedigree/">https://luansheng.github.io/visPedigree/</a>.</li>
+</ol></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.7.2" id="changes-in-version-072-released-on-12-jan-2026">Changes in version 0.7.2 released on 12 Jan 2026<a class="anchor" aria-label="anchor" href="#changes-in-version-072-released-on-12-jan-2026"></a></h2>
+<div class="section level3">
+<h3 id="new-features-0-7-2">New features<a class="anchor" aria-label="anchor" href="#new-features-0-7-2"></a></h3>
+<ol style="list-style-type: decimal"><li>
+<strong>Flexible Generation Assignment</strong>: Added <code>genmethod</code> parameter to <code><a href="../reference/tidyped.html">tidyped()</a></code>. Users can now choose between <code>"top"</code> (top-aligned, default) and <code>"bottom"</code> (bottom-aligned) methods for generation inference.
+<ul><li>The <code>"top"</code> method aligns founders at Generation 1, which is more appropriate for biological pedigrees and prevents “founder drift” in pedigrees with varying depths.</li>
+<li>The <code>"bottom"</code> method aligns terminal nodes at the bottom, useful for visualizing introductions of unrelated exogenous parents.</li>
+</ul></li>
+</ol></div>
+<div class="section level3">
+<h3 id="improvements-0-7-2">Improvements<a class="anchor" aria-label="anchor" href="#improvements-0-7-2"></a></h3>
+<ol style="list-style-type: decimal"><li>
+<strong>Default Logic Change</strong>: Switched the default generation assignment method to <code>"top"</code> (top-down) for more intuitive biological visualization.</li>
+<li>
+<strong>Pkgdown Documentation</strong>: Generated and published the official package website at <a href="https://luansheng.github.io/visPedigree/">https://luansheng.github.io/visPedigree/</a>.</li>
+<li>
+<strong>Automated CI/CD</strong>: Added GitHub Actions workflow for automatic documentation updates and deployment via GitHub Pages.</li>
+</ol></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.7.1" id="changes-in-version-071-released-on-11-jan-2026">Changes in version 0.7.1 released on 11 Jan 2026<a class="anchor" aria-label="anchor" href="#changes-in-version-071-released-on-11-jan-2026"></a></h2>
 <div class="section level3">
