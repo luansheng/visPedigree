@@ -107,6 +107,8 @@ This release marks the first stable version 1.0.0, polished for CRAN.
 
 ## Changes in version 0.7.1 released on 11 Jan 2026
 
+CRAN release: 2026-01-21
+
 ### Performance optimizations
 
 1.  **Large Pedigree Performance**: Optimized `visped` performance for

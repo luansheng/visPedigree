@@ -61,7 +61,7 @@
       <h1>2. How to draw a pedigree</h1>
                         <h4 data-toc-skip class="author">Sheng Luan</h4>
             
-            <h4 data-toc-skip class="date">2026-01-21</h4>
+            <h4 data-toc-skip class="date">2026-01-22</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/luansheng/visPedigree/blob/master/vignettes/draw-pedigree.Rmd" class="external-link"><code>vignettes/draw-pedigree.Rmd</code></a></small>
       <div class="d-none name"><code>draw-pedigree.Rmd</code></div>
@@ -69,24 +69,24 @@
 
     
     
-<ol start="4" style="list-style-type: decimal">
+<ol style="list-style-type: decimal">
 <li>
-<a href="#id_4">Drawing the pedigree graph</a><br>
-4.1 <a href="#id_4.1">A simple pedigree graph</a><br>
-4.1.1 <a href="#id_4.1.1">Highlighting specific individuals</a><br>
-4.1.2 <a href="#id_4.1.2">Showing inbreeding coefficients</a><br>
-4.2 <a href="#id_4.2">A reduced pedigree graph</a><br>
-4.3 <a href="#id_4.3">An outlined pedigree graph</a><br>
-4.4 <a href="#id_4.4">How to use this package in a selective breeding
+<a href="#id_1">Drawing the pedigree graph</a><br>
+1.1 <a href="#id_1.1">A simple pedigree graph</a><br>
+1.1.1 <a href="#id_1.1.1">Highlighting specific individuals</a><br>
+1.1.2 <a href="#id_1.1.2">Showing inbreeding coefficients</a><br>
+1.2 <a href="#id_1.2">A reduced pedigree graph</a><br>
+1.3 <a href="#id_1.3">An outlined pedigree graph</a><br>
+1.4 <a href="#id_1.4">How to use this package in a selective breeding
 program</a><br>
-4.4.1 <a href="#id_4.4.1">Analysis of founders for an
+1.4.1 <a href="#id_1.4.1">Analysis of founders for an
 individual</a><br>
-4.4.2 <a href="#id_4.4.2">The contribution of different families in a
+1.4.2 <a href="#id_1.4.2">The contribution of different families in a
 selective breeding program</a>
 </li>
 </ol>
 <div class="section level2">
-<h2 id="id_4">4 Drawing the pedigree<a class="anchor" aria-label="anchor" href="#id_4"></a>
+<h2 id="id_1">1 Drawing the pedigree<a class="anchor" aria-label="anchor" href="#id_1"></a>
 </h2>
 <p>The <strong>visped</strong> function takes a pedigree tidied by the
 <code>tidyped</code> function and outputs a hierarchical graph for all
@@ -119,7 +119,7 @@ in a PDF file.</p>
 <span>  <span class="fu"><a href="../reference/tidyped.html">tidyped</a></span><span class="op">(</span>ped <span class="op">=</span> <span class="va">small_ped</span>,</span>
 <span>          cand <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Y"</span>, <span class="st">"Z1"</span>, <span class="st">"Z2"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/visped.html">visped</a></span><span class="op">(</span><span class="va">tidy_small_ped</span>, compact <span class="op">=</span> <span class="cn">TRUE</span>, file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".pdf"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Pedigree saved to: /tmp/Rtmp7I4J87/file1f0a1502949f.pdf</span></span>
+<span><span class="co">#&gt; Pedigree saved to: /tmp/Rtmp306u7U/file1ed94aca3844.pdf</span></span>
 <span><span class="co">#&gt; Label cex: 0.65. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.</span></span></code></pre></div>
 <p><img src="draw-pedigree_files/figure-html/smallped-1.png" class="r-plt" alt="" width="624"></p>
 <p>In the above graph, two shapes and three colors are used. Circles
@@ -133,7 +133,7 @@ in the pedigree graph. Parents and offspring are connected via dummy
 nodes. Lines from offspring to dummy nodes are dark grey, while lines
 from dummy nodes to parents match the parents’ respective colors.</p>
 <div class="section level3">
-<h3 id="id_4-1">4.1 A simple pedigree graph<a class="anchor" aria-label="anchor" href="#id_4-1"></a>
+<h3 id="id_1-1">1.1 A simple pedigree graph<a class="anchor" aria-label="anchor" href="#id_1-1"></a>
 </h3>
 <p>The trimmed <strong>simple_ped</strong> pedigree is drawn and
 displayed on the default graphics device. The <strong>addgen</strong>
@@ -156,7 +156,7 @@ suppress output to the default device if
 <p>By setting the <strong>file</strong> parameter, you can generate a
 high-definition PDF version of the pedigree.</p>
 <div class="section level4">
-<h4 id="id_4-1-1">4.1.1 Highlighting specific individuals<a class="anchor" aria-label="anchor" href="#id_4-1-1"></a>
+<h4 id="id_1-1-1">1.1.1 Highlighting specific individuals<a class="anchor" aria-label="anchor" href="#id_1-1-1"></a>
 </h4>
 <p>Specific individuals can be highlighted in the pedigree graph using
 the <strong>highlight</strong> parameter. This is useful for marking
@@ -190,7 +190,7 @@ descendants) by setting <code>trace = TRUE</code>:</p>
 </div>
 </div>
 <div class="section level3">
-<h3 id="id_4-1-2">4.1.2 Showing inbreeding coefficients<a class="anchor" aria-label="anchor" href="#id_4-1-2"></a>
+<h3 id="id_1-1-2">1.1.2 Showing inbreeding coefficients<a class="anchor" aria-label="anchor" href="#id_1-1-2"></a>
 </h3>
 <p>Inbreeding coefficients can be displayed on the pedigree graph using
 the <strong>showf</strong> parameter in the <strong>visped</strong>
@@ -213,7 +213,7 @@ parameter in the <strong>tidyped</strong> function.</p>
 <span><span class="co">#&gt; Note: Inbreeding coefficients of 0 are not shown in the graph.</span></span></code></pre>
 </div>
 <div class="section level3">
-<h3 id="id_4-2">4.2 A reduced pedigree graph<a class="anchor" aria-label="anchor" href="#id_4-2"></a>
+<h3 id="id_1-2">1.2 A reduced pedigree graph<a class="anchor" aria-label="anchor" href="#id_1-2"></a>
 </h3>
 <p>Warning messages will be shown when you try to draw the pedigree
 graph of the deep_ped dataset.</p>
@@ -244,7 +244,7 @@ significant overlapping due to the high density of individuals.</p>
 <span>  showgraph <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".pdf"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; Pedigree saved to: /tmp/Rtmp7I4J87/file1f0a482f7ea7.pdf</span></span>
+<span><span class="co">#&gt; Pedigree saved to: /tmp/Rtmp306u7U/file1ed9248d9cd0.pdf</span></span>
 <span><span class="co">#&gt; Label cex: 0.6175. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.</span></span></code></pre></div>
 <p><img src="draw-pedigree_files/figure-html/reduceped1-1.png" class="r-plt" alt="" width="624"></p>
 <p>You can open the generated PDF file to view the high-definition
@@ -272,7 +272,7 @@ used for drawing the pedigreed graph.</p>
 <span>  showgraph <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".pdf"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; Pedigree saved to: /tmp/Rtmp7I4J87/file1f0a1a6fdb33.pdf</span></span>
+<span><span class="co">#&gt; Pedigree saved to: /tmp/Rtmp306u7U/file1ed91dd0589a.pdf</span></span>
 <span><span class="co">#&gt; Label cex: 0.83. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.</span></span></code></pre></div>
 <p>You can open the generated PDF file to view the high-definition
 pedigree vectorgraph. The labels align better with the shapes compared
@@ -280,7 +280,7 @@ to the previous version. You can continue to adjust <code>cex</code>
 until the labels are sized appropriately.</p>
 </div>
 <div class="section level3">
-<h3 id="id_4-3">4.3 An outlined pedigree graph<a class="anchor" aria-label="anchor" href="#id_4-3"></a>
+<h3 id="id_1-3">1.3 An outlined pedigree graph<a class="anchor" aria-label="anchor" href="#id_1-3"></a>
 </h3>
 <p>Setting <code>outline = TRUE</code> produces an outlined pedigree
 graph. Individual labels will not be shown in the graph. This is highly
@@ -301,10 +301,10 @@ file.</p>
 <p><img src="draw-pedigree_files/figure-html/reduceped3-1.png" class="r-plt" alt="" width="624"></p>
 </div>
 <div class="section level3">
-<h3 id="id_4-4">4.4 How to use this package in a selective breeding program<a class="anchor" aria-label="anchor" href="#id_4-4"></a>
+<h3 id="id_1-4">1.4 How to use this package in a selective breeding program<a class="anchor" aria-label="anchor" href="#id_1-4"></a>
 </h3>
 <div class="section level4">
-<h4 id="id_4-4-1">4.4.1 An analysis of founders for an individual<a class="anchor" aria-label="anchor" href="#id_4-4-1"></a>
+<h4 id="id_1-4-1">1.4.1 An analysis of founders for an individual<a class="anchor" aria-label="anchor" href="#id_1-4-1"></a>
 </h4>
 <p>Selective breeding is a process of enriching desirable minor genes
 from multiple founders through successive generations of mating. This is
@@ -324,8 +324,8 @@ indicates that the individual has accumulated favorable genes from many
 founders, contributing to genetic gain in the target traits.</p>
 </div>
 <div class="section level4">
-<h4 id="id_4-4-2">4.4.2 The contribution of different families in a selective breeding
-program<a class="anchor" aria-label="anchor" href="#id_4-4-2"></a>
+<h4 id="id_1-4-2">1.4.2 The contribution of different families in a selective breeding
+program<a class="anchor" aria-label="anchor" href="#id_1-4-2"></a>
 </h4>
 <p>Under optimum contribution theory, families contribute different
 numbers of individuals to the next generation, with higher-indexing

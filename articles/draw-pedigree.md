@@ -1,18 +1,18 @@
 # 2. How to draw a pedigree
 
-4.  [Drawing the pedigree graph](#id_4)  
-    4.1 [A simple pedigree graph](#id_4.1)  
-    4.1.1 [Highlighting specific individuals](#id_4.1.1)  
-    4.1.2 [Showing inbreeding coefficients](#id_4.1.2)  
-    4.2 [A reduced pedigree graph](#id_4.2)  
-    4.3 [An outlined pedigree graph](#id_4.3)  
-    4.4 [How to use this package in a selective breeding
-    program](#id_4.4)  
-    4.4.1 [Analysis of founders for an individual](#id_4.4.1)  
-    4.4.2 [The contribution of different families in a selective
-    breeding program](#id_4.4.2)
+1.  [Drawing the pedigree graph](#id_1)  
+    1.1 [A simple pedigree graph](#id_1.1)  
+    1.1.1 [Highlighting specific individuals](#id_1.1.1)  
+    1.1.2 [Showing inbreeding coefficients](#id_1.1.2)  
+    1.2 [A reduced pedigree graph](#id_1.2)  
+    1.3 [An outlined pedigree graph](#id_1.3)  
+    1.4 [How to use this package in a selective breeding
+    program](#id_1.4)  
+    1.4.1 [Analysis of founders for an individual](#id_1.4.1)  
+    1.4.2 [The contribution of different families in a selective
+    breeding program](#id_1.4.2)
 
-## 4 Drawing the pedigree
+## 1 Drawing the pedigree
 
 The **visped** function takes a pedigree tidied by the `tidyped`
 function and outputs a hierarchical graph for all individuals in the
@@ -49,7 +49,7 @@ tidy_small_ped <-
   tidyped(ped = small_ped,
           cand = c("Y", "Z1", "Z2"))
 visped(tidy_small_ped, compact = TRUE, file = tempfile(fileext = ".pdf"))
-#> Pedigree saved to: /tmp/Rtmp7I4J87/file1f0a1502949f.pdf
+#> Pedigree saved to: /tmp/Rtmp306u7U/file1ed94aca3844.pdf
 #> Label cex: 0.65. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 ```
 
@@ -66,7 +66,7 @@ pedigree graph. Parents and offspring are connected via dummy nodes.
 Lines from offspring to dummy nodes are dark grey, while lines from
 dummy nodes to parents match the parents’ respective colors.
 
-### 4.1 A simple pedigree graph
+### 1.1 A simple pedigree graph
 
 The trimmed **simple_ped** pedigree is drawn and displayed on the
 default graphics device. The **addgen** and **addnum** parameters need
@@ -95,7 +95,7 @@ suppressMessages(visped(tidy_simple_ped, showgraph = FALSE, file = tempfile(file
 By setting the **file** parameter, you can generate a high-definition
 PDF version of the pedigree.
 
-#### 4.1.1 Highlighting specific individuals
+#### 1.1.1 Highlighting specific individuals
 
 Specific individuals can be highlighted in the pedigree graph using the
 **highlight** parameter. This is useful for marking candidates,
@@ -141,7 +141,7 @@ visped(tidyped(small_ped),
     #> Label cex: 0.65. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.
     #> Tip: Use 'file' to save as a legible vector PDF.
 
-### 4.1.2 Showing inbreeding coefficients
+### 1.1.2 Showing inbreeding coefficients
 
 Inbreeding coefficients can be displayed on the pedigree graph using the
 **showf** parameter in the **visped** function. This requires that the
@@ -166,7 +166,7 @@ visped(tidy_test_ped_inbreed, showf = TRUE)
     #> Tip: Use 'file' to save as a legible vector PDF.
     #> Note: Inbreeding coefficients of 0 are not shown in the graph.
 
-### 4.2 A reduced pedigree graph
+### 1.2 A reduced pedigree graph
 
 Warning messages will be shown when you try to draw the pedigree graph
 of the deep_ped dataset.
@@ -202,7 +202,7 @@ visped(
   showgraph = TRUE,
   file = tempfile(fileext = ".pdf")
 )
-#> Pedigree saved to: /tmp/Rtmp7I4J87/file1f0a482f7ea7.pdf
+#> Pedigree saved to: /tmp/Rtmp306u7U/file1ed9248d9cd0.pdf
 #> Label cex: 0.6175. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 ```
 
@@ -233,7 +233,7 @@ visped(
   showgraph = FALSE,
   file = tempfile(fileext = ".pdf")
 )
-#> Pedigree saved to: /tmp/Rtmp7I4J87/file1f0a1a6fdb33.pdf
+#> Pedigree saved to: /tmp/Rtmp306u7U/file1ed91dd0589a.pdf
 #> Label cex: 0.83. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 ```
 
@@ -242,7 +242,7 @@ vectorgraph. The labels align better with the shapes compared to the
 previous version. You can continue to adjust `cex` until the labels are
 sized appropriately.
 
-### 4.3 An outlined pedigree graph
+### 1.3 An outlined pedigree graph
 
 Setting `outline = TRUE` produces an outlined pedigree graph. Individual
 labels will not be shown in the graph. This is highly effective for
@@ -265,9 +265,9 @@ suppressMessages(visped(
 
 ![](draw-pedigree_files/figure-html/reduceped3-1.png)
 
-### 4.4 How to use this package in a selective breeding program
+### 1.4 How to use this package in a selective breeding program
 
-#### 4.4.1 An analysis of founders for an individual
+#### 1.4.1 An analysis of founders for an individual
 
 Selective breeding is a process of enriching desirable minor genes from
 multiple founders through successive generations of mating. This is
@@ -291,7 +291,7 @@ As you can see from the figure above, the number of founder individuals
 the individual has accumulated favorable genes from many founders,
 contributing to genetic gain in the target traits.
 
-#### 4.4.2 The contribution of different families in a selective breeding program
+#### 1.4.2 The contribution of different families in a selective breeding program
 
 Under optimum contribution theory, families contribute different numbers
 of individuals to the next generation, with higher-indexing families
