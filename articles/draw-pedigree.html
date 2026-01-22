@@ -72,16 +72,16 @@
 <ol style="list-style-type: decimal">
 <li>
 <a href="#id_1">Drawing the pedigree graph</a><br>
-1.1 <a href="#id_1.1">A simple pedigree graph</a><br>
-1.1.1 <a href="#id_1.1.1">Highlighting specific individuals</a><br>
-1.1.2 <a href="#id_1.1.2">Showing inbreeding coefficients</a><br>
-1.2 <a href="#id_1.2">A reduced pedigree graph</a><br>
-1.3 <a href="#id_1.3">An outlined pedigree graph</a><br>
-1.4 <a href="#id_1.4">How to use this package in a selective breeding
+1.1 <a href="#id_1-1">A simple pedigree graph</a><br>
+1.1.1 <a href="#id_1-1-1">Highlighting specific individuals</a><br>
+1.1.2 <a href="#id_1-1-2">Showing inbreeding coefficients</a><br>
+1.2 <a href="#id_1-2">A reduced pedigree graph</a><br>
+1.3 <a href="#id_1-3">An outlined pedigree graph</a><br>
+1.4 <a href="#id_1-4">How to use this package in a selective breeding
 program</a><br>
-1.4.1 <a href="#id_1.4.1">Analysis of founders for an
+1.4.1 <a href="#id_1-4-1">Analysis of founders for an
 individual</a><br>
-1.4.2 <a href="#id_1.4.2">The contribution of different families in a
+1.4.2 <a href="#id_1-4-2">The contribution of different families in a
 selective breeding program</a>
 </li>
 </ol>
@@ -119,7 +119,7 @@ in a PDF file.</p>
 <span>  <span class="fu"><a href="../reference/tidyped.html">tidyped</a></span><span class="op">(</span>ped <span class="op">=</span> <span class="va">small_ped</span>,</span>
 <span>          cand <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Y"</span>, <span class="st">"Z1"</span>, <span class="st">"Z2"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/visped.html">visped</a></span><span class="op">(</span><span class="va">tidy_small_ped</span>, compact <span class="op">=</span> <span class="cn">TRUE</span>, file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".pdf"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Pedigree saved to: /tmp/RtmptNpR3r/file1f2a4f176791.pdf</span></span>
+<span><span class="co">#&gt; Pedigree saved to: /tmp/RtmpX0sr2y/file1f1d74ed6d06.pdf</span></span>
 <span><span class="co">#&gt; Label cex: 0.65. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.</span></span></code></pre></div>
 <p><img src="draw-pedigree_files/figure-html/smallped-1.png" class="r-plt" alt="" width="624"></p>
 <p>In the above graph, two shapes and three colors are used. Circles
@@ -244,7 +244,7 @@ significant overlapping due to the high density of individuals.</p>
 <span>  showgraph <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".pdf"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; Pedigree saved to: /tmp/RtmptNpR3r/file1f2a13fde382.pdf</span></span>
+<span><span class="co">#&gt; Pedigree saved to: /tmp/RtmpX0sr2y/file1f1d33ef4117.pdf</span></span>
 <span><span class="co">#&gt; Label cex: 0.6175. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.</span></span></code></pre></div>
 <p><img src="draw-pedigree_files/figure-html/reduceped1-1.png" class="r-plt" alt="" width="624"></p>
 <p>You can open the generated PDF file to view the high-definition
@@ -272,7 +272,7 @@ used for drawing the pedigreed graph.</p>
 <span>  showgraph <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".pdf"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; Pedigree saved to: /tmp/RtmptNpR3r/file1f2a5ffdc7d.pdf</span></span>
+<span><span class="co">#&gt; Pedigree saved to: /tmp/RtmpX0sr2y/file1f1d452ef913.pdf</span></span>
 <span><span class="co">#&gt; Label cex: 0.83. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.</span></span></code></pre></div>
 <p>You can open the generated PDF file to view the high-definition
 pedigree vectorgraph. The labels align better with the shapes compared
@@ -377,10 +377,6 @@ are from 54 full-sib families in the generation of grandparent.
 Approximately 25 parents originate from just two full-sib families due
 to the application of optimum contribution theory, accounting for 13.44%
 of all parents.</p>
-<hr>
-<p><strong>See Also:</strong> -
-<code><a href="../articles/tidy-pedigree.html">vignette("tidy-pedigree", package = "visPedigree")</a></code> -
-<code><a href="../articles/relationship-matrix.html">vignette("relationship-matrix", package = "visPedigree")</a></code></p>
 </div>
 </div>
 </div>

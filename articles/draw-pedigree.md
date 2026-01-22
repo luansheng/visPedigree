@@ -1,16 +1,16 @@
 # 2. How to draw a pedigree
 
 1.  [Drawing the pedigree graph](#id_1)  
-    1.1 [A simple pedigree graph](#id_1.1)  
-    1.1.1 [Highlighting specific individuals](#id_1.1.1)  
-    1.1.2 [Showing inbreeding coefficients](#id_1.1.2)  
-    1.2 [A reduced pedigree graph](#id_1.2)  
-    1.3 [An outlined pedigree graph](#id_1.3)  
+    1.1 [A simple pedigree graph](#id_1-1)  
+    1.1.1 [Highlighting specific individuals](#id_1-1-1)  
+    1.1.2 [Showing inbreeding coefficients](#id_1-1-2)  
+    1.2 [A reduced pedigree graph](#id_1-2)  
+    1.3 [An outlined pedigree graph](#id_1-3)  
     1.4 [How to use this package in a selective breeding
-    program](#id_1.4)  
-    1.4.1 [Analysis of founders for an individual](#id_1.4.1)  
+    program](#id_1-4)  
+    1.4.1 [Analysis of founders for an individual](#id_1-4-1)  
     1.4.2 [The contribution of different families in a selective
-    breeding program](#id_1.4.2)
+    breeding program](#id_1-4-2)
 
 ## 1 Drawing the pedigree
 
@@ -49,7 +49,7 @@ tidy_small_ped <-
   tidyped(ped = small_ped,
           cand = c("Y", "Z1", "Z2"))
 visped(tidy_small_ped, compact = TRUE, file = tempfile(fileext = ".pdf"))
-#> Pedigree saved to: /tmp/RtmptNpR3r/file1f2a4f176791.pdf
+#> Pedigree saved to: /tmp/RtmpX0sr2y/file1f1d74ed6d06.pdf
 #> Label cex: 0.65. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 ```
 
@@ -202,7 +202,7 @@ visped(
   showgraph = TRUE,
   file = tempfile(fileext = ".pdf")
 )
-#> Pedigree saved to: /tmp/RtmptNpR3r/file1f2a13fde382.pdf
+#> Pedigree saved to: /tmp/RtmpX0sr2y/file1f1d33ef4117.pdf
 #> Label cex: 0.6175. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 ```
 
@@ -233,7 +233,7 @@ visped(
   showgraph = FALSE,
   file = tempfile(fileext = ".pdf")
 )
-#> Pedigree saved to: /tmp/RtmptNpR3r/file1f2a5ffdc7d.pdf
+#> Pedigree saved to: /tmp/RtmpX0sr2y/file1f1d452ef913.pdf
 #> Label cex: 0.83. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 ```
 
@@ -347,9 +347,3 @@ from 54 full-sib families in the generation of grandparent.
 Approximately 25 parents originate from just two full-sib families due
 to the application of optimum contribution theory, accounting for 13.44%
 of all parents.
-
-------------------------------------------------------------------------
-
-**See Also:** -
-[`vignette("tidy-pedigree", package = "visPedigree")`](https://luansheng.github.io/visPedigree/articles/tidy-pedigree.md) -
-[`vignette("relationship-matrix", package = "visPedigree")`](https://luansheng.github.io/visPedigree/articles/relationship-matrix.md)

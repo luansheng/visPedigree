@@ -38,14 +38,14 @@ as follows:
 1.  [Installation of the visPedigree package](#id_1)  
 2.  [The specification of pedigree format](#id_2)  
 3.  [Checking and tidying pedigree](#id_3)  
-    3.1 [Introduction](#id_3.1)  
-    3.2 [Pedigree loop detection](#id_3.2)  
-    3.3 [Tracing the pedigree of a specific individual](#id_3.3)  
-    3.4 [Creating an integer pedigree](#id_3.4)  
-    3.5 [Calculating inbreeding coefficients](#id_3.5)  
-    3.6 [Customizing generation assignment](#id_3.6)  
-    3.7 [Summarizing the pedigree](#id_3.7)  
-    3.8 [Splitting large pedigrees](#id_3.8)
+    3.1 [Introduction](#id_3-1)  
+    3.2 [Pedigree loop detection](#id_3-2)  
+    3.3 [Tracing the pedigree of a specific individual](#id_3-3)  
+    3.4 [Creating an integer pedigree](#id_3-4)  
+    3.5 [Calculating inbreeding coefficients](#id_3-5)  
+    3.6 [Customizing generation assignment](#id_3-6)  
+    3.7 [Summarizing the pedigree](#id_3-7)  
+    3.8 [Splitting large pedigrees](#id_3-8)
 
 ## 1. Installation of the visPedigree package
 
