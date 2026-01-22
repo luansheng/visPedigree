@@ -436,12 +436,15 @@ using tidyped() or inbreed() functions. There are two options to add the
 inbreeding coefficients to a tidied pedigree:</p>
 <ol style="list-style-type: decimal">
 <li>Set <code>inbreed = TRUE</code> in the <code><a href="../reference/tidyped.html">tidyped()</a></code>
-function. This will calculate the inbreeding coefficients using the
-<code>nadiv</code> package and add an <code>f</code> column to the
-tidied pedigree.</li>
+function. This will calculate the inbreeding coefficients using
+optimized C++ code (Meuwissen &amp; Luo algorithm) and add an
+<code>f</code> column to the tidied pedigree.</li>
 <li>Or call <code><a href="../reference/inbreed.html">inbreed()</a></code> directly on a tidied pedigree to add
 the <code>f</code> column.</li>
 </ol>
+<p>Both options use the same high-performance engine as
+<code>pedmatrix(method = "f")</code>, ensuring consistent results across
+the package.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Create a simple inbred pedigree</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span>

@@ -72,7 +72,7 @@ pedigree, not a splitped object. For splitped results, use
 
 
 <dt id="arg-method">method<a class="anchor" aria-label="anchor" href="#arg-method"></a></dt>
-<dd><p>Character, one of:</p><ul><li><p><code>"f"</code>: Inbreeding coefficients (returns named vector)</p></li>
+<dd><p>Character, one of:</p><ul><li><p><code>"f"</code>: Inbreeding coefficients (returns named vector). This uses the same optimized engine as <code>tidyped(..., inbreed = TRUE)</code>.</p></li>
 <li><p><code>"A"</code>: Additive (numerator) relationship matrix</p></li>
 <li><p><code>"Ainv"</code>: Inverse of A using Henderson's rules (O(n) complexity)</p></li>
 <li><p><code>"D"</code>: Dominance relationship matrix</p></li>

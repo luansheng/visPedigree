@@ -32,7 +32,8 @@ pedmatrix(
 
   Character, one of:
 
-  - `"f"`: Inbreeding coefficients (returns named vector)
+  - `"f"`: Inbreeding coefficients (returns named vector). This uses the
+    same optimized engine as `tidyped(..., inbreed = TRUE)`.
 
   - `"A"`: Additive (numerator) relationship matrix
 

@@ -71,7 +71,8 @@ tidyped(
 
   A logical value indicating whether to calculate inbreeding
   coefficients. Default is FALSE. If TRUE, an **f** column is added to
-  the output.
+  the output. This uses the same optimized engine as
+  `pedmatrix(..., method = "f")`.
 
 - genmethod:
 

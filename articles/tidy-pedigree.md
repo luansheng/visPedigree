@@ -402,11 +402,16 @@ inbreeding coefficients to a tidied pedigree:
 
 1.  Set `inbreed = TRUE` in the
     [`tidyped()`](https://luansheng.github.io/visPedigree/reference/tidyped.md)
-    function. This will calculate the inbreeding coefficients using the
-    `nadiv` package and add an `f` column to the tidied pedigree.
+    function. This will calculate the inbreeding coefficients using
+    optimized C++ code (Meuwissen & Luo algorithm) and add an `f` column
+    to the tidied pedigree.
 2.  Or call
     [`inbreed()`](https://luansheng.github.io/visPedigree/reference/inbreed.md)
     directly on a tidied pedigree to add the `f` column.
+
+Both options use the same high-performance engine as
+`pedmatrix(method = "f")`, ensuring consistent results across the
+package.
 
 ``` r
 # Create a simple inbred pedigree

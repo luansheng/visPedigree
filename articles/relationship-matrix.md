@@ -43,7 +43,8 @@ determines the type of matrix to calculate:
 - **“Dinv”**: Inverse of the dominance relationship matrix.
 - **“AA”**: Additive-by-additive (epistatic) relationship matrix.
 - **“AAinv”**: Inverse of the epistatic relationship matrix.
-- **“f”**: Inbreeding coefficients vector.
+- **“f”**: Inbreeding coefficients vector (uses the same optimized
+  engine as `tidyped(..., inbreed = TRUE)`).
 
 ### 1.2 Basic Usage
 
