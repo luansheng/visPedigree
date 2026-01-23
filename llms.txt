@@ -42,30 +42,31 @@ devtools::install_github("luansheng/visPedigree", build_vignettes = TRUE)
 library(visPedigree)
 
 # Example 1: Tidy and visualize a small pedigree
-# Draw the pedigree, compacting full-sib individuals into family nodes (squares)
-# to keep the graph legible even with many offspring.
+# Use compact = TRUE to condense full-sib groups into a single family node (square) 
+# labeled with the group size (e.g., "2"), keeping the graph clean and legible.
 cands <- c("Y", "Z1", "Z2")
 small_ped |>
   tidyped(cand = cands) |>
-  visped(compact = TRUE, highlight = cands)
+  visped(compact = TRUE)
 
-# Example 2: Relationship Matrices for massive pedigrees (v1.0.0+)
-# Calculate A and D matrices. Use compact = TRUE to significantly speed up 
-# calculations in pedigrees with large full-sib families.
+# Example 2: Relationship Matrices (v1.0.0+)
+# Compute the additive relationship matrix (A) using high-performance C++ algorithms.
+# Use compact = TRUE to accelerate calculation for pedigrees with large full-sib families.
 mat_a <- simple_ped |> tidyped() |> pedmatrix(method = "A", compact = TRUE)
-# Visualize the matrix as a heatmap
+# Visualize the relationship matrix as a heatmap with histograms
 vismat(mat_a)
 
-# Example 3: Inbreeding Coefficients
-# Calculate inbreeding coefficients (f) and display them in the graph.
+# Example 3: Inbreeding & Highlighting
+# Calculate inbreeding coefficients (f) and display them on the graph (e.g., "ID (0.05)").
+# Specific individuals can be highlighted to track their inheritance paths.
 simple_ped |>
   tidyped(inbreed = TRUE) |>
-  visped(highlight = "J5X804", showf = TRUE, compact = TRUE)
+  visped(highlight = "J5X804", trace = "up", showf = TRUE, compact = TRUE)
 
-# Example 4: Pedigree Splitting and Summary
-# Detect disconnected groups in the built-in simple_ped
+# Example 4: Pedigree Splitting
+# Automatically split the pedigree into independent sub-populations (connected groups).
+# Each group is returned as a standalone tidyped object for separate analysis.
 split_list <- simple_ped |> tidyped() |> splitped()
-# The result is a list of tidyped objects, one for each group
 summary(split_list[[1]])
 ```
 

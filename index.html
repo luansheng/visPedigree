@@ -98,30 +98,31 @@
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/luansheng/visPedigree" class="external-link">visPedigree</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Example 1: Tidy and visualize a small pedigree</span></span>
-<span><span class="co"># Draw the pedigree, compacting full-sib individuals into family nodes (squares)</span></span>
-<span><span class="co"># to keep the graph legible even with many offspring.</span></span>
+<span><span class="co"># Use compact = TRUE to condense full-sib groups into a single family node (square) </span></span>
+<span><span class="co"># labeled with the group size (e.g., "2"), keeping the graph clean and legible.</span></span>
 <span><span class="va">cands</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Y"</span>, <span class="st">"Z1"</span>, <span class="st">"Z2"</span><span class="op">)</span></span>
 <span><span class="va">small_ped</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="reference/tidyped.html">tidyped</a></span><span class="op">(</span>cand <span class="op">=</span> <span class="va">cands</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="reference/visped.html">visped</a></span><span class="op">(</span>compact <span class="op">=</span> <span class="cn">TRUE</span>, highlight <span class="op">=</span> <span class="va">cands</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="reference/visped.html">visped</a></span><span class="op">(</span>compact <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Example 2: Relationship Matrices for massive pedigrees (v1.0.0+)</span></span>
-<span><span class="co"># Calculate A and D matrices. Use compact = TRUE to significantly speed up </span></span>
-<span><span class="co"># calculations in pedigrees with large full-sib families.</span></span>
+<span><span class="co"># Example 2: Relationship Matrices (v1.0.0+)</span></span>
+<span><span class="co"># Compute the additive relationship matrix (A) using high-performance C++ algorithms.</span></span>
+<span><span class="co"># Use compact = TRUE to accelerate calculation for pedigrees with large full-sib families.</span></span>
 <span><span class="va">mat_a</span> <span class="op">&lt;-</span> <span class="va">simple_ped</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/tidyped.html">tidyped</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/pedmatrix.html">pedmatrix</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"A"</span>, compact <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co"># Visualize the matrix as a heatmap</span></span>
+<span><span class="co"># Visualize the relationship matrix as a heatmap with histograms</span></span>
 <span><span class="fu"><a href="reference/vismat.html">vismat</a></span><span class="op">(</span><span class="va">mat_a</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Example 3: Inbreeding Coefficients</span></span>
-<span><span class="co"># Calculate inbreeding coefficients (f) and display them in the graph.</span></span>
+<span><span class="co"># Example 3: Inbreeding &amp; Highlighting</span></span>
+<span><span class="co"># Calculate inbreeding coefficients (f) and display them on the graph (e.g., "ID (0.05)").</span></span>
+<span><span class="co"># Specific individuals can be highlighted to track their inheritance paths.</span></span>
 <span><span class="va">simple_ped</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="reference/tidyped.html">tidyped</a></span><span class="op">(</span>inbreed <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="reference/visped.html">visped</a></span><span class="op">(</span>highlight <span class="op">=</span> <span class="st">"J5X804"</span>, showf <span class="op">=</span> <span class="cn">TRUE</span>, compact <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="reference/visped.html">visped</a></span><span class="op">(</span>highlight <span class="op">=</span> <span class="st">"J5X804"</span>, trace <span class="op">=</span> <span class="st">"up"</span>, showf <span class="op">=</span> <span class="cn">TRUE</span>, compact <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Example 4: Pedigree Splitting and Summary</span></span>
-<span><span class="co"># Detect disconnected groups in the built-in simple_ped</span></span>
+<span><span class="co"># Example 4: Pedigree Splitting</span></span>
+<span><span class="co"># Automatically split the pedigree into independent sub-populations (connected groups).</span></span>
+<span><span class="co"># Each group is returned as a standalone tidyped object for separate analysis.</span></span>
 <span><span class="va">split_list</span> <span class="op">&lt;-</span> <span class="va">simple_ped</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/tidyped.html">tidyped</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/splitped.html">splitped</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co"># The result is a list of tidyped objects, one for each group</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">split_list</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
