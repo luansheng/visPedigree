@@ -55,28 +55,40 @@
 </nav><div class="container template-home">
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
-<div class="page-header"><h1 id="vispedigree">visPedigree<a class="anchor" aria-label="anchor" href="#vispedigree"></a>
+<div class="page-header"><h1 id="vispedigree-tidying-analyzing-and-visualizing-animal-pedigrees">visPedigree: Tidying, Analyzing, and Visualizing Animal Pedigrees<a class="anchor" aria-label="anchor" href="#vispedigree-tidying-analyzing-and-visualizing-animal-pedigrees"></a>
 </h1></div>
-<p>Tidying and Visualizing Animal Pedigrees</p>
-<p>The <code>visPedigree</code> package provides tools to check for duplicate and bisexual individuals, detect pedigree loops, add missing founders, sort parents before offspring, and trace the pedigrees of specified candidates. It generates hierarchical graphs for all individuals in a pedigree and can handle very large datasets (&gt; 10,000 individuals per generation) by compacting full-sib groups. It is particularly effective for aquatic animal pedigrees, which often include numerous full-sib families per generation in nucleus breeding populations.</p>
-<p>More complex pedigree graphs and usage examples can be found in the package vignettes.</p>
+<p>Built on graph theory and the high-performance <code>data.table</code> framework, <code>visPedigree</code> provides a comprehensive suite of tools for processing animal pedigrees. By modeling pedigrees as Directed Acyclic Graphs (DAGs) using <code>igraph</code>, it ensures robust loop detection, efficient generation assignment, and flexible ancestry tracing.</p>
+<div class="section level2">
+<h2 id="key-features">Key Features<a class="anchor" aria-label="anchor" href="#key-features"></a>
+</h2>
+<ul>
+<li>
+<strong>Pedigree Tidying</strong>: Robustly handles duplicate/bisexual individuals, pedigree loops, and missing founders.</li>
+<li>
+<strong>High Performance</strong>: Optimized for massive datasets using <code>data.table</code> and Rcpp-based C++ implementations.</li>
+<li>
+<strong>High-Throughput Matrix Calculation</strong>: Calculates Additive (A), Dominance (D), and Additive-by-Additive (AA) relationship matrices and their inverses.</li>
+<li>
+<strong>Advanced Visualization</strong>: Generates professional vector-based pedigree graphs with a unique compaction algorithm for large full-sib families.</li>
+<li>
+<strong>Pedigree Splitting</strong>: Efficiently detects and splits disconnected sub-populations.</li>
+</ul>
+</div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
 <div class="section level3">
-<h3 id="from-cran">From CRAN<a class="anchor" aria-label="anchor" href="#from-cran"></a>
+<h3 id="stable-version-from-cran">Stable version from CRAN<a class="anchor" aria-label="anchor" href="#stable-version-from-cran"></a>
 </h3>
-<p><em>(Note: The package is preparing for submission and not yet available on CRAN)</em></p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># install.packages("visPedigree")</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"visPedigree"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="from-github">From GitHub<a class="anchor" aria-label="anchor" href="#from-github"></a>
+<h3 id="development-version-from-github">Development version from GitHub<a class="anchor" aria-label="anchor" href="#development-version-from-github"></a>
 </h3>
-<p>You can install the development version from GitHub using the <code>devtools</code> package:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
-<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"luansheng/visPedigree"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"luansheng/visPedigree"</span>, build_vignettes <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -86,29 +98,31 @@
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/luansheng/visPedigree" class="external-link">visPedigree</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Example 1: Tidy and visualize a small pedigree</span></span>
-<span><span class="co"># Draw the pedigree, compacting full-sib individuals and highlighting candidates.</span></span>
-<span><span class="co"># Note: the compacted candidates are also highlighted here.</span></span>
+<span><span class="co"># Draw the pedigree, compacting full-sib individuals into family nodes (squares)</span></span>
+<span><span class="co"># to keep the graph legible even with many offspring.</span></span>
 <span><span class="va">cands</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Y"</span>, <span class="st">"Z1"</span>, <span class="st">"Z2"</span><span class="op">)</span></span>
 <span><span class="va">small_ped</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="reference/tidyped.html">tidyped</a></span><span class="op">(</span>cand <span class="op">=</span> <span class="va">cands</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="reference/visped.html">visped</a></span><span class="op">(</span>compact <span class="op">=</span> <span class="cn">TRUE</span>, highlight <span class="op">=</span> <span class="va">cands</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Example 2: Calculate and show inbreeding coefficients</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span></span>
-<span>  Ind <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span>, <span class="st">"D"</span>, <span class="st">"E"</span><span class="op">)</span>,</span>
-<span>  Sire <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span>, <span class="st">"A"</span>, <span class="st">"C"</span>, <span class="st">"C"</span><span class="op">)</span>,</span>
-<span>  Dam <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span>, <span class="st">"B"</span>, <span class="st">"B"</span>, <span class="st">"D"</span><span class="op">)</span>,</span>
-<span>  Sex <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"male"</span>, <span class="st">"female"</span>, <span class="st">"male"</span>, <span class="st">"female"</span>, <span class="st">"male"</span><span class="op">)</span></span>
-<span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="reference/tidyped.html">tidyped</a></span><span class="op">(</span>inbreed <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="reference/visped.html">visped</a></span><span class="op">(</span>highlight <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"E"</span><span class="op">)</span>, showf <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co"># Example 2: Relationship Matrices for massive pedigrees (v1.0.0+)</span></span>
+<span><span class="co"># Calculate A and D matrices. Use compact = TRUE to significantly speed up </span></span>
+<span><span class="co"># calculations in pedigrees with large full-sib families.</span></span>
+<span><span class="va">mat_a</span> <span class="op">&lt;-</span> <span class="va">simple_ped</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/tidyped.html">tidyped</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/pedmatrix.html">pedmatrix</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"A"</span>, compact <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co"># Visualize the matrix as a heatmap</span></span>
+<span><span class="fu"><a href="reference/vismat.html">vismat</a></span><span class="op">(</span><span class="va">mat_a</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Example 3: Summarize pedigree statistics</span></span>
-<span><span class="co"># Get a quick overview of the pedigree structure</span></span>
-<span><span class="va">small_ped</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="reference/tidyped.html">tidyped</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span><span class="co"># Example 3: Inbreeding Coefficients</span></span>
+<span><span class="co"># Calculate inbreeding coefficients (f) and display them in the graph.</span></span>
+<span><span class="va">simple_ped</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/tidyped.html">tidyped</a></span><span class="op">(</span>inbreed <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/visped.html">visped</a></span><span class="op">(</span>highlight <span class="op">=</span> <span class="st">"J5X804"</span>, showf <span class="op">=</span> <span class="cn">TRUE</span>, compact <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Example 4: Pedigree Splitting and Summary</span></span>
+<span><span class="co"># Detect disconnected groups in the built-in simple_ped</span></span>
+<span><span class="va">split_list</span> <span class="op">&lt;-</span> <span class="va">simple_ped</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/tidyped.html">tidyped</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/splitped.html">splitped</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co"># The result is a list of tidyped objects, one for each group</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">split_list</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a>

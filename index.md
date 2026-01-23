@@ -1,38 +1,39 @@
-# visPedigree
+# visPedigree: Tidying, Analyzing, and Visualizing Animal Pedigrees
 
-Tidying and Visualizing Animal Pedigrees
+Built on graph theory and the high-performance `data.table` framework,
+`visPedigree` provides a comprehensive suite of tools for processing
+animal pedigrees. By modeling pedigrees as Directed Acyclic Graphs
+(DAGs) using `igraph`, it ensures robust loop detection, efficient
+generation assignment, and flexible ancestry tracing.
 
-The `visPedigree` package provides tools to check for duplicate and
-bisexual individuals, detect pedigree loops, add missing founders, sort
-parents before offspring, and trace the pedigrees of specified
-candidates. It generates hierarchical graphs for all individuals in a
-pedigree and can handle very large datasets (\> 10,000 individuals per
-generation) by compacting full-sib groups. It is particularly effective
-for aquatic animal pedigrees, which often include numerous full-sib
-families per generation in nucleus breeding populations.
+## Key Features
 
-More complex pedigree graphs and usage examples can be found in the
-package vignettes.
+- **Pedigree Tidying**: Robustly handles duplicate/bisexual individuals,
+  pedigree loops, and missing founders.
+- **High Performance**: Optimized for massive datasets using
+  `data.table` and Rcpp-based C++ implementations.
+- **High-Throughput Matrix Calculation**: Calculates Additive (A),
+  Dominance (D), and Additive-by-Additive (AA) relationship matrices and
+  their inverses.
+- **Advanced Visualization**: Generates professional vector-based
+  pedigree graphs with a unique compaction algorithm for large full-sib
+  families.
+- **Pedigree Splitting**: Efficiently detects and splits disconnected
+  sub-populations.
 
 ## Installation
 
-### From CRAN
-
-*(Note: The package is preparing for submission and not yet available on
-CRAN)*
+### Stable version from CRAN
 
 ``` r
-# install.packages("visPedigree")
+install.packages("visPedigree")
 ```
 
-### From GitHub
-
-You can install the development version from GitHub using the `devtools`
-package:
+### Development version from GitHub
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("luansheng/visPedigree")
+devtools::install_github("luansheng/visPedigree", build_vignettes = TRUE)
 ```
 
 ## Quick Start
@@ -41,29 +42,31 @@ devtools::install_github("luansheng/visPedigree")
 library(visPedigree)
 
 # Example 1: Tidy and visualize a small pedigree
-# Draw the pedigree, compacting full-sib individuals and highlighting candidates.
-# Note: the compacted candidates are also highlighted here.
+# Draw the pedigree, compacting full-sib individuals into family nodes (squares)
+# to keep the graph legible even with many offspring.
 cands <- c("Y", "Z1", "Z2")
 small_ped |>
   tidyped(cand = cands) |>
   visped(compact = TRUE, highlight = cands)
 
-# Example 2: Calculate and show inbreeding coefficients
-library(data.table)
-data.table(
-  Ind = c("A", "B", "C", "D", "E"),
-  Sire = c(NA, NA, "A", "C", "C"),
-  Dam = c(NA, NA, "B", "B", "D"),
-  Sex = c("male", "female", "male", "female", "male")
-) |>
-  tidyped(inbreed = TRUE) |>
-  visped(highlight = c("E"), showf = TRUE)
+# Example 2: Relationship Matrices for massive pedigrees (v1.0.0+)
+# Calculate A and D matrices. Use compact = TRUE to significantly speed up 
+# calculations in pedigrees with large full-sib families.
+mat_a <- simple_ped |> tidyped() |> pedmatrix(method = "A", compact = TRUE)
+# Visualize the matrix as a heatmap
+vismat(mat_a)
 
-# Example 3: Summarize pedigree statistics
-# Get a quick overview of the pedigree structure
-small_ped |>
-  tidyped() |>
-  summary()
+# Example 3: Inbreeding Coefficients
+# Calculate inbreeding coefficients (f) and display them in the graph.
+simple_ped |>
+  tidyped(inbreed = TRUE) |>
+  visped(highlight = "J5X804", showf = TRUE, compact = TRUE)
+
+# Example 4: Pedigree Splitting and Summary
+# Detect disconnected groups in the built-in simple_ped
+split_list <- simple_ped |> tidyped() |> splitped()
+# The result is a list of tidyped objects, one for each group
+summary(split_list[[1]])
 ```
 
 ## Citation
