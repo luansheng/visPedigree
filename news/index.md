@@ -4,10 +4,12 @@
 
 ### API Standardization (BREAKING)
 
-To provide a clean and intuitive API for v1.0.0, core function names
-have been standardized following the “\[action\]\[obj\]” pattern: -
-**`pedmatrix`** is renamed to **`pedmat`**. - **`expand_pedmatrix`** is
-renamed to **`expand_pedmat`**. - **`summary_pedmatrix`** is renamed to
+To provide a clean and intuitive API for v1.0.0, core function names and
+behaviors have been standardized: - **`pedmatrix`** is renamed to
+**`pedmat`**. - **`pedmat` default `method` is now `"A"`** (Additive
+Relationship Matrix). Previously it was `"f"` (Inbreeding
+Coefficients). - **`expand_pedmatrix`** is renamed to
+**`expand_pedmat`**. - **`summary_pedmatrix`** is renamed to
 **`summary_pedmat`**. - The parameter **`n_threads`** is standardized to
 **`threads`** across all functions. - Legacy function names
 (`pedmatrix`, etc.) are preserved as deprecated wrappers to ensure
