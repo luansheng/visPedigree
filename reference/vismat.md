@@ -202,7 +202,7 @@ vismat(ped)
 
 
 # Method 2: Plot from pedmat object
-A <- pedmat(ped, method = "A")
+A <- pedmat(ped)
 vismat(A)
 
 

@@ -1,8 +1,8 @@
 # Extract Matrix Diagonals
 
 Extract the diagonal of a pedmat object or other matrices. This generic
-function delegates to [`diag`](https://rdrr.io/r/base/diag.html),
-`Matrix::diag`, or specialized S3 methods.
+function extending [`base::diag`](https://rdrr.io/r/base/diag.html) to
+support `pedmat` objects.
 
 ## Usage
 
@@ -18,7 +18,8 @@ diag(x, ...)
 
 - ...:
 
-  Additional arguments passed to methods.
+  Additional arguments passed to
+  [`base::diag`](https://rdrr.io/r/base/diag.html).
 
 ## Value
 

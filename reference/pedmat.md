@@ -10,10 +10,10 @@ computation.
 ``` r
 pedmat(
   ped,
-  method = "f",
+  method = "A",
   sparse = TRUE,
   invert_method = "auto",
-  n_threads = 0,
+  threads = 0,
   compact = FALSE
 )
 ```
@@ -32,10 +32,9 @@ pedmat(
 
   Character, one of:
 
-  - `"f"`: Inbreeding coefficients (returns named vector). This uses the
-    same optimized engine as `tidyped(..., inbreed = TRUE)`.
+  - `"A"`: Additive (numerator) relationship matrix (default)
 
-  - `"A"`: Additive (numerator) relationship matrix
+  - `"f"`: Inbreeding coefficients (returns named vector)
 
   - `"Ainv"`: Inverse of A using Henderson's rules (O(n) complexity)
 
@@ -62,7 +61,7 @@ pedmat(
 
   - `"general"`: Force general LU decomposition
 
-- n_threads:
+- threads:
 
   Integer, reserved for future parallel support. Currently the C++
   implementation uses all available cores automatically.
@@ -193,14 +192,8 @@ for simple inbreeding calculation
 library(visPedigree)
 tped <- tidyped(small_ped)
 
-# --- Inbreeding Coefficients ---
-f <- pedmat(tped, method = "f")
-f["Z1"]  # Inbreeding of individual Z1
-#>      Z1 
-#> 0.03125 
-
-# --- Additive Relationship Matrix ---
-A <- pedmat(tped, method = "A")
+# --- Additive Relationship Matrix (default) ---
+A <- pedmat(tped)
 A["A", "B"]      # Relationship between A and B
 #> [1] 0
 diag(A)          # Diagonal = 1 + F (inbreeding)
@@ -212,6 +205,12 @@ diag(A)          # Diagonal = 1 + F (inbreeding)
 #> 1.000000 1.000000 1.000000 1.000000 1.000000 1.000000 1.062500 1.000000 
 #>        X        Y       Z1       Z2 
 #> 1.078125 1.000000 1.031250 1.031250 
+
+# --- Inbreeding Coefficients ---
+f <- pedmat(tped, method = "f")
+f["Z1"]  # Inbreeding of individual Z1
+#>      Z1 
+#> 0.03125 
 
 # --- Using summary_pedmat() ---
 summary_pedmat(A)   # Detailed matrix statistics
@@ -261,10 +260,10 @@ attr(A, "ped")              # Original pedigree
 #>        Ind   Sire    Dam   Gen    Sex IndNum SireNum DamNum Family FamilySize
 #>     <char> <char> <char> <int> <char>  <int>   <int>  <int> <char>      <int>
 attr(A, "method")           # "A"
-#> NULL
+#> [1] "A"
 names(attributes(A))        # All available attributes
 #>  [1] "i"         "p"         "Dim"       "Dimnames"  "x"         "uplo"     
-#>  [7] "factors"   "class"     "call_info" "ped"       "pedmat_S4"
+#>  [7] "factors"   "class"     "call_info" "method"    "ped"       "pedmat_S4"
 
 # --- Compact Mode (for large full-sib families) ---
 A_compact <- pedmat(tped, method = "A", compact = TRUE)

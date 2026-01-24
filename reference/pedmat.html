@@ -39,7 +39,7 @@ Uses Rcpp with Meuwissen &amp;amp; Luo (1992) algorithm for efficient computatio
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Genetic Relationship Matrices and Inbreeding Coefficients</h1>
-      <small class="dont-index">Source: <a href="https://github.com/luansheng/visPedigree/blob/master/R/pedmat.R" class="external-link"><code>R/pedmat.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/luansheng/visPedigree/blob/master/R/pedmatrix.R" class="external-link"><code>R/pedmatrix.R</code></a></small>
       <div class="d-none name"><code>pedmat.Rd</code></div>
     </div>
 
@@ -53,10 +53,10 @@ Uses Rcpp with Meuwissen &amp; Luo (1992) algorithm for efficient computation.</
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">pedmat</span><span class="op">(</span></span>
 <span>  <span class="va">ped</span>,</span>
-<span>  method <span class="op">=</span> <span class="st">"f"</span>,</span>
+<span>  method <span class="op">=</span> <span class="st">"A"</span>,</span>
 <span>  sparse <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  invert_method <span class="op">=</span> <span class="st">"auto"</span>,</span>
-<span>  n_threads <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  threads <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  compact <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -72,8 +72,8 @@ pedigree, not a splitped object. For splitped results, use
 
 
 <dt id="arg-method">method<a class="anchor" aria-label="anchor" href="#arg-method"></a></dt>
-<dd><p>Character, one of:</p><ul><li><p><code>"f"</code>: Inbreeding coefficients (returns named vector). This uses the same optimized engine as <code>tidyped(..., inbreed = TRUE)</code>.</p></li>
-<li><p><code>"A"</code>: Additive (numerator) relationship matrix</p></li>
+<dd><p>Character, one of:</p><ul><li><p><code>"A"</code>: Additive (numerator) relationship matrix (default)</p></li>
+<li><p><code>"f"</code>: Inbreeding coefficients (returns named vector)</p></li>
 <li><p><code>"Ainv"</code>: Inverse of A using Henderson's rules (O(n) complexity)</p></li>
 <li><p><code>"D"</code>: Dominance relationship matrix</p></li>
 <li><p><code>"Dinv"</code>: Inverse of D (requires matrix inversion)</p></li>
@@ -94,7 +94,7 @@ large pedigrees). Default is <code>TRUE</code>.</p></dd>
 </ul></dd>
 
 
-<dt id="arg-n-threads">n_threads<a class="anchor" aria-label="anchor" href="#arg-n-threads"></a></dt>
+<dt id="arg-threads">threads<a class="anchor" aria-label="anchor" href="#arg-threads"></a></dt>
 <dd><p>Integer, reserved for future parallel support. Currently
 the C++ implementation uses all available cores automatically.</p></dd>
 
@@ -170,14 +170,8 @@ Biometrics, 32(1), 69-83.</p>
 <span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/luansheng/visPedigree" class="external-link">visPedigree</a></span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">tped</span> <span class="op">&lt;-</span> <span class="fu"><a href="tidyped.html">tidyped</a></span><span class="op">(</span><span class="va">small_ped</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># --- Inbreeding Coefficients ---</span></span></span>
-<span class="r-in"><span><span class="va">f</span> <span class="op">&lt;-</span> <span class="fu">pedmat</span><span class="op">(</span><span class="va">tped</span>, method <span class="op">=</span> <span class="st">"f"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">f</span><span class="op">[</span><span class="st">"Z1"</span><span class="op">]</span>  <span class="co"># Inbreeding of individual Z1</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      Z1 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.03125 </span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># --- Additive Relationship Matrix ---</span></span></span>
-<span class="r-in"><span><span class="va">A</span> <span class="op">&lt;-</span> <span class="fu">pedmat</span><span class="op">(</span><span class="va">tped</span>, method <span class="op">=</span> <span class="st">"A"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># --- Additive Relationship Matrix (default) ---</span></span></span>
+<span class="r-in"><span><span class="va">A</span> <span class="op">&lt;-</span> <span class="fu">pedmat</span><span class="op">(</span><span class="va">tped</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">A</span><span class="op">[</span><span class="st">"A"</span>, <span class="st">"B"</span><span class="op">]</span>      <span class="co"># Relationship between A and B</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0</span>
 <span class="r-in"><span><span class="fu"><a href="diag.html">diag</a></span><span class="op">(</span><span class="va">A</span><span class="op">)</span>          <span class="co"># Diagonal = 1 + F (inbreeding)</span></span></span>
@@ -189,6 +183,12 @@ Biometrics, 32(1), 69-83.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1.000000 1.000000 1.000000 1.000000 1.000000 1.000000 1.062500 1.000000 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        X        Y       Z1       Z2 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1.078125 1.000000 1.031250 1.031250 </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># --- Inbreeding Coefficients ---</span></span></span>
+<span class="r-in"><span><span class="va">f</span> <span class="op">&lt;-</span> <span class="fu">pedmat</span><span class="op">(</span><span class="va">tped</span>, method <span class="op">=</span> <span class="st">"f"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">f</span><span class="op">[</span><span class="st">"Z1"</span><span class="op">]</span>  <span class="co"># Inbreeding of individual Z1</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      Z1 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.03125 </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># --- Using summary_pedmat() ---</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="summary_pedmat.html">summary_pedmat</a></span><span class="op">(</span><span class="va">A</span><span class="op">)</span>   <span class="co"># Detailed matrix statistics</span></span></span>
@@ -238,10 +238,10 @@ Biometrics, 32(1), 69-83.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        Ind   Sire    Dam   Gen    Sex IndNum SireNum DamNum Family FamilySize</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;int&gt; &lt;char&gt;  &lt;int&gt;   &lt;int&gt;  &lt;int&gt; &lt;char&gt;      &lt;int&gt;</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">A</span>, <span class="st">"method"</span><span class="op">)</span>           <span class="co"># "A"</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "A"</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/attributes.html" class="external-link">attributes</a></span><span class="op">(</span><span class="va">A</span><span class="op">)</span><span class="op">)</span>        <span class="co"># All available attributes</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "i"         "p"         "Dim"       "Dimnames"  "x"         "uplo"     </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] "factors"   "class"     "call_info" "ped"       "pedmat_S4"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] "factors"   "class"     "call_info" "method"    "ped"       "pedmat_S4"</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># --- Compact Mode (for large full-sib families) ---</span></span></span>
 <span class="r-in"><span><span class="va">A_compact</span> <span class="op">&lt;-</span> <span class="fu">pedmat</span><span class="op">(</span><span class="va">tped</span>, method <span class="op">=</span> <span class="st">"A"</span>, compact <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
