@@ -194,7 +194,7 @@ will be issued if any such individuals are removed.
 for tidying pedigree data (required input)
 [`vismat`](https://luansheng.github.io/visPedigree/reference/vismat.md)
 for visualizing relationship matrices as heatmaps
-[`pedmatrix`](https://luansheng.github.io/visPedigree/reference/pedmatrix.md)
+[`pedmat`](https://luansheng.github.io/visPedigree/reference/pedmat.md)
 for computing relationship matrices
 [`splitped`](https://luansheng.github.io/visPedigree/reference/splitped.md)
 for splitting pedigree into connected components
@@ -252,14 +252,14 @@ big_ped_tidy <- tidyped(big_family_size_ped, cand = cand_labels, trace = "up", t
 # Use compact = TRUE for large families
 visped(big_ped_tidy, compact = TRUE, file = tempfile(fileext = ".pdf"))
 #> Note: Removed 351 isolated individuals (no parents, no progeny) from the plot.
-#> Pedigree saved to: /tmp/RtmpxbpnpD/file1ca9e5b1cc7.pdf
+#> Pedigree saved to: /tmp/Rtmp1t207k/file1cbe77e21e41.pdf
 #> Label cex: 0.65. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 
 
 # Use outline = TRUE if individual labels are not required
 visped(big_ped_tidy, compact = TRUE, outline = TRUE, file = tempfile(fileext = ".pdf"))
 #> Note: Removed 351 isolated individuals (no parents, no progeny) from the plot.
-#> Pedigree saved to: /tmp/RtmpxbpnpD/file1ca94b2e19f6.pdf
+#> Pedigree saved to: /tmp/Rtmp1t207k/file1cbe7cae3074.pdf
 
 # }
 ```

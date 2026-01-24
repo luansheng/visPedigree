@@ -71,7 +71,7 @@ inbred individuals, and analyzing kinship between families.</p>
 
 
 <dl><dt id="arg-mat">mat<a class="anchor" aria-label="anchor" href="#arg-mat"></a></dt>
-<dd><p>A relationship matrix. Can be one of the following types:</p><ul><li><p>A <code>pedmatrix</code> object returned by <code><a href="pedmatrix.html">pedmatrix</a></code></p></li>
+<dd><p>A relationship matrix. Can be one of the following types:</p><ul><li><p>A <code>pedmat</code> object returned by <code><a href="pedmat.html">pedmat</a></code></p></li>
 <li><p>A named list containing matrices (preferring A, D, AA)</p></li>
 <li><p>A <code><a href="tidyped.html">tidyped</a></code> object (automatically calculates additive relationship matrix A)</p></li>
 <li><p>A standard <code>matrix</code> or <code>Matrix</code> object</p></li>
@@ -83,7 +83,7 @@ coefficients.</p></dd>
 <dt id="arg-ped">ped<a class="anchor" aria-label="anchor" href="#arg-ped"></a></dt>
 <dd><p>Optional. A tidied pedigree object (<code>tidyped</code>), used for
 extracting labels or grouping information. Required when using the
-<code>grouping</code> parameter. If <code>mat</code> is a <code>pedmatrix</code> object,
+<code>grouping</code> parameter. If <code>mat</code> is a <code>pedmat</code> object,
 the pedigree can be automatically extracted from its attributes.</p></dd>
 
 
@@ -181,7 +181,7 @@ generated on the current graphics device.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="pedmatrix.html">pedmatrix</a></code> for computing relationship matrices
+    <div class="dont-index"><p><code><a href="pedmat.html">pedmat</a></code> for computing relationship matrices
 <code><a href="tidyped.html">tidyped</a></code> for tidying pedigree data
 <code><a href="visped.html">visped</a></code> for visualizing pedigree structure graphs
 <code><a href="https://rdrr.io/pkg/lattice/man/levelplot.html" class="external-link">levelplot</a></code> underlying plotting function for heatmaps
@@ -202,8 +202,8 @@ generated on the current graphics device.</p>
 <span class="r-in"><span><span class="fu">vismat</span><span class="op">(</span><span class="va">ped</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="vismat-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Method 2: Plot from pedmatrix object</span></span></span>
-<span class="r-in"><span><span class="va">A</span> <span class="op">&lt;-</span> <span class="fu"><a href="pedmatrix.html">pedmatrix</a></span><span class="op">(</span><span class="va">ped</span>, method <span class="op">=</span> <span class="st">"A"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># Method 2: Plot from pedmat object</span></span></span>
+<span class="r-in"><span><span class="va">A</span> <span class="op">&lt;-</span> <span class="fu"><a href="pedmat.html">pedmat</a></span><span class="op">(</span><span class="va">ped</span>, method <span class="op">=</span> <span class="st">"A"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">vismat</span><span class="op">(</span><span class="va">A</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="vismat-2.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
@@ -271,7 +271,7 @@ generated on the current graphics device.</p>
 <span class="r-in"><span><span class="co"># ============================================================</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Dominance relationship matrix</span></span></span>
-<span class="r-in"><span><span class="va">D</span> <span class="op">&lt;-</span> <span class="fu"><a href="pedmatrix.html">pedmatrix</a></span><span class="op">(</span><span class="va">ped</span>, method <span class="op">=</span> <span class="st">"D"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">D</span> <span class="op">&lt;-</span> <span class="fu"><a href="pedmat.html">pedmat</a></span><span class="op">(</span><span class="va">ped</span>, method <span class="op">=</span> <span class="st">"D"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">vismat</span><span class="op">(</span><span class="va">D</span>, main <span class="op">=</span> <span class="st">"Dominance Relationship Matrix"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="vismat-12.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>

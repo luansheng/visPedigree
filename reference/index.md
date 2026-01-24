@@ -15,9 +15,9 @@ Main tools for processing and visualizing animal pedigrees.
 
 Tools for computing and analyzing genetic relationship matrices.
 
-- [`pedmatrix()`](https://luansheng.github.io/visPedigree/reference/pedmatrix.md)
+- [`pedmat()`](https://luansheng.github.io/visPedigree/reference/pedmat.md)
   : Genetic Relationship Matrices and Inbreeding Coefficients
-- [`expand_pedmatrix()`](https://luansheng.github.io/visPedigree/reference/expand_pedmatrix.md)
+- [`expand_pedmat()`](https://luansheng.github.io/visPedigree/reference/expand_pedmat.md)
   : Expand a Compact Pedigree Matrix to Full Dimensions
 - [`query_relationship()`](https://luansheng.github.io/visPedigree/reference/query_relationship.md)
   : Query Relationship Coefficients from a Pedigree Matrix
@@ -48,13 +48,13 @@ Built-in pedigree examples for testing and demonstration.
 
 ## S3 Methods
 
-Generic methods for ‘tidyped’ and ‘pedmatrix’ objects.
+Generic methods for ‘tidyped’ and ‘pedmat’ objects.
 
 - [`plot(`*`<tidyped>`*`)`](https://luansheng.github.io/visPedigree/reference/plot.tidyped.md)
   : Plot a tidy pedigree
 - [`summary(`*`<tidyped>`*`)`](https://luansheng.github.io/visPedigree/reference/summary.tidyped.md)
   : Summary method for tidyped objects
-- [`summary_pedmatrix()`](https://luansheng.github.io/visPedigree/reference/summary_pedmatrix.md)
+- [`summary_pedmat()`](https://luansheng.github.io/visPedigree/reference/summary_pedmat.md)
   : Summary Statistics for Pedigree Matrices
 - [`print(`*`<summary.tidyped>`*`)`](https://luansheng.github.io/visPedigree/reference/print.summary.tidyped.md)
   : Print method for summary.tidyped

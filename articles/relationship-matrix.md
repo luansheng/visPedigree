@@ -1,6 +1,6 @@
 # 3. Calculation and visualization of relationship matrix
 
-1.  [Calculating Relationship Matrices with pedmatrix()](#id_1)  
+1.  [Calculating Relationship Matrices with pedmat()](#id_1)  
     1.1 [Supported Methods](#id_1-1)  
     1.2 [Basic Usage](#id_1-2)  
     1.3 [Sparse Matrix Representation](#id_1-3)  
@@ -23,10 +23,10 @@ breeding values (BLUP) and managing genetic diversity. The `visPedigree`
 package provides efficient tools for calculating various relationship
 matrices and visualizing them through heatmaps and histograms.
 
-## 1. Calculating Relationship Matrices with `pedmatrix()`
+## 1. Calculating Relationship Matrices with `pedmat()`
 
 The
-[`pedmatrix()`](https://luansheng.github.io/visPedigree/reference/pedmatrix.md)
+[`pedmat()`](https://luansheng.github.io/visPedigree/reference/pedmat.md)
 function is the primary tool for calculating relationship matrices. It
 supports both additive and dominance relationship matrices, as well as
 their inverses.
@@ -34,7 +34,7 @@ their inverses.
 ### 1.1 Supported Methods
 
 The `method` parameter in
-[`pedmatrix()`](https://luansheng.github.io/visPedigree/reference/pedmatrix.md)
+[`pedmat()`](https://luansheng.github.io/visPedigree/reference/pedmat.md)
 determines the type of matrix to calculate:
 
 - **“A”**: Additive relationship matrix (Numerator Relationship Matrix).
@@ -57,19 +57,19 @@ data(small_ped)
 tped <- tidyped(small_ped)
 
 # Calculate Additive Relationship Matrix (A)
-mat_A <- pedmatrix(tped, method = "A")
+mat_A <- pedmat(tped, method = "A")
 
 # Calculate Dominance Relationship Matrix (D)
-mat_D <- pedmatrix(tped, method = "D")
+mat_D <- pedmat(tped, method = "D")
 
 # Calculate inbreeding coefficients (f)
-vec_f <- pedmatrix(tped, method = "f")
+vec_f <- pedmat(tped, method = "f")
 ```
 
 ### 1.3 Sparse Matrix Representation
 
 By default,
-[`pedmatrix()`](https://luansheng.github.io/visPedigree/reference/pedmatrix.md)
+[`pedmat()`](https://luansheng.github.io/visPedigree/reference/pedmat.md)
 returns a sparse matrix (class `dsCMatrix` from the `Matrix` package)
 for relationship matrices. This is highly memory-efficient for large
 pedigrees where many individuals are unrelated.
@@ -344,7 +344,7 @@ query_relationship(mat_A, c("Z1", "A"), c("Z2", "B"))
 
 For large pedigrees with many full-sibling families (common in aquatic
 breeding populations),
-[`pedmatrix()`](https://luansheng.github.io/visPedigree/reference/pedmatrix.md)
+[`pedmat()`](https://luansheng.github.io/visPedigree/reference/pedmat.md)
 can merge full siblings into representative nodes to save memory and
 time.
 
@@ -355,9 +355,9 @@ representative individuals from each full-sib family.
 
 ``` r
 # Calculate compacted A matrix
-mat_compact <- pedmatrix(tped, method = "A", compact = TRUE)
+mat_compact <- pedmat(tped, method = "A", compact = TRUE)
 
-# The result is a 'pedmatrix' object containing the compacted matrix
+# The result is a 'pedmat' object containing the compacted matrix
 print(mat_compact)
 #> 23 x 23 sparse Matrix of class "dsCMatrix"
 #>   [[ suppressing 23 column names 'A', 'B', 'F' ... ]]
@@ -438,14 +438,14 @@ print(mat_compact)
 ### 3.2 Expanding and Querying Compacted Matrices
 
 If you need the full matrix after a compact calculation, use
-[`expand_pedmatrix()`](https://luansheng.github.io/visPedigree/reference/expand_pedmatrix.md).
+[`expand_pedmat()`](https://luansheng.github.io/visPedigree/reference/expand_pedmat.md).
 For retrieving specific values,
 [`query_relationship()`](https://luansheng.github.io/visPedigree/reference/query_relationship.md)
 handles both standard and compact objects transparently.
 
 ``` r
 # Expand to full 28x28 matrix
-mat_full <- expand_pedmatrix(mat_compact)
+mat_full <- expand_pedmat(mat_compact)
 dim(mat_full)
 #> [1] 28 28
 

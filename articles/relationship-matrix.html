@@ -61,7 +61,7 @@
       <h1>3. Calculation and visualization of relationship matrix</h1>
                         <h4 data-toc-skip class="author">Sheng Luan</h4>
             
-            <h4 data-toc-skip class="date">2026-01-23</h4>
+            <h4 data-toc-skip class="date">2026-01-24</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/luansheng/visPedigree/blob/master/vignettes/relationship-matrix.Rmd" class="external-link"><code>vignettes/relationship-matrix.Rmd</code></a></small>
       <div class="d-none name"><code>relationship-matrix.Rmd</code></div>
@@ -72,7 +72,7 @@
 <ol style="list-style-type: decimal">
 <li>
 <a href="#id_1">Calculating Relationship Matrices with
-pedmatrix()</a><br>
+pedmat()</a><br>
 1.1 <a href="#id_1-1">Supported Methods</a><br>
 1.2 <a href="#id_1-2">Basic Usage</a><br>
 1.3 <a href="#id_1-3">Sparse Matrix Representation</a><br>
@@ -105,17 +105,16 @@ breeding values (BLUP) and managing genetic diversity. The
 calculating various relationship matrices and visualizing them through
 heatmaps and histograms.</p>
 <div class="section level2">
-<h2 id="id_1">1. Calculating Relationship Matrices with
-<code>pedmatrix()</code><a class="anchor" aria-label="anchor" href="#id_1"></a>
+<h2 id="id_1">1. Calculating Relationship Matrices with <code>pedmat()</code><a class="anchor" aria-label="anchor" href="#id_1"></a>
 </h2>
-<p>The <code><a href="../reference/pedmatrix.html">pedmatrix()</a></code> function is the primary tool for
+<p>The <code><a href="../reference/pedmat.html">pedmat()</a></code> function is the primary tool for
 calculating relationship matrices. It supports both additive and
 dominance relationship matrices, as well as their inverses.</p>
 <div class="section level3">
 <h3 id="id_1-1">1.1 Supported Methods<a class="anchor" aria-label="anchor" href="#id_1-1"></a>
 </h3>
-<p>The <code>method</code> parameter in <code><a href="../reference/pedmatrix.html">pedmatrix()</a></code>
-determines the type of matrix to calculate:</p>
+<p>The <code>method</code> parameter in <code><a href="../reference/pedmat.html">pedmat()</a></code> determines
+the type of matrix to calculate:</p>
 <ul>
 <li>
 <strong>“A”</strong>: Additive relationship matrix (Numerator
@@ -150,18 +149,18 @@ optimized engine as <code>tidyped(..., inbreed = TRUE)</code>).</li>
 <span><span class="va">tped</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tidyped.html">tidyped</a></span><span class="op">(</span><span class="va">small_ped</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Calculate Additive Relationship Matrix (A)</span></span>
-<span><span class="va">mat_A</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pedmatrix.html">pedmatrix</a></span><span class="op">(</span><span class="va">tped</span>, method <span class="op">=</span> <span class="st">"A"</span><span class="op">)</span></span>
+<span><span class="va">mat_A</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pedmat.html">pedmat</a></span><span class="op">(</span><span class="va">tped</span>, method <span class="op">=</span> <span class="st">"A"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Calculate Dominance Relationship Matrix (D)</span></span>
-<span><span class="va">mat_D</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pedmatrix.html">pedmatrix</a></span><span class="op">(</span><span class="va">tped</span>, method <span class="op">=</span> <span class="st">"D"</span><span class="op">)</span></span>
+<span><span class="va">mat_D</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pedmat.html">pedmat</a></span><span class="op">(</span><span class="va">tped</span>, method <span class="op">=</span> <span class="st">"D"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Calculate inbreeding coefficients (f)</span></span>
-<span><span class="va">vec_f</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pedmatrix.html">pedmatrix</a></span><span class="op">(</span><span class="va">tped</span>, method <span class="op">=</span> <span class="st">"f"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">vec_f</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pedmat.html">pedmat</a></span><span class="op">(</span><span class="va">tped</span>, method <span class="op">=</span> <span class="st">"f"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="id_1-3">1.3 Sparse Matrix Representation<a class="anchor" aria-label="anchor" href="#id_1-3"></a>
 </h3>
-<p>By default, <code><a href="../reference/pedmatrix.html">pedmatrix()</a></code> returns a sparse matrix (class
+<p>By default, <code><a href="../reference/pedmat.html">pedmat()</a></code> returns a sparse matrix (class
 <code>dsCMatrix</code> from the <code>Matrix</code> package) for
 relationship matrices. This is highly memory-efficient for large
 pedigrees where many individuals are unrelated.</p>
@@ -435,7 +434,7 @@ IDs.</p>
 <h2 id="id_3">3. Compact Mode for Large Pedigrees<a class="anchor" aria-label="anchor" href="#id_3"></a>
 </h2>
 <p>For large pedigrees with many full-sibling families (common in
-aquatic breeding populations), <code><a href="../reference/pedmatrix.html">pedmatrix()</a></code> can merge full
+aquatic breeding populations), <code><a href="../reference/pedmat.html">pedmat()</a></code> can merge full
 siblings into representative nodes to save memory and time.</p>
 <div class="section level3">
 <h3 id="id_3-1">3.1 Using <code>compact = TRUE</code><a class="anchor" aria-label="anchor" href="#id_3-1"></a>
@@ -444,9 +443,9 @@ siblings into representative nodes to save memory and time.</p>
 representative individuals from each full-sib family.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Calculate compacted A matrix</span></span>
-<span><span class="va">mat_compact</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pedmatrix.html">pedmatrix</a></span><span class="op">(</span><span class="va">tped</span>, method <span class="op">=</span> <span class="st">"A"</span>, compact <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">mat_compact</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pedmat.html">pedmat</a></span><span class="op">(</span><span class="va">tped</span>, method <span class="op">=</span> <span class="st">"A"</span>, compact <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># The result is a 'pedmatrix' object containing the compacted matrix</span></span>
+<span><span class="co"># The result is a 'pedmat' object containing the compacted matrix</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">mat_compact</span><span class="op">)</span></span>
 <span><span class="co">#&gt; 23 x 23 sparse Matrix of class "dsCMatrix"</span></span>
 <span><span class="co">#&gt;   [[ suppressing 23 column names 'A', 'B', 'F' ... ]]</span></span>
@@ -527,12 +526,12 @@ representative individuals from each full-sib family.</p>
 <h3 id="id_3-2">3.2 Expanding and Querying Compacted Matrices<a class="anchor" aria-label="anchor" href="#id_3-2"></a>
 </h3>
 <p>If you need the full matrix after a compact calculation, use
-<code><a href="../reference/expand_pedmatrix.html">expand_pedmatrix()</a></code>. For retrieving specific values,
+<code><a href="../reference/expand_pedmat.html">expand_pedmat()</a></code>. For retrieving specific values,
 <code><a href="../reference/query_relationship.html">query_relationship()</a></code> handles both standard and compact
 objects transparently.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Expand to full 28x28 matrix</span></span>
-<span><span class="va">mat_full</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/expand_pedmatrix.html">expand_pedmatrix</a></span><span class="op">(</span><span class="va">mat_compact</span><span class="op">)</span></span>
+<span><span class="va">mat_full</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/expand_pedmat.html">expand_pedmat</a></span><span class="op">(</span><span class="va">mat_compact</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">mat_full</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 28 28</span></span>
 <span></span>

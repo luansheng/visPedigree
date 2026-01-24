@@ -27,8 +27,8 @@ vismat(
 
   A relationship matrix. Can be one of the following types:
 
-  - A `pedmatrix` object returned by
-    [`pedmatrix`](https://luansheng.github.io/visPedigree/reference/pedmatrix.md)
+  - A `pedmat` object returned by
+    [`pedmat`](https://luansheng.github.io/visPedigree/reference/pedmat.md)
 
   - A named list containing matrices (preferring A, D, AA)
 
@@ -46,7 +46,7 @@ vismat(
 
   Optional. A tidied pedigree object (`tidyped`), used for extracting
   labels or grouping information. Required when using the `grouping`
-  parameter. If `mat` is a `pedmatrix` object, the pedigree can be
+  parameter. If `mat` is a `pedmat` object, the pedigree can be
   automatically extracted from its attributes.
 
 - type:
@@ -175,7 +175,7 @@ For additive relationship matrix A:
 
 ## See also
 
-[`pedmatrix`](https://luansheng.github.io/visPedigree/reference/pedmatrix.md)
+[`pedmat`](https://luansheng.github.io/visPedigree/reference/pedmat.md)
 for computing relationship matrices
 [`tidyped`](https://luansheng.github.io/visPedigree/reference/tidyped.md)
 for tidying pedigree data
@@ -201,8 +201,8 @@ ped <- tidyped(simple_ped)
 vismat(ped)
 
 
-# Method 2: Plot from pedmatrix object
-A <- pedmatrix(ped, method = "A")
+# Method 2: Plot from pedmat object
+A <- pedmat(ped, method = "A")
 vismat(A)
 
 
@@ -270,7 +270,7 @@ vismat(A, ped = ped, grouping = "Gen",
 # ============================================================
 
 # Dominance relationship matrix
-D <- pedmatrix(ped, method = "D")
+D <- pedmat(ped, method = "D")
 vismat(D, main = "Dominance Relationship Matrix")
 
 

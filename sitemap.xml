@@ -15,7 +15,7 @@
 <url><loc>https://luansheng.github.io/visPedigree/reference/compact_pedigree.html</loc></url>
 <url><loc>https://luansheng.github.io/visPedigree/reference/deep_ped.html</loc></url>
 <url><loc>https://luansheng.github.io/visPedigree/reference/diag.html</loc></url>
-<url><loc>https://luansheng.github.io/visPedigree/reference/expand_pedmatrix.html</loc></url>
+<url><loc>https://luansheng.github.io/visPedigree/reference/expand_pedmat.html</loc></url>
 <url><loc>https://luansheng.github.io/visPedigree/reference/finalize_graph.html</loc></url>
 <url><loc>https://luansheng.github.io/visPedigree/reference/generate_graph_structure.html</loc></url>
 <url><loc>https://luansheng.github.io/visPedigree/reference/get_highlight_ids.html</loc></url>
@@ -25,7 +25,7 @@
 <url><loc>https://luansheng.github.io/visPedigree/reference/loop_ped.html</loc></url>
 <url><loc>https://luansheng.github.io/visPedigree/reference/new_tidyped.html</loc></url>
 <url><loc>https://luansheng.github.io/visPedigree/reference/ped2igraph.html</loc></url>
-<url><loc>https://luansheng.github.io/visPedigree/reference/pedmatrix.html</loc></url>
+<url><loc>https://luansheng.github.io/visPedigree/reference/pedmat.html</loc></url>
 <url><loc>https://luansheng.github.io/visPedigree/reference/plot.tidyped.html</loc></url>
 <url><loc>https://luansheng.github.io/visPedigree/reference/plot_ped_igraph.html</loc></url>
 <url><loc>https://luansheng.github.io/visPedigree/reference/prepare_initial_nodes.html</loc></url>
@@ -38,7 +38,7 @@
 <url><loc>https://luansheng.github.io/visPedigree/reference/small_ped.html</loc></url>
 <url><loc>https://luansheng.github.io/visPedigree/reference/splitped.html</loc></url>
 <url><loc>https://luansheng.github.io/visPedigree/reference/summary.tidyped.html</loc></url>
-<url><loc>https://luansheng.github.io/visPedigree/reference/summary_pedmatrix.html</loc></url>
+<url><loc>https://luansheng.github.io/visPedigree/reference/summary_pedmat.html</loc></url>
 <url><loc>https://luansheng.github.io/visPedigree/reference/tidyped.html</loc></url>
 <url><loc>https://luansheng.github.io/visPedigree/reference/validate_tidyped.html</loc></url>
 <url><loc>https://luansheng.github.io/visPedigree/reference/vismat.html</loc></url>

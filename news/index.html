@@ -39,7 +39,11 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.0.0" id="changes-in-version-100-released-on-20-jan-2026">Changes in version 1.0.0 released on 20 Jan 2026<a class="anchor" aria-label="anchor" href="#changes-in-version-100-released-on-20-jan-2026"></a></h2>
+<h2 class="pkg-version" data-toc-text="1.0.0" id="changes-in-version-100-released-on-24-jan-2026">Changes in version 1.0.0 released on 24 Jan 2026<a class="anchor" aria-label="anchor" href="#changes-in-version-100-released-on-24-jan-2026"></a></h2>
+<div class="section level3">
+<h3 id="api-standardization-breaking-1-0-0">API Standardization (BREAKING)<a class="anchor" aria-label="anchor" href="#api-standardization-breaking-1-0-0"></a></h3>
+<p>To provide a clean and intuitive API for v1.0.0, core function names have been standardized following the “[action][obj]” pattern: - <strong><code>pedmatrix</code></strong> is renamed to <strong><code>pedmat</code></strong>. - <strong><code>expand_pedmatrix</code></strong> is renamed to <strong><code>expand_pedmat</code></strong>. - <strong><code>summary_pedmatrix</code></strong> is renamed to <strong><code>summary_pedmat</code></strong>. - The parameter <strong><code>n_threads</code></strong> is standardized to <strong><code>threads</code></strong> across all functions. - Legacy function names (<code>pedmatrix</code>, etc.) are preserved as deprecated wrappers to ensure backward compatibility.</p>
+</div>
 <div class="section level3">
 <h3 id="new-features-1-0-0">New Features<a class="anchor" aria-label="anchor" href="#new-features-1-0-0"></a></h3>
 <ol style="list-style-type: decimal"><li>
@@ -52,9 +56,9 @@
 <li>
 <strong>Pedigree Splitting (<code>splitped</code>)</strong>: Added <code><a href="../reference/splitped.html">splitped()</a></code> function to detect and split disconnected pedigree components. It efficiently identifies independent sub-populations (connected components) using graph theory, excludes isolated individuals, and returns a list of re-indexed <code>tidyped</code> objects ready for separate analysis or visualization.</li>
 <li>
-<strong>Comprehensive Matrix Support</strong>: <code><a href="../reference/pedmatrix.html">pedmatrix()</a></code> now fully supports 6 types of genetic relationship matrices: Additive (A, Ainv), Dominance (D, Dinv), and Additive-by-Additive Epistatic (AA, AAinv).</li>
+<strong>Comprehensive Matrix Support</strong>: <code><a href="../reference/pedmat.html">pedmat()</a></code> (formerly <code>pedmatrix</code>) now fully supports 6 types of genetic relationship matrices: Additive (A, Ainv), Dominance (D, Dinv), and Additive-by-Additive Epistatic (AA, AAinv).</li>
 <li>
-<strong>Relationship Matrix Visualization (<code>vismat</code>)</strong>: Added <code><a href="../reference/vismat.html">vismat()</a></code> function for visualizing relationship matrices (A, D, AA, etc.) with heatmaps and histograms. It supports <code>pedmatrix</code> objects, <code>tidyped</code> objects (auto-calculates A matrix), and standard matrices. Heatmaps can be annotated with family groups when a pedigree is provided.</li>
+<strong>Relationship Matrix Visualization (<code>vismat</code>)</strong>: Added <code><a href="../reference/vismat.html">vismat()</a></code> function for visualizing relationship matrices (A, D, AA, etc.) with heatmaps and histograms. It supports <code>pedmat</code> objects, <code>tidyped</code> objects (auto-calculates A matrix), and standard matrices. Heatmaps can be annotated with family groups when a pedigree is provided.</li>
 </ol></div>
 <div class="section level3">
 <h3 id="cran-submission--internal-improvements-1-0-0">CRAN Submission &amp; Internal Improvements<a class="anchor" aria-label="anchor" href="#cran-submission--internal-improvements-1-0-0"></a></h3>
@@ -72,12 +76,12 @@
 <div class="section level3">
 <h3 id="new-behavior-breaking-0-7-3">New behavior (BREAKING)<a class="anchor" aria-label="anchor" href="#new-behavior-breaking-0-7-3"></a></h3>
 <ol style="list-style-type: decimal"><li>
-<strong>Simplified <code><a href="../reference/pedmatrix.html">pedmatrix()</a></code> return and single-method enforcement</strong>: <code><a href="../reference/pedmatrix.html">pedmatrix()</a></code> now requires a single <code>method</code> argument (e.g., <code>method = "A").</code> When a single method is requested, the function returns the corresponding matrix or vector directly (not a named list). Requesting multiple methods in one call will now raise an error. Use repeated calls for multiple outputs.</li>
+<strong>Simplified <code>pedmatrix()</code> return and single-method enforcement</strong>: <code>pedmatrix()</code> now requires a single <code>method</code> argument (e.g., <code>method = "A").</code> When a single method is requested, the function returns the corresponding matrix or vector directly (not a named list). Requesting multiple methods in one call will now raise an error. Use repeated calls for multiple outputs.</li>
 </ol></div>
 <div class="section level3">
 <h3 id="new-features-0-7-3">New features<a class="anchor" aria-label="anchor" href="#new-features-0-7-3"></a></h3>
 <ol style="list-style-type: decimal"><li>
-<strong>High-Performance Genetic Relationship Calculations</strong>: Introduced <code><a href="../reference/pedmatrix.html">pedmatrix()</a></code> function implemented in Rcpp for efficient computation of:
+<strong>High-Performance Genetic Relationship Calculations</strong>: Introduced <code>pedmatrix()</code> function implemented in Rcpp for efficient computation of:
 <ul><li>Additive relationship matrix (A) using the tabular recursive algorithm.</li>
 <li>Sparse inverse additive matrix (A-Inverse) using Henderson’s rules.</li>
 <li>Dominance matrix (D) using the tabular approach.</li>

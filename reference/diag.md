@@ -1,9 +1,8 @@
 # Extract Matrix Diagonals
 
-Extract the diagonal of a pedmatrix object or other matrices. This
-generic function delegates to
-[`diag`](https://rdrr.io/r/base/diag.html), `Matrix::diag`, or
-specialized S3 methods.
+Extract the diagonal of a pedmat object or other matrices. This generic
+function delegates to [`diag`](https://rdrr.io/r/base/diag.html),
+`Matrix::diag`, or specialized S3 methods.
 
 ## Usage
 
@@ -15,7 +14,7 @@ diag(x, ...)
 
 - x:
 
-  A matrix, vector, or `pedmatrix` object.
+  A matrix, vector, or `pedmat` object.
 
 - ...:
 

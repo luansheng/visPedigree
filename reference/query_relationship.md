@@ -1,6 +1,6 @@
 # Query Relationship Coefficients from a Pedigree Matrix
 
-Retrieves relationship coefficients between individuals from a pedmatrix
+Retrieves relationship coefficients between individuals from a pedmat
 object. For compact matrices, automatically handles lookup of merged
 full-siblings.
 
@@ -14,8 +14,8 @@ query_relationship(x, id1, id2 = NULL)
 
 - x:
 
-  A pedmatrix object created by
-  [`pedmatrix`](https://luansheng.github.io/visPedigree/reference/pedmatrix.md).
+  A pedmat object created by
+  [`pedmat`](https://luansheng.github.io/visPedigree/reference/pedmat.md).
 
 - id1:
 
@@ -55,14 +55,14 @@ coefficients.
 
 ## See also
 
-[`pedmatrix`](https://luansheng.github.io/visPedigree/reference/pedmatrix.md),
-[`expand_pedmatrix`](https://luansheng.github.io/visPedigree/reference/expand_pedmatrix.md)
+[`pedmat`](https://luansheng.github.io/visPedigree/reference/pedmat.md),
+[`expand_pedmat`](https://luansheng.github.io/visPedigree/reference/expand_pedmat.md)
 
 ## Examples
 
 ``` r
 tped <- tidyped(small_ped)
-A <- pedmatrix(tped, method = "A", compact = TRUE)
+A <- pedmat(tped, method = "A", compact = TRUE)
 
 # Query specific pair
 query_relationship(A, "A", "B")

@@ -30,6 +30,6 @@ This function takes a pedigree tidied by the
 function and calculates the inbreeding coefficients using optimized C++
 code based on the Meuwissen & Luo (1992) algorithm. It is the core
 engine used by both `tidyped(..., inbreed = TRUE)` and
-`pedmatrix(..., method = "f")`, ensuring consistent results across the
+`pedmat(..., method = "f")`, ensuring consistent results across the
 package. It is significantly faster than standard R implementations for
 large pedigrees.

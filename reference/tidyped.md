@@ -72,7 +72,7 @@ tidyped(
   A logical value indicating whether to calculate inbreeding
   coefficients. Default is FALSE. If TRUE, an **f** column is added to
   the output. This uses the same optimized engine as
-  `pedmatrix(..., method = "f")`.
+  `pedmat(..., method = "f")`.
 
 - genmethod:
 
@@ -114,7 +114,7 @@ bottom-up approach (aligning terminal nodes at the bottom).
 for summarizing tidyped objects
 [`visped`](https://luansheng.github.io/visPedigree/reference/visped.md)
 for visualizing pedigree structure
-[`pedmatrix`](https://luansheng.github.io/visPedigree/reference/pedmatrix.md)
+[`pedmat`](https://luansheng.github.io/visPedigree/reference/pedmat.md)
 for computing relationship matrices
 [`vismat`](https://luansheng.github.io/visPedigree/reference/vismat.md)
 for visualizing relationship matrices

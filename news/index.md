@@ -1,6 +1,17 @@
 # Changelog
 
-## Changes in version 1.0.0 released on 20 Jan 2026
+## Changes in version 1.0.0 released on 24 Jan 2026
+
+### API Standardization (BREAKING)
+
+To provide a clean and intuitive API for v1.0.0, core function names
+have been standardized following the “\[action\]\[obj\]” pattern: -
+**`pedmatrix`** is renamed to **`pedmat`**. - **`expand_pedmatrix`** is
+renamed to **`expand_pedmat`**. - **`summary_pedmatrix`** is renamed to
+**`summary_pedmat`**. - The parameter **`n_threads`** is standardized to
+**`threads`** across all functions. - Legacy function names
+(`pedmatrix`, etc.) are preserved as deprecated wrappers to ensure
+backward compatibility.
 
 ### New Features
 
@@ -19,14 +30,14 @@
     returns a list of re-indexed `tidyped` objects ready for separate
     analysis or visualization.
 3.  **Comprehensive Matrix Support**:
-    [`pedmatrix()`](https://luansheng.github.io/visPedigree/reference/pedmatrix.md)
-    now fully supports 6 types of genetic relationship matrices:
-    Additive (A, Ainv), Dominance (D, Dinv), and Additive-by-Additive
-    Epistatic (AA, AAinv).
+    [`pedmat()`](https://luansheng.github.io/visPedigree/reference/pedmat.md)
+    (formerly `pedmatrix`) now fully supports 6 types of genetic
+    relationship matrices: Additive (A, Ainv), Dominance (D, Dinv), and
+    Additive-by-Additive Epistatic (AA, AAinv).
 4.  **Relationship Matrix Visualization (`vismat`)**: Added
     [`vismat()`](https://luansheng.github.io/visPedigree/reference/vismat.md)
     function for visualizing relationship matrices (A, D, AA, etc.) with
-    heatmaps and histograms. It supports `pedmatrix` objects, `tidyped`
+    heatmaps and histograms. It supports `pedmat` objects, `tidyped`
     objects (auto-calculates A matrix), and standard matrices. Heatmaps
     can be annotated with family groups when a pedigree is provided.
 
@@ -47,21 +58,18 @@ This release marks the first stable version 1.0.0, polished for CRAN.
 
 ### New behavior (BREAKING)
 
-1.  **Simplified
-    [`pedmatrix()`](https://luansheng.github.io/visPedigree/reference/pedmatrix.md)
-    return and single-method enforcement**:
-    [`pedmatrix()`](https://luansheng.github.io/visPedigree/reference/pedmatrix.md)
-    now requires a single `method` argument (e.g., `method = "A").` When
-    a single method is requested, the function returns the corresponding
-    matrix or vector directly (not a named list). Requesting multiple
-    methods in one call will now raise an error. Use repeated calls for
-    multiple outputs.
+1.  **Simplified `pedmatrix()` return and single-method enforcement**:
+    `pedmatrix()` now requires a single `method` argument (e.g.,
+    `method = "A").` When a single method is requested, the function
+    returns the corresponding matrix or vector directly (not a named
+    list). Requesting multiple methods in one call will now raise an
+    error. Use repeated calls for multiple outputs.
 
 ### New features
 
 1.  **High-Performance Genetic Relationship Calculations**: Introduced
-    [`pedmatrix()`](https://luansheng.github.io/visPedigree/reference/pedmatrix.md)
-    function implemented in Rcpp for efficient computation of:
+    `pedmatrix()` function implemented in Rcpp for efficient computation
+    of:
     - Additive relationship matrix (A) using the tabular recursive
       algorithm.
     - Sparse inverse additive matrix (A-Inverse) using Henderson’s

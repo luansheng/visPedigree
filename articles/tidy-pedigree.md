@@ -410,8 +410,7 @@ inbreeding coefficients to a tidied pedigree:
     directly on a tidied pedigree to add the `f` column.
 
 Both options use the same high-performance engine as
-`pedmatrix(method = "f")`, ensuring consistent results across the
-package.
+`pedmat(method = "f")`, ensuring consistent results across the package.
 
 ``` r
 # Create a simple inbred pedigree

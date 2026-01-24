@@ -52,7 +52,7 @@ small_ped |>
 # Example 2: Relationship Matrices (v1.0.0+)
 # Compute the additive relationship matrix (A) using high-performance C++ algorithms.
 # Use compact = TRUE to accelerate calculation for pedigrees with large full-sib families.
-mat_a <- simple_ped |> tidyped() |> pedmatrix(method = "A", compact = TRUE)
+mat_a <- simple_ped |> tidyped() |> pedmat(method = "A", compact = TRUE)
 # Visualize the relationship matrix as a heatmap with histograms
 vismat(mat_a)
 
