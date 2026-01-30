@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">visPedigree</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -61,9 +61,9 @@
       <h1>1. How to tidy a pedigree</h1>
                         <h4 data-toc-skip class="author">Sheng Luan</h4>
             
-            <h4 data-toc-skip class="date">2026-01-24</h4>
+            <h4 data-toc-skip class="date">2026-01-30</h4>
       
-      <small class="dont-index">Source: <a href="https://github.com/luansheng/visPedigree/blob/v1.0.0/vignettes/tidy-pedigree.Rmd" class="external-link"><code>vignettes/tidy-pedigree.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/luansheng/visPedigree/blob/master/vignettes/tidy-pedigree.Rmd" class="external-link"><code>vignettes/tidy-pedigree.Rmd</code></a></small>
       <div class="d-none name"><code>tidy-pedigree.Rmd</code></div>
     </div>
 
@@ -211,7 +211,7 @@ appear after their offspring in the original data.</p>
 sire of <code>J2F588</code>, <code><a href="../reference/tidyped.html">tidyped()</a></code> will detect this
 bisexual conflict.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/copy.html" class="external-link">copy</a></span><span class="op">(</span><span class="va">simple_ped</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/copy.html" class="external-link">copy</a></span><span class="op">(</span><span class="va">simple_ped</span><span class="op">)</span></span>
 <span><span class="va">x</span><span class="op">[</span><span class="va">ID</span> <span class="op">==</span> <span class="st">"J2F588"</span>, <span class="va">Sire</span> <span class="op">:=</span> <span class="st">"J0Z167"</span><span class="op">]</span></span>
 <span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tidyped.html">tidyped</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #BBBB00; font-weight: bold;">Error</span><span style="font-weight: bold;">:</span></span></span>
@@ -276,7 +276,7 @@ automatically added to the tidied output.</p>
 <span><span class="co">#&gt; 4: J0Z475   &lt;NA&gt;   &lt;NA&gt;   male   &lt;NA&gt;          1</span></span>
 <span><span class="co">#&gt; 5: J0Z511   &lt;NA&gt;   &lt;NA&gt;   male   &lt;NA&gt;          1</span></span>
 <span><span class="co">#&gt; 6: J0Z664   &lt;NA&gt;   &lt;NA&gt;   male   &lt;NA&gt;          1</span></span></code></pre></div>
-<p>Once tidied, you can use <code><a href="https://rdatatable.gitlab.io/data.table/reference/fwrite.html" class="external-link">data.table::fwrite()</a></code> to export
+<p>Once tidied, you can use <code><a href="https://rdrr.io/pkg/data.table/man/fwrite.html" class="external-link">data.table::fwrite()</a></code> to export
 the pedigree for genetic evaluation software like ASReml.</p>
 </div>
 <div class="section level3">
@@ -303,10 +303,10 @@ genetic evaluations.</p>
 <p>When saving the pedigree, missing parents should typically be
 replaced with <code>0</code>.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">saved_ped</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/copy.html" class="external-link">copy</a></span><span class="op">(</span><span class="va">tidy_simple_ped</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">saved_ped</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/copy.html" class="external-link">copy</a></span><span class="op">(</span><span class="va">tidy_simple_ped</span><span class="op">)</span></span>
 <span><span class="va">saved_ped</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">Sire</span><span class="op">)</span>, <span class="va">Sire</span> <span class="op">:=</span> <span class="st">"0"</span><span class="op">]</span></span>
 <span><span class="va">saved_ped</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">Dam</span><span class="op">)</span>, <span class="va">Dam</span> <span class="op">:=</span> <span class="st">"0"</span><span class="op">]</span></span>
-<span><span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/fwrite.html" class="external-link">fwrite</a></span><span class="op">(</span></span>
+<span><span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/fwrite.html" class="external-link">fwrite</a></span><span class="op">(</span></span>
 <span>  x <span class="op">=</span> <span class="va">saved_ped</span>,</span>
 <span>  file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".csv"</span><span class="op">)</span>,</span>
 <span>  sep <span class="op">=</span> <span class="st">","</span>,</span>
@@ -448,7 +448,7 @@ the package.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Create a simple inbred pedigree</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span>
-<span><span class="va">test_ped</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span></span>
+<span><span class="va">test_ped</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a></span><span class="op">(</span></span>
 <span>  Ind <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span>, <span class="st">"D"</span>, <span class="st">"E"</span><span class="op">)</span>,</span>
 <span>  Sire <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span>, <span class="st">"A"</span>, <span class="st">"C"</span>, <span class="st">"C"</span><span class="op">)</span>,</span>
 <span>  Dam <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span>, <span class="st">"B"</span>, <span class="st">"B"</span>, <span class="st">"D"</span><span class="op">)</span>,</span>

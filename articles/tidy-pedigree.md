@@ -226,7 +226,7 @@ tidy_simple_ped_no_gen_num <-
 ```
 
 Once tidied, you can use
-[`data.table::fwrite()`](https://rdatatable.gitlab.io/data.table/reference/fwrite.html)
+[`data.table::fwrite()`](https://rdrr.io/pkg/data.table/man/fwrite.html)
 to export the pedigree for genetic evaluation software like ASReml.
 
 ### 3.2 Pedigree loop detection
