@@ -43,6 +43,8 @@
 <div class="section level3">
 <h3 id="bug-fixes-1-0-1">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-1-0-1"></a></h3>
 <ol style="list-style-type: decimal"><li>
+<strong>Generation Alignment Logic</strong>: Fixed <code>tidyped(..., genmethod = "bottom")</code> to prioritize <strong>Sibling Consistency</strong> (P1) over <strong>Mate Alignment</strong> (P2). This ensures that full siblings are always aligned to the same generation (specifically, the highest/earliest generation among them), preventing families from being split across generations when one sibling has a mate in a lower generation.</li>
+<li>
 <strong><code><a href="../reference/visped.html">visped()</a></code> edge highlighting</strong>: Fixed edge highlighting logic so relationship edges are only emphasized when <code>trace</code> is used. When <code>trace = FALSE</code>, only focal individuals are highlighted and all edges remain faded.</li>
 <li>
 <strong>Shared-parent/shared-child paths</strong>: Corrected edge highlighting for cases where a parent has multiple families or a family has multiple children, ensuring only traced paths are highlighted.</li>

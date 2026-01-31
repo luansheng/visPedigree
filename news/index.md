@@ -4,12 +4,19 @@
 
 ### Bug fixes
 
-1.  **[`visped()`](https://luansheng.github.io/visPedigree/reference/visped.md)
+1.  **Generation Alignment Logic**: Fixed
+    `tidyped(..., genmethod = "bottom")` to prioritize **Sibling
+    Consistency** (P1) over **Mate Alignment** (P2). This ensures that
+    full siblings are always aligned to the same generation
+    (specifically, the highest/earliest generation among them),
+    preventing families from being split across generations when one
+    sibling has a mate in a lower generation.
+2.  **[`visped()`](https://luansheng.github.io/visPedigree/reference/visped.md)
     edge highlighting**: Fixed edge highlighting logic so relationship
     edges are only emphasized when `trace` is used. When
     `trace = FALSE`, only focal individuals are highlighted and all
     edges remain faded.
-2.  **Shared-parent/shared-child paths**: Corrected edge highlighting
+3.  **Shared-parent/shared-child paths**: Corrected edge highlighting
     for cases where a parent has multiple families or a family has
     multiple children, ensuring only traced paths are highlighted.
 
