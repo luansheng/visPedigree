@@ -206,8 +206,34 @@
 <ul><li>
 <strong>唯一数值编码 (<code>addnum</code>)</strong>：为每个个体分配唯一的整型 ID（<code>IndNum</code>, <code>SireNum</code>, <code>DamNum</code>），这在处理百万级数据时能显著提升后续计算的速度。</li>
 <li>
-<strong>近交系数计算 (<code>inbreed</code>)</strong>：集成高效算法（基于 <code>nadiv</code> 等后端），在整理数据的同时计算每个个体的近交系数 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>f</mi><annotation encoding="application/x-tex">f</annotation></semantics></math>。</li>
-</ul></div>
+<strong>近交系数计算 (<code>inbreed</code>)</strong>：集成高效算法（基于 <code>nadiv</code> 等后端），在整理数据的同时计算每个个体的近交系数 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>f</mi><annotation encoding="application/x-tex">f</annotation></semantics></math>。 ### 7.6 世代分配与对齐优先级原则 (Generation Alignment Principles) 确定个体的代数（Generation Number）是系谱整理中最核心也最复杂的环节。<code>tidyped(genmethod = "bottom")</code> 遵循以下严谨的<strong>优先级层级（Hierarchy of Principles）</strong>，以解决由于数据缺失或跨代繁殖引发的布局冲突：</li>
+</ul><ol style="list-style-type: decimal"><li>
+<strong>第一优先级：拓扑铁律 (P0: Topological Imperative)</strong>
+<ul><li>
+<strong>原则</strong>：<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mtext mathvariant="normal">Gen</mtext><mtext mathvariant="normal">parent</mtext></msub><mo>&lt;</mo><msub><mtext mathvariant="normal">Gen</mtext><mtext mathvariant="normal">offspring</mtext></msub></mrow><annotation encoding="application/x-tex">\text{Gen}_{\text{parent}} &lt; \text{Gen}_{\text{offspring}}</annotation></semantics></math></li>
+<li>
+<strong>描述</strong>：这是生物学的绝对限制。无论视觉优化算法如何调整，父母的代数必须严格小于子女的代数。这是最高优先级的“硬约束”（Hard Constraint）。任何违反此原则的对齐尝试都会被系统拒绝。</li>
+</ul></li>
+<li>
+<strong>第二优先级：同胞一致性 (P1: Sibling Consistency)</strong>
+<ul><li>
+<strong>原则</strong>：全同胞（Full Siblings）应对齐到同一代，具体位置取家族中代数数值最小（最靠上）的基准。</li>
+<li>
+<strong>描述</strong>：全同胞是定义世代的基准锚点。即使某个体没有后代（通常会导致其在 Bottom-up 模式中下沉），只要其同胞有后代，该个体也会被“拉升（Pull Up）”至同胞所在的较高世代。</li>
+<li>
+<strong>核心价值</strong>：防止因个别同胞缺乏后代数据而导致家族在视觉上分崩离析。</li>
+</ul></li>
+<li>
+<strong>第三优先级：配偶对齐 (P2: Spousal Alignment)</strong>
+<ul><li>
+<strong>原则</strong>：若不违反 P0 和 P1，配偶双方应尽可能对齐到同一代。调整方向通常是“向下就低（Push Down）”。</li>
+<li>
+<strong>描述</strong>：如果父本在 Gen 3，母本在 Gen 5，系统会尝试将父本“推降”至 Gen 5 以形成水平的配种线。</li>
+<li>
+<strong>限制</strong>：此优化是“软约束”。如果推降父本会导致其撞到子女的代数（违反 P0），或者导致其与亲兄弟分层（违反 P1），则此原则会让步。</li>
+</ul></li>
+</ol><p><strong>总结</strong>：<code>visPedigree</code> 的算法设计哲学是——<strong>“血缘（同胞）重于婚姻（配偶）”</strong>。我们优先保证家族内部结构的整齐（P1），在这之后才考虑夫妻关系的水平对齐（P2），而所有这一切都必须在不违背生物学逻辑（P0）的前提下进行。 …existing code…</p>
+</div>
 </div>
 </div>
 
