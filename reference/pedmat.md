@@ -227,38 +227,38 @@ summary_pedmat(A)   # Detailed matrix statistics
 # --- Accessing Metadata ---
 attr(A, "ped")              # Original pedigree
 #> Tidy Pedigree Object
-#>        Ind   Sire    Dam   Gen    Sex IndNum SireNum DamNum Family FamilySize
-#>     <char> <char> <char> <int> <char>  <int>   <int>  <int> <char>      <int>
-#>  1:      A   <NA>   <NA>     1   male      1       0      0   <NA>          1
-#>  2:      B   <NA>   <NA>     1 female      2       0      0   <NA>          1
-#>  3:      F   <NA>   <NA>     1 female      3       0      0   <NA>          1
-#>  4:      I   <NA>   <NA>     1 female      4       0      0   <NA>          1
-#>  5:     J1   <NA>   <NA>     1 female      5       0      0   <NA>          1
-#>  6:     J2   <NA>   <NA>     1   male      6       0      0   <NA>          1
-#>  7:      N   <NA>   <NA>     1   male      7       0      0   <NA>          1
-#>  8:      O   <NA>   <NA>     1 female      8       0      0   <NA>          1
-#>  9:      R   <NA>   <NA>     1   male      9       0      0   <NA>          1
-#> 10:      C      A      B     2 female     10       1      2    AxB          3
-#> 11:      D      A      B     2   <NA>     11       1      2    AxB          3
-#> 12:      E      A      B     2   male     12       1      2    AxB          3
-#> 13:      P      N      O     2   <NA>     13       7      8    NxO          2
-#> 14:      Q      N      O     2   male     14       7      8    NxO          2
-#> 15:      G      E      F     3 female     15      12      3    ExF          2
-#> 16:      H      E      F     3   male     16      12      3    ExF          2
-#> 17:      K     J2      C     3 female     17       6     10   J2xC          3
-#> 18:      L     J2      C     3   <NA>     18       6     10   J2xC          3
-#> 19:      M     J2      C     3   male     19       6     10   J2xC          3
-#> 20:      S      Q     J1     3   <NA>     20      14      5   QxJ1          2
-#> 21:      T      Q     J1     3   male     21      14      5   QxJ1          2
-#> 22:      U      T      K     4   male     22      21     17    TxK          1
-#> 23:      V      M      G     4 female     23      19     15    MxG          1
-#> 24:      W      H      I     4 female     24      16      4    HxI          1
-#> 25:      X      U      V     5 female     25      22     23    UxV          1
-#> 26:      Y      R      W     5   <NA>     26       9     24    RxW          1
-#> 27:     Z1      N      X     6   <NA>     27       7     25    NxX          2
-#> 28:     Z2      N      X     6   <NA>     28       7     25    NxX          2
-#>        Ind   Sire    Dam   Gen    Sex IndNum SireNum DamNum Family FamilySize
-#>     <char> <char> <char> <int> <char>  <int>   <int>  <int> <char>      <int>
+#>        Ind   Sire    Dam Family FamilySize   Gen    Sex IndNum SireNum DamNum
+#>     <char> <char> <char> <char>      <int> <int> <char>  <int>   <int>  <int>
+#>  1:      A   <NA>   <NA>   <NA>          1     1   male      1       0      0
+#>  2:      B   <NA>   <NA>   <NA>          1     1 female      2       0      0
+#>  3:      F   <NA>   <NA>   <NA>          1     1 female      3       0      0
+#>  4:      I   <NA>   <NA>   <NA>          1     1 female      4       0      0
+#>  5:     J1   <NA>   <NA>   <NA>          1     1 female      5       0      0
+#>  6:     J2   <NA>   <NA>   <NA>          1     1   male      6       0      0
+#>  7:      N   <NA>   <NA>   <NA>          1     1   male      7       0      0
+#>  8:      O   <NA>   <NA>   <NA>          1     1 female      8       0      0
+#>  9:      R   <NA>   <NA>   <NA>          1     1   male      9       0      0
+#> 10:      C      A      B    AxB          3     2 female     10       1      2
+#> 11:      D      A      B    AxB          3     2   <NA>     11       1      2
+#> 12:      E      A      B    AxB          3     2   male     12       1      2
+#> 13:      P      N      O    NxO          2     2   <NA>     13       7      8
+#> 14:      Q      N      O    NxO          2     2   male     14       7      8
+#> 15:      G      E      F    ExF          2     3 female     15      12      3
+#> 16:      H      E      F    ExF          2     3   male     16      12      3
+#> 17:      K     J2      C   J2xC          3     3 female     17       6     10
+#> 18:      L     J2      C   J2xC          3     3   <NA>     18       6     10
+#> 19:      M     J2      C   J2xC          3     3   male     19       6     10
+#> 20:      S      Q     J1   QxJ1          2     3   <NA>     20      14      5
+#> 21:      T      Q     J1   QxJ1          2     3   male     21      14      5
+#> 22:      U      T      K    TxK          1     4   male     22      21     17
+#> 23:      V      M      G    MxG          1     4 female     23      19     15
+#> 24:      W      H      I    HxI          1     4 female     24      16      4
+#> 25:      X      U      V    UxV          1     5 female     25      22     23
+#> 26:      Y      R      W    RxW          1     5   <NA>     26       9     24
+#> 27:     Z1      N      X    NxX          2     6   <NA>     27       7     25
+#> 28:     Z2      N      X    NxX          2     6   <NA>     28       7     25
+#>        Ind   Sire    Dam Family FamilySize   Gen    Sex IndNum SireNum DamNum
+#>     <char> <char> <char> <char>      <int> <int> <char>  <int>   <int>  <int>
 attr(A, "method")           # "A"
 #> [1] "A"
 names(attributes(A))        # All available attributes

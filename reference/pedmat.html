@@ -205,38 +205,38 @@ Biometrics, 32(1), 69-83.</p>
 <span class="r-in"><span><span class="co"># --- Accessing Metadata ---</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">A</span>, <span class="st">"ped"</span><span class="op">)</span>              <span class="co"># Original pedigree</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Tidy Pedigree Object</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        Ind   Sire    Dam   Gen    Sex IndNum SireNum DamNum Family FamilySize</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;int&gt; &lt;char&gt;  &lt;int&gt;   &lt;int&gt;  &lt;int&gt; &lt;char&gt;      &lt;int&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  1:      A   &lt;NA&gt;   &lt;NA&gt;     1   male      1       0      0   &lt;NA&gt;          1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  2:      B   &lt;NA&gt;   &lt;NA&gt;     1 female      2       0      0   &lt;NA&gt;          1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  3:      F   &lt;NA&gt;   &lt;NA&gt;     1 female      3       0      0   &lt;NA&gt;          1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  4:      I   &lt;NA&gt;   &lt;NA&gt;     1 female      4       0      0   &lt;NA&gt;          1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  5:     J1   &lt;NA&gt;   &lt;NA&gt;     1 female      5       0      0   &lt;NA&gt;          1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  6:     J2   &lt;NA&gt;   &lt;NA&gt;     1   male      6       0      0   &lt;NA&gt;          1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  7:      N   &lt;NA&gt;   &lt;NA&gt;     1   male      7       0      0   &lt;NA&gt;          1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  8:      O   &lt;NA&gt;   &lt;NA&gt;     1 female      8       0      0   &lt;NA&gt;          1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  9:      R   &lt;NA&gt;   &lt;NA&gt;     1   male      9       0      0   &lt;NA&gt;          1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10:      C      A      B     2 female     10       1      2    AxB          3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11:      D      A      B     2   &lt;NA&gt;     11       1      2    AxB          3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12:      E      A      B     2   male     12       1      2    AxB          3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 13:      P      N      O     2   &lt;NA&gt;     13       7      8    NxO          2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 14:      Q      N      O     2   male     14       7      8    NxO          2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 15:      G      E      F     3 female     15      12      3    ExF          2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 16:      H      E      F     3   male     16      12      3    ExF          2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 17:      K     J2      C     3 female     17       6     10   J2xC          3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 18:      L     J2      C     3   &lt;NA&gt;     18       6     10   J2xC          3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 19:      M     J2      C     3   male     19       6     10   J2xC          3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 20:      S      Q     J1     3   &lt;NA&gt;     20      14      5   QxJ1          2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 21:      T      Q     J1     3   male     21      14      5   QxJ1          2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 22:      U      T      K     4   male     22      21     17    TxK          1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 23:      V      M      G     4 female     23      19     15    MxG          1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 24:      W      H      I     4 female     24      16      4    HxI          1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 25:      X      U      V     5 female     25      22     23    UxV          1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 26:      Y      R      W     5   &lt;NA&gt;     26       9     24    RxW          1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 27:     Z1      N      X     6   &lt;NA&gt;     27       7     25    NxX          2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 28:     Z2      N      X     6   &lt;NA&gt;     28       7     25    NxX          2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        Ind   Sire    Dam   Gen    Sex IndNum SireNum DamNum Family FamilySize</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;int&gt; &lt;char&gt;  &lt;int&gt;   &lt;int&gt;  &lt;int&gt; &lt;char&gt;      &lt;int&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        Ind   Sire    Dam Family FamilySize   Gen    Sex IndNum SireNum DamNum</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;char&gt;      &lt;int&gt; &lt;int&gt; &lt;char&gt;  &lt;int&gt;   &lt;int&gt;  &lt;int&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1:      A   &lt;NA&gt;   &lt;NA&gt;   &lt;NA&gt;          1     1   male      1       0      0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  2:      B   &lt;NA&gt;   &lt;NA&gt;   &lt;NA&gt;          1     1 female      2       0      0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  3:      F   &lt;NA&gt;   &lt;NA&gt;   &lt;NA&gt;          1     1 female      3       0      0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  4:      I   &lt;NA&gt;   &lt;NA&gt;   &lt;NA&gt;          1     1 female      4       0      0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  5:     J1   &lt;NA&gt;   &lt;NA&gt;   &lt;NA&gt;          1     1 female      5       0      0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  6:     J2   &lt;NA&gt;   &lt;NA&gt;   &lt;NA&gt;          1     1   male      6       0      0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  7:      N   &lt;NA&gt;   &lt;NA&gt;   &lt;NA&gt;          1     1   male      7       0      0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  8:      O   &lt;NA&gt;   &lt;NA&gt;   &lt;NA&gt;          1     1 female      8       0      0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  9:      R   &lt;NA&gt;   &lt;NA&gt;   &lt;NA&gt;          1     1   male      9       0      0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10:      C      A      B    AxB          3     2 female     10       1      2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11:      D      A      B    AxB          3     2   &lt;NA&gt;     11       1      2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12:      E      A      B    AxB          3     2   male     12       1      2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13:      P      N      O    NxO          2     2   &lt;NA&gt;     13       7      8</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14:      Q      N      O    NxO          2     2   male     14       7      8</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15:      G      E      F    ExF          2     3 female     15      12      3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16:      H      E      F    ExF          2     3   male     16      12      3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17:      K     J2      C   J2xC          3     3 female     17       6     10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18:      L     J2      C   J2xC          3     3   &lt;NA&gt;     18       6     10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19:      M     J2      C   J2xC          3     3   male     19       6     10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20:      S      Q     J1   QxJ1          2     3   &lt;NA&gt;     20      14      5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 21:      T      Q     J1   QxJ1          2     3   male     21      14      5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 22:      U      T      K    TxK          1     4   male     22      21     17</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 23:      V      M      G    MxG          1     4 female     23      19     15</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 24:      W      H      I    HxI          1     4 female     24      16      4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 25:      X      U      V    UxV          1     5 female     25      22     23</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 26:      Y      R      W    RxW          1     5   &lt;NA&gt;     26       9     24</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 27:     Z1      N      X    NxX          2     6   &lt;NA&gt;     27       7     25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 28:     Z2      N      X    NxX          2     6   &lt;NA&gt;     28       7     25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        Ind   Sire    Dam Family FamilySize   Gen    Sex IndNum SireNum DamNum</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;char&gt;      &lt;int&gt; &lt;int&gt; &lt;char&gt;  &lt;int&gt;   &lt;int&gt;  &lt;int&gt;</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">A</span>, <span class="st">"method"</span><span class="op">)</span>           <span class="co"># "A"</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "A"</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/attributes.html" class="external-link">attributes</a></span><span class="op">(</span><span class="va">A</span><span class="op">)</span><span class="op">)</span>        <span class="co"># All available attributes</span></span></span>

@@ -166,32 +166,32 @@ parents precede their offspring, and adds missing founders.
 tidy_simple_ped <- tidyped(simple_ped)
 head(tidy_simple_ped)
 #> Tidy Pedigree Object
-#>       Ind   Sire    Dam    Sex   Gen IndNum SireNum DamNum Family FamilySize
-#>    <char> <char> <char> <char> <int>  <int>   <int>  <int> <char>      <int>
-#> 1: J0C032   <NA>   <NA> female     1      1       0      0   <NA>          1
-#> 2: J0C185   <NA>   <NA> female     1      2       0      0   <NA>          1
-#> 3: J0C231   <NA>   <NA> female     1      3       0      0   <NA>          1
-#> 4: J0C317   <NA>   <NA>   male     1      4       0      0   <NA>          1
-#> 5: J0C355   <NA>   <NA> female     1      5       0      0   <NA>          1
-#> 6: J0C450   <NA>   <NA> female     1      6       0      0   <NA>          1
+#>       Ind   Sire    Dam    Sex Family FamilySize   Gen IndNum SireNum DamNum
+#>    <char> <char> <char> <char> <char>      <int> <int>  <int>   <int>  <int>
+#> 1: J0C032   <NA>   <NA> female   <NA>          1     1      1       0      0
+#> 2: J0C185   <NA>   <NA> female   <NA>          1     1      2       0      0
+#> 3: J0C231   <NA>   <NA> female   <NA>          1     1      3       0      0
+#> 4: J0C317   <NA>   <NA>   male   <NA>          1     1      4       0      0
+#> 5: J0C355   <NA>   <NA> female   <NA>          1     1      5       0      0
+#> 6: J0C450   <NA>   <NA> female   <NA>          1     1      6       0      0
 tail(tidy_simple_ped)
 #> Tidy Pedigree Object
-#>       Ind   Sire    Dam    Sex   Gen IndNum SireNum DamNum        Family
-#>    <char> <char> <char> <char> <int>  <int>   <int>  <int>        <char>
-#> 1: J3X697 J2Z903   <NA> female     4     54      52      0          <NA>
-#> 2: J3Y620 J2C161 J2Z411   male     4     55      45     51 J2C161xJ2Z411
-#> 3: J3Y771 J2G465 J2X544 female     4     56      48     49 J2G465xJ2X544
-#> 4: J4E185 J3L886 J3X697 female     5     57      53     54 J3L886xJ3X697
-#> 5: J4Y326 J3Y620 J3Y771   male     5     58      55     56 J3Y620xJ3Y771
-#> 6: J5X804 J4Y326 J4E185 female     6     59      58     57 J4Y326xJ4E185
-#>    FamilySize
-#>         <int>
-#> 1:          1
-#> 2:          1
-#> 3:          1
-#> 4:          1
-#> 5:          1
-#> 6:          1
+#>       Ind   Sire    Dam    Sex        Family FamilySize   Gen IndNum SireNum
+#>    <char> <char> <char> <char>        <char>      <int> <int>  <int>   <int>
+#> 1: J3X697 J2Z903   <NA> female          <NA>          1     4     54      52
+#> 2: J3Y620 J2C161 J2Z411   male J2C161xJ2Z411          1     4     55      45
+#> 3: J3Y771 J2G465 J2X544 female J2G465xJ2X544          1     4     56      48
+#> 4: J4E185 J3L886 J3X697 female J3L886xJ3X697          1     5     57      53
+#> 5: J4Y326 J3Y620 J3Y771   male J3Y620xJ3Y771          1     5     58      55
+#> 6: J5X804 J4Y326 J4E185 female J4Y326xJ4E185          1     6     59      58
+#>    DamNum
+#>     <int>
+#> 1:      0
+#> 2:     51
+#> 3:     49
+#> 4:     54
+#> 5:     56
+#> 6:     57
 nrow(tidy_simple_ped)
 #> [1] 59
 ```
@@ -425,13 +425,13 @@ test_ped <- data.table(
 tidy_test <- tidyped(test_ped, inbreed = TRUE)
 head(tidy_test)
 #> Tidy Pedigree Object
-#>       Ind   Sire    Dam    Sex   Gen IndNum SireNum DamNum Family FamilySize
-#>    <char> <char> <char> <char> <int>  <int>   <int>  <int> <char>      <int>
-#> 1:      A   <NA>   <NA>   male     1      1       0      0   <NA>          1
-#> 2:      B   <NA>   <NA> female     1      2       0      0   <NA>          1
-#> 3:      C      A      B   male     2      3       1      2    AxB          1
-#> 4:      D      C      B female     3      4       3      2    CxB          1
-#> 5:      E      C      D   male     4      5       3      4    CxD          1
+#>       Ind   Sire    Dam    Sex Family FamilySize   Gen IndNum SireNum DamNum
+#>    <char> <char> <char> <char> <char>      <int> <int>  <int>   <int>  <int>
+#> 1:      A   <NA>   <NA>   male   <NA>          1     1      1       0      0
+#> 2:      B   <NA>   <NA> female   <NA>          1     1      2       0      0
+#> 3:      C      A      B   male    AxB          1     2      3       1      2
+#> 4:      D      C      B female    CxB          1     3      4       3      2
+#> 5:      E      C      D   male    CxD          1     4      5       3      4
 #>        f
 #>    <num>
 #> 1: 0.000
@@ -466,23 +466,23 @@ provides two methods for assigning generation numbers via the
 tidy_top <- tidyped(simple_ped, genmethod = "top")
 tidy_top[Ind == "J2Y434"]
 #> Tidy Pedigree Object
-#>       Ind   Sire    Dam    Sex   Gen IndNum SireNum DamNum        Family
-#>    <char> <char> <char> <char> <int>  <int>   <int>  <int>        <char>
-#> 1: J2Y434 J1C802 J1H419 female     3     50      29     34 J1C802xJ1H419
-#>    FamilySize
-#>         <int>
-#> 1:          1
+#>       Ind   Sire    Dam    Sex        Family FamilySize   Gen IndNum SireNum
+#>    <char> <char> <char> <char>        <char>      <int> <int>  <int>   <int>
+#> 1: J2Y434 J1C802 J1H419 female J1C802xJ1H419          1     3     50      29
+#>    DamNum
+#>     <int>
+#> 1:     34
 
 # Bottom-Up behavior: J2Y434 is at Gen 6
 tidy_bottom <- tidyped(simple_ped, genmethod = "bottom")
 tidy_bottom[Ind == "J2Y434"]
 #> Tidy Pedigree Object
-#>       Ind   Sire    Dam    Sex   Gen IndNum SireNum DamNum        Family
-#>    <char> <char> <char> <char> <int>  <int>   <int>  <int>        <char>
-#> 1: J2Y434 J1C802 J1H419 female     6     58      53     54 J1C802xJ1H419
-#>    FamilySize
-#>         <int>
-#> 1:          1
+#>       Ind   Sire    Dam    Sex        Family FamilySize   Gen IndNum SireNum
+#>    <char> <char> <char> <char>        <char>      <int> <int>  <int>   <int>
+#> 1: J2Y434 J1C802 J1H419 female J1C802xJ1H419          1     6     58      53
+#>    DamNum
+#>     <int>
+#> 1:     54
 ```
 
 ### 3.7 Summarizing the pedigree

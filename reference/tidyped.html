@@ -125,35 +125,35 @@
 <span class="r-in"><span><span class="va">tidy_ped</span> <span class="op">&lt;-</span> <span class="fu">tidyped</span><span class="op">(</span><span class="va">simple_ped</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">tidy_ped</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Tidy Pedigree Object</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       Ind   Sire    Dam    Sex   Gen IndNum SireNum DamNum Family FamilySize</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;int&gt;  &lt;int&gt;   &lt;int&gt;  &lt;int&gt; &lt;char&gt;      &lt;int&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1: J0C032   &lt;NA&gt;   &lt;NA&gt; female     1      1       0      0   &lt;NA&gt;          1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2: J0C185   &lt;NA&gt;   &lt;NA&gt; female     1      2       0      0   &lt;NA&gt;          1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3: J0C231   &lt;NA&gt;   &lt;NA&gt; female     1      3       0      0   &lt;NA&gt;          1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4: J0C317   &lt;NA&gt;   &lt;NA&gt;   male     1      4       0      0   &lt;NA&gt;          1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5: J0C355   &lt;NA&gt;   &lt;NA&gt; female     1      5       0      0   &lt;NA&gt;          1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6: J0C450   &lt;NA&gt;   &lt;NA&gt; female     1      6       0      0   &lt;NA&gt;          1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       Ind   Sire    Dam    Sex Family FamilySize   Gen IndNum SireNum DamNum</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;char&gt;      &lt;int&gt; &lt;int&gt;  &lt;int&gt;   &lt;int&gt;  &lt;int&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1: J0C032   &lt;NA&gt;   &lt;NA&gt; female   &lt;NA&gt;          1     1      1       0      0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2: J0C185   &lt;NA&gt;   &lt;NA&gt; female   &lt;NA&gt;          1     1      2       0      0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3: J0C231   &lt;NA&gt;   &lt;NA&gt; female   &lt;NA&gt;          1     1      3       0      0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4: J0C317   &lt;NA&gt;   &lt;NA&gt;   male   &lt;NA&gt;          1     1      4       0      0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5: J0C355   &lt;NA&gt;   &lt;NA&gt; female   &lt;NA&gt;          1     1      5       0      0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6: J0C450   &lt;NA&gt;   &lt;NA&gt; female   &lt;NA&gt;          1     1      6       0      0</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Trace ancestors of a specific individual within 2 generations</span></span></span>
 <span class="r-in"><span><span class="va">tidy_ped_tracegen</span> <span class="op">&lt;-</span> <span class="fu">tidyped</span><span class="op">(</span><span class="va">simple_ped</span>, cand <span class="op">=</span> <span class="st">"J5X804"</span>, trace <span class="op">=</span> <span class="st">"up"</span>, tracegen <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">tidy_ped_tracegen</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Tidy Pedigree Object</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       Ind   Sire    Dam    Sex   Gen IndNum SireNum DamNum        Family</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;int&gt;  &lt;int&gt;   &lt;int&gt;  &lt;int&gt;        &lt;char&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1: J3L886   &lt;NA&gt;   &lt;NA&gt;   male     1      1       0      0          &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2: J3X697   &lt;NA&gt;   &lt;NA&gt; female     1      2       0      0          &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3: J3Y620   &lt;NA&gt;   &lt;NA&gt;   male     1      3       0      0          &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4: J3Y771   &lt;NA&gt;   &lt;NA&gt; female     1      4       0      0          &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5: J4E185 J3L886 J3X697 female     2      5       1      2 J3L886xJ3X697</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6: J4Y326 J3Y620 J3Y771   male     2      6       3      4 J3Y620xJ3Y771</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    FamilySize   Cand</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         &lt;int&gt; &lt;lgcl&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1:          1  FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2:          1  FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3:          1  FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4:          1  FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5:          1  FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6:          1  FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       Ind   Sire    Dam    Sex        Family FamilySize   Gen IndNum SireNum</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;char&gt;        &lt;char&gt;      &lt;int&gt; &lt;int&gt;  &lt;int&gt;   &lt;int&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1: J3L886   &lt;NA&gt;   &lt;NA&gt;   male          &lt;NA&gt;          1     1      1       0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2: J3X697   &lt;NA&gt;   &lt;NA&gt; female          &lt;NA&gt;          1     1      2       0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3: J3Y620   &lt;NA&gt;   &lt;NA&gt;   male          &lt;NA&gt;          1     1      3       0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4: J3Y771   &lt;NA&gt;   &lt;NA&gt; female          &lt;NA&gt;          1     1      4       0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5: J4E185 J3L886 J3X697 female J3L886xJ3X697          1     2      5       1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6: J4Y326 J3Y620 J3Y771   male J3Y620xJ3Y771          1     2      6       3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    DamNum   Cand</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     &lt;int&gt; &lt;lgcl&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1:      0  FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2:      0  FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3:      0  FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4:      0  FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5:      2  FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6:      4  FALSE</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Trace both ancestors and descendants for multiple candidates</span></span></span>
 <span class="r-in"><span><span class="co"># This is highly optimized and works quickly even on 100k+ individuals</span></span></span>

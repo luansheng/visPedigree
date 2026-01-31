@@ -252,14 +252,14 @@ big_ped_tidy <- tidyped(big_family_size_ped, cand = cand_labels, trace = "up", t
 # Use compact = TRUE for large families
 visped(big_ped_tidy, compact = TRUE, file = tempfile(fileext = ".pdf"))
 #> Note: Removed 351 isolated individuals (no parents, no progeny) from the plot.
-#> Pedigree saved to: /tmp/RtmpN5od0y/file1c9667f4422.pdf
+#> Pedigree saved to: /tmp/Rtmp2Zm2td/file1d3e4b262668.pdf
 #> Label cex: 0.65. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 
 
 # Use outline = TRUE if individual labels are not required
 visped(big_ped_tidy, compact = TRUE, outline = TRUE, file = tempfile(fileext = ".pdf"))
 #> Note: Removed 351 isolated individuals (no parents, no progeny) from the plot.
-#> Pedigree saved to: /tmp/RtmpN5od0y/file1c9668c0af71.pdf
+#> Pedigree saved to: /tmp/Rtmp2Zm2td/file1d3e8636a89.pdf
 
 # }
 ```

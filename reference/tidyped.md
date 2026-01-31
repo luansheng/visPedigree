@@ -133,35 +133,35 @@ library(data.table)
 tidy_ped <- tidyped(simple_ped)
 head(tidy_ped)
 #> Tidy Pedigree Object
-#>       Ind   Sire    Dam    Sex   Gen IndNum SireNum DamNum Family FamilySize
-#>    <char> <char> <char> <char> <int>  <int>   <int>  <int> <char>      <int>
-#> 1: J0C032   <NA>   <NA> female     1      1       0      0   <NA>          1
-#> 2: J0C185   <NA>   <NA> female     1      2       0      0   <NA>          1
-#> 3: J0C231   <NA>   <NA> female     1      3       0      0   <NA>          1
-#> 4: J0C317   <NA>   <NA>   male     1      4       0      0   <NA>          1
-#> 5: J0C355   <NA>   <NA> female     1      5       0      0   <NA>          1
-#> 6: J0C450   <NA>   <NA> female     1      6       0      0   <NA>          1
+#>       Ind   Sire    Dam    Sex Family FamilySize   Gen IndNum SireNum DamNum
+#>    <char> <char> <char> <char> <char>      <int> <int>  <int>   <int>  <int>
+#> 1: J0C032   <NA>   <NA> female   <NA>          1     1      1       0      0
+#> 2: J0C185   <NA>   <NA> female   <NA>          1     1      2       0      0
+#> 3: J0C231   <NA>   <NA> female   <NA>          1     1      3       0      0
+#> 4: J0C317   <NA>   <NA>   male   <NA>          1     1      4       0      0
+#> 5: J0C355   <NA>   <NA> female   <NA>          1     1      5       0      0
+#> 6: J0C450   <NA>   <NA> female   <NA>          1     1      6       0      0
 
 # Trace ancestors of a specific individual within 2 generations
 tidy_ped_tracegen <- tidyped(simple_ped, cand = "J5X804", trace = "up", tracegen = 2)
 head(tidy_ped_tracegen)
 #> Tidy Pedigree Object
-#>       Ind   Sire    Dam    Sex   Gen IndNum SireNum DamNum        Family
-#>    <char> <char> <char> <char> <int>  <int>   <int>  <int>        <char>
-#> 1: J3L886   <NA>   <NA>   male     1      1       0      0          <NA>
-#> 2: J3X697   <NA>   <NA> female     1      2       0      0          <NA>
-#> 3: J3Y620   <NA>   <NA>   male     1      3       0      0          <NA>
-#> 4: J3Y771   <NA>   <NA> female     1      4       0      0          <NA>
-#> 5: J4E185 J3L886 J3X697 female     2      5       1      2 J3L886xJ3X697
-#> 6: J4Y326 J3Y620 J3Y771   male     2      6       3      4 J3Y620xJ3Y771
-#>    FamilySize   Cand
-#>         <int> <lgcl>
-#> 1:          1  FALSE
-#> 2:          1  FALSE
-#> 3:          1  FALSE
-#> 4:          1  FALSE
-#> 5:          1  FALSE
-#> 6:          1  FALSE
+#>       Ind   Sire    Dam    Sex        Family FamilySize   Gen IndNum SireNum
+#>    <char> <char> <char> <char>        <char>      <int> <int>  <int>   <int>
+#> 1: J3L886   <NA>   <NA>   male          <NA>          1     1      1       0
+#> 2: J3X697   <NA>   <NA> female          <NA>          1     1      2       0
+#> 3: J3Y620   <NA>   <NA>   male          <NA>          1     1      3       0
+#> 4: J3Y771   <NA>   <NA> female          <NA>          1     1      4       0
+#> 5: J4E185 J3L886 J3X697 female J3L886xJ3X697          1     2      5       1
+#> 6: J4Y326 J3Y620 J3Y771   male J3Y620xJ3Y771          1     2      6       3
+#>    DamNum   Cand
+#>     <int> <lgcl>
+#> 1:      0  FALSE
+#> 2:      0  FALSE
+#> 3:      0  FALSE
+#> 4:      0  FALSE
+#> 5:      2  FALSE
+#> 6:      4  FALSE
 
 # Trace both ancestors and descendants for multiple candidates
 # This is highly optimized and works quickly even on 100k+ individuals
