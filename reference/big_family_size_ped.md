@@ -11,7 +11,7 @@ big_family_size_ped
 
 ## Format
 
-A data.table with 7 columns:
+A data.table with 8 columns:
 
 - Ind:
 

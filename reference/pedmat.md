@@ -63,8 +63,18 @@ pedmat(
 
 - threads:
 
-  Integer, reserved for future parallel support. Currently the C++
-  implementation uses all available cores automatically.
+  Integer. Number of OpenMP threads to use. Use 0 to keep the
+  system/default setting. Currently, multi-threading is explicitly
+  implemented for:
+
+  - `"D"`: Dominance relationship matrix (significant speedup).
+
+  - `"Ainv"`: Inverse of A (only for large pedigrees, n \>= 5000).
+
+  For `"Dinv"`, `"AA"`, and `"AAinv"`, parallelism depends on the linked
+  BLAS/LAPACK library (e.g., OpenBLAS, MKL, Accelerate) and is not
+  controlled by this parameter. Methods `"A"` and `"f"` are
+  single-threaded.
 
 - compact:
 
@@ -220,7 +230,7 @@ summary_pedmat(A)   # Detailed matrix statistics
 #> Calculated Size: 28  individuals
 #> 
 #> Matrix Properties:
-#> - Mean relationship:  0.352409 
+#> - Mean off-diagonal relationship:  NA 
 #> - Density (non-zero): 54.08%
 #> ========================================
 

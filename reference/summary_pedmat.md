@@ -44,7 +44,7 @@ summary_pedmat(A)
 #> Calculated Size: 28  individuals
 #> 
 #> Matrix Properties:
-#> - Mean relationship:  0.352409 
+#> - Mean off-diagonal relationship:  NA 
 #> - Density (non-zero): 54.08%
 #> ========================================
 ```

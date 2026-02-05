@@ -39,7 +39,7 @@ Uses Rcpp with Meuwissen &amp;amp; Luo (1992) algorithm for efficient computatio
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Genetic Relationship Matrices and Inbreeding Coefficients</h1>
-      <small class="dont-index">Source: <a href="https://github.com/luansheng/visPedigree/blob/v1.0.1/R/pedmatrix.R" class="external-link"><code>R/pedmatrix.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/luansheng/visPedigree/blob/master/R/pedmatrix.R" class="external-link"><code>R/pedmatrix.R</code></a></small>
       <div class="d-none name"><code>pedmat.Rd</code></div>
     </div>
 
@@ -95,8 +95,12 @@ large pedigrees). Default is <code>TRUE</code>.</p></dd>
 
 
 <dt id="arg-threads">threads<a class="anchor" aria-label="anchor" href="#arg-threads"></a></dt>
-<dd><p>Integer, reserved for future parallel support. Currently
-the C++ implementation uses all available cores automatically.</p></dd>
+<dd><p>Integer. Number of OpenMP threads to use. Use 0 to keep
+  the system/default setting. Currently, multi-threading is explicitly implemented for:</p><ul><li><p><code>"D"</code>: Dominance relationship matrix (significant speedup).</p></li>
+<li><p><code>"Ainv"</code>: Inverse of A (only for large pedigrees, n &gt;= 5000).</p></li>
+</ul><p>For <code>"Dinv"</code>, <code>"AA"</code>, and <code>"AAinv"</code>, parallelism depends on the
+linked BLAS/LAPACK library (e.g., OpenBLAS, MKL, Accelerate) and is not
+controlled by this parameter. Methods <code>"A"</code> and <code>"f"</code> are single-threaded.</p></dd>
 
 
 <dt id="arg-compact">compact<a class="anchor" aria-label="anchor" href="#arg-compact"></a></dt>
@@ -198,7 +202,7 @@ Biometrics, 32(1), 69-83.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Calculated Size: 28  individuals</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Matrix Properties:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> - Mean relationship:  0.352409 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - Mean off-diagonal relationship:  NA </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> - Density (non-zero): 54.08%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ========================================</span>
 <span class="r-in"><span></span></span>
