@@ -21,4 +21,8 @@ summary(object, ...)
 
 ## Value
 
-A summary.tidyped object containing pedigree statistics.
+A summary.tidyped object (list) containing core pedigree statistics,
+including individual counts, sex composition, founder counts, parent
+completeness, optional generation distribution, offspring counts,
+optional family statistics, candidate counts, and optional inbreeding
+summaries.
