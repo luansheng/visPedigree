@@ -48,6 +48,8 @@
 <strong><code><a href="../reference/visped.html">visped()</a></code> edge highlighting</strong>: Fixed edge highlighting logic so relationship edges are only emphasized when <code>trace</code> is used. When <code>trace = FALSE</code>, only focal individuals are highlighted and all edges remain faded.</li>
 <li>
 <strong>Shared-parent/shared-child paths</strong>: Corrected edge highlighting for cases where a parent has multiple families or a family has multiple children, ensuring only traced paths are highlighted.</li>
+<li>
+<strong><code><a href="../reference/visped.html">visped()</a></code> layout</strong>: Fixed layout optimization failure when <code>showf = TRUE</code>. The layout algorithm now correctly uses immutable individual IDs instead of display labels (which change when showing inbreeding coefficients) for parent-child alignment.</li>
 </ol></div>
 </div>
     <div class="section level2">

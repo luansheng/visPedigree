@@ -49,7 +49,7 @@ tidy_small_ped <-
   tidyped(ped = small_ped,
           cand = c("Y", "Z1", "Z2"))
 visped(tidy_small_ped, compact = TRUE, file = tempfile(fileext = ".pdf"))
-#> Pedigree saved to: /tmp/Rtmpy5CUqG/file1f8d5f1f2da8.pdf
+#> Pedigree saved to: /tmp/Rtmpkq7uZl/file1f421676e440.pdf
 #> Label cex: 0.65. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 ```
 
@@ -75,8 +75,8 @@ function.
 
 ``` r
 tidy_simple_ped <- tidyped(simple_ped)
-visped(tidy_simple_ped)
-#> Label cex: 0.65. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.
+visped(tidy_simple_ped, cex=0.3, symbolsize=10)
+#> Label cex: 0.3. Symbol size: 10. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 #> Tip: Use 'file' to save as a legible vector PDF.
 ```
 
@@ -173,7 +173,13 @@ of the deep_ped dataset.
 
 ``` r
 cand_J11_labels <- deep_ped[(substr(Ind, 1, 3) == "K11"), Ind]
-visped(tidyped(deep_ped, cand = cand_J11_labels, tracegen = 3))
+visped(
+  tidyped(deep_ped,
+    cand = cand_J11_labels,
+    tracegen = 3),
+  cex=0.08,
+  symbolsize=5.5
+  )
 ```
 
       Too many individuals (>=3362) in one generation!!! Two choices:
@@ -198,12 +204,14 @@ visped(
     trace = "up",
     tracegen = 3
   ),
+  cex=0.08, 
+  symbolsize=5.5,
   compact = TRUE,
   showgraph = TRUE,
   file = tempfile(fileext = ".pdf")
 )
-#> Pedigree saved to: /tmp/Rtmpy5CUqG/file1f8d1c61a644.pdf
-#> Label cex: 0.6175. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.
+#> Pedigree saved to: /tmp/Rtmpkq7uZl/file1f42770d1cda.pdf
+#> Label cex: 0.08. Symbol size: 5.5. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 ```
 
 ![](draw-pedigree_files/figure-html/reduceped1-1.png)
@@ -233,7 +241,7 @@ visped(
   showgraph = FALSE,
   file = tempfile(fileext = ".pdf")
 )
-#> Pedigree saved to: /tmp/Rtmpy5CUqG/file1f8d5daa75f4.pdf
+#> Pedigree saved to: /tmp/Rtmpkq7uZl/file1f426c29a8a8.pdf
 #> Label cex: 0.83. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 ```
 
@@ -281,7 +289,14 @@ specific individual in a PDF file.
 ``` r
 suppressWarnings(J110550G_ped <-
                    tidyped(deep_ped, cand = "K110550H"))
-suppressMessages(visped(J110550G_ped, showgraph = TRUE, file = tempfile(fileext = ".pdf")))
+suppressMessages(
+  visped(J110550G_ped, 
+    cex=0.08, 
+    symbolsize=5.5, 
+    showgraph = TRUE, 
+    file = tempfile(fileext = ".pdf")
+  )
+)
 ```
 
 ![](draw-pedigree_files/figure-html/pedofoneind-1.png)

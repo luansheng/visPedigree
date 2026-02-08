@@ -61,7 +61,7 @@
       <h1>3. Calculation and visualization of relationship matrix</h1>
                         <h4 data-toc-skip class="author">Sheng Luan</h4>
             
-            <h4 data-toc-skip class="date">2026-02-06</h4>
+            <h4 data-toc-skip class="date">2026-02-08</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/luansheng/visPedigree/blob/master/vignettes/relationship-matrix.Rmd" class="external-link"><code>vignettes/relationship-matrix.Rmd</code></a></small>
       <div class="d-none name"><code>relationship-matrix.Rmd</code></div>
@@ -595,7 +595,7 @@ palette (White-Orange-Red) to display relationships.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Heatmap of the A matrix</span></span>
 <span><span class="fu"><a href="../reference/vismat.html">vismat</a></span><span class="op">(</span><span class="va">mat_A</span><span class="op">)</span></span></code></pre></div>
-<p><img src="relationship-matrix_files/figure-html/heatmap-1.png" class="r-plt" alt="" width="576"></p>
+<p><img src="relationship-matrix_files/figure-html/heatmap-1.png" class="r-plt" alt="" width="100%"></p>
 <div class="section level4">
 <h4 id="reordering-and-clustering">Reordering and Clustering<a class="anchor" aria-label="anchor" href="#reordering-and-clustering"></a>
 </h4>
@@ -611,7 +611,7 @@ the <code>grouping</code> parameter.</p>
 <code class="sourceCode R"><span><span class="co"># Mean relationship between generations</span></span>
 <span><span class="fu"><a href="../reference/vismat.html">vismat</a></span><span class="op">(</span><span class="va">mat_A</span>, ped <span class="op">=</span> <span class="va">tped</span>, grouping <span class="op">=</span> <span class="st">"Gen"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Aggregating 28 individuals into 6 groups based on 'Gen'...</span></span></code></pre></div>
-<p><img src="relationship-matrix_files/figure-html/heatmap_group-1.png" class="r-plt" alt="" width="576"></p>
+<p><img src="relationship-matrix_files/figure-html/heatmap_group-1.png" class="r-plt" alt="" width="100%"></p>
 </div>
 </div>
 <div class="section level3">
@@ -622,7 +622,7 @@ coefficients (lower triangle) or inbreeding coefficients.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Distribution of relationship coefficients</span></span>
 <span><span class="fu"><a href="../reference/vismat.html">vismat</a></span><span class="op">(</span><span class="va">mat_A</span>, type <span class="op">=</span> <span class="st">"histogram"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="relationship-matrix_files/figure-html/histogram-1.png" class="r-plt" alt="" width="576"></p>
+<p><img src="relationship-matrix_files/figure-html/histogram-1.png" class="r-plt" alt="" width="100%"></p>
 </div>
 </div>
 <div class="section level2">

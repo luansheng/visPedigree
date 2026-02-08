@@ -19,6 +19,11 @@
 3.  **Shared-parent/shared-child paths**: Corrected edge highlighting
     for cases where a parent has multiple families or a family has
     multiple children, ensuring only traced paths are highlighted.
+4.  **[`visped()`](https://luansheng.github.io/visPedigree/reference/visped.md)
+    layout**: Fixed layout optimization failure when `showf = TRUE`. The
+    layout algorithm now correctly uses immutable individual IDs instead
+    of display labels (which change when showing inbreeding
+    coefficients) for parent-child alignment.
 
 ## Changes in version 1.0.0 released on 24 Jan 2026
 
