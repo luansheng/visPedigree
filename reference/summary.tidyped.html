@@ -63,11 +63,15 @@
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A summary.tidyped object (list) containing core pedigree statistics, including
-individual counts, sex composition, founder counts, parent completeness,
-optional generation distribution, offspring counts, optional family
-statistics, candidate counts, and optional inbreeding summaries.</p>
-    </div>
+    <p>A summary.tidyped object (list) containing:</p><ul><li><p><code>n_ind</code>: Total number of individuals.</p></li>
+<li><p><code>n_male</code>, <code>n_female</code>, <code>n_unknown_sex</code>: Sex composition counts.</p></li>
+<li><p><code>n_founders</code>: Number of individuals with no known parents.</p></li>
+<li><p><code>n_both_parents</code>: Count of individuals with complete parentage.</p></li>
+<li><p><code>max_gen</code>, <code>gen_dist</code>: (Optional) Maximum generation and its distribution.</p></li>
+<li><p><code>n_families</code>, <code>family_sizes</code>, <code>top_families</code>: (Optional) Family statistics.</p></li>
+<li><p><code>f_stats</code>, <code>n_inbred</code>: (Optional) Inbreeding coefficient statistics.</p></li>
+<li><p><code>n_cand</code>, <code>cand_f_stats</code>: (Optional) Candidate-specific statistics.</p></li>
+</ul></div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

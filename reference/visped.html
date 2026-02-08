@@ -153,59 +153,84 @@
 <span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># Drawing a simple pedigree</span></span></span>
 <span class="r-in"><span><span class="va">simple_ped_tidy</span> <span class="op">&lt;-</span> <span class="fu"><a href="tidyped.html">tidyped</a></span><span class="op">(</span><span class="va">simple_ped</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">visped</span><span class="op">(</span><span class="va">simple_ped_tidy</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="visped-1.png" alt="" width="700" height="433"></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Label cex: 0.65. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.</span>
+<span class="r-in"><span><span class="fu">visped</span><span class="op">(</span><span class="va">simple_ped_tidy</span>, </span></span>
+<span class="r-in"><span>       cex<span class="op">=</span><span class="fl">0.25</span>, </span></span>
+<span class="r-in"><span>       symbolsize<span class="op">=</span><span class="fl">5.5</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="visped-1.png" alt="" width="1800" height="1800"></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Label cex: 0.25. Symbol size: 5.5. Adjust 'cex' and 'symbolsize' if labels are too large or small.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Tip: Use 'file' to save as a legible vector PDF.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Highlighting an individual and its ancestors and descendants</span></span></span>
-<span class="r-in"><span><span class="fu">visped</span><span class="op">(</span><span class="va">simple_ped_tidy</span>, highlight <span class="op">=</span> <span class="st">"J5X804"</span>, trace <span class="op">=</span> <span class="st">"all"</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="visped-2.png" alt="" width="700" height="433"></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Label cex: 0.65. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.</span>
+<span class="r-in"><span><span class="fu">visped</span><span class="op">(</span><span class="va">simple_ped_tidy</span>, </span></span>
+<span class="r-in"><span>       highlight <span class="op">=</span> <span class="st">"J5X804"</span>, </span></span>
+<span class="r-in"><span>       trace <span class="op">=</span> <span class="st">"all"</span>, </span></span>
+<span class="r-in"><span>       cex<span class="op">=</span><span class="fl">0.25</span>, </span></span>
+<span class="r-in"><span>       symbolsize<span class="op">=</span><span class="fl">5.5</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="visped-2.png" alt="" width="1800" height="1800"></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Label cex: 0.25. Symbol size: 5.5. Adjust 'cex' and 'symbolsize' if labels are too large or small.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Tip: Use 'file' to save as a legible vector PDF.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Showing inbreeding coefficients in the graph</span></span></span>
 <span class="r-in"><span><span class="va">simple_ped_tidy_inbreed</span> <span class="op">&lt;-</span> <span class="fu"><a href="tidyped.html">tidyped</a></span><span class="op">(</span><span class="va">simple_ped</span>, inbreed <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">visped</span><span class="op">(</span><span class="va">simple_ped_tidy_inbreed</span>, showf <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="visped-3.png" alt="" width="700" height="433"></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Label cex: 0.65. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.</span>
+<span class="r-in"><span><span class="fu">visped</span><span class="op">(</span><span class="va">simple_ped_tidy_inbreed</span>,</span></span>
+<span class="r-in"><span>       showf <span class="op">=</span> <span class="cn">TRUE</span>, </span></span>
+<span class="r-in"><span>       cex<span class="op">=</span><span class="fl">0.25</span>, </span></span>
+<span class="r-in"><span>       symbolsize<span class="op">=</span><span class="fl">5.5</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="visped-3.png" alt="" width="1800" height="1800"></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Label cex: 0.25. Symbol size: 5.5. Adjust 'cex' and 'symbolsize' if labels are too large or small.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Tip: Use 'file' to save as a legible vector PDF.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Note: Inbreeding coefficients of 0 are not shown in the graph.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Adjusting page width and symbol size for better layout</span></span></span>
-<span class="r-in"><span><span class="co"># Increase pagewidth to spread nodes horizontally</span></span></span>
+<span class="r-in"><span><span class="co"># Increase pagewidth to spread nodes horizontally in the pdf file</span></span></span>
 <span class="r-in"><span><span class="co"># Increase symbolsize for more padding around individual labels</span></span></span>
-<span class="r-in"><span><span class="fu">visped</span><span class="op">(</span><span class="va">simple_ped_tidy</span>, pagewidth <span class="op">=</span> <span class="fl">100</span>, symbolsize <span class="op">=</span> <span class="fl">1.2</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="visped-4.png" alt="" width="700" height="433"></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Label cex: 0.65. Symbol size: 1.2. Adjust 'cex' and 'symbolsize' if labels are too large or small.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Tip: Use 'file' to save as a legible vector PDF.</span>
+<span class="r-in"><span><span class="fu">visped</span><span class="op">(</span><span class="va">simple_ped_tidy</span>, </span></span>
+<span class="r-in"><span>       cex<span class="op">=</span><span class="fl">0.25</span>, </span></span>
+<span class="r-in"><span>       symbolsize<span class="op">=</span><span class="fl">5.5</span>, </span></span>
+<span class="r-in"><span>       pagewidth <span class="op">=</span> <span class="fl">100</span>, </span></span>
+<span class="r-in"><span>       file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".pdf"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Pedigree saved to: /tmp/RtmpwgZEfn/file1c8d174636a1.pdf</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Label cex: 0.25. Symbol size: 5.5. Adjust 'cex' and 'symbolsize' if labels are too large or small.</span>
+<span class="r-plt img"><img src="visped-4.png" alt="" width="1800" height="1800"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Highlighting multiple individuals with custom colors</span></span></span>
-<span class="r-in"><span><span class="fu">visped</span><span class="op">(</span><span class="va">simple_ped_tidy</span>, </span></span>
-<span class="r-in"><span>       highlight <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>ids <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"J3Y620"</span>, <span class="st">"J1X971"</span><span class="op">)</span>, </span></span>
-<span class="r-in"><span>                        frame.color <span class="op">=</span> <span class="st">"#4caf50"</span>, </span></span>
-<span class="r-in"><span>                        color <span class="op">=</span> <span class="st">"#81c784"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="visped-5.png" alt="" width="700" height="433"></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Label cex: 0.65. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.</span>
+<span class="r-in"><span><span class="fu">visped</span><span class="op">(</span><span class="va">simple_ped_tidy</span>,</span></span>
+<span class="r-in"><span>       highlight <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>ids <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"J3Y620"</span>, <span class="st">"J1X971"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                        frame.color <span class="op">=</span> <span class="st">"#4caf50"</span>,</span></span>
+<span class="r-in"><span>                        color <span class="op">=</span> <span class="st">"#81c784"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>       cex<span class="op">=</span><span class="fl">0.25</span>,</span></span>
+<span class="r-in"><span>       symbolsize<span class="op">=</span><span class="fl">5.5</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="visped-5.png" alt="" width="1800" height="1800"></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Label cex: 0.25. Symbol size: 5.5. Adjust 'cex' and 'symbolsize' if labels are too large or small.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Tip: Use 'file' to save as a legible vector PDF.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Handling large pedigrees: Saving to PDF is recommended for legibility</span></span></span>
 <span class="r-in"><span><span class="co"># The 'trace' and 'tracegen' parameters in tidyped() help prune the graph</span></span></span>
 <span class="r-in"><span><span class="va">cand_labels</span> <span class="op">&lt;-</span> <span class="va">big_family_size_ped</span><span class="op">[</span><span class="op">(</span><span class="va">Year</span> <span class="op">==</span> <span class="fl">2007</span><span class="op">)</span> <span class="op">&amp;</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/substr.html" class="external-link">substr</a></span><span class="op">(</span><span class="va">Ind</span>,<span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span> <span class="op">==</span> <span class="st">"G8"</span><span class="op">)</span>, <span class="va">Ind</span><span class="op">]</span></span></span>
 <span class="r-in"><span><span class="co"># \donttest{</span></span></span>
-<span class="r-in"><span><span class="va">big_ped_tidy</span> <span class="op">&lt;-</span> <span class="fu"><a href="tidyped.html">tidyped</a></span><span class="op">(</span><span class="va">big_family_size_ped</span>, cand <span class="op">=</span> <span class="va">cand_labels</span>, trace <span class="op">=</span> <span class="st">"up"</span>, tracegen <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">big_ped_tidy</span> <span class="op">&lt;-</span> <span class="fu"><a href="tidyped.html">tidyped</a></span><span class="op">(</span><span class="va">big_family_size_ped</span>, </span></span>
+<span class="r-in"><span>                        cand <span class="op">=</span> <span class="va">cand_labels</span>, </span></span>
+<span class="r-in"><span>                        trace <span class="op">=</span> <span class="st">"up"</span>, </span></span>
+<span class="r-in"><span>                        tracegen <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># Use compact = TRUE for large families</span></span></span>
-<span class="r-in"><span><span class="fu">visped</span><span class="op">(</span><span class="va">big_ped_tidy</span>, compact <span class="op">=</span> <span class="cn">TRUE</span>, file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".pdf"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">visped</span><span class="op">(</span><span class="va">big_ped_tidy</span>, </span></span>
+<span class="r-in"><span>       compact <span class="op">=</span> <span class="cn">TRUE</span>, </span></span>
+<span class="r-in"><span>       cex<span class="op">=</span><span class="fl">0.08</span>, </span></span>
+<span class="r-in"><span>       symbolsize<span class="op">=</span><span class="fl">5.5</span>, </span></span>
+<span class="r-in"><span>       file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".pdf"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Note: Removed 351 isolated individuals (no parents, no progeny) from the plot.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Pedigree saved to: /tmp/RtmpxXwOme/file1c8e65fdb869.pdf</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Label cex: 0.65. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.</span>
-<span class="r-plt img"><img src="visped-6.png" alt="" width="700" height="433"></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Pedigree saved to: /tmp/RtmpwgZEfn/file1c8d1c3c8a48.pdf</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Label cex: 0.08. Symbol size: 5.5. Adjust 'cex' and 'symbolsize' if labels are too large or small.</span>
+<span class="r-plt img"><img src="visped-6.png" alt="" width="1800" height="1800"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Use outline = TRUE if individual labels are not required</span></span></span>
-<span class="r-in"><span><span class="fu">visped</span><span class="op">(</span><span class="va">big_ped_tidy</span>, compact <span class="op">=</span> <span class="cn">TRUE</span>, outline <span class="op">=</span> <span class="cn">TRUE</span>, file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".pdf"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">visped</span><span class="op">(</span><span class="va">big_ped_tidy</span>, </span></span>
+<span class="r-in"><span>       compact <span class="op">=</span> <span class="cn">TRUE</span>, </span></span>
+<span class="r-in"><span>       outline <span class="op">=</span> <span class="cn">TRUE</span>, </span></span>
+<span class="r-in"><span>       file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".pdf"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Note: Removed 351 isolated individuals (no parents, no progeny) from the plot.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Pedigree saved to: /tmp/RtmpxXwOme/file1c8e76869796.pdf</span>
-<span class="r-plt img"><img src="visped-7.png" alt="" width="700" height="433"></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Pedigree saved to: /tmp/RtmpwgZEfn/file1c8d368eab09.pdf</span>
+<span class="r-plt img"><img src="visped-7.png" alt="" width="1800" height="1800"></span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

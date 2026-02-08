@@ -208,58 +208,83 @@ library(visPedigree)
 library(data.table)
 # Drawing a simple pedigree
 simple_ped_tidy <- tidyped(simple_ped)
-visped(simple_ped_tidy)
+visped(simple_ped_tidy, 
+       cex=0.25, 
+       symbolsize=5.5)
 
-#> Label cex: 0.65. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.
+#> Label cex: 0.25. Symbol size: 5.5. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 #> Tip: Use 'file' to save as a legible vector PDF.
 
 # Highlighting an individual and its ancestors and descendants
-visped(simple_ped_tidy, highlight = "J5X804", trace = "all")
+visped(simple_ped_tidy, 
+       highlight = "J5X804", 
+       trace = "all", 
+       cex=0.25, 
+       symbolsize=5.5)
 
-#> Label cex: 0.65. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.
+#> Label cex: 0.25. Symbol size: 5.5. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 #> Tip: Use 'file' to save as a legible vector PDF.
 
 # Showing inbreeding coefficients in the graph
 simple_ped_tidy_inbreed <- tidyped(simple_ped, inbreed = TRUE)
-visped(simple_ped_tidy_inbreed, showf = TRUE)
+visped(simple_ped_tidy_inbreed,
+       showf = TRUE, 
+       cex=0.25, 
+       symbolsize=5.5)
 
-#> Label cex: 0.65. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.
+#> Label cex: 0.25. Symbol size: 5.5. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 #> Tip: Use 'file' to save as a legible vector PDF.
 #> Note: Inbreeding coefficients of 0 are not shown in the graph.
 
 # Adjusting page width and symbol size for better layout
-# Increase pagewidth to spread nodes horizontally
+# Increase pagewidth to spread nodes horizontally in the pdf file
 # Increase symbolsize for more padding around individual labels
-visped(simple_ped_tidy, pagewidth = 100, symbolsize = 1.2)
+visped(simple_ped_tidy, 
+       cex=0.25, 
+       symbolsize=5.5, 
+       pagewidth = 100, 
+       file = tempfile(fileext = ".pdf"))
+#> Pedigree saved to: /tmp/RtmpwgZEfn/file1c8d174636a1.pdf
+#> Label cex: 0.25. Symbol size: 5.5. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 
-#> Label cex: 0.65. Symbol size: 1.2. Adjust 'cex' and 'symbolsize' if labels are too large or small.
-#> Tip: Use 'file' to save as a legible vector PDF.
 
 # Highlighting multiple individuals with custom colors
-visped(simple_ped_tidy, 
-       highlight = list(ids = c("J3Y620", "J1X971"), 
-                        frame.color = "#4caf50", 
-                        color = "#81c784"))
+visped(simple_ped_tidy,
+       highlight = list(ids = c("J3Y620", "J1X971"),
+                        frame.color = "#4caf50",
+                        color = "#81c784"),
+       cex=0.25,
+       symbolsize=5.5)
 
-#> Label cex: 0.65. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.
+#> Label cex: 0.25. Symbol size: 5.5. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 #> Tip: Use 'file' to save as a legible vector PDF.
 
 # Handling large pedigrees: Saving to PDF is recommended for legibility
 # The 'trace' and 'tracegen' parameters in tidyped() help prune the graph
 cand_labels <- big_family_size_ped[(Year == 2007) & (substr(Ind,1,2) == "G8"), Ind]
 # \donttest{
-big_ped_tidy <- tidyped(big_family_size_ped, cand = cand_labels, trace = "up", tracegen = 2)
+big_ped_tidy <- tidyped(big_family_size_ped, 
+                        cand = cand_labels, 
+                        trace = "up", 
+                        tracegen = 2)
 # Use compact = TRUE for large families
-visped(big_ped_tidy, compact = TRUE, file = tempfile(fileext = ".pdf"))
+visped(big_ped_tidy, 
+       compact = TRUE, 
+       cex=0.08, 
+       symbolsize=5.5, 
+       file = tempfile(fileext = ".pdf"))
 #> Note: Removed 351 isolated individuals (no parents, no progeny) from the plot.
-#> Pedigree saved to: /tmp/RtmpxXwOme/file1c8e65fdb869.pdf
-#> Label cex: 0.65. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.
+#> Pedigree saved to: /tmp/RtmpwgZEfn/file1c8d1c3c8a48.pdf
+#> Label cex: 0.08. Symbol size: 5.5. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 
 
 # Use outline = TRUE if individual labels are not required
-visped(big_ped_tidy, compact = TRUE, outline = TRUE, file = tempfile(fileext = ".pdf"))
+visped(big_ped_tidy, 
+       compact = TRUE, 
+       outline = TRUE, 
+       file = tempfile(fileext = ".pdf"))
 #> Note: Removed 351 isolated individuals (no parents, no progeny) from the plot.
-#> Pedigree saved to: /tmp/RtmpxXwOme/file1c8e76869796.pdf
+#> Pedigree saved to: /tmp/RtmpwgZEfn/file1c8d368eab09.pdf
 
 # }
 ```

@@ -200,17 +200,17 @@ generated on the current graphics device.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Method 1: Plot directly from tidyped object (auto-computes A matrix)</span></span></span>
 <span class="r-in"><span><span class="fu">vismat</span><span class="op">(</span><span class="va">ped</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="vismat-1.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="vismat-1.png" alt="" width="1800" height="1800"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Method 2: Plot from pedmat object</span></span></span>
 <span class="r-in"><span><span class="va">A</span> <span class="op">&lt;-</span> <span class="fu"><a href="pedmat.html">pedmat</a></span><span class="op">(</span><span class="va">ped</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">vismat</span><span class="op">(</span><span class="va">A</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="vismat-2.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="vismat-2.png" alt="" width="1800" height="1800"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Method 3: Plot from plain matrix</span></span></span>
 <span class="r-in"><span><span class="va">A_dense</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">A</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">vismat</span><span class="op">(</span><span class="va">A_dense</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="vismat-3.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="vismat-3.png" alt="" width="1800" height="1800"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># ============================================================</span></span></span>
 <span class="r-in"><span><span class="co"># Heatmap Customization</span></span></span>
@@ -218,19 +218,19 @@ generated on the current graphics device.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Custom title and axis labels</span></span></span>
 <span class="r-in"><span><span class="fu">vismat</span><span class="op">(</span><span class="va">A</span>, main <span class="op">=</span> <span class="st">"Additive Relationship Matrix"</span>, xlab <span class="op">=</span> <span class="st">"Individual"</span>, ylab <span class="op">=</span> <span class="st">"Individual"</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="vismat-4.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="vismat-4.png" alt="" width="1800" height="1800"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Disable clustering reorder (preserve original order)</span></span></span>
 <span class="r-in"><span><span class="fu">vismat</span><span class="op">(</span><span class="va">A</span>, reorder <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="vismat-5.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="vismat-5.png" alt="" width="1800" height="1800"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Custom label font size</span></span></span>
 <span class="r-in"><span><span class="fu">vismat</span><span class="op">(</span><span class="va">A</span>, labelcex <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="vismat-6.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="vismat-6.png" alt="" width="1800" height="1800"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Custom color palette (blue-white-red)</span></span></span>
 <span class="r-in"><span><span class="fu">vismat</span><span class="op">(</span><span class="va">A</span>, col.regions <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/colorRamp.html" class="external-link">colorRampPalette</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"blue"</span>, <span class="st">"white"</span>, <span class="st">"red"</span><span class="op">)</span><span class="op">)</span><span class="op">(</span><span class="fl">100</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="vismat-7.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="vismat-7.png" alt="" width="1800" height="1800"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># ============================================================</span></span></span>
 <span class="r-in"><span><span class="co"># Select Specific Individuals</span></span></span>
@@ -239,7 +239,7 @@ generated on the current graphics device.</p>
 <span class="r-in"><span><span class="co"># Display only a subset of individuals</span></span></span>
 <span class="r-in"><span><span class="va">target_ids</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">A</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">8</span><span class="op">]</span></span></span>
 <span class="r-in"><span><span class="fu">vismat</span><span class="op">(</span><span class="va">A</span>, ids <span class="op">=</span> <span class="va">target_ids</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="vismat-8.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="vismat-8.png" alt="" width="1800" height="1800"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># ============================================================</span></span></span>
 <span class="r-in"><span><span class="co"># Histogram Visualization</span></span></span>
@@ -247,11 +247,11 @@ generated on the current graphics device.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Relationship coefficient distribution histogram</span></span></span>
 <span class="r-in"><span><span class="fu">vismat</span><span class="op">(</span><span class="va">A</span>, type <span class="op">=</span> <span class="st">"histogram"</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="vismat-9.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="vismat-9.png" alt="" width="1800" height="1800"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Custom number of bins</span></span></span>
 <span class="r-in"><span><span class="fu">vismat</span><span class="op">(</span><span class="va">A</span>, type <span class="op">=</span> <span class="st">"histogram"</span>, nint <span class="op">=</span> <span class="fl">30</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="vismat-10.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="vismat-10.png" alt="" width="1800" height="1800"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># ============================================================</span></span></span>
 <span class="r-in"><span><span class="co"># Group Aggregation (for large populations)</span></span></span>
@@ -261,7 +261,7 @@ generated on the current graphics device.</p>
 <span class="r-in"><span><span class="fu">vismat</span><span class="op">(</span><span class="va">A</span>, ped <span class="op">=</span> <span class="va">ped</span>, grouping <span class="op">=</span> <span class="st">"Gen"</span>, </span></span>
 <span class="r-in"><span>       main <span class="op">=</span> <span class="st">"Mean Relationship Between Generations"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Aggregating 59 individuals into 6 groups based on 'Gen'...</span>
-<span class="r-plt img"><img src="vismat-11.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="vismat-11.png" alt="" width="1800" height="1800"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Group by family (if pedigree has Family column)</span></span></span>
 <span class="r-in"><span><span class="co"># vismat(A, ped = ped, grouping = "Family")</span></span></span>
@@ -273,13 +273,13 @@ generated on the current graphics device.</p>
 <span class="r-in"><span><span class="co"># Dominance relationship matrix</span></span></span>
 <span class="r-in"><span><span class="va">D</span> <span class="op">&lt;-</span> <span class="fu"><a href="pedmat.html">pedmat</a></span><span class="op">(</span><span class="va">ped</span>, method <span class="op">=</span> <span class="st">"D"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">vismat</span><span class="op">(</span><span class="va">D</span>, main <span class="op">=</span> <span class="st">"Dominance Relationship Matrix"</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="vismat-12.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="vismat-12.png" alt="" width="1800" height="1800"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Inbreeding coefficient distribution (diagonal elements - 1)</span></span></span>
 <span class="r-in"><span><span class="va">A_mat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">A</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">f_values</span> <span class="op">&lt;-</span> <span class="fu"><a href="diag.html">diag</a></span><span class="op">(</span><span class="va">A_mat</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">f_values</span>, main <span class="op">=</span> <span class="st">"Inbreeding Coefficient Distribution"</span>, xlab <span class="op">=</span> <span class="st">"Inbreeding (F)"</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="vismat-13.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="vismat-13.png" alt="" width="1800" height="1800"></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
