@@ -288,49 +288,46 @@ attr(A_compact, "compact_stats")
 #> [1] 28
 #> 
 #> $n_compact
-#> [1] 23
+#> [1] 27
 #> 
 #> $n_removed
-#> [1] 5
+#> [1] 1
 #> 
 #> $n_families_compacted
-#> [1] 6
+#> [1] 5
 #> 
 #> $compression_ratio
-#> [1] 0.8214286
+#> [1] 0.9642857
 #> 
 #> $memory_saved_pct
-#> [1] 32.52551
+#> [1] 7.015306
 #> 
 #> $by_sex
 #>             Sex n_original n_compact n_removed
 #>          <char>      <int>     <int>     <int>
-#> 1: with_parents         19        11         8
+#> 1: with_parents         19        18         1
 #> 2:      founder          9         9         0
 #> 
 #> $family_size_dist
 #>    size_category n_families n_individuals_total n_individuals_removed
 #>           <fctr>      <int>               <int>                 <num>
-#> 1:          2-10          2                   6                     4
-#> 2:             1          4                   8                     4
+#> 1:             1          5                   6                     1
 #> 
 attr(A_compact, "family_summary")
 #>    FamilyID FamilyLabel   Sire    Dam SireNum DamNum FamilySize n_compressed
 #>      <char>      <char> <char> <char>   <int>  <int>      <int>        <int>
-#> 1:    F0001         AxB      A      B       1      2          3            1
-#> 2:    F0002         NxO      N      O       7      8          2            1
-#> 3:    F0003         ExF      E      F      12      3          2            0
-#> 4:    F0004        J2xC     J2      C       6     10          3            1
-#> 5:    F0005        QxJ1      Q     J1      14      5          2            1
-#> 6:    F0006         NxX      N      X       7     25          2            1
+#> 1:    F0001         AxB      A      B       1      2          1            0
+#> 2:    F0002         NxO      N      O       7      8          1            0
+#> 3:    F0003        J2xC     J2      C       6     10          1            0
+#> 4:    F0004        QxJ1      Q     J1      14      5          1            0
+#> 5:    F0005         NxX      N      X       7     25          2            1
 #>    RepInd RepIndNum   Gen
 #>    <char>     <int> <int>
-#> 1:      C        10     2
-#> 2:      Q        12     2
-#> 3:      G        13     3
-#> 4:      K        15     3
-#> 5:      T        17     3
-#> 6:     Z1        23     6
+#> 1:      D        11     2
+#> 2:      P        13     2
+#> 3:      L        18     3
+#> 4:      S        20     3
+#> 5:     Z1        27     6
 
 # Expand back to full size
 A_full <- expand_pedmat(A_compact)

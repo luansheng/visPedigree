@@ -4,26 +4,32 @@
 
 ### Bug fixes
 
-1.  **Generation Alignment Logic**: Fixed
+1.  **Compact Matrix Correctness**: Fixed a critical data integrity bug
+    in `compact = TRUE` mode where relationship values (A, D, AA) were
+    incorrect for parent-offspring and avuncular pairs due to improper
+    merging of parent individuals with their non-parent siblings.
+2.  **Pedigree Compression Strategy**: Updated compaction logic to
+    preserve original genetic identity of any individual that appears as
+    a sire or dam, ensuring parents always have unique entries in the
+    relationship matrix.
+3.  **Sibling Row/Column Expansion**: Fixed
+    [`expand_pedmat()`](https://luansheng.github.io/visPedigree/reference/expand_pedmat.md)
+    to correctly handle sibling off-diagonal elements by dynamically
+    calculating relationship values based on parent kinship, rather than
+    simply duplicating representative diagonal values.
+4.  **Generation Alignment Logic**: Fixed
     `tidyped(..., genmethod = "bottom")` to prioritize **Sibling
     Consistency** (P1) over **Mate Alignment** (P2). This ensures that
-    full siblings are always aligned to the same generation
-    (specifically, the highest/earliest generation among them),
-    preventing families from being split across generations when one
-    sibling has a mate in a lower generation.
-2.  **[`visped()`](https://luansheng.github.io/visPedigree/reference/visped.md)
+    full siblings are always aligned to the same generation.
+5.  **[`visped()`](https://luansheng.github.io/visPedigree/reference/visped.md)
     edge highlighting**: Fixed edge highlighting logic so relationship
-    edges are only emphasized when `trace` is used. When
-    `trace = FALSE`, only focal individuals are highlighted and all
-    edges remain faded.
-3.  **Shared-parent/shared-child paths**: Corrected edge highlighting
+    edges are only emphasized when `trace` is used.
+6.  **Shared-parent/shared-child paths**: Corrected edge highlighting
     for cases where a parent has multiple families or a family has
-    multiple children, ensuring only traced paths are highlighted.
-4.  **[`visped()`](https://luansheng.github.io/visPedigree/reference/visped.md)
+    multiple children.
+7.  **[`visped()`](https://luansheng.github.io/visPedigree/reference/visped.md)
     layout**: Fixed layout optimization failure when `showf = TRUE`. The
-    layout algorithm now correctly uses immutable individual IDs instead
-    of display labels (which change when showing inbreeding
-    coefficients) for parent-child alignment.
+    layout algorithm now correctly uses immutable individual IDs.
 
 ## Changes in version 1.0.0 released on 24 Jan 2026
 

@@ -260,49 +260,46 @@ Biometrics, 32(1), 69-83.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 28</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $n_compact</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 23</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 27</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $n_removed</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $n_families_compacted</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 6</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $compression_ratio</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.8214286</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.9642857</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $memory_saved_pct</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 32.52551</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 7.015306</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $by_sex</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             Sex n_original n_compact n_removed</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          &lt;char&gt;      &lt;int&gt;     &lt;int&gt;     &lt;int&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1: with_parents         19        11         8</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1: with_parents         19        18         1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2:      founder          9         9         0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $family_size_dist</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    size_category n_families n_individuals_total n_individuals_removed</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>           &lt;fctr&gt;      &lt;int&gt;               &lt;int&gt;                 &lt;num&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1:          2-10          2                   6                     4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2:             1          4                   8                     4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1:             1          5                   6                     1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">A_compact</span>, <span class="st">"family_summary"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    FamilyID FamilyLabel   Sire    Dam SireNum DamNum FamilySize n_compressed</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      &lt;char&gt;      &lt;char&gt; &lt;char&gt; &lt;char&gt;   &lt;int&gt;  &lt;int&gt;      &lt;int&gt;        &lt;int&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1:    F0001         AxB      A      B       1      2          3            1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2:    F0002         NxO      N      O       7      8          2            1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3:    F0003         ExF      E      F      12      3          2            0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4:    F0004        J2xC     J2      C       6     10          3            1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5:    F0005        QxJ1      Q     J1      14      5          2            1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6:    F0006         NxX      N      X       7     25          2            1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1:    F0001         AxB      A      B       1      2          1            0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2:    F0002         NxO      N      O       7      8          1            0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3:    F0003        J2xC     J2      C       6     10          1            0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4:    F0004        QxJ1      Q     J1      14      5          1            0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5:    F0005         NxX      N      X       7     25          2            1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    RepInd RepIndNum   Gen</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    &lt;char&gt;     &lt;int&gt; &lt;int&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1:      C        10     2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2:      Q        12     2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3:      G        13     3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4:      K        15     3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5:      T        17     3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6:     Z1        23     6</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1:      D        11     2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2:      P        13     2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3:      L        18     3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4:      S        20     3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5:     Z1        27     6</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Expand back to full size</span></span></span>
 <span class="r-in"><span><span class="va">A_full</span> <span class="op">&lt;-</span> <span class="fu"><a href="expand_pedmat.html">expand_pedmat</a></span><span class="op">(</span><span class="va">A_compact</span><span class="op">)</span></span></span>

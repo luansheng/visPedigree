@@ -46,7 +46,7 @@ tped <- tidyped(small_ped)
 # Compact matrix
 A_compact <- pedmat(tped, method = "A", compact = TRUE)
 dim(A_compact)  # Reduced dimensions
-#> [1] 23 23
+#> [1] 27 27
 
 # Expand to full size
 A_full <- expand_pedmat(A_compact)
