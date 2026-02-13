@@ -151,6 +151,18 @@ List cpp_calculate_inbreeding(IntegerVector sire, IntegerVector dam) {
 List cpp_build_ainv_triplets(IntegerVector sire, IntegerVector dam, NumericVector dii) {
     int n = sire.size();
     
+    // Input validation
+    if (dam.size() != n || dii.size() != n) {
+        Rcpp::stop("Input vectors must have the same length");
+    }
+    
+    // Validate dii values (must be positive for valid inversion)
+    for (int i = 0; i < n; ++i) {
+        if (dii[i] <= 0.0 || !R_finite(dii[i])) {
+            Rcpp::stop("dii[%d] = %f is invalid (must be positive and finite)", i + 1, dii[i]);
+        }
+    }
+    
     // Adaptive threshold: use serial for small pedigrees to avoid parallel overhead
     const int PARALLEL_THRESHOLD = 5000;
     
@@ -332,6 +344,15 @@ arma::mat cpp_calculate_A(IntegerVector sire, IntegerVector dam) {
 // [[Rcpp::export]]
 arma::mat cpp_calculate_D(IntegerVector sire, IntegerVector dam, arma::mat A) {
     int n = sire.size();
+    
+    // Input validation
+    if (dam.size() != n) {
+        Rcpp::stop("sire and dam vectors must have the same length");
+    }
+    if (A.n_rows != static_cast<arma::uword>(n) || A.n_cols != static_cast<arma::uword>(n)) {
+        Rcpp::stop("Matrix A must have dimensions matching pedigree size");
+    }
+    
     arma::mat D(n, n, arma::fill::zeros); 
     
     // Parallel computation of D matrix
@@ -432,6 +453,15 @@ arma::mat cpp_invert_auto(arma::mat M) {
 // [[Rcpp::export]]
 arma::vec cpp_solve_A(IntegerVector sire, IntegerVector dam, NumericVector dii, arma::vec b) {
     int n = sire.size();
+    
+    // Input validation
+    if (dam.size() != n || dii.size() != n) {
+        Rcpp::stop("sire, dam, and dii vectors must have the same length");
+    }
+    if (b.n_elem != static_cast<arma::uword>(n)) {
+        Rcpp::stop("Vector b must have length matching pedigree size");
+    }
+    
     arma::vec x = b;
     for (int i = n - 1; i >= 0; --i) {
         int s = sire[i] - 1; int d = dam[i] - 1;
@@ -451,6 +481,15 @@ arma::vec cpp_solve_A(IntegerVector sire, IntegerVector dam, NumericVector dii, 
 // [[Rcpp::export]]
 IntegerVector cpp_assign_generations_top(IntegerVector sire, IntegerVector dam, IntegerVector topo_order) {
     int n = sire.size();
+    
+    // Input validation
+    if (dam.size() != n) {
+        Rcpp::stop("sire and dam vectors must have the same length");
+    }
+    if (topo_order.size() != n) {
+        Rcpp::stop("topo_order must have length matching pedigree size");
+    }
+    
     IntegerVector gen(n, 1);
     for (int i = 0; i < n; ++i) {
         int idx = topo_order[i] - 1;
@@ -466,6 +505,15 @@ IntegerVector cpp_assign_generations_top(IntegerVector sire, IntegerVector dam, 
 // [[Rcpp::export]]
 IntegerVector cpp_assign_generations_bottom(IntegerVector sire, IntegerVector dam, IntegerVector topo_order) {
     int n = sire.size();
+    
+    // Input validation
+    if (dam.size() != n) {
+        Rcpp::stop("sire and dam vectors must have the same length");
+    }
+    if (topo_order.size() != n) {
+        Rcpp::stop("topo_order must have length matching pedigree size");
+    }
+    
     IntegerVector height(n, 0);
     for (int i = n - 1; i >= 0; --i) {
         int idx = topo_order[i] - 1;

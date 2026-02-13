@@ -76,7 +76,13 @@ prepare_ped_graph <- function(ped, compact = FALSE, outline = FALSE, cex = NULL,
   # Create a minimal graph for layout calculation to save memory and time
   g_layout <- graph_from_data_frame(ped_igraph$edge[, .(from, to)], directed = TRUE, vertices = ped_igraph$node[, .(id)])
   # match names to get layers - V(g_layout)$name exists by default from graph_from_data_frame
-  layer_idx <- ped_igraph$node$layer[match(v_names <- V(g_layout)$name, as.character(ped_igraph$node$id))]
+  v_names <- V(g_layout)$name
+  layer_match <- match(v_names, as.character(ped_igraph$node$id))
+  if (anyNA(layer_match)) {
+    stop("Layout graph contains nodes not found in pedigree: ", 
+         paste(v_names[is.na(layer_match)], collapse = ", "))
+  }
+  layer_idx <- ped_igraph$node$layer[layer_match]
   layer_idx <- max_layer - layer_idx + 1
   
   l <- layout_with_sugiyama(g_layout, layers = layer_idx, hgap = hgap, maxiter = maxiter, attributes = "all")$layout
@@ -265,7 +271,8 @@ repeloverlap <- function(x) {
     n_copies <- dup_info$N[i]
     idx <- match(dup_val, unique_pos)
     
-    if (i == n_dup - 1 && n_dup >= 2) {
+    # Check if this is second-to-last duplicate and next duplicate exists
+    if (i < n_dup && i == n_dup - 1) {
       next_dup_val <- dup_info$x[i + 1]
       next_idx <- match(next_dup_val, unique_pos)
       if (next_idx == idx + 1) {
