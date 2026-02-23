@@ -2,6 +2,8 @@
 
 ## Changes in version 1.0.1 released on 31 Jan 2026
 
+CRAN release: 2026-02-23
+
 ### Bug fixes
 
 1.  **Compact Matrix Correctness**: Fixed a critical data integrity bug
