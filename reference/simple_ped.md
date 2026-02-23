@@ -10,7 +10,7 @@ simple_ped
 
 ## Format
 
-A data.table with 3 columns:
+A data.table with 4 columns:
 
 - Ind:
 
@@ -23,3 +23,7 @@ A data.table with 3 columns:
 - Dam:
 
   Dam ID
+
+- Sex:
+
+  Sex of the individual

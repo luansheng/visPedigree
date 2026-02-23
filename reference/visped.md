@@ -148,8 +148,9 @@ visped(
 
 ## Value
 
-No returned values. The graph will be plotted directly on graphic
-devices.
+The function mainly produces a plot on the current graphics device
+and/or a PDF file. It invisibly returns a list containing the graph
+object, layout coordinates, and node sizes.
 
 ## Details
 
@@ -244,7 +245,7 @@ visped(simple_ped_tidy,
        symbolsize=5.5, 
        pagewidth = 100, 
        file = tempfile(fileext = ".pdf"))
-#> Pedigree saved to: /tmp/RtmpZ5OnYo/file1c8b55eb2d7a.pdf
+#> Pedigree saved to: /tmp/Rtmp69kLOr/file1c2d36bd563f.pdf
 #> Label cex: 0.25. Symbol size: 5.5. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 
 
@@ -274,7 +275,7 @@ visped(big_ped_tidy,
        symbolsize=5.5, 
        file = tempfile(fileext = ".pdf"))
 #> Note: Removed 351 isolated individuals (no parents, no progeny) from the plot.
-#> Pedigree saved to: /tmp/RtmpZ5OnYo/file1c8b57cd7134.pdf
+#> Pedigree saved to: /tmp/Rtmp69kLOr/file1c2d55269f55.pdf
 #> Label cex: 0.08. Symbol size: 5.5. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 
 
@@ -284,7 +285,7 @@ visped(big_ped_tidy,
        outline = TRUE, 
        file = tempfile(fileext = ".pdf"))
 #> Note: Removed 351 isolated individuals (no parents, no progeny) from the plot.
-#> Pedigree saved to: /tmp/RtmpZ5OnYo/file1c8b40d6ec3.pdf
+#> Pedigree saved to: /tmp/Rtmp69kLOr/file1c2d1fecf905.pdf
 
 # }
 ```

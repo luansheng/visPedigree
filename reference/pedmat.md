@@ -99,7 +99,7 @@ Returns a matrix or vector with S3 class `"pedmat"`.
 - [`summary_pedmat`](https://luansheng.github.io/visPedigree/reference/summary_pedmat.md)`(x)`:
   Detailed statistics (size, compression, mean, density)
 
-- `dim(x)`, `length(x)`, `diag(x)`, `t(x)`: Standard operations
+- `dim(x)`, `length(x)`, `Matrix::diag(x)`, `t(x)`: Standard operations
 
 - `x[i, j]`: Subsetting (behaves like underlying matrix)
 
@@ -206,7 +206,7 @@ tped <- tidyped(small_ped)
 A <- pedmat(tped)
 A["A", "B"]      # Relationship between A and B
 #> [1] 0
-diag(A)          # Diagonal = 1 + F (inbreeding)
+Matrix::diag(A)  # Diagonal = 1 + F (inbreeding)
 #>        A        B        F        I       J1       J2        N        O 
 #> 1.000000 1.000000 1.000000 1.000000 1.000000 1.000000 1.000000 1.000000 
 #>        R        C        D        E        P        Q        G        H 
@@ -230,7 +230,7 @@ summary_pedmat(A)   # Detailed matrix statistics
 #> Calculated Size: 28  individuals
 #> 
 #> Matrix Properties:
-#> - Mean off-diagonal relationship:  NA 
+#> - Mean off-diagonal relationship:  0.136088 
 #> - Density (non-zero): 54.08%
 #> ========================================
 

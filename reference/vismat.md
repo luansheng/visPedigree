@@ -276,7 +276,7 @@ vismat(D, main = "Dominance Relationship Matrix")
 
 # Inbreeding coefficient distribution (diagonal elements - 1)
 A_mat <- as.matrix(A)
-f_values <- diag(A_mat) - 1
+f_values <- Matrix::diag(A_mat) - 1
 hist(f_values, main = "Inbreeding Coefficient Distribution", xlab = "Inbreeding (F)")
 
 ```

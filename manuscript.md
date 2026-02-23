@@ -136,8 +136,41 @@ high-performance data manipulation and `igraph` for graph rendering. The
 package supports outputting high-resolution vector graphics (PDF),
 allowing for lossless zooming on massive pedigree charts.
 
-(Include performance benchmarks here: e.g., time taken to process 10k,
-50k, 100k individuals compared to other packages).
+### 3.1 Time Complexity Analysis
+
+The computational efficiency of `visPedigree` is achieved through linear
+or near-linear time complexity algorithms: \* **`tidyped` (Data
+Standardization & TGI Algorithm)**: The core operations, including data
+cleaning, validation, and topological sorting, scale linearly with the
+number of individuals $N$. The graph traversal for generation inference
+operates in $O(V + E)$ time, where $V = N$ and $E \leq 2N$. Thus, the
+overall time complexity is **$O(N)$**. \* **`visped` (CGCL Algorithm &
+Rendering)**: The sibship compaction utilizes `data.table`’s highly
+optimized grouping, operating in $O(N)$ time. The Sugiyama layout’s
+crossing minimization (barycenter method) sorts nodes within each
+generation layer, taking $O\left( L\log L \right)$ where $L$ is the
+number of nodes in a layer. The 1D repulsion algorithm operates in
+$O(L)$ per layer. Therefore, the overall time complexity for layout and
+rendering is bounded by **$O\left( N\log N_{max} \right)$**, where
+$N_{max}$ is the maximum number of nodes in any single generation.
+
+### 3.2 Performance Benchmarks
+
+To demonstrate the real-world performance of `visPedigree`, we conducted
+benchmark tests on a standard desktop computer (macOS, Apple Silicon,
+16GB RAM) using two representative datasets included in the package:
+
+| Dataset               | Individuals ($N$) | Characteristics                                | `tidyped` Time (s) | `visped` Time (s)\* |
+|:----------------------|:------------------|:-----------------------------------------------|:-------------------|:--------------------|
+| `deep_ped`            | 4,396             | Deep ancestry, overlapping generations         | ~0.03              | ~2.54               |
+| `big_family_size_ped` | 178,421           | Massive population, high fecundity (full-sibs) | ~0.36              | ~4.37               |
+
+*\* `visped` times were recorded using `compact = TRUE` and outputting
+to a PDF file.*
+
+These results highlight the package’s capability to process and render
+pedigrees approaching 200,000 individuals in under 5 seconds, a scale
+that is typically intractable for traditional visualization tools.
 
 ## 4. Case Studies
 
@@ -174,6 +207,10 @@ relevant 4,396 ancestors from a potentially larger historical database.
 genetic contribution over dozens of generations without the visual
 ambiguity caused by chronological overlap.
 
+![Deep Pedigree Visualization](deep_ped_plot.png)
+
+Deep Pedigree Visualization
+
 ### 4.2 Case Study 2: Massive Population with High Fecundity (`big_family_size_ped`)
 
 **Dataset Characteristics:** The `big_family_size_ped` dataset is a
@@ -200,6 +237,10 @@ maintained the structural integrity of the population—showing the number
 of families and their sizes—while remaining clean and legible. This
 visualization allows breeders to instantly assess family size
 distributions and selection intensity across the entire population.
+
+![Big Family Size Pedigree Visualization](big_family_size_ped_plot.png)
+
+Big Family Size Pedigree Visualization
 
 ### 4.3 Comparison with Existing Tools
 

@@ -43,8 +43,9 @@ Coefficients). - **`expand_pedmatrix`** is renamed to
 **`expand_pedmat`**. - **`summary_pedmatrix`** is renamed to
 **`summary_pedmat`**. - The parameter **`n_threads`** is standardized to
 **`threads`** across all functions. - Legacy function names
-(`pedmatrix`, etc.) are preserved as deprecated wrappers to ensure
-backward compatibility.
+(`pedmatrix`, etc.) have been removed. Please use
+[`pedmat()`](https://luansheng.github.io/visPedigree/reference/pedmat.md)
+directly.
 
 ### New Features
 
@@ -286,9 +287,12 @@ CRAN release: 2026-01-21
 
 ## Changes in version 0.4.1 released on 25 Dec 2025
 
-## Changes in version 0.2.6 released on 31 Mar 2020
+### Bug fixes
 
-### New features
+1.  Fixed overlapping edge detection for small pedigree graphs.
+2.  Improved coloring consistency for compact mode.
+
+## Changes in version 0.2.6 released on 31 Mar 2020
 
 ### Bug fixes
 
@@ -297,16 +301,12 @@ CRAN release: 2026-01-21
 
 ## Changes in version 0.2.5 released on 25 Feb 2020
 
-### New features
-
 ### Bug fixes
 
 1.  The tidyped() does not work with trace=‘all’ in [certain
     cases](https://github.com/luansheng/visPedigree/issues/2#issue-568599008)
 
 ## Changes in version 0.2.4.1 released on 24 Feb 2020
-
-### New features
 
 ### Bug fixes
 
@@ -315,8 +315,6 @@ CRAN release: 2026-01-21
 
 ## Changes in version 0.2.4 released on 12 June 2019
 
-### New features
-
 ### Bug fixes
 
 1.  The data.table used as the input parameter ‘ped’ may be changed in
@@ -324,15 +322,11 @@ CRAN release: 2026-01-21
 
 ## Changes in version 0.2.3 released on 05 Mar 2019
 
-### New features
-
 ### Bug fixes
 
 1.  The generation number of individuals is not inferred rightly.
 
 ## Changes in version 0.2.2 released on 28 Jan 2019
-
-### New features
 
 ### Bug fixes
 
@@ -341,8 +335,6 @@ CRAN release: 2026-01-21
     NULL.
 
 ## Changes in version 0.2.1 released on 17 Nov 2018
-
-### New features
 
 ### Bug fixes
 

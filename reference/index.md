@@ -60,5 +60,3 @@ Generic methods for ‘tidyped’ and ‘pedmat’ objects.
   : Print method for summary.tidyped
 - [`print(`*`<tidyped>`*`)`](https://luansheng.github.io/visPedigree/reference/print.tidyped.md)
   : Print method for tidyped pedigree
-- [`diag()`](https://luansheng.github.io/visPedigree/reference/diag.md)
-  : Extract Matrix Diagonals

@@ -116,7 +116,7 @@ dimensions for pedigrees with large full-sib groups. See Details.</p></dd>
 <li><p>All other methods: Sparse or dense matrix (depending on <code>sparse</code>)</p></li>
 </ul><p><strong>S3 Methods:</strong></p><ul><li><p><code>print(x)</code>: Display matrix with metadata header</p></li>
 <li><p><code><a href="summary_pedmat.html">summary_pedmat</a>(x)</code>: Detailed statistics (size, compression, mean, density)</p></li>
-<li><p><code>dim(x)</code>, <code>length(x)</code>, <code>diag(x)</code>, <code>t(x)</code>: Standard operations</p></li>
+<li><p><code>dim(x)</code>, <code>length(x)</code>, <code>Matrix::diag(x)</code>, <code>t(x)</code>: Standard operations</p></li>
 <li><p><code>x[i, j]</code>: Subsetting (behaves like underlying matrix)</p></li>
 <li><p><code>as.matrix(x)</code>: Convert to base matrix</p></li>
 </ul><p><strong>Accessing Metadata (use <code><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr()</a></code>, not <code>$</code>):</strong></p><ul><li><p><code>attr(x, "ped")</code>: The pedigree used (or compact pedigree if <code>compact=TRUE</code>)</p></li>
@@ -178,7 +178,7 @@ Biometrics, 32(1), 69-83.</p>
 <span class="r-in"><span><span class="va">A</span> <span class="op">&lt;-</span> <span class="fu">pedmat</span><span class="op">(</span><span class="va">tped</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">A</span><span class="op">[</span><span class="st">"A"</span>, <span class="st">"B"</span><span class="op">]</span>      <span class="co"># Relationship between A and B</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0</span>
-<span class="r-in"><span><span class="fu"><a href="diag.html">diag</a></span><span class="op">(</span><span class="va">A</span><span class="op">)</span>          <span class="co"># Diagonal = 1 + F (inbreeding)</span></span></span>
+<span class="r-in"><span><span class="fu">Matrix</span><span class="fu">::</span><span class="fu">diag</span><span class="op">(</span><span class="va">A</span><span class="op">)</span>  <span class="co"># Diagonal = 1 + F (inbreeding)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        A        B        F        I       J1       J2        N        O </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1.000000 1.000000 1.000000 1.000000 1.000000 1.000000 1.000000 1.000000 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        R        C        D        E        P        Q        G        H </span>
@@ -202,7 +202,7 @@ Biometrics, 32(1), 69-83.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Calculated Size: 28  individuals</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Matrix Properties:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> - Mean off-diagonal relationship:  NA </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - Mean off-diagonal relationship:  0.136088 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> - Density (non-zero): 54.08%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ========================================</span>
 <span class="r-in"><span></span></span>

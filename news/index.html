@@ -62,7 +62,7 @@
 <h2 class="pkg-version" data-toc-text="1.0.0" id="changes-in-version-100-released-on-24-jan-2026">Changes in version 1.0.0 released on 24 Jan 2026<a class="anchor" aria-label="anchor" href="#changes-in-version-100-released-on-24-jan-2026"></a></h2>
 <div class="section level3">
 <h3 id="api-standardization-breaking-1-0-0">API Standardization (BREAKING)<a class="anchor" aria-label="anchor" href="#api-standardization-breaking-1-0-0"></a></h3>
-<p>To provide a clean and intuitive API for v1.0.0, core function names and behaviors have been standardized: - <strong><code>pedmatrix</code></strong> is renamed to <strong><code>pedmat</code></strong>. - <strong><code>pedmat</code> default <code>method</code> is now <code>"A"</code></strong> (Additive Relationship Matrix). Previously it was <code>"f"</code> (Inbreeding Coefficients). - <strong><code>expand_pedmatrix</code></strong> is renamed to <strong><code>expand_pedmat</code></strong>. - <strong><code>summary_pedmatrix</code></strong> is renamed to <strong><code>summary_pedmat</code></strong>. - The parameter <strong><code>n_threads</code></strong> is standardized to <strong><code>threads</code></strong> across all functions. - Legacy function names (<code>pedmatrix</code>, etc.) are preserved as deprecated wrappers to ensure backward compatibility.</p>
+<p>To provide a clean and intuitive API for v1.0.0, core function names and behaviors have been standardized: - <strong><code>pedmatrix</code></strong> is renamed to <strong><code>pedmat</code></strong>. - <strong><code>pedmat</code> default <code>method</code> is now <code>"A"</code></strong> (Additive Relationship Matrix). Previously it was <code>"f"</code> (Inbreeding Coefficients). - <strong><code>expand_pedmatrix</code></strong> is renamed to <strong><code>expand_pedmat</code></strong>. - <strong><code>summary_pedmatrix</code></strong> is renamed to <strong><code>summary_pedmat</code></strong>. - The parameter <strong><code>n_threads</code></strong> is standardized to <strong><code>threads</code></strong> across all functions. - Legacy function names (<code>pedmatrix</code>, etc.) have been removed. Please use <code><a href="../reference/pedmat.html">pedmat()</a></code> directly.</p>
 </div>
 <div class="section level3">
 <h3 id="new-features-1-0-0">New Features<a class="anchor" aria-label="anchor" href="#new-features-1-0-0"></a></h3>
@@ -232,12 +232,14 @@
 </div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.4.1" id="changes-in-version-041-released-on-25-dec-2025">Changes in version 0.4.1 released on 25 Dec 2025<a class="anchor" aria-label="anchor" href="#changes-in-version-041-released-on-25-dec-2025"></a></h2>
+<div class="section level3">
+<h3 id="bug-fixes-0-4-1">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-4-1"></a></h3>
+<ol style="list-style-type: decimal"><li>Fixed overlapping edge detection for small pedigree graphs.</li>
+<li>Improved coloring consistency for compact mode.</li>
+</ol></div>
 </div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.2.6" id="changes-in-version-026-released-on-31-mar-2020">Changes in version 0.2.6 released on 31 Mar 2020<a class="anchor" aria-label="anchor" href="#changes-in-version-026-released-on-31-mar-2020"></a></h2>
-<div class="section level3">
-<h3 id="new-features-0-2-6">New features<a class="anchor" aria-label="anchor" href="#new-features-0-2-6"></a></h3>
-</div>
 <div class="section level3">
 <h3 id="bug-fixes-0-2-6">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-2-6"></a></h3>
 <ol style="list-style-type: decimal"><li>Fixed a bug that the number of generations for candidates would be traced to n+1 when tracegen=n. This bug is found by Mianyu Liu.</li>
@@ -245,9 +247,6 @@
 </div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.2.5" id="changes-in-version-025-released-on-25-feb-2020">Changes in version 0.2.5 released on 25 Feb 2020<a class="anchor" aria-label="anchor" href="#changes-in-version-025-released-on-25-feb-2020"></a></h2>
-<div class="section level3">
-<h3 id="new-features-0-2-5">New features<a class="anchor" aria-label="anchor" href="#new-features-0-2-5"></a></h3>
-</div>
 <div class="section level3">
 <h3 id="bug-fixes-0-2-5">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-2-5"></a></h3>
 <ol style="list-style-type: decimal"><li>The tidyped() does not work with trace=‘all’ in <a href="https://github.com/luansheng/visPedigree/issues/2#issue-568599008" class="external-link">certain cases</a>
@@ -257,18 +256,12 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.2.4.1" id="changes-in-version-0241-released-on-24-feb-2020">Changes in version 0.2.4.1 released on 24 Feb 2020<a class="anchor" aria-label="anchor" href="#changes-in-version-0241-released-on-24-feb-2020"></a></h2>
 <div class="section level3">
-<h3 id="new-features-0-2-4-1">New features<a class="anchor" aria-label="anchor" href="#new-features-0-2-4-1"></a></h3>
-</div>
-<div class="section level3">
 <h3 id="bug-fixes-0-2-4-1">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-2-4-1"></a></h3>
 <ol style="list-style-type: decimal"><li>An unexpected column with the name as NA occured when a tidyped object is tidyed again using the tidyped()</li>
 </ol></div>
 </div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.2.4" id="changes-in-version-024-released-on-12-june-2019">Changes in version 0.2.4 released on 12 June 2019<a class="anchor" aria-label="anchor" href="#changes-in-version-024-released-on-12-june-2019"></a></h2>
-<div class="section level3">
-<h3 id="new-features-0-2-4">New features<a class="anchor" aria-label="anchor" href="#new-features-0-2-4"></a></h3>
-</div>
 <div class="section level3">
 <h3 id="bug-fixes-0-2-4">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-2-4"></a></h3>
 <ol style="list-style-type: decimal"><li>The data.table used as the input parameter ‘ped’ may be changed in tidyped() and visped().</li>
@@ -277,9 +270,6 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.2.3" id="changes-in-version-023-released-on-05-mar-2019">Changes in version 0.2.3 released on 05 Mar 2019<a class="anchor" aria-label="anchor" href="#changes-in-version-023-released-on-05-mar-2019"></a></h2>
 <div class="section level3">
-<h3 id="new-features-0-2-3">New features<a class="anchor" aria-label="anchor" href="#new-features-0-2-3"></a></h3>
-</div>
-<div class="section level3">
 <h3 id="bug-fixes-0-2-3">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-2-3"></a></h3>
 <ol style="list-style-type: decimal"><li>The generation number of individuals is not inferred rightly.</li>
 </ol></div>
@@ -287,18 +277,12 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.2.2" id="changes-in-version-022-released-on-28-jan-2019">Changes in version 0.2.2 released on 28 Jan 2019<a class="anchor" aria-label="anchor" href="#changes-in-version-022-released-on-28-jan-2019"></a></h2>
 <div class="section level3">
-<h3 id="new-features-0-2-2">New features<a class="anchor" aria-label="anchor" href="#new-features-0-2-2"></a></h3>
-</div>
-<div class="section level3">
 <h3 id="bug-fixes-0-2-2">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-2-2"></a></h3>
 <ol style="list-style-type: decimal"><li>The tidied pedigree will not include the candidates which are not in the Ind column of the origin pedigree when the cand parameter is not NULL.</li>
 </ol></div>
 </div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.2.1" id="changes-in-version-021-released-on-17-nov-2018">Changes in version 0.2.1 released on 17 Nov 2018<a class="anchor" aria-label="anchor" href="#changes-in-version-021-released-on-17-nov-2018"></a></h2>
-<div class="section level3">
-<h3 id="new-features-0-2-1">New features<a class="anchor" aria-label="anchor" href="#new-features-0-2-1"></a></h3>
-</div>
 <div class="section level3">
 <h3 id="bug-fixes-0-2-1">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-2-1"></a></h3>
 <ol style="list-style-type: decimal"><li>Repel the overlapping nodes due to very small differences (digits &gt; 7) among x positions of nodes</li>
