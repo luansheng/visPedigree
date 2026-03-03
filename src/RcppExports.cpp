@@ -69,6 +69,19 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// cpp_mean_relationship
+double cpp_mean_relationship(IntegerVector sire, IntegerVector dam, IntegerVector target_idx);
+RcppExport SEXP _visPedigree_cpp_mean_relationship(SEXP sireSEXP, SEXP damSEXP, SEXP target_idxSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< IntegerVector >::type sire(sireSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type dam(damSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type target_idx(target_idxSEXP);
+    rcpp_result_gen = Rcpp::wrap(cpp_mean_relationship(sire, dam, target_idx));
+    return rcpp_result_gen;
+END_RCPP
+}
 // cpp_calculate_D
 arma::mat cpp_calculate_D(IntegerVector sire, IntegerVector dam, const arma::mat& A);
 RcppExport SEXP _visPedigree_cpp_calculate_D(SEXP sireSEXP, SEXP damSEXP, SEXP ASEXP) {
@@ -187,6 +200,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_visPedigree_cpp_calculate_inbreeding", (DL_FUNC) &_visPedigree_cpp_calculate_inbreeding, 2},
     {"_visPedigree_cpp_build_ainv_triplets", (DL_FUNC) &_visPedigree_cpp_build_ainv_triplets, 3},
     {"_visPedigree_cpp_calculate_A", (DL_FUNC) &_visPedigree_cpp_calculate_A, 2},
+    {"_visPedigree_cpp_mean_relationship", (DL_FUNC) &_visPedigree_cpp_mean_relationship, 3},
     {"_visPedigree_cpp_calculate_D", (DL_FUNC) &_visPedigree_cpp_calculate_D, 3},
     {"_visPedigree_cpp_calculate_AA", (DL_FUNC) &_visPedigree_cpp_calculate_AA, 1},
     {"_visPedigree_cpp_invert_dense", (DL_FUNC) &_visPedigree_cpp_invert_dense, 1},

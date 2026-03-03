@@ -418,21 +418,21 @@ pedrel <- function(ped, by = "Gen", cand = NULL, compact = FALSE) {
         return(data.table(Group = g, NTotal = n_total, NUsed = n_used, MeanRel = NA_real_))
       }
       
-      A <- tryCatch({
-        pedmat(local_ped, method = "A", sparse = FALSE, compact = compact)
-      }, error = function(e) {
-        warning(sprintf(
-          paste0("Group '%s': %s\n",
-                 "Hint: subset with 'cand' or use 'compact = TRUE'."),
-          g, e$message))
-        return(NULL)
-      })
-      
-      if (is.null(A)) {
-        return(data.table(Group = g, NTotal = n_total, NUsed = n_used, MeanRel = NA_real_))
-      }
-      
-      if (isTRUE(attr(A, "call_info")$compact)) {
+      if (isTRUE(compact)) {
+        A <- tryCatch({
+          pedmat(local_ped, method = "A", sparse = FALSE, compact = TRUE)
+        }, error = function(e) {
+          warning(sprintf(
+            paste0("Group '%s': %s\n",
+                   "Hint: subset with 'cand' or use 'compact = TRUE'."),
+            g, e$message))
+          return(NULL)
+        })
+        
+        if (is.null(A)) {
+          return(data.table(Group = g, NTotal = n_total, NUsed = n_used, MeanRel = NA_real_))
+        }
+        
         c_map <- attr(A, "compact_map")
         c_map_target <- c_map[Ind %in% target_inds]
         
@@ -463,9 +463,19 @@ pedrel <- function(ped, by = "Gen", cand = NULL, compact = FALSE) {
         
         mean_rel <- (sum_between + sum_within) / (as.numeric(n_used) * (n_used - 1))
       } else {
-        idx <- which(local_ped$Ind %in% target_inds)
-        A_sub <- A[idx, idx, drop = FALSE]
-        mean_rel <- (sum(A_sub) - sum(diag(A_sub))) / (as.numeric(n_used) * (n_used - 1))
+        target_idx <- match(target_inds, local_ped$Ind)
+        if (anyNA(target_idx)) {
+          return(data.table(Group = g, NTotal = n_total, NUsed = n_used, MeanRel = NA_real_))
+        }
+        mean_rel <- tryCatch({
+          cpp_mean_relationship(local_ped$SireNum, local_ped$DamNum, as.integer(target_idx))
+        }, error = function(e) {
+          warning(sprintf(
+            paste0("Group '%s': %s\n",
+                   "Hint: subset with 'cand' or use 'compact = TRUE'."),
+            g, e$message))
+          return(NA_real_)
+        })
       }
     }
     
@@ -972,21 +982,33 @@ pedcontrib <- function(ped, cohort = NULL, mode = c("both", "founder", "ancestor
     work_sire <- as.integer(sire_num)
     work_dam <- as.integer(dam_num)
     
-    # Find all ancestors of cohort via forward BFS on integer indices
+    # Find all ancestors of cohort via BFS on integer indices
     is_ancestor <- logical(n)
-    queue <- cohort_pos
     visited <- logical(n)
-    visited[queue] <- TRUE
-    while (length(queue) > 0) {
-      parents <- integer(0)
-      for (pos in queue) {
-        s <- sire_num[pos]; d <- dam_num[pos]
-        if (s > 0 && !visited[s]) { parents <- c(parents, s); visited[s] <- TRUE }
-        if (d > 0 && !visited[d]) { parents <- c(parents, d); visited[d] <- TRUE }
+    queue <- integer(n)
+    head <- 1L
+    tail <- length(cohort_pos)
+    if (tail > 0) {
+      queue[seq_len(tail)] <- as.integer(cohort_pos)
+      visited[queue[seq_len(tail)]] <- TRUE
+    }
+    while (head <= tail) {
+      pos <- queue[head]
+      head <- head + 1L
+      s <- sire_num[pos]
+      d <- dam_num[pos]
+      if (s > 0 && !visited[s]) {
+        visited[s] <- TRUE
+        is_ancestor[s] <- TRUE
+        tail <- tail + 1L
+        queue[tail] <- s
       }
-      if (length(parents) == 0) break
-      is_ancestor[parents] <- TRUE
-      queue <- parents
+      if (d > 0 && !visited[d]) {
+        visited[d] <- TRUE
+        is_ancestor[d] <- TRUE
+        tail <- tail + 1L
+        queue[tail] <- d
+      }
     }
     
     candidate_idx <- which(is_ancestor)
@@ -996,9 +1018,10 @@ pedcontrib <- function(ped, cohort = NULL, mode = c("both", "founder", "ancestor
       result$ancestors <- data.table(Ind = character(0), Contrib = numeric(0),
                                       CumContrib = numeric(0), Rank = integer(0))
     } else {
-      selected_ancestors <- character(0)
-      marginal_contribs <- numeric(0)
-      active <- rep(TRUE, n)  # track which candidates are still active
+      selected_idx <- integer(n_total_anc)
+      marginal_contribs <- numeric(n_total_anc)
+      n_selected <- 0L
+      active_mask <- rep(TRUE, n_total_anc)
       
       repeat {
         # Backward pass with current (modified) parent links
@@ -1006,30 +1029,39 @@ pedcontrib <- function(ped, cohort = NULL, mode = c("both", "founder", "ancestor
         
         # Find best among remaining candidates
         cand_contribs <- contrib[candidate_idx]
-        active_mask <- active[candidate_idx]
         cand_contribs[!active_mask] <- 0
         
         best_local <- which.max(cand_contribs)
-        best_pos <- candidate_idx[best_local]
         best_val <- cand_contribs[best_local]
         
         if (best_val <= 1e-10) break
         
-        selected_ancestors <- c(selected_ancestors, ind_ids[best_pos])
-        marginal_contribs <- c(marginal_contribs, best_val)
+        n_selected <- n_selected + 1L
+        best_pos <- candidate_idx[best_local]
+        selected_idx[n_selected] <- best_pos
+        marginal_contribs[n_selected] <- best_val
         
         # "Account for" this ancestor: sever its parental links
         work_sire[best_pos] <- 0L
         work_dam[best_pos] <- 0L
-        active[best_pos] <- FALSE
+        active_mask[best_local] <- FALSE
       }
       
-      ancestor_dt_full <- data.table(
-        Ind = selected_ancestors,
-        Contrib = marginal_contribs
-      )
-      ancestor_dt_full[, CumContrib := cumsum(Contrib)]
-      ancestor_dt_full[, Rank := seq_len(.N)]
+      if (n_selected == 0) {
+        ancestor_dt_full <- data.table(
+          Ind = character(0),
+          Contrib = numeric(0),
+          CumContrib = numeric(0),
+          Rank = integer(0)
+        )
+      } else {
+        ancestor_dt_full <- data.table(
+          Ind = ind_ids[selected_idx[seq_len(n_selected)]],
+          Contrib = marginal_contribs[seq_len(n_selected)]
+        )
+        ancestor_dt_full[, CumContrib := cumsum(Contrib)]
+        ancestor_dt_full[, Rank := seq_len(.N)]
+      }
       
       result$ancestors_full <- ancestor_dt_full
       result$ancestors <- if (nrow(ancestor_dt_full) > top) ancestor_dt_full[1:top] else ancestor_dt_full
@@ -1124,9 +1156,13 @@ pedancestry <- function(ped, labelvar, labels = NULL) {
     d <- dam_nums[i]
     
     if (s > 0 || d > 0) {
-      s_val <- if (s > 0) res_mat[indnum_to_row[s], ] else numeric(length(labels))
-      d_val <- if (d > 0) res_mat[indnum_to_row[d], ] else numeric(length(labels))
-      res_mat[i, ] <- 0.5 * s_val + 0.5 * d_val
+      if (s > 0 && d > 0) {
+        res_mat[i, ] <- 0.5 * (res_mat[indnum_to_row[s], ] + res_mat[indnum_to_row[d], ])
+      } else if (s > 0) {
+        res_mat[i, ] <- 0.5 * res_mat[indnum_to_row[s], ]
+      } else {
+        res_mat[i, ] <- 0.5 * res_mat[indnum_to_row[d], ]
+      }
     }
   }
   

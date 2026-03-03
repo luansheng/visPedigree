@@ -17,18 +17,17 @@ inbreed <- function(ped, ...) {
     ped <- tidyped(ped, addnum = TRUE)
   }
 
-  # Ensure sorted by IndNum for the Trace algorithm
+  # Ensure sorted by IndNum for the Trace algorithm, then restore original order
   ped_work <- copy(ped)
+  ped_work[, .orig_order_visped := seq_len(.N)]
   setorder(ped_work, IndNum)
 
   # Call Rcpp function
   res_f <- cpp_calculate_inbreeding(ped_work$SireNum, ped_work$DamNum)
   
-  # Map back to original ped
-  ped_new <- copy(ped)
-  # since we used ped_work order, map based on IndNum
-  f_map <- data.table(IndNum = ped_work$IndNum, f_val = res_f$f)
-  ped_new[f_map, f := i.f_val, on = "IndNum"]
+  ped_work[, f := res_f$f]
+  setorder(ped_work, .orig_order_visped)
+  ped_work[, .orig_order_visped := NULL]
   
-  return(new_tidyped(ped_new))
+  return(new_tidyped(ped_work))
 }

@@ -21,6 +21,10 @@ cpp_calculate_A <- function(sire, dam) {
     .Call(`_visPedigree_cpp_calculate_A`, sire, dam)
 }
 
+cpp_mean_relationship <- function(sire, dam, target_idx) {
+    .Call(`_visPedigree_cpp_mean_relationship`, sire, dam, target_idx)
+}
+
 cpp_calculate_D <- function(sire, dam, A) {
     .Call(`_visPedigree_cpp_calculate_D`, sire, dam, A)
 }

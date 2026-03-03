@@ -345,6 +345,72 @@ arma::mat cpp_calculate_A(IntegerVector sire, IntegerVector dam) {
     return A;
 }
 
+// Calculate mean off-diagonal relationship for a target subset
+// [[Rcpp::export]]
+double cpp_mean_relationship(IntegerVector sire, IntegerVector dam, IntegerVector target_idx) {
+    int n = sire.size();
+    if (dam.size() != n) {
+        stop("sire and dam vectors must have the same length");
+    }
+    if (target_idx.size() < 2) {
+        return NA_REAL;
+    }
+
+    std::vector<unsigned char> is_target(n, 0);
+    int n_target = 0;
+    for (int k = 0; k < target_idx.size(); ++k) {
+        int idx = target_idx[k] - 1;
+        if (idx < 0 || idx >= n) {
+            stop("target_idx contains out-of-bounds index");
+        }
+        if (!is_target[idx]) {
+            is_target[idx] = 1;
+            ++n_target;
+        }
+    }
+    if (n_target < 2) {
+        return NA_REAL;
+    }
+
+    const size_t tri_size = static_cast<size_t>(n) * static_cast<size_t>(n + 1) / 2;
+    std::vector<double> A_tri(tri_size, 0.0);
+    auto tri_idx = [](int i, int j) -> size_t {
+        if (i < j) std::swap(i, j);
+        return static_cast<size_t>(i) * static_cast<size_t>(i + 1) / 2 + static_cast<size_t>(j);
+    };
+
+    std::vector<int> seen_targets;
+    seen_targets.reserve(n_target);
+    double lower_sum = 0.0;
+
+    for (int i = 0; i < n; ++i) {
+        int si = sire[i] - 1;
+        int di = dam[i] - 1;
+
+        if (si >= n || di >= n) {
+            stop("Parent index out of bounds");
+        }
+
+        double fi = (si >= 0 && di >= 0) ? 0.5 * A_tri[tri_idx(si, di)] : 0.0;
+        A_tri[tri_idx(i, i)] = 1.0 + fi;
+
+        for (int j = 0; j < i; ++j) {
+            double val = 0.5 * ((si >= 0 ? A_tri[tri_idx(j, si)] : 0.0) +
+                                (di >= 0 ? A_tri[tri_idx(j, di)] : 0.0));
+            A_tri[tri_idx(i, j)] = val;
+        }
+
+        if (is_target[i]) {
+            for (int tj : seen_targets) {
+                lower_sum += A_tri[tri_idx(i, tj)];
+            }
+            seen_targets.push_back(i);
+        }
+    }
+
+    return (2.0 * lower_sum) / (static_cast<double>(n_target) * static_cast<double>(n_target - 1));
+}
+
 // ============================================================================
 // Calculate Dominance Relationship Matrix (D)
 // ============================================================================
