@@ -602,31 +602,19 @@ NumericMatrix cpp_calculate_partial_inbreeding(IntegerVector sire, IntegerVector
     // We use a reusable flow vector to avoid reallocation
     std::vector<double> flow(n);
 
-    // DEBUG
-    // Rcpp::Rcout << "Calculating partial inbreeding for " << n_anc << " ancestors. N=" << n << "\n";
-
     // For each target ancestor k
     for (int j = 0; j < n_anc; ++j) {
         int anc_idx = ancestors[j] - 1; // 0-based index
-        // Rcpp::Rcout << "Ancestor " << j << " Index: " << anc_idx << "\n";
         
-        // 1. Calculate gene flow from ancestor k to all descendents (Forward Pass)
+        // 1. Calculate gene flow from ancestor k to all descendants (Forward Pass)
+        // Uses "pull" logic: A_ik = 0.5 * A_sk + 0.5 * A_dk, processed forward (i=1..N).
         std::fill(flow.begin(), flow.end(), 0.0);
         flow[anc_idx] = 1.0;
         
         // Iterate from ancestor to end of pedigree
         // Assumes pedigree is sorted or at least parents appear before children
-        // (Our tidyped guarantees partial order, but rigorous topological sort is best. 
-        //  However, IndNum order usually respects birth date/generation).
+        // (Our tidyped guarantees partial order via IndNum).
         for (int i = anc_idx; i < n; ++i) {
-            
-            // This is "pull" logic (looking at parents), but we need "push" (parent to offspring).
-            // But we don't have offspring list. 
-            // So we stick to standard "pull" logic? No, pull calculates ancestor's contribution.
-            // Wait, standard relationship calculation A_ik is exactly what we need.
-            // A_ik = 0.5 * A_sk + 0.5 * A_dk.
-            // This can be computed forward if we process i=1..N.
-            
             int s = sire[i] - 1;
             int d = dam[i] - 1;
             
@@ -648,7 +636,6 @@ NumericMatrix cpp_calculate_partial_inbreeding(IntegerVector sire, IntegerVector
             
             if (s >= 0 && d >= 0) {
                 pF(i, j) = 0.5 * flow[s] * flow[d] * dk;
-                // if (pF(i, j) > 0) Rcpp::Rcout << "  pF[" << i << "," << j << "] = " << pF(i, j) << "\n";
             }
         }
     }
