@@ -726,7 +726,7 @@ print.pedstats <- function(x, ...) {
 #'   (Cervantes et al. 2011).
 #'   \deqn{\Delta c_{ij} = 1 - (1 - c_{ij})^{1/(\frac{ECG_i + ECG_j}{2})}}
 #'   \deqn{N_e = \frac{1}{2 \overline{\Delta c}}}
-#'   To handle large populations, this method samples \code{samplen} individuals per cohort
+#'   To handle large populations, this method samples \code{nsamples} individuals per cohort
 #'   and computes the mean rate of coancestry among them.
 #'   
 #'   \item \strong{"inbreeding"}: Based on the individual rate of inbreeding 
@@ -744,7 +744,7 @@ print.pedstats <- function(x, ...) {
 #' @param method Character, method to use: "coancestry" (default), "inbreeding", or "demographic".
 #' @param by Character, column name for grouping cohorts (e.g., "Year"). Auto-detected if NULL.
 #' @param cand Character vector, specific candidates to include.
-#' @param samplen Integer. Number of individuals to sample per cohort. Only applicable for \code{method = "coancestry"} (default: 1000).
+#' @param nsamples Integer. Number of individuals to sample per cohort. Only applicable for \code{method = "coancestry"} (default: 1000).
 #' @param ncores Integer. Number of cores for parallel processing. Currently only effective for \code{method = "coancestry"} (default: 1).
 #'
 #' @return A data.table with columns:
@@ -757,7 +757,7 @@ print.pedstats <- function(x, ...) {
 #' 
 #' @export
 pedne <- function(ped, method = c("coancestry", "inbreeding", "demographic"), 
-                  by = NULL, cand = NULL, samplen = 1000, ncores = 1) {
+                  by = NULL, cand = NULL, nsamples = 1000, ncores = 1) {
   
   if (!inherits(ped, "tidyped")) stop("ped must be a tidyped object")
   method <- match.arg(method)
@@ -801,7 +801,7 @@ pedne <- function(ped, method = c("coancestry", "inbreeding", "demographic"),
   # Dispatch to specific calculator
   res <- switch(method,
     "inbreeding" = calc_ne_inbreeding(ped_subset, by),
-    "coancestry" = calc_ne_coancestry(ped_subset, by, samplen),
+    "coancestry" = calc_ne_coancestry(ped_subset, by, nsamples),
     "demographic" = calc_ne_demographic(ped_subset, by)
   )
   
@@ -880,7 +880,7 @@ calc_ne_demographic <- function(ped, by) {
   return(result)
 }
 
-calc_ne_coancestry <- function(ped, by, samplen) {
+calc_ne_coancestry <- function(ped, by, nsamples) {
   # Needs ECG for Delta C calculation
   if (!"ECG" %in% names(ped)) {
     ecg_dt <- pedecg(ped)
@@ -899,8 +899,8 @@ calc_ne_coancestry <- function(ped, by, samplen) {
     if (n_total == 0) next
     
     # Sampling
-    if (n_total > samplen) {
-      sampled_inds <- sample(sub_ped$Ind, samplen)
+    if (n_total > nsamples) {
+      sampled_inds <- sample(sub_ped$Ind, nsamples)
     } else {
       sampled_inds <- sub_ped$Ind
     }

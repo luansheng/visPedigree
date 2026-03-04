@@ -4,20 +4,27 @@
 \alias{pedne}
 \title{Calculate Effective Population Size}
 \usage{
-pedne(ped, by = NULL, cand = NULL, timevar = NULL, cohort = NULL)
+pedne(
+  ped,
+  method = c("coancestry", "inbreeding", "demographic"),
+  by = NULL,
+  cand = NULL,
+  nsamples = 1000,
+  ncores = 1
+)
 }
 \arguments{
-\item{ped}{A \code{tidyped} object.}
+\item{ped}{A tidyped object.}
 
-\item{by}{Character. The name of the column used to define cohorts (e.g., "Year", "BirthYear").
-If NULL, attempts to auto-detect from common names.}
+\item{method}{Character, method to use: "coancestry" (default), "inbreeding", or "demographic".}
 
-\item{cand}{Character vector. Optional subset of individual IDs defining the reference cohort.
-If NULL, uses all individuals.}
+\item{by}{Character, column name for grouping cohorts (e.g., "Year"). Auto-detected if NULL.}
 
-\item{timevar}{\code{[Deprecated]} Use \code{by} instead.}
+\item{cand}{Character vector, specific candidates to include.}
 
-\item{cohort}{\code{[Deprecated]} Use \code{cand} instead.}
+\item{nsamples}{Integer. Number of individuals to sample per cohort. Only applicable for \code{method = "coancestry"} (default: 1000).}
+
+\item{ncores}{Integer. Number of cores for parallel processing. Currently only effective for \code{method = "coancestry"} (default: 1).}
 }
 \value{
 A \code{data.table} with columns:
@@ -28,17 +35,38 @@ A \code{data.table} with columns:
   \item \code{DeltaF}: Individual increase in inbreeding per generation.
   \item \code{Ne}: Effective population size.
 }
+
+A data.table with columns:
+\itemize{
+  \item \code{Cohort}: Grouping variable value
+  \item \code{N}: Number of individuals
+  \item \code{Ne}: Effective population size
+  \item Additional columns depending on method (e.g., MeanF, DeltaF, Nm, Nf)
+}
 }
 \description{
 Calculates the effective population size (Ne) based on individual rate of inbreeding (ΔF).
 Uses the method described by Gutiérrez et al. (2008, 2009).
 }
 \details{
-The effective population size is calculated using the individual rate of inbreeding
-(Gutiérrez et al. 2008, 2009):
-\deqn{\Delta F_i = 1 - (1 - F_i)^{1/(ECG_i - 1)}}
-\deqn{N_e = \frac{1}{2 \overline{\Delta F}}}
+The effective population size is calculated using one of three methods:
 
-where ECG is the Equivalent Complete Generations, which already encodes the depth
-and completeness of the pedigree. No explicit ancestor traversal is needed.
+\itemize{
+  \item \strong{"coancestry"} (Default): Based on the rate of coancestry between pairs of individuals
+  (Cervantes et al. 2011).
+  \deqn{\Delta c_{ij} = 1 - (1 - c_{ij})^{1/(\frac{ECG_i + ECG_j}{2})}}
+  \deqn{N_e = \frac{1}{2 \overline{\Delta c}}}
+  To handle large populations, this method samples \code{nsamples} individuals per cohort
+  and computes the mean rate of coancestry among them.
+  
+  \item \strong{"inbreeding"}: Based on the individual rate of inbreeding 
+  (Gutiérrez et al. 2008, 2009).
+  \deqn{\Delta F_i = 1 - (1 - F_i)^{1/(ECG_i - 1)}}
+  \deqn{N_e = \frac{1}{2 \overline{\Delta F}}}
+  
+  \item \strong{"demographic"}: Based on the number of breeding males and females.
+  \deqn{N_e = \frac{4 N_m N_f}{N_m + N_f}}
+  Where \eqn{N_m} and \eqn{N_f} are the number of unique male and female parents
+  contributing to the cohort.
+}
 }

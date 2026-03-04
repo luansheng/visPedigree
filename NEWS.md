@@ -8,14 +8,14 @@
         - **`demographic`**: A census-based method using the number of breeding males ($N_m$) and females ($N_f$).
 2. **Parallel Processing Support**:
     - Introduced **OpenMP multi-threading** for the computationally intensive `coancestry` method. Users can now specify `ncores` to speed up large-scale matrix calculations.
-    - Added a `samplen` parameter to allow efficient estimation on massive pedigrees by sampling subsets of each cohort.
+    - Added a `nsamples` parameter to allow efficient estimation on massive pedigrees by sampling subsets of each cohort.
 
 ## Performance
 1. **C++ Optimization**:
     - Implemented a high-performance C++ backend (`cpp_calculate_sampled_coancestry_delta`) using `RcppArmadillo`. This replaces the previous R-based logic for coancestry calculations, enabling the analysis of much larger datasets.
 
 ## Documentation
-1. **Clarified Parameter Scopes**: Updated documentation for `pedne()` to explicitly state that `ncores` and `samplen` parameters are specific to the `method = "coancestry"` calculation path.
+1. **Clarified Parameter Scopes**: Updated documentation for `pedne()` to explicitly state that `ncores` and `nsamples` parameters are specific to the `method = "coancestry"` calculation path.
 2. **Method Descriptions**: Expanded details on the three Ne calculation methods to help users choose the most appropriate metric for their breeding program.
 
 # Changes in version 1.1.1 released on 02 Mar 2026

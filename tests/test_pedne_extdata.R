@@ -49,7 +49,7 @@ run_pedne_test <- function(csv_path) {
   cat("\n--- Method: Coancestry (Sampled) ---\n")
   tryCatch({
     # Use smaller sample size for speed in test
-    ne_co <- pedne(tped, method = "coancestry", by = by_col, samplen = 200)
+    ne_co <- pedne(tped, method = "coancestry", by = by_col, nsamples = 200)
     print(ne_co)
   }, error = function(e) {
     cat("Error:", e$message, "\n")
