@@ -1,3 +1,23 @@
+# Changes in version 1.2.0 released on 04 Mar 2026
+
+## New Features
+1. **Enhanced Effective Population Size (Ne) Calculation**:
+    - The `pedne()` function has been significantly expanded and now supports three robust methods for estimating Ne in breeding populations:
+        - **`coancestry`** (New Default): Based on the rate of coancestry ($\Delta c$). This method captures the loss of genetic potential and is considered the "gold standard" for populations under selection pressure. It typically yields a smaller, more conservative Ne estimate than inbreeding-based methods, providing a better early warning signal for genetic diversity loss.
+        - **`inbreeding`**: Based on the individual rate of inbreeding ($\Delta F$). This method reflects the realized inbreeding but may overestimate Ne in managed populations where mating between relatives is actively avoided.
+        - **`demographic`**: A census-based method using the number of breeding males ($N_m$) and females ($N_f$).
+2. **Parallel Processing Support**:
+    - Introduced **OpenMP multi-threading** for the computationally intensive `coancestry` method. Users can now specify `ncores` to speed up large-scale matrix calculations.
+    - Added a `samplen` parameter to allow efficient estimation on massive pedigrees by sampling subsets of each cohort.
+
+## Performance
+1. **C++ Optimization**:
+    - Implemented a high-performance C++ backend (`cpp_calculate_sampled_coancestry_delta`) using `RcppArmadillo`. This replaces the previous R-based logic for coancestry calculations, enabling the analysis of much larger datasets.
+
+## Documentation
+1. **Clarified Parameter Scopes**: Updated documentation for `pedne()` to explicitly state that `ncores` and `samplen` parameters are specific to the `method = "coancestry"` calculation path.
+2. **Method Descriptions**: Expanded details on the three Ne calculation methods to help users choose the most appropriate metric for their breeding program.
+
 # Changes in version 1.1.1 released on 02 Mar 2026
 
 ## New Features

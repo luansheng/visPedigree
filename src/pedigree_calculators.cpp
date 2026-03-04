@@ -681,3 +681,78 @@ IntegerVector cpp_assign_generations_bottom(IntegerVector sire, IntegerVector da
     for (int i = 0; i < n; ++i) gen[i] = max_h - height[i] + 1;
     return gen;
 }
+
+// ============================================================================
+// Calculate Coancestry-based Ne (Delta c)
+// ============================================================================
+// [[Rcpp::export]]
+double cpp_calculate_sampled_coancestry_delta(IntegerVector sire, IntegerVector dam, IntegerVector target_idx, NumericVector ecg) {
+    int n = sire.size();
+    if (dam.size() != n || ecg.size() != n) {
+        stop("sire, dam, and ecg vectors must have the same length");
+    }
+    if (target_idx.size() < 2) return NA_REAL;
+    std::vector<unsigned char> is_target(n, 0);
+    int n_target = 0;
+    for (int k = 0; k < target_idx.size(); ++k) {
+        int idx = target_idx[k] - 1;
+        if (idx < 0 || idx >= n) stop("target_idx contains out-of-bounds index");
+        if (!is_target[idx]) { is_target[idx] = 1; ++n_target; }
+    }
+    if (n_target < 2) return NA_REAL;
+    const size_t tri_size = static_cast<size_t>(n) * static_cast<size_t>(n + 1) / 2;
+    std::vector<double> A_tri(tri_size, 0.0);
+    auto tri_idx = [](int i, int j) -> size_t {
+        if (i < j) std::swap(i, j);
+        return static_cast<size_t>(i) * static_cast<size_t>(i + 1) / 2 + static_cast<size_t>(j);
+    };
+    std::vector<int> seen_targets;
+    seen_targets.reserve(n_target);
+    double sum_delta_c = 0.0;
+    double num_pairs = 0.0;
+    for (int i = 0; i < n; ++i) {
+        int si = sire[i] - 1;
+        int di = dam[i] - 1;
+        if (si >= n || di >= n) stop("Parent index out of bounds");
+        double fi = (si >= 0 && di >= 0) ? 0.5 * A_tri[tri_idx(si, di)] : 0.0;
+        A_tri[tri_idx(i, i)] = 1.0 + fi;
+        for (int j = 0; j < i; ++j) {
+            double val = 0.5 * ((si >= 0 ? A_tri[tri_idx(j, si)] : 0.0) + (di >= 0 ? A_tri[tri_idx(j, di)] : 0.0));
+            A_tri[tri_idx(i, j)] = val;
+        }
+        if (is_target[i]) {
+            for (int tj : seen_targets) {
+                double C_ij = A_tri[tri_idx(i, tj)] / 2.0;
+                double g_ij = (ecg[i] + ecg[tj]) / 2.0;
+                if (g_ij > 1.0) {
+                    double delta_c = 1.0 - std::pow(1.0 - C_ij, 1.0 / (g_ij - 1.0));
+                    sum_delta_c += delta_c;
+                    num_pairs += 1.0;
+                }
+            }
+            seen_targets.push_back(i);
+        }
+    }
+    if (num_pairs == 0.0) return NA_REAL;
+    return sum_delta_c / num_pairs;
+}
+
+// Calculate Ancestry (Forward P)
+// [[Rcpp::export]]
+NumericMatrix cpp_calculate_ancestry(IntegerVector sire, IntegerVector dam, NumericMatrix res_mat, IntegerVector ind_to_row) {
+    int n = sire.size();
+    int n_cols = res_mat.ncol();
+    
+    for(int i=0; i<n; ++i) {
+       int s = sire[i] - 1;
+       int d = dam[i] - 1;
+       if (s >= 0 || d >= 0) {
+           for(int k=0; k<n_cols; ++k) {
+               double ps = (s >= 0) ? res_mat(s,k) : 0.0;
+               double pd = (d >= 0) ? res_mat(d,k) : 0.0;
+               res_mat(i, k) = 0.5 * (ps + pd);
+           }
+       }
+    }
+    return res_mat;
+}

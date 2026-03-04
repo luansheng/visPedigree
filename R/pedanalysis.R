@@ -623,7 +623,7 @@ pedecg <- function(ped) {
 #' }
 #'
 #' @export
-pedstats <- function(ped, timevar = NULL, unit = "year", cycle_length = NULL, ...) {
+pedstats <- function(ped, timevar = NULL, unit = "year", cycle_length = NULL, calc_ecg = TRUE, calc_genint = TRUE, ...) {
   if (!inherits(ped, "tidyped")) stop("ped must be a tidyped object")
   
   summ <- data.table(
@@ -634,7 +634,11 @@ pedstats <- function(ped, timevar = NULL, unit = "year", cycle_length = NULL, ..
     Max_Gen = max(ped$Gen)
   )
   
-  ecg_dt <- pedecg(ped)
+  ecg_dt <- NULL
+  if (calc_ecg) {
+    ecg_dt <- pedecg(ped)
+  }
+  
   gen_int <- NULL
   
   target_timevar <- timevar
@@ -644,7 +648,7 @@ pedstats <- function(ped, timevar = NULL, unit = "year", cycle_length = NULL, ..
     if (length(match_col) > 0) target_timevar <- match_col[1]
   }
   
-  if (!is.null(target_timevar) && target_timevar %in% names(ped)) {
+  if (calc_genint && !is.null(target_timevar) && target_timevar %in% names(ped)) {
     gen_int <- tryCatch({
       pedgenint(ped, timevar = target_timevar, unit = unit, cycle_length = cycle_length, ...)
     }, error = function(e) {
@@ -704,8 +708,6 @@ print.pedstats <- function(x, ...) {
 #'   If NULL, attempts to auto-detect from common names.
 #' @param cand Character vector. Optional subset of individual IDs defining the reference cohort.
 #'   If NULL, uses all individuals.
-#' @param timevar \code{[Deprecated]} Use \code{by} instead.
-#' @param cohort \code{[Deprecated]} Use \code{cand} instead.
 #'
 #' @return A \code{data.table} with columns:
 #' \itemize{
@@ -717,27 +719,48 @@ print.pedstats <- function(x, ...) {
 #' }
 #' 
 #' @details
-#' The effective population size is calculated using the individual rate of inbreeding
-#' (Gutiérrez et al. 2008, 2009):
-#' \deqn{\Delta F_i = 1 - (1 - F_i)^{1/(ECG_i - 1)}}
-#' \deqn{N_e = \frac{1}{2 \overline{\Delta F}}}
+#' The effective population size is calculated using one of three methods:
 #' 
-#' where ECG is the Equivalent Complete Generations, which already encodes the depth
-#' and completeness of the pedigree. No explicit ancestor traversal is needed.
+#' \itemize{
+#'   \item \strong{"coancestry"} (Default): Based on the rate of coancestry between pairs of individuals
+#'   (Cervantes et al. 2011).
+#'   \deqn{\Delta c_{ij} = 1 - (1 - c_{ij})^{1/(\frac{ECG_i + ECG_j}{2})}}
+#'   \deqn{N_e = \frac{1}{2 \overline{\Delta c}}}
+#'   To handle large populations, this method samples \code{samplen} individuals per cohort
+#'   and computes the mean rate of coancestry among them.
+#'   
+#'   \item \strong{"inbreeding"}: Based on the individual rate of inbreeding 
+#'   (Gutiérrez et al. 2008, 2009).
+#'   \deqn{\Delta F_i = 1 - (1 - F_i)^{1/(ECG_i - 1)}}
+#'   \deqn{N_e = \frac{1}{2 \overline{\Delta F}}}
+#'   
+#'   \item \strong{"demographic"}: Based on the number of breeding males and females.
+#'   \deqn{N_e = \frac{4 N_m N_f}{N_m + N_f}}
+#'   Where \eqn{N_m} and \eqn{N_f} are the number of unique male and female parents
+#'   contributing to the cohort.
+#' }
 #'
+#' @param ped A tidyped object.
+#' @param method Character, method to use: "coancestry" (default), "inbreeding", or "demographic".
+#' @param by Character, column name for grouping cohorts (e.g., "Year"). Auto-detected if NULL.
+#' @param cand Character vector, specific candidates to include.
+#' @param samplen Integer. Number of individuals to sample per cohort. Only applicable for \code{method = "coancestry"} (default: 1000).
+#' @param ncores Integer. Number of cores for parallel processing. Currently only effective for \code{method = "coancestry"} (default: 1).
+#'
+#' @return A data.table with columns:
+#' \itemize{
+#'   \item \code{Cohort}: Grouping variable value
+#'   \item \code{N}: Number of individuals
+#'   \item \code{Ne}: Effective population size
+#'   \item Additional columns depending on method (e.g., MeanF, DeltaF, Nm, Nf)
+#' }
+#' 
 #' @export
-pedne <- function(ped, by = NULL, cand = NULL, timevar = NULL, cohort = NULL) {
-  if (!inherits(ped, "tidyped")) stop("ped must be a tidyped object")
+pedne <- function(ped, method = c("coancestry", "inbreeding", "demographic"), 
+                  by = NULL, cand = NULL, samplen = 1000, ncores = 1) {
   
-  # Backward-compatible deprecation
-  if (!is.null(timevar)) {
-    warning("'timevar' is deprecated in pedne(), use 'by' instead.", call. = FALSE)
-    if (is.null(by)) by <- timevar
-  }
-  if (!is.null(cohort)) {
-    warning("'cohort' is deprecated in pedne(), use 'cand' instead.", call. = FALSE)
-    if (is.null(cand)) cand <- cohort
-  }
+  if (!inherits(ped, "tidyped")) stop("ped must be a tidyped object")
+  method <- match.arg(method)
   
   # Auto-detect by
   if (is.null(by)) {
@@ -755,17 +778,13 @@ pedne <- function(ped, by = NULL, cand = NULL, timevar = NULL, cohort = NULL) {
     stop(sprintf("Column '%s' not found in pedigree.", by))
   }
   
-  # Ensure inbreeding coefficients are calculated
-  if (!"f" %in% names(ped)) {
-    message("Calculating inbreeding coefficients...")
-    ped <- inbreed(ped)
-  }
-  
-  # Calculate ECG if not present
-  if (!"ECG" %in% names(ped)) {
-    message("Calculating Equivalent Complete Generations...")
-    ecg_dt <- pedecg(ped)
-    ped <- merge(ped, ecg_dt[, .(Ind, ECG)], by = "Ind", all.x = TRUE)
+  # Configure threads
+  if (ncores > 1) {
+    if (cpp_openmp_available()) {
+      cpp_set_num_threads(ncores)
+    } else {
+      warning("OpenMP not available. Using single core.")
+    }
   }
   
   # Filter candidates if specified
@@ -774,61 +793,173 @@ pedne <- function(ped, by = NULL, cand = NULL, timevar = NULL, cohort = NULL) {
       missing <- cand[!cand %in% ped$Ind]
       warning(sprintf("Candidate IDs not found in pedigree: %s", paste(missing, collapse = ", ")))
     }
-    ped <- ped[Ind %in% cand]
+    ped_subset <- ped[Ind %in% cand]
+  } else {
+    ped_subset <- ped
   }
   
-  # Filter to individuals with sufficient pedigree depth
+  # Dispatch to specific calculator
+  res <- switch(method,
+    "inbreeding" = calc_ne_inbreeding(ped_subset, by),
+    "coancestry" = calc_ne_coancestry(ped_subset, by, samplen),
+    "demographic" = calc_ne_demographic(ped_subset, by)
+  )
+  
+  return(res)
+}
+
+calc_ne_inbreeding <- function(ped, by) {
+  # Ensure inbreeding coefficients and ECG are present
+  if (!"f" %in% names(ped)) ped <- inbreed(ped)
+  if (!"ECG" %in% names(ped)) {
+    ecg_dt <- pedecg(ped)
+    ped <- merge(ped, ecg_dt[, .(Ind, ECG)], by = "Ind", all.x = TRUE)
+  }
+  
   ped_work <- ped[ECG >= 1]
   
   if (nrow(ped_work) == 0) {
-    stop("No individuals with sufficient pedigree depth (ECG >= 1).")
-  }
-  
-  # Use the original 'by' column for cohort grouping (e.g. Year)
-  ped_work[, CohortLabel := get(by)]
-  
-  # Calculate individual rate of inbreeding (Gutiérrez et al. 2008, 2009)
-  # Formula: DeltaF_i = 1 - (1 - F_i)^(1 / (ECG_i - 1))
-  # ECG already encodes pedigree depth; no need for explicit ancestor traversal.
-  # We only calculate for individuals with ECG > 1 to avoid division by zero.
-  ped_work[, DeltaF_Ind := ifelse(ECG > 1, 1 - (1 - f)^(1 / (ECG - 1)), NA_real_)]
-  
-  # Keep non-negative DeltaF (including F=0 individuals with DeltaF=0)
-  # Excluding DeltaF=0 individuals would bias Ne downward.
-  ped_work <- ped_work[!is.na(DeltaF_Ind) & is.finite(DeltaF_Ind) & DeltaF_Ind >= 0]
-  
-  if (nrow(ped_work) == 0) {
-    warning("No valid ΔF values calculated.")
+    warning("No individuals with sufficient pedigree depth (ECG >= 1).")
     return(data.table(Cohort = numeric(0), N = integer(0), Ne = numeric(0)))
   }
+
+  ped_work[, CohortLabel := get(by)]
+  ped_work[, DeltaF_Ind := ifelse(ECG > 1, 1 - (1 - f)^(1 / (ECG - 1)), NA_real_)]
   
-  # Aggregate by cohort
-  result <- ped_work[, .(
+  # Filter valid DeltaF
+  ped_valid <- ped_work[!is.na(DeltaF_Ind) & is.finite(DeltaF_Ind) & DeltaF_Ind >= 0]
+  
+  if (nrow(ped_valid) == 0) {
+    warning("No valid DeltaF values calculated.")
+    return(data.table(Cohort = numeric(0), N = integer(0), Ne = numeric(0)))
+  }
+
+  result <- ped_valid[, .(
     N = .N,
     MeanF = mean(f, na.rm = TRUE),
     DeltaF = mean(DeltaF_Ind, na.rm = TRUE),
     MeanECG = mean(ECG, na.rm = TRUE)
   ), by = .(Cohort = CohortLabel)]
   
-  # Base Ne = 1 / (2 * DeltaF)
-  # This is Ne per generation of ECG.
-  # When DeltaF == 0 (no inbreeding increase), Ne is mathematically infinite.
-  # We report NA for these cohorts and inform the user.
   result[, Ne := ifelse(DeltaF > 0, 1 / (2 * DeltaF), NA_real_)]
-  
-  na_cohorts <- result[is.na(Ne), Cohort]
-  if (length(na_cohorts) > 0) {
-    message(sprintf("Ne set to NA for cohort(s) with DeltaF=0 (no inbreeding increase): %s",
-                    paste(na_cohorts, collapse = ", ")))
-  }
-  
-  # Sort and return
   setorder(result, Cohort)
-  result[, MeanECG := NULL]
   
   return(result)
 }
 
+calc_ne_demographic <- function(ped, by) {
+  # Ensure numbers are present
+  if (!all(c("Sire", "Dam", "Sex") %in% names(ped))) {
+     stop("Pedigree must contain 'Sire', 'Dam', and 'Sex' columns for demographic Ne.")
+  }
+
+  ped[, CohortLabel := get(by)]
+  
+  # Need to find parents contributing to EACH cohort
+  # Parent IDs are in Sire and Dam columns
+  # We should count how many UNIQUE Sires and Dams produced offspring in this cohort
+  
+  result <- ped[, {
+    sires <- unique(Sire[!is.na(Sire) & Sire != "" & Sire != "0"])
+    dams <- unique(Dam[!is.na(Dam) & Dam != "" & Dam != "0"])
+    
+    nm <- length(sires)
+    nf <- length(dams)
+    
+    ne_val <- if (nm > 0 && nf > 0) (4 * nm * nf) / (nm + nf) else NA_real_
+    
+    list(
+      N = .N,
+      Nm = nm,
+      Nf = nf,
+      Ne = ne_val
+    )
+  }, by = .(Cohort = CohortLabel)]
+  
+  setorder(result, Cohort)
+  return(result)
+}
+
+calc_ne_coancestry <- function(ped, by, samplen) {
+  # Needs ECG for Delta C calculation
+  if (!"ECG" %in% names(ped)) {
+    ecg_dt <- pedecg(ped)
+    ped <- merge(ped, ecg_dt[, .(Ind, ECG)], by = "Ind", all.x = TRUE)
+  }
+  
+  ped[, CohortLabel := get(by)]
+  cohorts <- sort(unique(ped$CohortLabel))
+  
+  results_list <- list()
+  
+  for (coh in cohorts) {
+    sub_ped <- ped[CohortLabel == coh]
+    n_total <- nrow(sub_ped)
+    
+    if (n_total == 0) next
+    
+    # Sampling
+    if (n_total > samplen) {
+      sampled_inds <- sample(sub_ped$Ind, samplen)
+    } else {
+      sampled_inds <- sub_ped$Ind
+    }
+    
+    # Trace back ancestors to build sub-pedigree
+    # This is critical for performance to avoid large matrix on full pedigree
+    trace_ped <- tidyped(ped, cand = sampled_inds, trace = "up", addgen = TRUE, addnum = TRUE)
+    
+    # Ensure sorted by Gen for correct matrix build (though C++ uses numeric)
+    setorder(trace_ped, Gen, IndNum)
+    
+    # Re-identify target numeric IDs
+    target_nums <- trace_ped[Ind %in% sampled_inds, IndNum]
+    
+    # Ensure ECG is present
+    if (!"ECG" %in% names(trace_ped)) {
+       ecg_map <- ped[Ind %in% trace_ped$Ind, .(Ind, ECG)]
+       trace_ped <- merge(trace_ped, ecg_map, by = "Ind", all.x = TRUE)
+    }
+    
+    # If any ECG missing (e.g. base founders in trace not in original?), fill 0
+    trace_ped[is.na(ECG), ECG := 0]
+    
+    # Call C++
+    # Ensure vectors are 0-indexed for C++ if needed, but Rcpp usually handles R 1-based logic 
+    # if implemented. Our C++ uses 1-based input (subtracts 1 inside).
+    
+    # The trace_ped MUST be reordered by IndNum 1..N
+    setorder(trace_ped, IndNum)
+    
+    avg_delta_c <- tryCatch({
+       cpp_calculate_sampled_coancestry_delta(
+        trace_ped$SireNum, 
+        trace_ped$DamNum, 
+        target_nums, 
+        trace_ped$ECG
+      )
+    }, error = function(e) {
+      warning(paste("Error in coancestry calculation for cohort", coh, ":", e$message))
+      return(NA_real_)
+    })
+
+    ne_val <- if (!is.na(avg_delta_c) && avg_delta_c > 0) 1 / (2 * avg_delta_c) else NA_real_
+    
+    results_list[[as.character(coh)]] <- data.table(
+      Cohort = coh,
+      N = n_total,
+      NSampled = length(sampled_inds),
+      DeltaC = avg_delta_c,
+      Ne = ne_val
+    )
+  }
+  
+  result <- rbindlist(results_list)
+  return(result)
+}
+
+# Legacy wrapper/stub for documentation or compatibility if needed
+# (none required as we replaced pedne in place) -> THIS LINE INTENTIONALLY LEFT BLANK
 #' Calculate Founder and Ancestor Contributions
 #'
 #' Calculates genetic contributions from founders (fe) and influential ancestors (fa).
@@ -885,7 +1016,7 @@ pedne <- function(ped, by = NULL, cand = NULL, timevar = NULL, cohort = NULL) {
 #' Evolution, 29(1), 5-23.
 #'
 #' @export
-pedcontrib <- function(ped, cohort = NULL, mode = c("both", "founder", "ancestor"), top = 20) {
+pedcontrib <- function(ped, cand = NULL, mode = c("both", "founder", "ancestor"), top = 20) {
   if (!inherits(ped, "tidyped")) stop("ped must be a tidyped object")
   
   mode <- match.arg(mode)
@@ -896,35 +1027,34 @@ pedcontrib <- function(ped, cohort = NULL, mode = c("both", "founder", "ancestor
   }
   
   # Define reference cohort
-  if (is.null(cohort)) {
+  if (is.null(cand)) {
     max_gen <- max(ped$Gen)
-    cohort <- ped[Gen == max_gen, Ind]
-    message(sprintf("Using %d individuals from generation %d as reference cohort.", 
-                    length(cohort), max_gen))
+    cand <- ped[Gen == max_gen, Ind]
+    message(sprintf("Using %d individuals from generation %d as reference candidate.",
+                    length(cand), max_gen))
   } else {
-    if (!all(cohort %in% ped$Ind)) {
-      missing <- cohort[!cohort %in% ped$Ind]
-      warning(sprintf("Cohort IDs not found in pedigree: %s", paste(head(missing, 5), collapse = ", ")))
+    if (!all(cand %in% ped$Ind)) {
+      missing <- cand[!cand %in% ped$Ind]
+      warning(sprintf("Candidate IDs not found in pedigree: %s", paste(head(missing, 5), collapse = ", ")))
     }
-    cohort <- cohort[cohort %in% ped$Ind]
+    cand <- cand[cand %in% ped$Ind]
   }
   
-  if (length(cohort) == 0) {
-    stop("No valid cohort individuals specified.")
+  if (length(cand) == 0) {
+    stop("No valid candidate individuals specified.")
   }
   
   n <- nrow(ped)
-  n_cohort <- length(cohort)
+  n_cohort <- length(cand)
   
   # Pre-compute integer arrays for speed (avoid character matching)
   sire_num <- ped$SireNum   # 0 = unknown
   dam_num <- ped$DamNum     # 0 = unknown
   ind_ids <- ped$Ind
   
-  # Map cohort IDs to integer positions
+  # Map candidate IDs to integer positions
   ind_to_pos <- setNames(seq_len(n), ind_ids)
-  cohort_pos <- ind_to_pos[cohort]
-  
+  cohort_pos <- ind_to_pos[cand]
   # Vectorized backward pass: compute total flow from all cohort members at once
   # contrib[i] = average probability that a randomly chosen gene from the cohort
   #              traces back to individual i
@@ -946,6 +1076,9 @@ pedcontrib <- function(ped, cohort = NULL, mode = c("both", "founder", "ancestor
   result <- list()
   
   # ---- Founder Contributions ----
+  fe2_sum <- NA_real_
+  n_founders_total <- 0L
+  
   if (mode %in% c("founder", "both")) {
     message("Calculating founder contributions...")
     
@@ -969,12 +1102,18 @@ pedcontrib <- function(ped, cohort = NULL, mode = c("both", "founder", "ancestor
       founder_dt[, CumContrib := cumsum(Contrib)]
       founder_dt[, Rank := seq_len(.N)]
       
-      result$founders_full <- founder_dt
+      # Calculate effective number of founders before subsetting
+      fe2_sum <- sum(founder_dt$Contrib^2, na.rm = TRUE)
+      n_founders_total <- nrow(founder_dt)
+      
       result$founders <- if (nrow(founder_dt) > top) founder_dt[1:top] else founder_dt
     }
   }
   
   # ---- Ancestor Contributions (Boichard's iterative algorithm) ----
+  fa2_sum <- NA_real_
+  n_ancestors_total <- 0L
+  
   if (mode %in% c("ancestor", "both")) {
     message("Calculating ancestor contributions (Boichard's iterative algorithm)...")
     
@@ -1063,7 +1202,10 @@ pedcontrib <- function(ped, cohort = NULL, mode = c("both", "founder", "ancestor
         ancestor_dt_full[, Rank := seq_len(.N)]
       }
       
-      result$ancestors_full <- ancestor_dt_full
+      # Calculate effective number of ancestors before subsetting
+      fa2_sum <- sum(ancestor_dt_full$Contrib^2, na.rm = TRUE)
+      n_ancestors_total <- nrow(ancestor_dt_full)
+      
       result$ancestors <- if (nrow(ancestor_dt_full) > top) ancestor_dt_full[1:top] else ancestor_dt_full
     }
   }
@@ -1072,19 +1214,15 @@ pedcontrib <- function(ped, cohort = NULL, mode = c("both", "founder", "ancestor
   summary_list <- list(n_cohort = n_cohort)
   
   if (!is.null(result$founders)) {
-    fe2_sum <- sum(result$founders_full$Contrib^2, na.rm = TRUE)
-    summary_list$n_founders_total <- nrow(result$founders_full)
+    summary_list$n_founders_total <- n_founders_total
     summary_list$n_founders_reported <- nrow(result$founders)
-    summary_list$Ne_f <- if (fe2_sum > 0) 1 / fe2_sum else NA_real_
-    result$founders_full <- NULL
+    summary_list$Ne_f <- if (!is.na(fe2_sum) && fe2_sum > 0) 1 / fe2_sum else NA_real_
   }
   
   if (!is.null(result$ancestors)) {
-    fa2_sum <- sum(result$ancestors_full$Contrib^2, na.rm = TRUE)
-    summary_list$n_ancestors_total <- nrow(result$ancestors_full)
+    summary_list$n_ancestors_total <- n_ancestors_total
     summary_list$n_ancestors_reported <- nrow(result$ancestors)
-    summary_list$Ne_a <- if (fa2_sum > 0) 1 / fa2_sum else NA_real_
-    result$ancestors_full <- NULL
+    summary_list$Ne_a <- if (!is.na(fa2_sum) && fa2_sum > 0) 1 / fa2_sum else NA_real_
   }
   
   result$summary <- summary_list
@@ -1150,23 +1288,16 @@ pedancestry <- function(ped, labelvar, labels = NULL) {
   indnum_to_row <- integer(max(ped_work$IndNum, na.rm = TRUE))
   indnum_to_row[ped_work$IndNum] <- seq_len(n)
   
-  # Forward pass: p_offspring = 0.5 * p_sire + 0.5 * p_dam
-  for (i in 1:n) {
-    s <- sire_nums[i]
-    d <- dam_nums[i]
-    
-    if (s > 0 || d > 0) {
-      if (s > 0 && d > 0) {
-        res_mat[i, ] <- 0.5 * (res_mat[indnum_to_row[s], ] + res_mat[indnum_to_row[d], ])
-      } else if (s > 0) {
-        res_mat[i, ] <- 0.5 * res_mat[indnum_to_row[s], ]
-      } else {
-        res_mat[i, ] <- 0.5 * res_mat[indnum_to_row[d], ]
-      }
-    }
-  }
+  # Forward pass via Rcpp
+  res_mat <- cpp_calculate_ancestry(
+    sire_nums, 
+    dam_nums, 
+    res_mat, 
+    indnum_to_row
+  )
   
   ans <- as.data.table(res_mat)
+  colnames(ans) <- labels
   ans[, Ind := ped_work$Ind]
   setcolorder(ans, "Ind")
   return(ans)
@@ -1178,15 +1309,12 @@ pedancestry <- function(ped, labelvar, labels = NULL) {
 #' coefficients (F) according to standard academic thresholds.
 #'
 #' @param ped A \code{tidyped} object.
-#' @param method Character. One of "summary" (default) or "list" (return classification for each individual).
 #'
-#' @return If method="summary", a \code{data.table} with counts and percentages for each F-group.
-#'   If method="list", the original pedigree with an added \code{F_Class} column.
+#' @return A \code{data.table} with counts and percentages for each F-group.
 #'
 #' @export
-pedinbreed_class <- function(ped, method = c("summary", "list")) {
+pedinbreed_class <- function(ped) {
   if (!inherits(ped, "tidyped")) stop("ped must be a tidyped object")
-  method <- match.arg(method)
   
   if (!"f" %in% names(ped)) {
     message("Calculating inbreeding coefficients...")
@@ -1198,12 +1326,6 @@ pedinbreed_class <- function(ped, method = c("summary", "list")) {
   
   # Classify
   f_classes <- cut(ped$f, breaks = breaks, labels = labels, include.lowest = TRUE)
-  
-  if (method == "list") {
-    res <- copy(ped)
-    res[, F_Class := f_classes]
-    return(res)
-  }
   
   dt <- data.table(F_Class = factor(f_classes, levels = labels))
   summary_dt <- dt[, .(Count = .N), by = F_Class]
