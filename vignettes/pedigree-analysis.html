@@ -384,19 +384,32 @@ structure with inbreeding events to showcase the features.</p>
 <span id="cb1-30"><a href="#cb1-30" tabindex="-1"></a>tped <span class="ot">&lt;-</span> <span class="fu">tidyped</span>(ped_data)</span>
 <span id="cb1-31"><a href="#cb1-31" tabindex="-1"></a><span class="fu">print</span>(tped)</span>
 <span id="cb1-32"><a href="#cb1-32" tabindex="-1"></a><span class="co">#&gt; Tidy Pedigree Object</span></span>
-<span id="cb1-33"><a href="#cb1-33" tabindex="-1"></a><span class="co">#&gt;          Ind   Sire      Dam    Sex BirthYear        Family FamilySize   Gen IndNum SireNum DamNum</span></span>
-<span id="cb1-34"><a href="#cb1-34" tabindex="-1"></a><span class="co">#&gt;       &lt;char&gt; &lt;char&gt;   &lt;char&gt; &lt;char&gt;     &lt;num&gt;        &lt;char&gt;      &lt;int&gt; &lt;int&gt;  &lt;int&gt;   &lt;int&gt;  &lt;int&gt;</span></span>
-<span id="cb1-35"><a href="#cb1-35" tabindex="-1"></a><span class="co">#&gt;  1:       D1   &lt;NA&gt;     &lt;NA&gt; female      2010          &lt;NA&gt;          1     1      1       0      0</span></span>
-<span id="cb1-36"><a href="#cb1-36" tabindex="-1"></a><span class="co">#&gt;  2:       D2   &lt;NA&gt;     &lt;NA&gt; female      2010          &lt;NA&gt;          1     1      2       0      0</span></span>
-<span id="cb1-37"><a href="#cb1-37" tabindex="-1"></a><span class="co">#&gt;  3:       S1   &lt;NA&gt;     &lt;NA&gt;   male      2010          &lt;NA&gt;          1     1      3       0      0</span></span>
-<span id="cb1-38"><a href="#cb1-38" tabindex="-1"></a><span class="co">#&gt;  4:       S2   &lt;NA&gt;     &lt;NA&gt;   male      2010          &lt;NA&gt;          1     1      4       0      0</span></span>
-<span id="cb1-39"><a href="#cb1-39" tabindex="-1"></a><span class="co">#&gt;  5:     G1_1     S1       D1   male      2012         S1xD1          1     2      5       3      1</span></span>
-<span id="cb1-40"><a href="#cb1-40" tabindex="-1"></a><span class="co">#&gt;  6:     G1_2     S1       D2   male      2012         S1xD2          1     2      6       3      2</span></span>
-<span id="cb1-41"><a href="#cb1-41" tabindex="-1"></a><span class="co">#&gt;  7:     G1_3     S2       D1 female      2013         S2xD1          1     2      7       4      1</span></span>
-<span id="cb1-42"><a href="#cb1-42" tabindex="-1"></a><span class="co">#&gt;  8:     G1_4     S2       D2 female      2013         S2xD2          1     2      8       4      2</span></span>
-<span id="cb1-43"><a href="#cb1-43" tabindex="-1"></a><span class="co">#&gt;  9:     G2_1   G1_1     G1_3   male      2015     G1_1xG1_3          2     3      9       5      7</span></span>
-<span id="cb1-44"><a href="#cb1-44" tabindex="-1"></a><span class="co">#&gt; 10: G_Inbred   G1_1     G1_3 female      2016     G1_1xG1_3          2     3     10       5      7</span></span>
-<span id="cb1-45"><a href="#cb1-45" tabindex="-1"></a><span class="co">#&gt; 11:     G3_1   G2_1 G_Inbred   male      2019 G2_1xG_Inbred          1     4     11       9     10</span></span></code></pre></div>
+<span id="cb1-33"><a href="#cb1-33" tabindex="-1"></a><span class="co">#&gt;          Ind   Sire      Dam    Sex BirthYear        Family FamilySize   Gen</span></span>
+<span id="cb1-34"><a href="#cb1-34" tabindex="-1"></a><span class="co">#&gt;       &lt;char&gt; &lt;char&gt;   &lt;char&gt; &lt;char&gt;     &lt;num&gt;        &lt;char&gt;      &lt;int&gt; &lt;int&gt;</span></span>
+<span id="cb1-35"><a href="#cb1-35" tabindex="-1"></a><span class="co">#&gt;  1:       D1   &lt;NA&gt;     &lt;NA&gt; female      2010          &lt;NA&gt;          1     1</span></span>
+<span id="cb1-36"><a href="#cb1-36" tabindex="-1"></a><span class="co">#&gt;  2:       D2   &lt;NA&gt;     &lt;NA&gt; female      2010          &lt;NA&gt;          1     1</span></span>
+<span id="cb1-37"><a href="#cb1-37" tabindex="-1"></a><span class="co">#&gt;  3:       S1   &lt;NA&gt;     &lt;NA&gt;   male      2010          &lt;NA&gt;          1     1</span></span>
+<span id="cb1-38"><a href="#cb1-38" tabindex="-1"></a><span class="co">#&gt;  4:       S2   &lt;NA&gt;     &lt;NA&gt;   male      2010          &lt;NA&gt;          1     1</span></span>
+<span id="cb1-39"><a href="#cb1-39" tabindex="-1"></a><span class="co">#&gt;  5:     G1_1     S1       D1   male      2012         S1xD1          1     2</span></span>
+<span id="cb1-40"><a href="#cb1-40" tabindex="-1"></a><span class="co">#&gt;  6:     G1_2     S1       D2   male      2012         S1xD2          1     2</span></span>
+<span id="cb1-41"><a href="#cb1-41" tabindex="-1"></a><span class="co">#&gt;  7:     G1_3     S2       D1 female      2013         S2xD1          1     2</span></span>
+<span id="cb1-42"><a href="#cb1-42" tabindex="-1"></a><span class="co">#&gt;  8:     G1_4     S2       D2 female      2013         S2xD2          1     2</span></span>
+<span id="cb1-43"><a href="#cb1-43" tabindex="-1"></a><span class="co">#&gt;  9:     G2_1   G1_1     G1_3   male      2015     G1_1xG1_3          2     3</span></span>
+<span id="cb1-44"><a href="#cb1-44" tabindex="-1"></a><span class="co">#&gt; 10: G_Inbred   G1_1     G1_3 female      2016     G1_1xG1_3          2     3</span></span>
+<span id="cb1-45"><a href="#cb1-45" tabindex="-1"></a><span class="co">#&gt; 11:     G3_1   G2_1 G_Inbred   male      2019 G2_1xG_Inbred          1     4</span></span>
+<span id="cb1-46"><a href="#cb1-46" tabindex="-1"></a><span class="co">#&gt;     IndNum SireNum DamNum</span></span>
+<span id="cb1-47"><a href="#cb1-47" tabindex="-1"></a><span class="co">#&gt;      &lt;int&gt;   &lt;int&gt;  &lt;int&gt;</span></span>
+<span id="cb1-48"><a href="#cb1-48" tabindex="-1"></a><span class="co">#&gt;  1:      1       0      0</span></span>
+<span id="cb1-49"><a href="#cb1-49" tabindex="-1"></a><span class="co">#&gt;  2:      2       0      0</span></span>
+<span id="cb1-50"><a href="#cb1-50" tabindex="-1"></a><span class="co">#&gt;  3:      3       0      0</span></span>
+<span id="cb1-51"><a href="#cb1-51" tabindex="-1"></a><span class="co">#&gt;  4:      4       0      0</span></span>
+<span id="cb1-52"><a href="#cb1-52" tabindex="-1"></a><span class="co">#&gt;  5:      5       3      1</span></span>
+<span id="cb1-53"><a href="#cb1-53" tabindex="-1"></a><span class="co">#&gt;  6:      6       3      2</span></span>
+<span id="cb1-54"><a href="#cb1-54" tabindex="-1"></a><span class="co">#&gt;  7:      7       4      1</span></span>
+<span id="cb1-55"><a href="#cb1-55" tabindex="-1"></a><span class="co">#&gt;  8:      8       4      2</span></span>
+<span id="cb1-56"><a href="#cb1-56" tabindex="-1"></a><span class="co">#&gt;  9:      9       5      7</span></span>
+<span id="cb1-57"><a href="#cb1-57" tabindex="-1"></a><span class="co">#&gt; 10:     10       5      7</span></span>
+<span id="cb1-58"><a href="#cb1-58" tabindex="-1"></a><span class="co">#&gt; 11:     11       9     10</span></span></code></pre></div>
 </div>
 <div id="basic-statistics-generation-intervals" class="section level2">
 <h2>2. Basic Statistics &amp; Generation Intervals</h2>
@@ -414,20 +427,22 @@ reproductive cycle speed.</p>
 <span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="co">#&gt; Generation Intervals (Years):</span></span>
 <span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="co">#&gt;    Pathway     N     Mean        SD</span></span>
 <span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="co">#&gt;     &lt;char&gt; &lt;int&gt;    &lt;num&gt;     &lt;num&gt;</span></span>
-<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a><span class="co">#&gt; 1: Average    14 2.833333        NA</span></span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a><span class="co">#&gt; 1: Average    14 2.785714 0.6992932</span></span>
 <span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a><span class="co">#&gt; 2:      DD     3 3.000000 0.0000000</span></span>
-<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a><span class="co">#&gt; 3:      DS     4 2.250000 0.5000000</span></span>
-<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a><span class="co">#&gt; 4:      SD     3 3.333333 0.5773503</span></span>
-<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a><span class="co">#&gt; 5:      SS     4 2.750000 0.9574271</span></span>
-<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a><span class="co">#&gt; Ancestral Depth (ECG) Summary:</span></span>
-<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a><span class="co">#&gt;    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. </span></span>
-<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a><span class="co">#&gt;     0.0     0.0     1.0     1.0     1.5     3.0</span></span>
-<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a></span>
-<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a><span class="co"># The &#39;stats&#39; object contains:</span></span>
-<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a><span class="co"># - Summary counts (N, Sires, Dams)</span></span>
-<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a><span class="co"># - Ancestral depth (ECG) summary</span></span>
-<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a><span class="co"># - Generation intervals (if birth dates provided)</span></span></code></pre></div>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a><span class="co">#&gt; 3:      DO     7 2.571429 0.5345225</span></span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a><span class="co">#&gt; 4:      DS     4 2.250000 0.5000000</span></span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a><span class="co">#&gt; 5:      SD     3 3.333333 0.5773503</span></span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a><span class="co">#&gt; 6:      SO     7 3.000000 0.8164966</span></span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a><span class="co">#&gt; 7:      SS     4 2.750000 0.9574271</span></span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a><span class="co">#&gt; Ancestral Depth (ECG) Summary:</span></span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a><span class="co">#&gt;    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. </span></span>
+<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a><span class="co">#&gt;     0.0     0.0     1.0     1.0     1.5     3.0</span></span>
+<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a></span>
+<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a><span class="co"># The &#39;stats&#39; object contains:</span></span>
+<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a><span class="co"># - Summary counts (N, Sires, Dams)</span></span>
+<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a><span class="co"># - Ancestral depth (ECG) summary</span></span>
+<span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a><span class="co"># - Generation intervals (if birth dates provided)</span></span></code></pre></div>
 </div>
 <div id="inbreeding-analysis" class="section level2">
 <h2>3. Inbreeding Analysis</h2>
@@ -450,7 +465,7 @@ reproductive cycle speed.</p>
 <h3>Stratification</h3>
 <p>Classify the population by inbreeding levels.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># Summary of inbreeding levels</span></span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>f_class <span class="ot">&lt;-</span> <span class="fu">pedinbreed_class</span>(tped, <span class="at">method =</span> <span class="st">&quot;summary&quot;</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>f_class <span class="ot">&lt;-</span> <span class="fu">pedinbreed_class</span>(tped)</span>
 <span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="fu">print</span>(f_class)</span>
 <span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="co">#&gt; Key: &lt;F_Class&gt;</span></span>
 <span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co">#&gt;                F_Class Count Percentage</span></span>
@@ -463,33 +478,53 @@ reproductive cycle speed.</p>
 </div>
 <div id="effective-population-size-ne" class="section level3">
 <h3>Effective Population Size (Ne)</h3>
-<p>Estimate <span class="math inline">\(N_e\)</span> based on the rate
-of inbreeding (<span class="math inline">\(\Delta F\)</span>).</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co"># Estimate Ne based on the latest cohort</span></span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>ne_est <span class="ot">&lt;-</span> <span class="fu">pedne</span>(tped, <span class="at">timevar =</span> <span class="st">&quot;BirthYear&quot;</span>, <span class="at">unit =</span> <span class="st">&quot;year&quot;</span>)</span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt; Calculating Equivalent Complete Generations...</span></span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="fu">print</span>(ne_est)</span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt; Tidy Pedigree Object</span></span>
-<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt;    Cohort     N  MeanF    DeltaF      Ne</span></span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt;     &lt;num&gt; &lt;int&gt;  &lt;num&gt;     &lt;num&gt;   &lt;num&gt;</span></span>
-<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="co">#&gt; 1:   2015     1 0.1250 0.1250000 4.00000</span></span>
-<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co">#&gt; 2:   2016     1 0.1250 0.1250000 4.00000</span></span>
-<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="co">#&gt; 3:   2019     1 0.3125 0.1708438 2.92665</span></span></code></pre></div>
+<p>Estimate the effective population size (<span class="math inline">\(N_e\)</span>), which is a key metric for
+monitoring genetic diversity. <code>visPedigree</code> provides three
+methods: based on coancestry (<code>&quot;coancestry&quot;</code>, the default),
+rate of inbreeding (<code>&quot;inbreeding&quot;</code>), or demographic counts
+(<code>&quot;demographic&quot;</code>).</p>
+<p>You can calculate <span class="math inline">\(N_e\)</span> grouped by
+year or generation:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co"># Estimate Ne per cohort (grouped by BirthYear)</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>ne_est <span class="ot">&lt;-</span> <span class="fu">pedne</span>(tped, <span class="at">by =</span> <span class="st">&quot;BirthYear&quot;</span>, <span class="at">method =</span> <span class="st">&quot;inbreeding&quot;</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="fu">print</span>(ne_est)</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">#&gt; Tidy Pedigree Object</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt;    Cohort     N  MeanF    DeltaF MeanECG      Ne</span></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt;     &lt;num&gt; &lt;int&gt;  &lt;num&gt;     &lt;num&gt;   &lt;num&gt;   &lt;num&gt;</span></span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt; 1:   2015     1 0.1250 0.1250000       2 4.00000</span></span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="co">#&gt; 2:   2016     1 0.1250 0.1250000       2 4.00000</span></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co">#&gt; 3:   2019     1 0.3125 0.1708438       3 2.92665</span></span></code></pre></div>
+<p>Alternatively, you can evaluate the overall <span class="math inline">\(N_e\)</span> for a specific subset (e.g., the last
+generation) by omitting the <code>by</code> parameter:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co"># Get the IDs of the latest generation</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>latest_gen_ids <span class="ot">&lt;-</span> tped[Gen <span class="sc">==</span> <span class="fu">max</span>(Gen), Ind]</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co"># Calculate overall Ne for this specific candidate group using the default coancestry method</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>overall_ne <span class="ot">&lt;-</span> <span class="fu">pedne</span>(tped, <span class="at">cand =</span> latest_gen_ids)</span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt; No &#39;by&#39; parameter specified. Calculating Ne for the entire dataset. Grouping by a cohort or year variable is often more biologically meaningful.</span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt; Warning in validate_and_prepare_ped(ped): Removed 10 records with duplicate</span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt; Ind/Sire/Dam IDs.</span></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="fu">print</span>(overall_ne)</span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co">#&gt;    Cohort     N NSampled DeltaC    Ne</span></span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">#&gt;    &lt;char&gt; &lt;int&gt;    &lt;int&gt;  &lt;num&gt; &lt;num&gt;</span></span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">#&gt; 1:    All    11       11     NA    NA</span></span></code></pre></div>
 </div>
 </div>
 <div id="genetic-diversity-relationships" class="section level2">
 <h2>4. Genetic Diversity &amp; Relationships</h2>
 <p>Track the average relationship within the population. Increasing mean
 relationship indicates a loss of genetic diversity.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co"># Mean relationship by generation</span></span>
-<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>avg_rel <span class="ot">&lt;-</span> <span class="fu">pedrel</span>(tped, <span class="at">by =</span> <span class="st">&quot;Gen&quot;</span>)</span>
-<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="fu">print</span>(avg_rel)</span>
-<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt;      Gen     N   MeanRel</span></span>
-<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt;    &lt;int&gt; &lt;int&gt;     &lt;num&gt;</span></span>
-<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt; 1:     1     4 0.0000000</span></span>
-<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt; 2:     2     4 0.8333333</span></span>
-<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt; 3:     3     2 2.5000000</span></span>
-<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="co">#&gt; 4:     4     1        NA</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># Mean relationship by generation</span></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>avg_rel <span class="ot">&lt;-</span> <span class="fu">pedrel</span>(tped, <span class="at">by =</span> <span class="st">&quot;Gen&quot;</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="co">#&gt; Warning in FUN(X[[i]], ...): Group &#39;4&#39; has less than 2 individuals, returning</span></span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="co">#&gt; NA_real_.</span></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="fu">print</span>(avg_rel)</span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="co">#&gt;      Gen NTotal NUsed   MeanRel</span></span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="co">#&gt;    &lt;int&gt;  &lt;int&gt; &lt;int&gt;     &lt;num&gt;</span></span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="co">#&gt; 1:     1      4     4 0.0000000</span></span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="co">#&gt; 2:     2      4     4 0.1666667</span></span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="co">#&gt; 3:     3      2     2 0.5000000</span></span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a><span class="co">#&gt; 4:     4      1     1        NA</span></span></code></pre></div>
 </div>
 <div id="ancestral-analysis" class="section level2">
 <h2>5. Ancestral Analysis</h2>
@@ -498,45 +533,48 @@ flow.</p>
 <div id="most-influential-ancestors" class="section level3">
 <h3>Most Influential Ancestors</h3>
 <p>Find ancestors with the highest marginal genetic contribution.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># Calculate contributions to the last generation</span></span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>last_gen_ids <span class="ot">&lt;-</span> tped[Gen <span class="sc">==</span> <span class="fu">max</span>(Gen), Ind]</span>
-<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>contributions <span class="ot">&lt;-</span> <span class="fu">pedcontrib</span>(tped, <span class="at">cohort =</span> last_gen_ids, <span class="at">mode =</span> <span class="st">&quot;ancestor&quot;</span>)</span>
-<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="co">#&gt; Calculating ancestor contributions (Boichard&#39;s iterative algorithm)...</span></span>
-<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a></span>
-<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="fu">print</span>(contributions)</span>
-<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="co">#&gt; Founder and Ancestor Contributions</span></span>
-<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="co">#&gt; ===================================</span></span>
-<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="co">#&gt; Reference cohort size: 1</span></span>
-<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a><span class="co">#&gt; Top Ancestors: 2</span></span>
-<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a><span class="co">#&gt; Effective number of ancestors (Ne_a): 2.00</span></span>
-<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a><span class="co">#&gt; Top 10 Ancestor Contributions:</span></span>
-<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a><span class="co">#&gt;         Ind Contrib CumContrib  Rank</span></span>
-<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a><span class="co">#&gt;      &lt;char&gt;   &lt;num&gt;      &lt;num&gt; &lt;int&gt;</span></span>
-<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a><span class="co">#&gt; 1:     G2_1     0.5        0.5     1</span></span>
-<span id="cb7-18"><a href="#cb7-18" tabindex="-1"></a><span class="co">#&gt; 2: G_Inbred     0.5        1.0     2</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="co"># Calculate contributions to the last generation</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>last_gen_ids <span class="ot">&lt;-</span> tped[Gen <span class="sc">==</span> <span class="fu">max</span>(Gen), Ind]</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>contributions <span class="ot">&lt;-</span> <span class="fu">pedcontrib</span>(tped, <span class="at">cand =</span> last_gen_ids, <span class="at">mode =</span> <span class="st">&quot;ancestor&quot;</span>)</span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="co">#&gt; Calculating ancestor contributions (Boichard&#39;s iterative algorithm)...</span></span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a></span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="fu">print</span>(contributions)</span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="co">#&gt; Founder and Ancestor Contributions</span></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="co">#&gt; ===================================</span></span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a><span class="co">#&gt; Reference cohort size: 1</span></span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a><span class="co">#&gt; Ancestors: 5 (reported top 5)</span></span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a><span class="co">#&gt; Effective number of ancestors (Ne_a): 0.80</span></span>
+<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a><span class="co">#&gt; Top 10 Ancestor Contributions:</span></span>
+<span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a><span class="co">#&gt;         Ind Contrib CumContrib  Rank</span></span>
+<span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a><span class="co">#&gt;      &lt;char&gt;   &lt;num&gt;      &lt;num&gt; &lt;int&gt;</span></span>
+<span id="cb8-17"><a href="#cb8-17" tabindex="-1"></a><span class="co">#&gt; 1:       D1     0.5        0.5     1</span></span>
+<span id="cb8-18"><a href="#cb8-18" tabindex="-1"></a><span class="co">#&gt; 2:     G1_1     0.5        1.0     2</span></span>
+<span id="cb8-19"><a href="#cb8-19" tabindex="-1"></a><span class="co">#&gt; 3:     G1_3     0.5        1.5     3</span></span>
+<span id="cb8-20"><a href="#cb8-20" tabindex="-1"></a><span class="co">#&gt; 4:     G2_1     0.5        2.0     4</span></span>
+<span id="cb8-21"><a href="#cb8-21" tabindex="-1"></a><span class="co">#&gt; 5: G_Inbred     0.5        2.5     5</span></span></code></pre></div>
 </div>
 <div id="gene-flow-ancestry-proportions" class="section level3">
 <h3>Gene Flow / Ancestry Proportions</h3>
 <p>If our founders came from different origins (e.g., Line A vs Line B),
 we can trace their proportions.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="co"># Assign arbitrary labels to founders for demonstration</span></span>
-<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>tped_dated <span class="ot">&lt;-</span> <span class="fu">copy</span>(tped)</span>
-<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>tped_dated[Ind <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;S1&quot;</span>, <span class="st">&quot;D1&quot;</span>), Origin <span class="sc">:=</span> <span class="st">&quot;LineA&quot;</span>]</span>
-<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>tped_dated[Ind <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;S2&quot;</span>, <span class="st">&quot;D2&quot;</span>), Origin <span class="sc">:=</span> <span class="st">&quot;LineB&quot;</span>]</span>
-<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a></span>
-<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="co"># Calculate proportion of LineA vs LineB in all individuals</span></span>
-<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>ancestry <span class="ot">&lt;-</span> <span class="fu">pedancestry</span>(tped_dated, <span class="at">labelvar =</span> <span class="st">&quot;Origin&quot;</span>)</span>
-<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">tail</span>(ancestry))</span>
-<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a><span class="co">#&gt;         Ind LineA LineB</span></span>
-<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a><span class="co">#&gt;      &lt;char&gt; &lt;num&gt; &lt;num&gt;</span></span>
-<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a><span class="co">#&gt; 1:     G1_2  0.50  0.50</span></span>
-<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a><span class="co">#&gt; 2:     G1_3  0.50  0.50</span></span>
-<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a><span class="co">#&gt; 3:     G1_4  0.00  1.00</span></span>
-<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a><span class="co">#&gt; 4:     G2_1  0.75  0.25</span></span>
-<span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a><span class="co">#&gt; 5: G_Inbred  0.75  0.25</span></span>
-<span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a><span class="co">#&gt; 6:     G3_1  0.75  0.25</span></span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="co"># Assign arbitrary labels to founders for demonstration</span></span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>tped_dated <span class="ot">&lt;-</span> <span class="fu">copy</span>(tped)</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>tped_dated[Ind <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;S1&quot;</span>, <span class="st">&quot;D1&quot;</span>), Origin <span class="sc">:=</span> <span class="st">&quot;LineA&quot;</span>]</span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>tped_dated[Ind <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;S2&quot;</span>, <span class="st">&quot;D2&quot;</span>), Origin <span class="sc">:=</span> <span class="st">&quot;LineB&quot;</span>]</span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a></span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a><span class="co"># Calculate proportion of LineA vs LineB in all individuals</span></span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a>ancestry <span class="ot">&lt;-</span> <span class="fu">pedancestry</span>(tped_dated, <span class="at">labelvar =</span> <span class="st">&quot;Origin&quot;</span>)</span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">tail</span>(ancestry))</span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a><span class="co">#&gt;         Ind LineA LineB</span></span>
+<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a><span class="co">#&gt;      &lt;char&gt; &lt;num&gt; &lt;num&gt;</span></span>
+<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a><span class="co">#&gt; 1:     G1_2  0.50  0.50</span></span>
+<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a><span class="co">#&gt; 2:     G1_3  0.50  0.50</span></span>
+<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a><span class="co">#&gt; 3:     G1_4  0.00  1.00</span></span>
+<span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a><span class="co">#&gt; 4:     G2_1  0.75  0.25</span></span>
+<span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a><span class="co">#&gt; 5: G_Inbred  0.75  0.25</span></span>
+<span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a><span class="co">#&gt; 6:     G3_1  0.75  0.25</span></span></code></pre></div>
 </div>
 </div>
 <div id="advanced-partial-inbreeding" class="section level2">
@@ -545,22 +583,22 @@ we can trace their proportions.</p>
 allows us to decompose an individual’s total inbreeding coefficient into
 the specific contributions from each ancestor. This answers: <em>“Who is
 responsible for the inbreeding of this animal?”</em></p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="co"># Let&#39;s analyze the inbreeding of the last individual (G3_1)</span></span>
-<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>target_ind <span class="ot">&lt;-</span> <span class="st">&quot;G3_1&quot;</span></span>
-<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>total_f <span class="ot">&lt;-</span> tped[Ind <span class="sc">==</span> target_ind, f]</span>
-<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Total Inbreeding for&quot;</span>, target_ind, <span class="st">&quot;:&quot;</span>, total_f, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
-<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="co">#&gt; Total Inbreeding for G3_1 : 0.3125</span></span>
-<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a></span>
-<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a><span class="co"># Calculate partial inbreeding from top ancestors</span></span>
-<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a>partial_f <span class="ot">&lt;-</span> <span class="fu">pedpartial</span>(tped, <span class="at">ancestors =</span> <span class="fu">c</span>(<span class="st">&quot;S1&quot;</span>, <span class="st">&quot;D1&quot;</span>, <span class="st">&quot;S2&quot;</span>, <span class="st">&quot;D2&quot;</span>), <span class="at">top =</span> <span class="dv">5</span>)</span>
-<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a><span class="co">#&gt; Calculating partial inbreeding for 4 ancestors...</span></span>
-<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a></span>
-<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a><span class="co"># Extract result for the target individual</span></span>
-<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a>res <span class="ot">&lt;-</span> partial_f[Ind <span class="sc">==</span> target_ind]</span>
-<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a><span class="fu">print</span>(res)</span>
-<span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a><span class="co">#&gt;       Ind    D1    D2      S1      S2</span></span>
-<span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a><span class="co">#&gt;    &lt;char&gt; &lt;num&gt; &lt;num&gt;   &lt;num&gt;   &lt;num&gt;</span></span>
-<span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a><span class="co">#&gt; 1:   G3_1 0.125     0 0.03125 0.03125</span></span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="co"># Let&#39;s analyze the inbreeding of the last individual (G3_1)</span></span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>target_ind <span class="ot">&lt;-</span> <span class="st">&quot;G3_1&quot;</span></span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>total_f <span class="ot">&lt;-</span> tped[Ind <span class="sc">==</span> target_ind, f]</span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Total Inbreeding for&quot;</span>, target_ind, <span class="st">&quot;:&quot;</span>, total_f, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="co">#&gt; Total Inbreeding for G3_1 : 0.3125</span></span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a></span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a><span class="co"># Calculate partial inbreeding from top ancestors</span></span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a>partial_f <span class="ot">&lt;-</span> <span class="fu">pedpartial</span>(tped, <span class="at">ancestors =</span> <span class="fu">c</span>(<span class="st">&quot;S1&quot;</span>, <span class="st">&quot;D1&quot;</span>, <span class="st">&quot;S2&quot;</span>, <span class="st">&quot;D2&quot;</span>), <span class="at">top =</span> <span class="dv">5</span>)</span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a><span class="co">#&gt; Calculating partial inbreeding for 4 ancestors...</span></span>
+<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a></span>
+<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a><span class="co"># Extract result for the target individual</span></span>
+<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a>res <span class="ot">&lt;-</span> partial_f[Ind <span class="sc">==</span> target_ind]</span>
+<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a><span class="fu">print</span>(res)</span>
+<span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a><span class="co">#&gt;       Ind    D1    D2      S1      S2</span></span>
+<span id="cb10-15"><a href="#cb10-15" tabindex="-1"></a><span class="co">#&gt;    &lt;char&gt; &lt;num&gt; &lt;num&gt;   &lt;num&gt;   &lt;num&gt;</span></span>
+<span id="cb10-16"><a href="#cb10-16" tabindex="-1"></a><span class="co">#&gt; 1:   G3_1 0.125     0 0.03125 0.03125</span></span></code></pre></div>
 </div>
 <div id="summary" class="section level2">
 <h2>Summary</h2>
