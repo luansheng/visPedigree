@@ -18,7 +18,7 @@ pedne(
 
 \item{method}{Character, method to use: "coancestry" (default), "inbreeding", or "demographic".}
 
-\item{by}{Character, column name for grouping cohorts (e.g., "Year"). Auto-detected if NULL.}
+\item{by}{Character, column name for grouping cohorts (e.g., "Year"). If NULL, calculates overall Ne for all individuals.}
 
 \item{cand}{Character vector, specific candidates to include.}
 

@@ -742,7 +742,7 @@ print.pedstats <- function(x, ...) {
 #'
 #' @param ped A tidyped object.
 #' @param method Character, method to use: "coancestry" (default), "inbreeding", or "demographic".
-#' @param by Character, column name for grouping cohorts (e.g., "Year"). Auto-detected if NULL.
+#' @param by Character, column name for grouping cohorts (e.g., "Year"). If NULL, calculates overall Ne for all individuals.
 #' @param cand Character vector, specific candidates to include.
 #' @param nsamples Integer. Number of individuals to sample per cohort. Only applicable for \code{method = "coancestry"} (default: 1000).
 #' @param ncores Integer. Number of cores for parallel processing. Currently only effective for \code{method = "coancestry"} (default: 1).
@@ -762,20 +762,18 @@ pedne <- function(ped, method = c("coancestry", "inbreeding", "demographic"),
   if (!inherits(ped, "tidyped")) stop("ped must be a tidyped object")
   method <- match.arg(method)
   
-  # Auto-detect by
-  if (is.null(by)) {
-    candidates <- c("BirthYear", "Year", "birth_year", "year", "BirthDate", "Date")
-    match_col <- intersect(names(ped), candidates)
-    if (length(match_col) > 0) {
-      by <- match_col[1]
-      message(sprintf("Using '%s' as time variable.", by))
-    } else {
-      stop("Please specify 'by' for Ne calculation.")
-    }
-  }
+  # Protect the original data from being modified by reference
+  ped_dt <- data.table::copy(ped)
   
-  if (!by %in% names(ped)) {
-    stop(sprintf("Column '%s' not found in pedigree.", by))
+  # Handle 'by' parameter
+  if (is.null(by)) {
+    message("No 'by' parameter specified. Calculating Ne for the entire dataset. Grouping by a cohort or year variable is often more biologically meaningful.")
+    by <- ".CohortAll"
+    ped_dt[[by]] <- "All"
+  } else {
+    if (!by %in% names(ped_dt)) {
+      stop(sprintf("Column '%s' not found in pedigree.", by))
+    }
   }
   
   # Configure threads
@@ -789,13 +787,13 @@ pedne <- function(ped, method = c("coancestry", "inbreeding", "demographic"),
   
   # Filter candidates if specified
   if (!is.null(cand)) {
-    if (!all(cand %in% ped$Ind)) {
-      missing <- cand[!cand %in% ped$Ind]
+    if (!all(cand %in% ped_dt$Ind)) {
+      missing <- cand[!cand %in% ped_dt$Ind]
       warning(sprintf("Candidate IDs not found in pedigree: %s", paste(missing, collapse = ", ")))
     }
-    ped_subset <- ped[Ind %in% cand]
+    ped_subset <- ped_dt[Ind %in% cand]
   } else {
-    ped_subset <- ped
+    ped_subset <- ped_dt
   }
   
   # Dispatch to specific calculator
