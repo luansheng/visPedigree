@@ -100,13 +100,13 @@ ne_est <- pedne(tped, by = "BirthYear", method = "inbreeding")
 print(ne_est)
 ```
 
-Alternatively, you can evaluate the overall $N_e$ for a specific subset (e.g., the last generation) by omitting the `by` parameter:
+Alternatively, you can evaluate the overall $N_e$ for a specific subset. Let's use generation 3 as an example, by omitting the `by` parameter:
 ```{r ne_overall}
-# Get the IDs of the latest generation
-latest_gen_ids <- tped[Gen == max(Gen), Ind]
+# Get the IDs of a specific generation (e.g., Generation 3)
+gen3_ids <- tped[Gen == 3, Ind]
 
 # Calculate overall Ne for this specific candidate group using the default coancestry method
-overall_ne <- pedne(tped, cand = latest_gen_ids)
+overall_ne <- pedne(tped, cand = gen3_ids)
 print(overall_ne)
 ```
 

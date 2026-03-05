@@ -784,6 +784,17 @@ pedne <- function(ped, method = c("coancestry", "inbreeding", "demographic"),
       warning("OpenMP not available. Using single core.")
     }
   }
+
+  # Pre-calculate mandatory genetic parameters on FULL pedigree before subsetting
+  if (method %in% c("inbreeding", "coancestry")) {
+    if (method == "inbreeding" && !"f" %in% names(ped_dt)) {
+      ped_dt <- inbreed(ped_dt)
+    }
+    if (!"ECG" %in% names(ped_dt)) {
+      ecg_dt <- pedecg(ped_dt)
+      ped_dt <- merge(ped_dt, ecg_dt[, .(Ind, ECG)], by = "Ind", all.x = TRUE)
+    }
+  }
   
   # Filter candidates if specified
   if (!is.null(cand)) {
@@ -799,7 +810,7 @@ pedne <- function(ped, method = c("coancestry", "inbreeding", "demographic"),
   # Dispatch to specific calculator
   res <- switch(method,
     "inbreeding" = calc_ne_inbreeding(ped_subset, by),
-    "coancestry" = calc_ne_coancestry(ped_subset, by, nsamples),
+    "coancestry" = calc_ne_coancestry(ped_subset, ped_dt, by, nsamples),
     "demographic" = calc_ne_demographic(ped_subset, by)
   )
   
@@ -807,11 +818,9 @@ pedne <- function(ped, method = c("coancestry", "inbreeding", "demographic"),
 }
 
 calc_ne_inbreeding <- function(ped, by) {
-  # Ensure inbreeding coefficients and ECG are present
-  if (!"f" %in% names(ped)) ped <- inbreed(ped)
-  if (!"ECG" %in% names(ped)) {
-    ecg_dt <- pedecg(ped)
-    ped <- merge(ped, ecg_dt[, .(Ind, ECG)], by = "Ind", all.x = TRUE)
+  # Inbreeding coefficients and ECG should already be calculated on the full pedigree
+  if (!"f" %in% names(ped) || !"ECG" %in% names(ped)) {
+    stop("f or ECG is missing in subset tracking.")
   }
   
   ped_work <- ped[ECG >= 1]
@@ -878,20 +887,16 @@ calc_ne_demographic <- function(ped, by) {
   return(result)
 }
 
-calc_ne_coancestry <- function(ped, by, nsamples) {
-  # Needs ECG for Delta C calculation
-  if (!"ECG" %in% names(ped)) {
-    ecg_dt <- pedecg(ped)
-    ped <- merge(ped, ecg_dt[, .(Ind, ECG)], by = "Ind", all.x = TRUE)
-  }
+calc_ne_coancestry <- function(ped_subset, ped_full, by, nsamples) {
+  # ECG is already merged into ped_subset from ped_full by the caller function
   
-  ped[, CohortLabel := get(by)]
-  cohorts <- sort(unique(ped$CohortLabel))
+  ped_subset[, CohortLabel := get(by)]
+  cohorts <- sort(unique(ped_subset$CohortLabel))
   
   results_list <- list()
   
   for (coh in cohorts) {
-    sub_ped <- ped[CohortLabel == coh]
+    sub_ped <- ped_subset[CohortLabel == coh]
     n_total <- nrow(sub_ped)
     
     if (n_total == 0) next
@@ -903,9 +908,9 @@ calc_ne_coancestry <- function(ped, by, nsamples) {
       sampled_inds <- sub_ped$Ind
     }
     
-    # Trace back ancestors to build sub-pedigree
+    # Trace back ancestors to build sub-pedigree USING THE FULL PEDIGREE
     # This is critical for performance to avoid large matrix on full pedigree
-    trace_ped <- tidyped(ped, cand = sampled_inds, trace = "up", addgen = TRUE, addnum = TRUE)
+    trace_ped <- tidyped(ped_full, cand = sampled_inds, trace = "up", addgen = TRUE, addnum = TRUE)
     
     # Ensure sorted by Gen for correct matrix build (though C++ uses numeric)
     setorder(trace_ped, Gen, IndNum)
@@ -915,7 +920,7 @@ calc_ne_coancestry <- function(ped, by, nsamples) {
     
     # Ensure ECG is present
     if (!"ECG" %in% names(trace_ped)) {
-       ecg_map <- ped[Ind %in% trace_ped$Ind, .(Ind, ECG)]
+       ecg_map <- ped_full[Ind %in% trace_ped$Ind, .(Ind, ECG)]
        trace_ped <- merge(trace_ped, ecg_map, by = "Ind", all.x = TRUE)
     }
     
