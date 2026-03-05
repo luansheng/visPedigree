@@ -193,6 +193,34 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// cpp_calculate_sampled_coancestry_delta
+double cpp_calculate_sampled_coancestry_delta(IntegerVector sire, IntegerVector dam, IntegerVector target_idx, NumericVector ecg);
+RcppExport SEXP _visPedigree_cpp_calculate_sampled_coancestry_delta(SEXP sireSEXP, SEXP damSEXP, SEXP target_idxSEXP, SEXP ecgSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< IntegerVector >::type sire(sireSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type dam(damSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type target_idx(target_idxSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type ecg(ecgSEXP);
+    rcpp_result_gen = Rcpp::wrap(cpp_calculate_sampled_coancestry_delta(sire, dam, target_idx, ecg));
+    return rcpp_result_gen;
+END_RCPP
+}
+// cpp_calculate_ancestry
+NumericMatrix cpp_calculate_ancestry(IntegerVector sire, IntegerVector dam, NumericMatrix res_mat, IntegerVector ind_to_row);
+RcppExport SEXP _visPedigree_cpp_calculate_ancestry(SEXP sireSEXP, SEXP damSEXP, SEXP res_matSEXP, SEXP ind_to_rowSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< IntegerVector >::type sire(sireSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type dam(damSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type res_mat(res_matSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type ind_to_row(ind_to_rowSEXP);
+    rcpp_result_gen = Rcpp::wrap(cpp_calculate_ancestry(sire, dam, res_mat, ind_to_row));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_visPedigree_cpp_set_num_threads", (DL_FUNC) &_visPedigree_cpp_set_num_threads, 1},
@@ -210,6 +238,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_visPedigree_cpp_assign_generations_top", (DL_FUNC) &_visPedigree_cpp_assign_generations_top, 3},
     {"_visPedigree_cpp_calculate_partial_inbreeding", (DL_FUNC) &_visPedigree_cpp_calculate_partial_inbreeding, 4},
     {"_visPedigree_cpp_assign_generations_bottom", (DL_FUNC) &_visPedigree_cpp_assign_generations_bottom, 3},
+    {"_visPedigree_cpp_calculate_sampled_coancestry_delta", (DL_FUNC) &_visPedigree_cpp_calculate_sampled_coancestry_delta, 4},
+    {"_visPedigree_cpp_calculate_ancestry", (DL_FUNC) &_visPedigree_cpp_calculate_ancestry, 4},
     {NULL, NULL, 0}
 };
 

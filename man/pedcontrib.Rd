@@ -4,18 +4,10 @@
 \alias{pedcontrib}
 \title{Calculate Founder and Ancestor Contributions}
 \usage{
-pedcontrib(
-  ped,
-  cohort = NULL,
-  mode = c("both", "founder", "ancestor"),
-  top = 20
-)
+pedcontrib(ped, cand = NULL, mode = c("both", "founder", "ancestor"), top = 20)
 }
 \arguments{
 \item{ped}{A \code{tidyped} object.}
-
-\item{cohort}{Character vector. Optional subset of individual IDs defining the reference population.
-If NULL, uses all individuals in the most recent generation.}
 
 \item{mode}{Character. Type of contribution to calculate:
 \itemize{
@@ -25,6 +17,9 @@ If NULL, uses all individuals in the most recent generation.}
 }}
 
 \item{top}{Integer. Number of top contributors to return. Default is 20.}
+
+\item{cohort}{Character vector. Optional subset of individual IDs defining the reference population.
+If NULL, uses all individuals in the most recent generation.}
 }
 \value{
 A list with class \code{pedcontrib} containing:

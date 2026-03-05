@@ -61,3 +61,11 @@ cpp_assign_generations_bottom <- function(sire, dam, topo_order) {
     .Call(`_visPedigree_cpp_assign_generations_bottom`, sire, dam, topo_order)
 }
 
+cpp_calculate_sampled_coancestry_delta <- function(sire, dam, target_idx, ecg) {
+    .Call(`_visPedigree_cpp_calculate_sampled_coancestry_delta`, sire, dam, target_idx, ecg)
+}
+
+cpp_calculate_ancestry <- function(sire, dam, res_mat, ind_to_row) {
+    .Call(`_visPedigree_cpp_calculate_ancestry`, sire, dam, res_mat, ind_to_row)
+}
+

@@ -4,7 +4,15 @@
 \alias{pedstats}
 \title{Pedigree Statistics}
 \usage{
-pedstats(ped, timevar = NULL, unit = "year", cycle_length = NULL, ...)
+pedstats(
+  ped,
+  timevar = NULL,
+  unit = "year",
+  cycle_length = NULL,
+  calc_ecg = TRUE,
+  calc_genint = TRUE,
+  ...
+)
 }
 \arguments{
 \item{ped}{A \code{tidyped} object.}

@@ -4,16 +4,13 @@
 \alias{pedinbreed_class}
 \title{Summarize Inbreeding Levels}
 \usage{
-pedinbreed_class(ped, method = c("summary", "list"))
+pedinbreed_class(ped)
 }
 \arguments{
 \item{ped}{A \code{tidyped} object.}
-
-\item{method}{Character. One of "summary" (default) or "list" (return classification for each individual).}
 }
 \value{
-If method="summary", a \code{data.table} with counts and percentages for each F-group.
-  If method="list", the original pedigree with an added \code{F_Class} column.
+A \code{data.table} with counts and percentages for each F-group.
 }
 \description{
 Classifies individuals into inbreeding levels based on their inbreeding 
