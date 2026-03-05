@@ -86,7 +86,7 @@ print(tped[f > 0, .(Ind, Sire, Dam, Gen, f)])
 Classify the population by inbreeding levels.
 ```{r inbreed_class}
 # Summary of inbreeding levels
-f_class <- pedinbreed_class(tped, method = "summary")
+f_class <- pedinbreed_class(tped)
 print(f_class)
 ```
 
@@ -129,7 +129,7 @@ Find ancestors with the highest marginal genetic contribution.
 ```{r contrib}
 # Calculate contributions to the last generation
 last_gen_ids <- tped[Gen == max(Gen), Ind]
-contributions <- pedcontrib(tped, cohort = last_gen_ids, mode = "ancestor")
+contributions <- pedcontrib(tped, cand = last_gen_ids, mode = "ancestor")
 
 print(contributions)
 ```

@@ -535,7 +535,7 @@ pedecg <- function(ped) {
     sire_max <- rep(-1, k)
     dam_max <- rep(-1, k)
     
-    valid_s <- sires > 0
+    valid_s <- !is.na(sires) & sires > 0
     if (any(valid_s)) {
       parents <- sires[valid_s]
       sire_ecg[valid_s] <- ecg[parents]
@@ -543,7 +543,7 @@ pedecg <- function(ped) {
       sire_max[valid_s] <- max_gen_val[parents]
     }
     
-    valid_d <- dams > 0
+    valid_d <- !is.na(dams) & dams > 0
     if (any(valid_d)) {
       parents <- dams[valid_d]
       dam_ecg[valid_d] <- ecg[parents]
