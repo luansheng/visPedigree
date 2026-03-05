@@ -91,11 +91,23 @@ print(f_class)
 ```
 
 ### Effective Population Size (Ne)
-Estimate $N_e$ based on the rate of inbreeding ($\Delta F$).
-```{r ne}
-# Estimate Ne based on the latest cohort
-ne_est <- pedne(tped, by = "BirthYear")
+Estimate the effective population size ($N_e$), which is a key metric for monitoring genetic diversity. `visPedigree` provides three methods: based on coancestry (`"coancestry"`, the default), rate of inbreeding (`"inbreeding"`), or demographic counts (`"demographic"`).
+
+You can calculate $N_e$ grouped by year or generation:
+```{r ne_by_year}
+# Estimate Ne per cohort (grouped by BirthYear)
+ne_est <- pedne(tped, by = "BirthYear", method = "inbreeding")
 print(ne_est)
+```
+
+Alternatively, you can evaluate the overall $N_e$ for a specific subset (e.g., the last generation) by omitting the `by` parameter:
+```{r ne_overall}
+# Get the IDs of the latest generation
+latest_gen_ids <- tped[Gen == max(Gen), Ind]
+
+# Calculate overall Ne for this specific candidate group using the default coancestry method
+overall_ne <- pedne(tped, cand = latest_gen_ids)
+print(overall_ne)
 ```
 
 ## 4. Genetic Diversity & Relationships
