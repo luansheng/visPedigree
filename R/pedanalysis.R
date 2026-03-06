@@ -700,60 +700,52 @@ print.pedstats <- function(x, ...) {
 
 #' Calculate Effective Population Size
 #'
-#' Calculates the effective population size (Ne) based on individual rate of inbreeding (ΔF).
-#' Uses the method described by Gutiérrez et al. (2008, 2009).
+#' Calculates the effective population size (Ne) based on the rate of
+#' coancestry, the rate of inbreeding, or demographic parent numbers.
 #'
 #' @param ped A \code{tidyped} object.
-#' @param by Character. The name of the column used to define cohorts (e.g., "Year", "BirthYear").
-#'   If NULL, attempts to auto-detect from common names.
+#' @param method Character. The method to compute Ne. One of \code{"coancestry"} (default), \code{"inbreeding"}, or \code{"demographic"}.
+#' @param by Character. The name of the column used to group cohorts (e.g., "Year", "BirthYear").
+#'   If NULL, calculates overall Ne for all individuals.
 #' @param cand Character vector. Optional subset of individual IDs defining the reference cohort.
-#'   If NULL, uses all individuals.
+#'   If NULL, uses all individuals in the pedigree.
+#' @param nsamples Integer. Number of individuals to randomly sample per cohort when using the \code{"coancestry"} method. Very large cohorts will be sampled down to this size to save memory and time (default: 1000).
+#' @param ncores Integer. Number of cores for parallel processing. Currently only effective for \code{method = "coancestry"} (default: 1).
 #'
 #' @return A \code{data.table} with columns:
 #' \itemize{
-#'   \item \code{Cohort}: Year or period identifier.
-#'   \item \code{N}: Number of individuals in cohort.
-#'   \item \code{MeanF}: Mean inbreeding coefficient.
-#'   \item \code{DeltaF}: Individual increase in inbreeding per generation.
-#'   \item \code{Ne}: Effective population size.
+#'   \item \code{Cohort}: Cohort or grouping variable value.
+#'   \item \code{N}: Number of individuals in the cohort.
+#'   \item \code{Ne}: Calculated effective population size.
+#'   \item \code{...}: Additional columns depending on the selected method (e.g., \code{NSampled}, \code{DeltaC}, \code{MeanF}, \code{DeltaF}, \code{Nm}, \code{Nf}).
 #' }
 #' 
 #' @details
-#' The effective population size is calculated using one of three methods:
+#' The effective population size can be calculated using one of three methods:
 #' 
 #' \itemize{
-#'   \item \strong{"coancestry"} (Default): Based on the rate of coancestry between pairs of individuals
-#'   (Cervantes et al. 2011).
+#'   \item \strong{"coancestry"} (Default): Based on the rate of coancestry between pairs of individuals. This method is generally more robust as it accounts for full genetic drift and bottlenecks (Cervantes et al., 2011).
 #'   \deqn{\Delta c_{ij} = 1 - (1 - c_{ij})^{1/(\frac{ECG_i + ECG_j}{2})}}
 #'   \deqn{N_e = \frac{1}{2 \overline{\Delta c}}}
-#'   To handle large populations, this method samples \code{nsamples} individuals per cohort
-#'   and computes the mean rate of coancestry among them.
+#'   To handle large populations, this method samples \code{nsamples} individuals per cohort and computes the mean rate of coancestry among them.
 #'   
-#'   \item \strong{"inbreeding"}: Based on the individual rate of inbreeding 
-#'   (Gutiérrez et al. 2008, 2009).
+#'   \item \strong{"inbreeding"}: Based on the individual rate of inbreeding (Gutiérrez et al., 2008, 2009).
 #'   \deqn{\Delta F_i = 1 - (1 - F_i)^{1/(ECG_i - 1)}}
 #'   \deqn{N_e = \frac{1}{2 \overline{\Delta F}}}
 #'   
-#'   \item \strong{"demographic"}: Based on the number of breeding males and females.
+#'   \item \strong{"demographic"}: Based on the demographic census of breeding males and females (Wright, 1931).
 #'   \deqn{N_e = \frac{4 N_m N_f}{N_m + N_f}}
-#'   Where \eqn{N_m} and \eqn{N_f} are the number of unique male and female parents
-#'   contributing to the cohort.
+#'   Where \eqn{N_m} and \eqn{N_f} are the number of unique male and female parents contributing to the cohort.
 #' }
-#'
-#' @param ped A tidyped object.
-#' @param method Character, method to use: "coancestry" (default), "inbreeding", or "demographic".
-#' @param by Character, column name for grouping cohorts (e.g., "Year"). If NULL, calculates overall Ne for all individuals.
-#' @param cand Character vector, specific candidates to include.
-#' @param nsamples Integer. Number of individuals to sample per cohort. Only applicable for \code{method = "coancestry"} (default: 1000).
-#' @param ncores Integer. Number of cores for parallel processing. Currently only effective for \code{method = "coancestry"} (default: 1).
-#'
-#' @return A data.table with columns:
-#' \itemize{
-#'   \item \code{Cohort}: Grouping variable value
-#'   \item \code{N}: Number of individuals
-#'   \item \code{Ne}: Effective population size
-#'   \item Additional columns depending on method (e.g., MeanF, DeltaF, Nm, Nf)
-#' }
+#' 
+#' @references
+#' Cervantes, I., Goyache, F., Molina, A., Valera, M., & Gutiérrez, J. P. (2011). Estimation of effective population size from the rate of coancestry in pedigreed populations. \emph{Journal of Animal Breeding and Genetics}, 128(1), 56-63.
+#' 
+#' Gutiérrez, J. P., Cervantes, I., Molina, A., Valera, M., & Goyache, F. (2008). Individual increase in inbreeding allows estimating effective sizes from pedigrees. \emph{Genetics Selection Evolution}, 40(4), 359-370.
+#' 
+#' Gutiérrez, J. P., Cervantes, I., & Goyache, F. (2009). Improving the estimation of realized effective population sizes in farm animals. \emph{Journal of Animal Breeding and Genetics}, 126(4), 327-332.
+#' 
+#' Wright, S. (1931). Evolution in Mendelian populations. \emph{Genetics}, 16(2), 97-159.
 #' 
 #' @export
 pedne <- function(ped, method = c("coancestry", "inbreeding", "demographic"), 

@@ -724,8 +724,8 @@ double cpp_calculate_sampled_coancestry_delta(IntegerVector sire, IntegerVector 
             for (int tj : seen_targets) {
                 double C_ij = A_tri[tri_idx(i, tj)] / 2.0;
                 double g_ij = (ecg[i] + ecg[tj]) / 2.0;
-                if (g_ij > 1.0) {
-                    double delta_c = 1.0 - std::pow(1.0 - C_ij, 1.0 / (g_ij - 1.0));
+                if (g_ij > 0.0) { // Note: changed from > 1.0 as Cervantes uses g_ij natively
+                    double delta_c = 1.0 - std::pow(1.0 - C_ij, 1.0 / g_ij); 
                     sum_delta_c += delta_c;
                     num_pairs += 1.0;
                 }
