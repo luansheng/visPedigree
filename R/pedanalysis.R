@@ -1179,6 +1179,22 @@ pedcontrib <- function(ped, cand = NULL, mode = c("both", "founder", "ancestor")
         work_sire[best_pos] <- 0L
         work_dam[best_pos] <- 0L
         active_mask[best_local] <- FALSE
+        
+        # Mask all descendants of this ancestor so they cannot be selected
+        # Top-down pass from best_pos to n
+        is_desc <- logical(n)
+        is_desc[best_pos] <- TRUE
+        for (idx in best_pos:n) {
+          s <- sire_num[idx]
+          d <- dam_num[idx]
+          if ((s > 0 && is_desc[s]) || (d > 0 && is_desc[d])) {
+            is_desc[idx] <- TRUE
+          }
+        }
+        
+        # Disable descendants in candidate list
+        in_desc <- is_desc[candidate_idx]
+        active_mask[in_desc] <- FALSE
       }
       
       if (n_selected == 0) {
