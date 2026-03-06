@@ -21,32 +21,34 @@ This vignette demonstrates a complete workflow for pedigree analysis using the `
 First, we load the package and prepare a sample pedigree. We will use a simulated pedigree `simple_ped` included in the package, but for this demonstration, we'll simulate a slightly more complex structure with inbreeding events to showcase the features.
 
 ```{r setup}
+# Ensure the development version is loaded instead of the globally installed one
+devtools::load_all("../")
 library(visPedigree)
 library(data.table)
 
-# Simulate a pedigree with 5 generations
+# Simulate a pedigree with 4 generations
 # Foundation: 2 males (S1, S2), 2 females (D1, D2)
 ped_data <- data.table(
   Ind = c("S1", "S2", "D1", "D2", 
           "G1_1", "G1_2", "G1_3", "G1_4",
-          "G2_1", "G_Inbred", 
-          "G3_1"),
+          "G2_1", "G2_Inbred", "G2_2", 
+          "G3_1", "G3_2", "G3_3"),
   Sire = c(NA, NA, NA, NA, 
            "S1", "S1", "S2", "S2", 
-           "G1_1", "G1_1", 
-           "G2_1"),
+           "G1_1", "G1_1", "G1_2",
+           "G2_1", "G2_1", "G2_1"),
   Dam = c(NA, NA, NA, NA, 
           "D1", "D2", "D1", "D2", 
-          "G1_3", "G1_3", # G_Inbred is G1_1 x G1_3 (Full Sibs if S1,D1? No. G1_1=S1xD1, G1_3=S2xD1. Half-sibs)
-          "G_Inbred"),
+          "G1_3", "G1_3", "G1_4",
+          "G2_Inbred", "G2_Inbred", "G2_2"),
   Sex = c("male", "male", "female", "female",
           "male", "male", "female", "female",
-          "male", "female",
-          "male"),
+          "male", "female", "female",
+          "male", "female", "male"),
   BirthYear = c(2010, 2010, 2010, 2010,
                 2012, 2012, 2013, 2013,
-                2015, 2016,
-                2019)
+                2015, 2016, 2016,
+                2019, 2019, 2019)
 )
 
 # Tidy the pedigree (sorts, adds generations, checks integrity)
@@ -91,24 +93,37 @@ print(f_class)
 ```
 
 ### Effective Population Size (Ne)
-Estimate the effective population size ($N_e$), which is a key metric for monitoring genetic diversity. `visPedigree` provides three methods: based on coancestry (`"coancestry"`, the default), rate of inbreeding (`"inbreeding"`), or demographic counts (`"demographic"`).
+Estimate the effective population size ($N_e$), which is a key metric for monitoring genetic diversity. `visPedigree` provides three calculation methods to analyze $N_e$ from different population genetics perspectives.
 
-You can calculate $N_e$ grouped by year or generation:
-```{r ne_by_year}
-# Estimate Ne per cohort (grouped by BirthYear)
-ne_est <- pedne(tped, by = "BirthYear", method = "inbreeding")
-print(ne_est)
+We can analyze $N_e$ for individuals in later generations (e.g., $Gen \ge 3$) to compare these three methods side by side. We use `by = "Gen"` to group the outputs.
+
+```{r ne_methods_compare}
+# Identify candidates in later generations and assign a grouping variable
+ne_candidates <- tped[Gen >= 3, .(Ind, Gen)]
+
+# 1. Coancestry-based Ne (Default)
+# Relies on the rate of coancestry ($\Delta c$) between pairs of individuals.
+# Very robust for managed populations, sensitive to shared bloodlines.
+ne_co <- pedne(tped, cand = ne_candidates$Ind, by = "Gen", method = "coancestry")
+print(ne_co)
+
+# 2. Inbreeding-based Ne
+# Uses the individual rate of inbreeding ($\Delta F$). Evaluates how rapidly 
+# individuals become inbred compared to their ancestors.
+ne_in <- pedne(tped, cand = ne_candidates$Ind, by = "Gen", method = "inbreeding")
+print(ne_in)
+
+# 3. Demographic-based Ne
+# Counts distinct sires and dams contributing to the cohort.
+# Simplistic baseline, ignores complex historical relationships.
+ne_de <- pedne(tped, cand = ne_candidates$Ind, by = "Gen", method = "demographic")
+print(ne_de)
 ```
 
-Alternatively, you can evaluate the overall $N_e$ for a specific subset. Let's use generation 3 as an example, by omitting the `by` parameter:
-```{r ne_overall}
-# Get the IDs of a specific generation (e.g., Generation 3)
-gen3_ids <- tped[Gen == 3, Ind]
-
-# Calculate overall Ne for this specific candidate group using the default coancestry method
-overall_ne <- pedne(tped, cand = gen3_ids)
-print(overall_ne)
-```
+**Understanding the Differences:**
+- **Demographic** fluctuates simply based on how many parent IDs are directly listed as sires and dams for the cohort.
+- **Inbreeding** evaluates individual paths to shared ancestors. For deliberate crossing schemes, it tends to yield higher, more optimistic estimates ($\sim 4.01$).
+- **Coancestry** accurately detects the true loss of genetic variance by checking relationships between *pairs* in the generation. It recognizes widespread shared grandparents and great-grandparents, appropriately yielding a more conservative and arguably more relevant estimate for modern populations ($\sim 2.90$).
 
 ## 4. Genetic Diversity & Relationships
 
