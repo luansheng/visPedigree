@@ -29,6 +29,17 @@ contributions from founders) equals $1 + f_i$, where $f_i$ is the total
 inbreeding coefficient. This function specifically isolates the terms in 
 the Meuwissen & Luo (1992) decomposition that correspond to the selected ancestors.
 }
+\examples{
+\donttest{
+library(data.table)
+tp <- tidyped(inbred_ped)
+# Calculate partial inbreeding originating from specific ancestors
+target_ancestors <- inbred_ped[is.na(Sire) & is.na(Dam), Ind]
+pF <- pedpartial(tp, ancestors = target_ancestors)
+print(tail(pF))
+}
+
+}
 \references{
 Lacey, R. C. (1996). A formula for determining the partial inbreeding coefficient, 
 $F_{ij}$. Journal of Heredity, 87(4), 337-339.

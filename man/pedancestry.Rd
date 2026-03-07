@@ -22,3 +22,20 @@ A \code{data.table} with columns for \code{Ind} and each tracked label.
 Estimates the proportion of genes for each individual that originates from 
 specific founder groups (e.g., breeds, source populations).
 }
+\examples{
+\donttest{
+library(data.table)
+# Create dummy labels for founders
+tp <- tidyped(small_ped)
+tp_dated <- copy(tp)
+founders <- tp_dated[is.na(Sire) & is.na(Dam), Ind]
+# Assign 'LineA' and 'LineB'
+tp_dated[Ind \%in\% founders[1:(length(founders)/2)], Origin := "LineA"]
+tp_dated[is.na(Origin), Origin := "LineB"]
+
+# Calculate ancestry proportions for all individuals
+anc <- pedancestry(tp_dated, labelvar = "Origin")
+print(tail(anc))
+}
+
+}

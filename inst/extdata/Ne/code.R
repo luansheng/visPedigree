@@ -11,7 +11,12 @@ tidy_ped <- tidyped(ped = ped)
 coancestry_ne <- pedne(tidy_ped, cand=ind_names_v, by="Gen", method = "coancestry", nsamples = 1000, ncores = 4)
 inbreeding_ne <- pedne(tidy_ped, cand=ind_names_v, by="Gen", method = "inbreeding")
 demographic_ne <- pedne(tidy_ped, cand=ind_names_v, by="Gen", method = "demographic")
+res <- pedcontrib(tidy_ped, cand=ind_names_v, mode=c("both"), top=20)
+res$summary$f_a
+res$summary$f_e
+res$summary$f_a/res$summary$f_e
 
+res$summary
 # method 2
 
 source("inst/extdata/Ne/functions.R")
@@ -92,7 +97,7 @@ N <- length(g)
 n <-
   (matrix(g, N, N, byrow = TRUE) + matrix(g, N, N, byrow = FALSE)) /
   2
-# 使用 Cervantes (2011) 原版公式（去除 Gutiérrez 的 -1 修正）
+
 delta.c_matrix <- 1 - (1 - keep.kin[keep, keep]) ^ (1 / n)
 delta.c_real <- delta.c_matrix[upper.tri(delta.c_matrix, diag = FALSE)]
 effective.size_re <- 1 / (2 * mean(delta.c_real, na.rm = TRUE))

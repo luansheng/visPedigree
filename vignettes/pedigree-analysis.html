@@ -506,10 +506,10 @@ individuals in later generations (e.g., <span class="math inline">\(Gen
 <span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co"># Very robust for managed populations, sensitive to shared bloodlines.</span></span>
 <span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>ne_co <span class="ot">&lt;-</span> <span class="fu">pedne</span>(tped, <span class="at">cand =</span> ne_candidates<span class="sc">$</span>Ind, <span class="at">by =</span> <span class="st">&quot;Gen&quot;</span>, <span class="at">method =</span> <span class="st">&quot;coancestry&quot;</span>)</span>
 <span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="fu">print</span>(ne_co)</span>
-<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co">#&gt;    Cohort     N NSampled    DeltaC       Ne</span></span>
-<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="co">#&gt;     &lt;int&gt; &lt;int&gt;    &lt;int&gt;     &lt;num&gt;    &lt;num&gt;</span></span>
-<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="co">#&gt; 1:      3     3        3 0.1458333 3.428571</span></span>
-<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="co">#&gt; 2:      4     3        3 0.1726497 2.896037</span></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co">#&gt;    Cohort     N NSampled     DeltaC       Ne</span></span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="co">#&gt;     &lt;int&gt; &lt;int&gt;    &lt;int&gt;      &lt;num&gt;    &lt;num&gt;</span></span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="co">#&gt; 1:      3     3        3 0.07811738 6.400625</span></span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="co">#&gt; 2:      4     3        3 0.11913253 4.197006</span></span>
 <span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a></span>
 <span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="co"># 2. Inbreeding-based Ne</span></span>
 <span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a><span class="co"># Uses the individual rate of inbreeding ($\Delta F$). Evaluates how rapidly </span></span>
@@ -562,30 +562,61 @@ relationship indicates a loss of genetic diversity.</p>
 </div>
 <div id="ancestral-analysis" class="section level2">
 <h2>5. Ancestral Analysis</h2>
-<p>Identify which ancestors are most influential and trace gene
-flow.</p>
+<p>Identify which ancestors are most influential and trace gene flow.
+The algorithm estimates both the effective number of founders (<span class="math inline">\(f_e\)</span>) and the effective number of
+ancestors (<span class="math inline">\(f_a\)</span>).</p>
+<ul>
+<li><span class="math inline">\(f_e\)</span>: Quantifies genetic
+variation assuming founders contribute equally and independently to the
+reference cohort.</li>
+<li><span class="math inline">\(f_a\)</span>: Accounts for bottlenecks
+in the pedigree, providing a more stringent measure of the genetic base
+by identifying the marginal contributions of specific influential
+ancestors.</li>
+</ul>
 <div id="most-influential-ancestors" class="section level3">
 <h3>Most Influential Ancestors</h3>
-<p>Find ancestors with the highest marginal genetic contribution.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># Calculate contributions to the last generation</span></span>
+<p>Find ancestors with the highest marginal genetic contribution. We’ll
+use a subset of a more complex pedigree to demonstrate
+<code>pedcontrib</code>.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># Provide candidates from the last generation to evaluate their genetic origins</span></span>
 <span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>last_gen_ids <span class="ot">&lt;-</span> tped[Gen <span class="sc">==</span> <span class="fu">max</span>(Gen), Ind]</span>
-<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>contributions <span class="ot">&lt;-</span> <span class="fu">pedcontrib</span>(tped, <span class="at">cand =</span> last_gen_ids, <span class="at">mode =</span> <span class="st">&quot;ancestor&quot;</span>)</span>
-<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="co">#&gt; Calculating ancestor contributions (Boichard&#39;s iterative algorithm)...</span></span>
-<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a></span>
-<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="fu">print</span>(contributions)</span>
-<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="co">#&gt; Founder and Ancestor Contributions</span></span>
-<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="co">#&gt; ===================================</span></span>
-<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="co">#&gt; Reference cohort size: 3</span></span>
-<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a><span class="co">#&gt; Ancestors: 3 (reported top 3)</span></span>
-<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a><span class="co">#&gt; Effective number of ancestors (Ne_a): 2.57</span></span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="co"># mode = &quot;both&quot; calculates both founder and ancestor contributions</span></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>contributions <span class="ot">&lt;-</span> <span class="fu">pedcontrib</span>(tped, <span class="at">cand =</span> last_gen_ids, <span class="at">mode =</span> <span class="st">&quot;both&quot;</span>, <span class="at">top =</span> <span class="dv">5</span>)</span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="co">#&gt; Calculating founder contributions...</span></span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="co">#&gt; Calculating ancestor contributions (Boichard&#39;s iterative algorithm)...</span></span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="co"># The summary shows the cohort size, expected and actual founder/ancestor metrics</span></span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="fu">print</span>(contributions<span class="sc">$</span>summary)</span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a><span class="co">#&gt; $n_cohort</span></span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a><span class="co">#&gt; [1] 3</span></span>
 <span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a><span class="co">#&gt; Top 10 Ancestor Contributions:</span></span>
-<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a><span class="co">#&gt;          Ind   Contrib CumContrib  Rank</span></span>
-<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a><span class="co">#&gt;       &lt;char&gt;     &lt;num&gt;      &lt;num&gt; &lt;int&gt;</span></span>
-<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a><span class="co">#&gt; 1:      G2_1 0.5000000  0.5000000     1</span></span>
-<span id="cb7-18"><a href="#cb7-18" tabindex="-1"></a><span class="co">#&gt; 2: G2_Inbred 0.3333333  0.8333333     2</span></span>
-<span id="cb7-19"><a href="#cb7-19" tabindex="-1"></a><span class="co">#&gt; 3:      G2_2 0.1666667  1.0000000     3</span></span></code></pre></div>
+<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a><span class="co">#&gt; $n_founders_total</span></span>
+<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a><span class="co">#&gt; [1] 4</span></span>
+<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a><span class="co">#&gt; $n_founders_reported</span></span>
+<span id="cb7-18"><a href="#cb7-18" tabindex="-1"></a><span class="co">#&gt; [1] 4</span></span>
+<span id="cb7-19"><a href="#cb7-19" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb7-20"><a href="#cb7-20" tabindex="-1"></a><span class="co">#&gt; $f_e</span></span>
+<span id="cb7-21"><a href="#cb7-21" tabindex="-1"></a><span class="co">#&gt; [1] 3.272727</span></span>
+<span id="cb7-22"><a href="#cb7-22" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb7-23"><a href="#cb7-23" tabindex="-1"></a><span class="co">#&gt; $n_ancestors_total</span></span>
+<span id="cb7-24"><a href="#cb7-24" tabindex="-1"></a><span class="co">#&gt; [1] 3</span></span>
+<span id="cb7-25"><a href="#cb7-25" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb7-26"><a href="#cb7-26" tabindex="-1"></a><span class="co">#&gt; $n_ancestors_reported</span></span>
+<span id="cb7-27"><a href="#cb7-27" tabindex="-1"></a><span class="co">#&gt; [1] 3</span></span>
+<span id="cb7-28"><a href="#cb7-28" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb7-29"><a href="#cb7-29" tabindex="-1"></a><span class="co">#&gt; $f_a</span></span>
+<span id="cb7-30"><a href="#cb7-30" tabindex="-1"></a><span class="co">#&gt; [1] 2.571429</span></span>
+<span id="cb7-31"><a href="#cb7-31" tabindex="-1"></a></span>
+<span id="cb7-32"><a href="#cb7-32" tabindex="-1"></a><span class="co"># The top ancestors identified by Boichard&#39;s algorithm</span></span>
+<span id="cb7-33"><a href="#cb7-33" tabindex="-1"></a><span class="fu">print</span>(contributions<span class="sc">$</span>ancestors)</span>
+<span id="cb7-34"><a href="#cb7-34" tabindex="-1"></a><span class="co">#&gt;          Ind   Contrib CumContrib  Rank</span></span>
+<span id="cb7-35"><a href="#cb7-35" tabindex="-1"></a><span class="co">#&gt;       &lt;char&gt;     &lt;num&gt;      &lt;num&gt; &lt;int&gt;</span></span>
+<span id="cb7-36"><a href="#cb7-36" tabindex="-1"></a><span class="co">#&gt; 1:      G2_1 0.5000000  0.5000000     1</span></span>
+<span id="cb7-37"><a href="#cb7-37" tabindex="-1"></a><span class="co">#&gt; 2: G2_Inbred 0.3333333  0.8333333     2</span></span>
+<span id="cb7-38"><a href="#cb7-38" tabindex="-1"></a><span class="co">#&gt; 3:      G2_2 0.1666667  1.0000000     3</span></span></code></pre></div>
 </div>
 <div id="gene-flow-ancestry-proportions" class="section level3">
 <h3>Gene Flow / Ancestry Proportions</h3>

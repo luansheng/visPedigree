@@ -737,6 +737,197 @@ double cpp_calculate_sampled_coancestry_delta(IntegerVector sire, IntegerVector 
     return sum_delta_c / num_pairs;
 }
 
+// ============================================================================
+// Founder and Ancestor Contributions (Boichard 1997)
+// ============================================================================
+// Algorithm:
+//   Founders: single backward (gene-drop) pass, O(N).
+//   Ancestors: Boichard's iterative peeling – select max-contribution ancestor,
+//     sever its parental links, mask its descendants, repeat. Each iteration is
+//     O(N) (backward pass + descendant scan).  Total O(K·N) for K ancestors.
+// Inputs (all 1-based; 0 = unknown parent):
+//   sire, dam        – integer parent vectors of length N
+//   cohort_pos       – 1-based positions of reference (cohort) individuals
+//   mode             – 1 = founder only, 2 = ancestor only, 3 = both
+// Returns a named List whose elements depend on mode:
+//   founder_idx, founder_contrib   (mode 1 or 3)
+//   ancestor_idx, ancestor_contrib (mode 2 or 3)
+// ============================================================================
+// [[Rcpp::export]]
+List cpp_pedcontrib(IntegerVector sire, IntegerVector dam,
+                    IntegerVector cohort_pos, int mode) {
+
+    const int n = sire.size();
+    const int n_cohort = cohort_pos.size();
+    if (dam.size() != n)
+        stop("sire and dam vectors must have the same length");
+    if (n_cohort == 0)
+        stop("cohort_pos must not be empty");
+
+    const double w = 1.0 / static_cast<double>(n_cohort);
+
+    List result;
+
+    // ------------------------------------------------------------------
+    // Founder contributions (single backward pass)
+    // ------------------------------------------------------------------
+    if (mode == 1 || mode == 3) {
+        std::vector<double> contrib(n, 0.0);
+        for (int i = 0; i < n_cohort; ++i)
+            contrib[cohort_pos[i] - 1] += w;
+
+        for (int i = n - 1; i >= 0; --i) {
+            if (contrib[i] == 0.0) continue;
+            int s = sire[i] - 1;
+            int d = dam[i] - 1;
+            if (s >= 0) contrib[s] += 0.5 * contrib[i];
+            if (d >= 0) contrib[d] += 0.5 * contrib[i];
+        }
+
+        // Collect founders (both parents unknown)
+        std::vector<int>    f_idx;
+        std::vector<double> f_val;
+        for (int i = 0; i < n; ++i) {
+            if (sire[i] == 0 && dam[i] == 0) {
+                f_idx.push_back(i + 1);       // 1-based
+                f_val.push_back(contrib[i]);
+            }
+        }
+        result["founder_idx"]    = wrap(f_idx);
+        result["founder_contrib"] = wrap(f_val);
+    }
+
+    // ------------------------------------------------------------------
+    // Ancestor contributions – Boichard's iterative peeling
+    // ------------------------------------------------------------------
+    if (mode == 2 || mode == 3) {
+
+        // --- BFS: discover all ancestors of the cohort ---
+        std::vector<bool> visited(n, false);
+        std::vector<bool> is_anc(n, false);
+        std::vector<int>  bfs_queue;
+        bfs_queue.reserve(n);
+
+        for (int i = 0; i < n_cohort; ++i) {
+            int pos = cohort_pos[i] - 1;
+            if (!visited[pos]) {
+                visited[pos] = true;
+                is_anc[pos] = true; // COHORT MEMBERS Themselves are candidates!
+                bfs_queue.push_back(pos);
+            }
+        }
+
+        size_t head = 0;
+        while (head < bfs_queue.size()) {
+            int pos = bfs_queue[head++];
+            int s = sire[pos] - 1;
+            int d = dam[pos] - 1;
+            if (s >= 0 && !visited[s]) {
+                visited[s] = true;
+                is_anc[s] = true;
+                bfs_queue.push_back(s);
+            }
+            if (d >= 0 && !visited[d]) {
+                visited[d] = true;
+                is_anc[d] = true;
+                bfs_queue.push_back(d);
+            }
+        }
+
+        // Candidate ancestor list (0-based positions)
+        std::vector<int> cand_idx;
+        for (int i = 0; i < n; ++i)
+            if (is_anc[i]) cand_idx.push_back(i);
+
+        const int n_cand = static_cast<int>(cand_idx.size());
+
+        if (n_cand == 0) {
+            result["ancestor_idx"]    = IntegerVector(0);
+            result["ancestor_contrib"] = NumericVector(0);
+        } else {
+            // Mutable parent arrays (will be modified by severing links)
+            std::vector<int> w_sire(n), w_dam(n);
+            for (int i = 0; i < n; ++i) {
+                w_sire[i] = sire[i];
+                w_dam[i]  = dam[i];
+            }
+
+            std::vector<bool> active(n_cand, true);
+            std::vector<bool> is_sel(n, false);
+            std::vector<int>    sel_idx;
+            std::vector<double> sel_q;
+            sel_idx.reserve(n_cand);
+            sel_q.reserve(n_cand);
+
+            // Reusable work arrays
+            std::vector<double> contrib(n);
+            std::vector<double> a_array(n, 0.0);
+
+            for (;;) {
+                // --- Backward pass with current (modified) parent links (Calculates Q) ---
+                std::fill(contrib.begin(), contrib.end(), 0.0);
+                for (int i = 0; i < n_cohort; ++i)
+                    contrib[cohort_pos[i] - 1] += w;
+
+                for (int i = n - 1; i >= 0; --i) {
+                    if (contrib[i] == 0.0) continue;
+                    int s = w_sire[i] - 1;
+                    int d = w_dam[i]  - 1;
+                    if (s >= 0) contrib[s] += 0.5 * contrib[i];
+                    if (d >= 0) contrib[d] += 0.5 * contrib[i];
+                }
+
+                // --- Forward pass with updated parent links (Calculates A) ---
+                std::fill(a_array.begin(), a_array.end(), 0.0);
+                for (int i = 0; i < n; ++i) {
+                    if (is_sel[i]) {
+                        a_array[i] = 1.0;
+                    } else {
+                        int s = w_sire[i] - 1;
+                        int d = w_dam[i]  - 1;
+                        double a_s = (s >= 0) ? a_array[s] : 0.0;
+                        double a_d = (d >= 0) ? a_array[d] : 0.0;
+                        a_array[i] = 0.5 * a_s + 0.5 * a_d;
+                    }
+                }
+
+                // --- Find best among active candidates ---
+                int    best_j   = -1;
+                double best_val = -1.0;
+                for (int j = 0; j < n_cand; ++j) {
+                    if (active[j]) {
+                        int pos = cand_idx[j];
+                        // Marginal contribution = q_k * (1 - a_k)
+                        double p_k = contrib[pos] * std::max(0.0, 1.0 - a_array[pos]);
+                        if (p_k > best_val) {
+                            best_val = p_k;
+                            best_j   = j;
+                        }
+                    }
+                }
+                
+                if (best_val <= 1e-10) break;
+
+                int best_pos = cand_idx[best_j];
+                sel_idx.push_back(best_pos + 1);   // 1-based index
+                sel_q.push_back(best_val);
+
+                // Sever parent links of selected ancestor (to form pseudo-founder)
+                w_sire[best_pos] = 0;
+                w_dam[best_pos]  = 0;
+                // Mark as selected so it stops receiving and begins transmitting its own a_array=1.0 downwards
+                active[best_j]   = false;
+                is_sel[best_pos] = true;
+            }
+
+            result["ancestor_idx"]    = wrap(sel_idx);
+            result["ancestor_contrib"] = wrap(sel_q);
+        }
+    }
+
+    return result;
+}
+
 // Calculate Ancestry (Forward P)
 // [[Rcpp::export]]
 NumericMatrix cpp_calculate_ancestry(IntegerVector sire, IntegerVector dam, NumericMatrix res_mat, IntegerVector ind_to_row) {

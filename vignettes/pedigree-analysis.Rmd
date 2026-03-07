@@ -137,16 +137,26 @@ print(avg_rel)
 
 ## 5. Ancestral Analysis
 
-Identify which ancestors are most influential and trace gene flow.
+Identify which ancestors are most influential and trace gene flow. The algorithm estimates both the effective number of founders ($f_e$) and the effective number of ancestors ($f_a$). 
+
+- $f_e$: Quantifies genetic variation assuming founders contribute equally and independently to the reference cohort.
+- $f_a$: Accounts for bottlenecks in the pedigree, providing a more stringent measure of the genetic base by identifying the marginal contributions of specific influential ancestors.
 
 ### Most Influential Ancestors
-Find ancestors with the highest marginal genetic contribution.
-```{r contrib}
-# Calculate contributions to the last generation
-last_gen_ids <- tped[Gen == max(Gen), Ind]
-contributions <- pedcontrib(tped, cand = last_gen_ids, mode = "ancestor")
+Find ancestors with the highest marginal genetic contribution. We'll use a subset of a more complex pedigree to demonstrate `pedcontrib`.
 
-print(contributions)
+```{r contrib}
+# Provide candidates from the last generation to evaluate their genetic origins
+last_gen_ids <- tped[Gen == max(Gen), Ind]
+
+# mode = "both" calculates both founder and ancestor contributions
+contributions <- pedcontrib(tped, cand = last_gen_ids, mode = "both", top = 5)
+
+# The summary shows the cohort size, expected and actual founder/ancestor metrics
+print(contributions$summary)
+
+# The top ancestors identified by Boichard's algorithm
+print(contributions$ancestors)
 ```
 
 ### Gene Flow / Ancestry Proportions

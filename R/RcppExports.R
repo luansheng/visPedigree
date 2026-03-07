@@ -65,6 +65,10 @@ cpp_calculate_sampled_coancestry_delta <- function(sire, dam, target_idx, ecg) {
     .Call(`_visPedigree_cpp_calculate_sampled_coancestry_delta`, sire, dam, target_idx, ecg)
 }
 
+cpp_pedcontrib <- function(sire, dam, cohort_pos, mode) {
+    .Call(`_visPedigree_cpp_pedcontrib`, sire, dam, cohort_pos, mode)
+}
+
 cpp_calculate_ancestry <- function(sire, dam, res_mat, ind_to_row) {
     .Call(`_visPedigree_cpp_calculate_ancestry`, sire, dam, res_mat, ind_to_row)
 }

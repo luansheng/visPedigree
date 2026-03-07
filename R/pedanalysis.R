@@ -955,28 +955,78 @@ calc_ne_coancestry <- function(ped_subset, ped_full, by, nsamples) {
 
 # Legacy wrapper/stub for documentation or compatibility if needed
 # (none required as we replaced pedne in place) -> THIS LINE INTENTIONALLY LEFT BLANK
+fill_phantoms <- function(ped) {
+  missing_sire <- is.na(ped$Sire) & !is.na(ped$Dam)
+  missing_dam <- !is.na(ped$Sire) & is.na(ped$Dam)
+  
+  if (!any(missing_sire) && !any(missing_dam)) {
+    return(ped)
+  }
+  
+  ped_new <- data.table::copy(ped)
+  new_rows <- list()
+  
+  if (any(missing_sire)) {
+    phantoms_sire <- paste0("*Phantom_Sire_", ped_new$Ind[missing_sire])
+    ped_new$Sire[missing_sire] <- phantoms_sire
+    new_rows[[1]] <- data.table::data.table(
+      Ind = phantoms_sire,
+      Sire = NA_character_,
+      Dam = NA_character_
+    )
+  }
+  
+  if (any(missing_dam)) {
+    phantoms_dam <- paste0("*Phantom_Dam_", ped_new$Ind[missing_dam])
+    ped_new$Dam[missing_dam] <- phantoms_dam
+    new_rows[[2]] <- data.table::data.table(
+      Ind = phantoms_dam,
+      Sire = NA_character_,
+      Dam = NA_character_
+    )
+  }
+  
+  new_dt <- data.table::rbindlist(new_rows, fill = TRUE)
+  extra_cols <- setdiff(names(ped_new), names(new_dt))
+  if (length(extra_cols) > 0) {
+    for (col in extra_cols) {
+      data.table::set(new_dt, j = col, value = NA)
+    }
+  }
+  
+  ped_combined <- rbind(ped_new, new_dt, fill = TRUE)
+  
+  old_cols <- intersect(names(ped_combined), c("IndNum", "SireNum", "DamNum"))
+  if (length(old_cols) > 0) {
+    ped_combined[, (old_cols) := NULL]
+  }
+  
+  return(tidyped(ped_combined, addnum = TRUE))
+}
+
 #' Calculate Founder and Ancestor Contributions
 #'
-#' Calculates genetic contributions from founders (fe) and influential ancestors (fa).
+#' Calculates genetic contributions from founders and influential ancestors.
 #' Implements the gene dropping algorithm for founder contributions and Boichard's 
-#' algorithm for ancestor contributions.
+#' algorithm for ancestor contributions to estimate the effective number of founders ($f_e$) 
+#' and ancestors ($f_a$).
 #'
 #' @param ped A \code{tidyped} object.
-#' @param cohort Character vector. Optional subset of individual IDs defining the reference population.
+#' @param cand Character vector. Optional subset of individual IDs defining the reference population (candidates).
 #'   If NULL, uses all individuals in the most recent generation.
 #' @param mode Character. Type of contribution to calculate:
 #' \itemize{
-#'   \item \code{"founder"}: Founder contributions (fe).
-#'   \item \code{"ancestor"}: Ancestor contributions (fa).
+#'   \item \code{"founder"}: Founder contributions ($f_e$).
+#'   \item \code{"ancestor"}: Ancestor contributions ($f_a$).
 #'   \item \code{"both"}: Both founder and ancestor contributions.
 #' }
 #' @param top Integer. Number of top contributors to return. Default is 20.
 #'
 #' @return A list with class \code{pedcontrib} containing:
 #' \itemize{
-#'   \item \code{founders}: \code{data.table} of founder contributions (if mode includes "founder").
-#'   \item \code{ancestors}: \code{data.table} of ancestor contributions (if mode includes "ancestor").
-#'   \item \code{summary}: Summary statistics including effective number of founders/ancestors.
+#'   \item \code{founders}: A \code{data.table} of founder contributions (if mode includes "founder", or "both").
+#'   \item \code{ancestors}: A \code{data.table} of ancestor contributions (if mode includes "ancestor", or "both").
+#'   \item \code{summary}: A \code{list} of summary statistics including the effective number of founders ($f_e$) and ancestors ($f_a$).
 #' }
 #' 
 #' Each contribution table contains:
@@ -988,23 +1038,32 @@ calc_ne_coancestry <- function(ped_subset, ped_full, by, nsamples) {
 #' }
 #' 
 #' @details
-#' **Founder Contributions (fe):**
-#' Calculated by probabilistic gene flow from founders to the reference cohort.
-#' A founder is an individual with unknown parents.
+#' **Founder Contributions ($f_e$):**
+#' Calculated by probabilistic gene flow from founders to the reference cohort. 
+#' When individual ancestors with one unknown parent exist, "phantom" parents are temporarily injected correctly conserving the probability mass.
 #' 
-#' **Ancestor Contributions (fa):**
-#' Calculated using Boichard's iterative algorithm, accounting for:
+#' **Ancestor Contributions ($f_a$):**
+#' Calculated using Boichard's iterative algorithm (1997), accounting for:
 #' \itemize{
 #'   \item Marginal genetic contribution of each ancestor
 #'   \item Long-term contributions through multiple pathways
 #' }
+#' The parameter $f_a$ acts as a stringent metric since it identifies the bottlenecks of genetic variation in pedigrees. 
 #' 
-#' **Effective Numbers:**
-#' \itemize{
-#'   \item \code{Ne_f}: Effective number of founders = 1 / sum(fe^2)
-#'   \item \code{Ne_a}: Effective number of ancestors = 1 / sum(fa^2)
+#' @examples
+#' \donttest{
+#' library(data.table)
+#' # Load a sample pedigree
+#' tp <- tidyped(small_ped)
+#' 
+#' # Calculate both founder and ancestor contributions for candidates
+#' cand_ids <- c("Z1", "Z2", "X", "Y")
+#' contrib <- pedcontrib(tp, cand = cand_ids, mode = "both")
+#' 
+#' # Print results including f_e and f_a
+#' print(contrib)
 #' }
-#' 
+#'
 #' @references
 #' Boichard, D., Maignel, L., & Verrier, É. (1997). The value of using probabilities 
 #' of gene origin to measure genetic variability in a population. Genetics Selection 
@@ -1013,6 +1072,9 @@ calc_ne_coancestry <- function(ped_subset, ped_full, by, nsamples) {
 #' @export
 pedcontrib <- function(ped, cand = NULL, mode = c("both", "founder", "ancestor"), top = 20) {
   if (!inherits(ped, "tidyped")) stop("ped must be a tidyped object")
+  
+  # Inject phantom parents to conserve genetic contributions accurately
+  ped <- fill_phantoms(ped)
   
   mode <- match.arg(mode)
   
@@ -1042,31 +1104,25 @@ pedcontrib <- function(ped, cand = NULL, mode = c("both", "founder", "ancestor")
   n <- nrow(ped)
   n_cohort <- length(cand)
   
-  # Pre-compute integer arrays for speed (avoid character matching)
+  # Pre-compute integer arrays
   sire_num <- ped$SireNum   # 0 = unknown
   dam_num <- ped$DamNum     # 0 = unknown
   ind_ids <- ped$Ind
   
   # Map candidate IDs to integer positions
   ind_to_pos <- setNames(seq_len(n), ind_ids)
-  cohort_pos <- ind_to_pos[cand]
-  # Vectorized backward pass: compute total flow from all cohort members at once
-  # contrib[i] = average probability that a randomly chosen gene from the cohort
-  #              traces back to individual i
-  backward_pass <- function(sire_v, dam_v, cohort_positions, n_ped, n_coh) {
-    contrib <- numeric(n_ped)
-    contrib[cohort_positions] <- 1.0 / n_coh
-    
-    # Walk backwards (individuals sorted by Gen ascending, so reverse = top-down)
-    for (i in n_ped:1) {
-      if (contrib[i] == 0) next
-      s <- sire_v[i]
-      d <- dam_v[i]
-      if (s > 0) contrib[s] <- contrib[s] + 0.5 * contrib[i]
-      if (d > 0) contrib[d] <- contrib[d] + 0.5 * contrib[i]
-    }
-    return(contrib)
-  }
+  cohort_pos <- as.integer(ind_to_pos[cand])
+  
+  # Determine numeric mode for C++: 1=founder, 2=ancestor, 3=both
+  cpp_mode <- switch(mode, founder = 1L, ancestor = 2L, both = 3L)
+  
+  # ---- Call Rcpp backend ----
+  cpp_res <- cpp_pedcontrib(
+    sire     = as.integer(sire_num),
+    dam      = as.integer(dam_num),
+    cohort_pos = cohort_pos,
+    mode     = cpp_mode
+  )
   
   result <- list()
   
@@ -1077,27 +1133,23 @@ pedcontrib <- function(ped, cand = NULL, mode = c("both", "founder", "ancestor")
   if (mode %in% c("founder", "both")) {
     message("Calculating founder contributions...")
     
-    founder_idx <- which(sire_num == 0 & dam_num == 0)
-    n_founders <- length(founder_idx)
+    f_idx <- cpp_res$founder_idx
+    f_val <- cpp_res$founder_contrib
     
-    if (n_founders == 0) {
+    if (length(f_idx) == 0) {
       warning("No founders found (all individuals have at least one parent).")
       result$founders <- data.table(Ind = character(0), Contrib = numeric(0),
                                      CumContrib = numeric(0), Rank = integer(0))
     } else {
-      # Single vectorized backward pass for all cohort members simultaneously
-      contrib <- backward_pass(sire_num, dam_num, cohort_pos, n, n_cohort)
-      
       founder_dt <- data.table(
-        Ind = ind_ids[founder_idx],
-        Contrib = contrib[founder_idx]
+        Ind = ind_ids[f_idx],
+        Contrib = f_val
       )
       
       setorder(founder_dt, -Contrib)
       founder_dt[, CumContrib := cumsum(Contrib)]
       founder_dt[, Rank := seq_len(.N)]
       
-      # Calculate effective number of founders before subsetting
       fe2_sum <- sum(founder_dt$Contrib^2, na.rm = TRUE)
       n_founders_total <- nrow(founder_dt)
       
@@ -1105,115 +1157,27 @@ pedcontrib <- function(ped, cand = NULL, mode = c("both", "founder", "ancestor")
     }
   }
   
-  # ---- Ancestor Contributions (Boichard's iterative algorithm) ----
+  # ---- Ancestor Contributions ----
   fa2_sum <- NA_real_
   n_ancestors_total <- 0L
   
   if (mode %in% c("ancestor", "both")) {
     message("Calculating ancestor contributions (Boichard's iterative algorithm)...")
     
-    # Work with mutable integer parent arrays
-    work_sire <- as.integer(sire_num)
-    work_dam <- as.integer(dam_num)
+    a_idx <- cpp_res$ancestor_idx
+    a_val <- cpp_res$ancestor_contrib
     
-    # Find all ancestors of cohort via BFS on integer indices
-    is_ancestor <- logical(n)
-    visited <- logical(n)
-    queue <- integer(n)
-    head <- 1L
-    tail <- length(cohort_pos)
-    if (tail > 0) {
-      queue[seq_len(tail)] <- as.integer(cohort_pos)
-      visited[queue[seq_len(tail)]] <- TRUE
-    }
-    while (head <= tail) {
-      pos <- queue[head]
-      head <- head + 1L
-      s <- sire_num[pos]
-      d <- dam_num[pos]
-      if (s > 0 && !visited[s]) {
-        visited[s] <- TRUE
-        is_ancestor[s] <- TRUE
-        tail <- tail + 1L
-        queue[tail] <- s
-      }
-      if (d > 0 && !visited[d]) {
-        visited[d] <- TRUE
-        is_ancestor[d] <- TRUE
-        tail <- tail + 1L
-        queue[tail] <- d
-      }
-    }
-    
-    candidate_idx <- which(is_ancestor)
-    n_total_anc <- length(candidate_idx)
-    
-    if (n_total_anc == 0) {
+    if (length(a_idx) == 0) {
       result$ancestors <- data.table(Ind = character(0), Contrib = numeric(0),
                                       CumContrib = numeric(0), Rank = integer(0))
     } else {
-      selected_idx <- integer(n_total_anc)
-      marginal_contribs <- numeric(n_total_anc)
-      n_selected <- 0L
-      active_mask <- rep(TRUE, n_total_anc)
+      ancestor_dt_full <- data.table(
+        Ind = ind_ids[a_idx],
+        Contrib = a_val
+      )
+      ancestor_dt_full[, CumContrib := cumsum(Contrib)]
+      ancestor_dt_full[, Rank := seq_len(.N)]
       
-      repeat {
-        # Backward pass with current (modified) parent links
-        contrib <- backward_pass(work_sire, work_dam, cohort_pos, n, n_cohort)
-        
-        # Find best among remaining candidates
-        cand_contribs <- contrib[candidate_idx]
-        cand_contribs[!active_mask] <- 0
-        
-        best_local <- which.max(cand_contribs)
-        best_val <- cand_contribs[best_local]
-        
-        if (best_val <= 1e-10) break
-        
-        n_selected <- n_selected + 1L
-        best_pos <- candidate_idx[best_local]
-        selected_idx[n_selected] <- best_pos
-        marginal_contribs[n_selected] <- best_val
-        
-        # "Account for" this ancestor: sever its parental links
-        work_sire[best_pos] <- 0L
-        work_dam[best_pos] <- 0L
-        active_mask[best_local] <- FALSE
-        
-        # Mask all descendants of this ancestor so they cannot be selected
-        # Top-down pass from best_pos to n
-        is_desc <- logical(n)
-        is_desc[best_pos] <- TRUE
-        for (idx in best_pos:n) {
-          s <- sire_num[idx]
-          d <- dam_num[idx]
-          if ((s > 0 && is_desc[s]) || (d > 0 && is_desc[d])) {
-            is_desc[idx] <- TRUE
-          }
-        }
-        
-        # Disable descendants in candidate list
-        in_desc <- is_desc[candidate_idx]
-        active_mask[in_desc] <- FALSE
-      }
-      
-      if (n_selected == 0) {
-        ancestor_dt_full <- data.table(
-          Ind = character(0),
-          Contrib = numeric(0),
-          CumContrib = numeric(0),
-          Rank = integer(0)
-        )
-      } else {
-        ancestor_dt_full <- data.table(
-          Ind = ind_ids[selected_idx[seq_len(n_selected)]],
-          Contrib = marginal_contribs[seq_len(n_selected)]
-        )
-        ancestor_dt_full[, CumContrib := cumsum(Contrib)]
-        ancestor_dt_full[, Rank := seq_len(.N)]
-      }
-      
-      # Calculate effective number of ancestors before subsetting
       fa2_sum <- sum(ancestor_dt_full$Contrib^2, na.rm = TRUE)
       n_ancestors_total <- nrow(ancestor_dt_full)
       
@@ -1227,13 +1191,13 @@ pedcontrib <- function(ped, cand = NULL, mode = c("both", "founder", "ancestor")
   if (!is.null(result$founders)) {
     summary_list$n_founders_total <- n_founders_total
     summary_list$n_founders_reported <- nrow(result$founders)
-    summary_list$Ne_f <- if (!is.na(fe2_sum) && fe2_sum > 0) 1 / fe2_sum else NA_real_
+    summary_list$f_e <- if (!is.na(fe2_sum) && fe2_sum > 0) 1 / fe2_sum else NA_real_
   }
   
   if (!is.null(result$ancestors)) {
     summary_list$n_ancestors_total <- n_ancestors_total
     summary_list$n_ancestors_reported <- nrow(result$ancestors)
-    summary_list$Ne_a <- if (!is.na(fa2_sum) && fa2_sum > 0) 1 / fa2_sum else NA_real_
+    summary_list$f_a <- if (!is.na(fa2_sum) && fa2_sum > 0) 1 / fa2_sum else NA_real_
   }
   
   result$summary <- summary_list
@@ -1255,6 +1219,22 @@ pedcontrib <- function(ped, cand = NULL, mode = c("both", "founder", "ancestor")
 #'
 #' @return A \code{data.table} with columns for \code{Ind} and each tracked label.
 #'
+#' @examples
+#' \donttest{
+#' library(data.table)
+#' # Create dummy labels for founders
+#' tp <- tidyped(small_ped)
+#' tp_dated <- copy(tp)
+#' founders <- tp_dated[is.na(Sire) & is.na(Dam), Ind]
+#' # Assign 'LineA' and 'LineB'
+#' tp_dated[Ind %in% founders[1:(length(founders)/2)], Origin := "LineA"]
+#' tp_dated[is.na(Origin), Origin := "LineB"]
+#' 
+#' # Calculate ancestry proportions for all individuals
+#' anc <- pedancestry(tp_dated, labelvar = "Origin")
+#' print(tail(anc))
+#' }
+#' 
 #' @export
 pedancestry <- function(ped, labelvar, labels = NULL) {
   if (!inherits(ped, "tidyped")) stop("ped must be a tidyped object")
@@ -1379,6 +1359,16 @@ pedinbreed_class <- function(ped) {
 #' Meuwissen, T. H., & Luo, Z. (1992). Computing inbreeding coefficients in 
 #' large populations. Genetics Selection Evolution, 24(4), 305-313.
 #'
+#' @examples
+#' \donttest{
+#' library(data.table)
+#' tp <- tidyped(inbred_ped)
+#' # Calculate partial inbreeding originating from specific ancestors
+#' target_ancestors <- inbred_ped[is.na(Sire) & is.na(Dam), Ind]
+#' pF <- pedpartial(tp, ancestors = target_ancestors)
+#' print(tail(pF))
+#' }
+#' 
 #' @export
 pedpartial <- function(ped, ancestors = NULL, top = 20) {
   if (!inherits(ped, "tidyped")) stop("ped must be a tidyped object")
@@ -1444,14 +1434,14 @@ print.pedcontrib <- function(x, ...) {
   
   if (!is.null(x$founders)) {
     cat(sprintf("\nFounders: %d (reported top %d)\n", s$n_founders_total, s$n_founders_reported))
-    cat(sprintf("Effective number of founders (Ne_f): %.2f\n", s$Ne_f))
+    cat(sprintf("Effective number of founders (f_e): %.2f\n", s$f_e))
     cat("\nTop 10 Founder Contributions:\n")
     print(head(x$founders, 10))
   }
   
   if (!is.null(x$ancestors)) {
     cat(sprintf("\nAncestors: %d (reported top %d)\n", s$n_ancestors_total, s$n_ancestors_reported))
-    cat(sprintf("Effective number of ancestors (Ne_a): %.2f\n", s$Ne_a))
+    cat(sprintf("Effective number of ancestors (f_a): %.2f\n", s$f_a))
     cat("\nTop 10 Ancestor Contributions:\n")
     print(head(x$ancestors, 10))
   }

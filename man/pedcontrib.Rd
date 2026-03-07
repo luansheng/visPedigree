@@ -9,24 +9,24 @@ pedcontrib(ped, cand = NULL, mode = c("both", "founder", "ancestor"), top = 20)
 \arguments{
 \item{ped}{A \code{tidyped} object.}
 
+\item{cand}{Character vector. Optional subset of individual IDs defining the reference population (candidates).
+If NULL, uses all individuals in the most recent generation.}
+
 \item{mode}{Character. Type of contribution to calculate:
 \itemize{
-  \item \code{"founder"}: Founder contributions (fe).
-  \item \code{"ancestor"}: Ancestor contributions (fa).
+  \item \code{"founder"}: Founder contributions ($f_e$).
+  \item \code{"ancestor"}: Ancestor contributions ($f_a$).
   \item \code{"both"}: Both founder and ancestor contributions.
 }}
 
 \item{top}{Integer. Number of top contributors to return. Default is 20.}
-
-\item{cohort}{Character vector. Optional subset of individual IDs defining the reference population.
-If NULL, uses all individuals in the most recent generation.}
 }
 \value{
 A list with class \code{pedcontrib} containing:
 \itemize{
-  \item \code{founders}: \code{data.table} of founder contributions (if mode includes "founder").
-  \item \code{ancestors}: \code{data.table} of ancestor contributions (if mode includes "ancestor").
-  \item \code{summary}: Summary statistics including effective number of founders/ancestors.
+  \item \code{founders}: A \code{data.table} of founder contributions (if mode includes "founder", or "both").
+  \item \code{ancestors}: A \code{data.table} of ancestor contributions (if mode includes "ancestor", or "both").
+  \item \code{summary}: A \code{list} of summary statistics including the effective number of founders ($f_e$) and ancestors ($f_a$).
 }
 
 Each contribution table contains:
@@ -38,27 +38,38 @@ Each contribution table contains:
 }
 }
 \description{
-Calculates genetic contributions from founders (fe) and influential ancestors (fa).
+Calculates genetic contributions from founders and influential ancestors.
 Implements the gene dropping algorithm for founder contributions and Boichard's 
-algorithm for ancestor contributions.
+algorithm for ancestor contributions to estimate the effective number of founders ($f_e$) 
+and ancestors ($f_a$).
 }
 \details{
-**Founder Contributions (fe):**
-Calculated by probabilistic gene flow from founders to the reference cohort.
-A founder is an individual with unknown parents.
+**Founder Contributions ($f_e$):**
+Calculated by probabilistic gene flow from founders to the reference cohort. 
+When individual ancestors with one unknown parent exist, "phantom" parents are temporarily injected correctly conserving the probability mass.
 
-**Ancestor Contributions (fa):**
-Calculated using Boichard's iterative algorithm, accounting for:
+**Ancestor Contributions ($f_a$):**
+Calculated using Boichard's iterative algorithm (1997), accounting for:
 \itemize{
   \item Marginal genetic contribution of each ancestor
   \item Long-term contributions through multiple pathways
 }
-
-**Effective Numbers:**
-\itemize{
-  \item \code{Ne_f}: Effective number of founders = 1 / sum(fe^2)
-  \item \code{Ne_a}: Effective number of ancestors = 1 / sum(fa^2)
+The parameter $f_a$ acts as a stringent metric since it identifies the bottlenecks of genetic variation in pedigrees.
 }
+\examples{
+\donttest{
+library(data.table)
+# Load a sample pedigree
+tp <- tidyped(small_ped)
+
+# Calculate both founder and ancestor contributions for candidates
+cand_ids <- c("Z1", "Z2", "X", "Y")
+contrib <- pedcontrib(tp, cand = cand_ids, mode = "both")
+
+# Print results including f_e and f_a
+print(contrib)
+}
+
 }
 \references{
 Boichard, D., Maignel, L., & Verrier, É. (1997). The value of using probabilities 
