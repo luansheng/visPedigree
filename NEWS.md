@@ -1,3 +1,19 @@
+# Changes in version 1.2.1 released on 07 Mar 2026
+
+## New Features
+1. **Ancestral Analysis (`pedcontrib`)**: Added robust algorithms for assessing genetic diversity through gene origin probabilities. Computes the **effective number of founders ($f_e$)** via recursive gene derivation and the **effective number of ancestors ($f_a$)** via Boichard's iterative algorithm.
+2. **Missing Parent Conservation ("Phantom Parents")**: Implemented correct probability mass conservation. In `pedcontrib`, single missing parents (half-founders) are seamlessly augmented with temporary "phantom parents" before processing, overcoming the critical issue of gene probability leakage found in earlier tools.
+3. **Ancestry Proportions (`pedancestry`)**: Added `pedancestry()` function to trace line origins and monitor the surviving proportion of genes from specified historic founder lines or strains down to modern descendants.
+4. **Partial Inbreeding (`pedpartial`)**: Engineered the Meuwissen & Luo (1992) based partial inbreeding decomposition `pedpartial()`. Enables breaking down the overall inbreeding coefficient into discrete fractions attributed to specifically targeted ancestors.
+5. **New Dataset (`half_founder_ped`)**: Added empirical ENDOG dataset containing instances of strictly missing single parents (sire known, dam unknown, etc.) specifically engineered to test and validate phantom-parent corrections.
+
+## Performance
+1. **Peeling Core Engine**: Rebuilt the C++ core array engine backing the $f_a$ and $f_e$ calculations. Execution latency for incredibly massive and deep graphs (>180,000 nodes) was resolved, avoiding hanging scenarios by limiting computational bounds optimally inside $O(K \times N)$ array states.
+
+## Documentation
+1. **Analysis Indexing**: Expanded `_pkgdown.yml` configuration mapping to fully expose all newly engineered high-level pedigree statistical functions (`pedancestry`, `pedcontrib`, `pedpartial`, `pedecg`, etc.) within the main Reference documentation.
+2. **Analysis Vignettes**: Updated `vignettes/pedigree-analysis.Rmd` carefully illustrating Boichard's genetic bottleneck interpretations ($f_e$ vs $f_a$) alongside new code examples for tracing targeted lineage flows.
+
 # Changes in version 1.2.0 released on 04 Mar 2026
 
 ## New Features
