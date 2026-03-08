@@ -707,7 +707,7 @@ print.pedstats <- function(x, ...) {
 #' @param method Character. The method to compute Ne. One of \code{"coancestry"} (default), \code{"inbreeding"}, or \code{"demographic"}.
 #' @param by Character. The name of the column used to group cohorts (e.g., "Year", "BirthYear").
 #'   If NULL, calculates overall Ne for all individuals.
-#' @param cand Character vector. Optional subset of individual IDs defining the reference cohort.
+#' @param reference Character vector. Optional subset of individual IDs defining the reference cohort.
 #'   If NULL, uses all individuals in the pedigree.
 #' @param nsamples Integer. Number of individuals to randomly sample per cohort when using the \code{"coancestry"} method. Very large cohorts will be sampled down to this size to save memory and time (default: 1000).
 #' @param ncores Integer. Number of cores for parallel processing. Currently only effective for \code{method = "coancestry"} (default: 1).
@@ -749,7 +749,7 @@ print.pedstats <- function(x, ...) {
 #' 
 #' @export
 pedne <- function(ped, method = c("coancestry", "inbreeding", "demographic"), 
-                  by = NULL, cand = NULL, nsamples = 1000, ncores = 1) {
+                  by = NULL, reference = NULL, nsamples = 1000, ncores = 1) {
   
   if (!inherits(ped, "tidyped")) stop("ped must be a tidyped object")
   method <- match.arg(method)
@@ -788,13 +788,13 @@ pedne <- function(ped, method = c("coancestry", "inbreeding", "demographic"),
     }
   }
   
-  # Filter candidates if specified
-  if (!is.null(cand)) {
-    if (!all(cand %in% ped_dt$Ind)) {
-      missing <- cand[!cand %in% ped_dt$Ind]
-      warning(sprintf("Candidate IDs not found in pedigree: %s", paste(missing, collapse = ", ")))
+  # Filter reference population if specified
+  if (!is.null(reference)) {
+    if (!all(reference %in% ped_dt$Ind)) {
+      missing <- reference[!reference %in% ped_dt$Ind]
+      warning(sprintf("Reference IDs not found in pedigree: %s", paste(missing, collapse = ", ")))
     }
-    ped_subset <- ped_dt[Ind %in% cand]
+    ped_subset <- ped_dt[Ind %in% reference]
   } else {
     ped_subset <- ped_dt
   }
@@ -1012,7 +1012,7 @@ fill_phantoms <- function(ped) {
 #' and ancestors ($f_a$).
 #'
 #' @param ped A \code{tidyped} object.
-#' @param cand Character vector. Optional subset of individual IDs defining the reference population (candidates).
+#' @param reference Character vector. Optional subset of individual IDs defining the reference population.
 #'   If NULL, uses all individuals in the most recent generation.
 #' @param mode Character. Type of contribution to calculate:
 #' \itemize{
@@ -1056,9 +1056,9 @@ fill_phantoms <- function(ped) {
 #' # Load a sample pedigree
 #' tp <- tidyped(small_ped)
 #' 
-#' # Calculate both founder and ancestor contributions for candidates
-#' cand_ids <- c("Z1", "Z2", "X", "Y")
-#' contrib <- pedcontrib(tp, cand = cand_ids, mode = "both")
+#' # Calculate both founder and ancestor contributions for reference population
+#' ref_ids <- c("Z1", "Z2", "X", "Y")
+#' contrib <- pedcontrib(tp, reference = ref_ids, mode = "both")
 #' 
 #' # Print results including f_e and f_a
 #' print(contrib)
@@ -1070,7 +1070,7 @@ fill_phantoms <- function(ped) {
 #' Evolution, 29(1), 5-23.
 #'
 #' @export
-pedcontrib <- function(ped, cand = NULL, mode = c("both", "founder", "ancestor"), top = 20) {
+pedcontrib <- function(ped, reference = NULL, mode = c("both", "founder", "ancestor"), top = 20) {
   if (!inherits(ped, "tidyped")) stop("ped must be a tidyped object")
   
   # Inject phantom parents to conserve genetic contributions accurately
@@ -1084,25 +1084,25 @@ pedcontrib <- function(ped, cand = NULL, mode = c("both", "founder", "ancestor")
   }
   
   # Define reference cohort
-  if (is.null(cand)) {
+  if (is.null(reference)) {
     max_gen <- max(ped$Gen)
-    cand <- ped[Gen == max_gen, Ind]
-    message(sprintf("Using %d individuals from generation %d as reference candidate.",
-                    length(cand), max_gen))
+    reference <- ped[Gen == max_gen, Ind]
+    message(sprintf("Using %d individuals from generation %d as reference population.",
+                    length(reference), max_gen))
   } else {
-    if (!all(cand %in% ped$Ind)) {
-      missing <- cand[!cand %in% ped$Ind]
-      warning(sprintf("Candidate IDs not found in pedigree: %s", paste(head(missing, 5), collapse = ", ")))
+    if (!all(reference %in% ped$Ind)) {
+      missing <- reference[!reference %in% ped$Ind]
+      warning(sprintf("Reference IDs not found in pedigree: %s", paste(head(missing, 5), collapse = ", ")))
     }
-    cand <- cand[cand %in% ped$Ind]
+    reference <- reference[reference %in% ped$Ind]
   }
   
-  if (length(cand) == 0) {
+  if (length(reference) == 0) {
     stop("No valid candidate individuals specified.")
   }
   
   n <- nrow(ped)
-  n_cohort <- length(cand)
+  n_ref <- length(reference)
   
   # Pre-compute integer arrays
   sire_num <- ped$SireNum   # 0 = unknown
@@ -1111,7 +1111,7 @@ pedcontrib <- function(ped, cand = NULL, mode = c("both", "founder", "ancestor")
   
   # Map candidate IDs to integer positions
   ind_to_pos <- setNames(seq_len(n), ind_ids)
-  cohort_pos <- as.integer(ind_to_pos[cand])
+  cohort_pos <- as.integer(ind_to_pos[reference])
   
   # Determine numeric mode for C++: 1=founder, 2=ancestor, 3=both
   cpp_mode <- switch(mode, founder = 1L, ancestor = 2L, both = 3L)
@@ -1186,17 +1186,17 @@ pedcontrib <- function(ped, cand = NULL, mode = c("both", "founder", "ancestor")
   }
   
   # ---- Summary Statistics ----
-  summary_list <- list(n_cohort = n_cohort)
+  summary_list <- list(n_ref = n_ref)
   
   if (!is.null(result$founders)) {
-    summary_list$n_founders_total <- n_founders_total
-    summary_list$n_founders_reported <- nrow(result$founders)
+    summary_list$n_founder <- n_founders_total
+    summary_list$n_founder_show <- nrow(result$founders)
     summary_list$f_e <- if (!is.na(fe2_sum) && fe2_sum > 0) 1 / fe2_sum else NA_real_
   }
   
   if (!is.null(result$ancestors)) {
-    summary_list$n_ancestors_total <- n_ancestors_total
-    summary_list$n_ancestors_reported <- nrow(result$ancestors)
+    summary_list$n_ancestor <- n_ancestors_total
+    summary_list$n_ancestor_show <- nrow(result$ancestors)
     summary_list$f_a <- if (!is.na(fa2_sum) && fa2_sum > 0) 1 / fa2_sum else NA_real_
   }
   
@@ -1403,11 +1403,31 @@ pedpartial <- function(ped, ancestors = NULL, top = 20) {
   # We reuse the logic from cpp_calculate_inbreeding but only need dii
   res_f <- cpp_calculate_inbreeding(ped_work$SireNum, ped_work$DamNum)
   
+  # Adjust dii for half-founders to match Gulisija & Crow (2007) tabular method.
+  # For half-founders (one parent known, one unknown), the standard dii includes
+
+  # 0.25 Mendelian sampling variance from the unknown parent that cannot be
+  # attributed to any known ancestor. We subtract this to ensure that
+  # sum(pF_j) over all founder ancestors j equals the total F_i.
+  # Standard dii for half-founder: 0.75 - 0.25 * F_known
+  # Adjusted dii for partial F:    0.50 - 0.25 * F_known
+  dii_partial <- res_f$dii
+  sire_vec <- ped_work$SireNum
+  dam_vec <- ped_work$DamNum
+  f_vec <- res_f$f
+  half_founders <- which(xor(sire_vec > 0, dam_vec > 0))
+  if (length(half_founders) > 0) {
+    for (idx in half_founders) {
+      known_parent <- if (sire_vec[idx] > 0) sire_vec[idx] else dam_vec[idx]
+      dii_partial[idx] <- 0.5 - 0.25 * f_vec[known_parent]
+    }
+  }
+  
   # Call C++ partial inbreeding engine
   pf_mat <- cpp_calculate_partial_inbreeding(
     ped_work$SireNum, 
     ped_work$DamNum, 
-    res_f$dii, 
+    dii_partial, 
     as.integer(anc_nums)
   )
   
@@ -1430,21 +1450,153 @@ print.pedcontrib <- function(x, ...) {
   cat("===================================\n")
   
   s <- x$summary
-  cat(sprintf("Reference cohort size: %d\n", s$n_cohort))
+  cat(sprintf("Reference population size: %d\n", s$n_ref))
   
   if (!is.null(x$founders)) {
-    cat(sprintf("\nFounders: %d (reported top %d)\n", s$n_founders_total, s$n_founders_reported))
+    cat(sprintf("\nFounders: %d (reported top %d)\n", s$n_founder, s$n_founder_show))
     cat(sprintf("Effective number of founders (f_e): %.2f\n", s$f_e))
     cat("\nTop 10 Founder Contributions:\n")
     print(head(x$founders, 10))
   }
   
   if (!is.null(x$ancestors)) {
-    cat(sprintf("\nAncestors: %d (reported top %d)\n", s$n_ancestors_total, s$n_ancestors_reported))
+    cat(sprintf("\nAncestors: %d (reported top %d)\n", s$n_ancestor, s$n_ancestor_show))
     cat(sprintf("Effective number of ancestors (f_a): %.2f\n", s$f_a))
     cat("\nTop 10 Ancestor Contributions:\n")
     print(head(x$ancestors, 10))
   }
   
+  invisible(x)
+}
+
+#' Calculate Genetic Diversity Indicators
+#'
+#' Combines founder/ancestor contributions ($f_e$, $f_a$) and effective population
+#' size estimates (Ne) from three methods into a single summary object.
+#'
+#' @param ped A \code{tidyped} object.
+#' @param reference Character vector. Optional subset of individual IDs defining the reference population.
+#'   If NULL, uses all individuals in the most recent generation.
+#' @param top Integer. Number of top contributors to return in founder/ancestor tables. Default is 20.
+#' @param nsamples Integer. Number of individuals sampled per cohort for the coancestry Ne method. Default is 1000.
+#' @param ncores Integer. Number of cores for parallel processing in the coancestry method. Default is 1.
+#'
+#' @return A list with class \code{pediv} containing:
+#' \itemize{
+#'   \item \code{summary}: A single-row \code{data.table} with columns
+#'     \code{NRef}, \code{NFounder}, \code{fe}, \code{NAncestor}, \code{fa},
+#'     \code{fafe}, \code{NeCoancestry}, \code{NeInbreeding}, \code{NeDemographic}.
+#'   \item \code{founders}: A \code{data.table} of top founder contributions.
+#'   \item \code{ancestors}: A \code{data.table} of top ancestor contributions.
+#' }
+#'
+#' @details
+#' Internally calls \code{\link{pedcontrib}} for $f_e$ and $f_a$, and
+#' \code{\link{pedne}} for each of the three Ne estimation methods.
+#' All calculations use the same \code{reference} population.
+#' If a Ne method fails (e.g., insufficient pedigree depth), its value is \code{NA}
+#' rather than stopping execution.
+#'
+#' @examples
+#' \donttest{
+#' tp <- tidyped(small_ped)
+#' div <- pediv(tp, reference = c("Z1", "Z2", "X", "Y"))
+#' print(div)
+#' }
+#'
+#' @seealso \code{\link{pedcontrib}}, \code{\link{pedne}}, \code{\link{pedstats}}
+#' @export
+pediv <- function(ped, reference = NULL, top = 20, nsamples = 1000, ncores = 1) {
+  if (!inherits(ped, "tidyped")) stop("ped must be a tidyped object")
+
+  # ---- Founder and ancestor contributions ----
+  message("Calculating founder and ancestor contributions...")
+  contrib <- pedcontrib(ped, reference = reference, mode = "both", top = top)
+  s <- contrib$summary
+
+  # ---- Ne: three methods (failures yield NA, not errors) ----
+  message("Calculating Ne (coancestry)...")
+  ne_c <- tryCatch(
+    suppressMessages(pedne(ped, reference = reference, by = NULL,
+                           method = "coancestry", nsamples = nsamples, ncores = ncores)),
+    error = function(e) NULL
+  )
+
+  message("Calculating Ne (inbreeding)...")
+  ne_i <- tryCatch(
+    suppressMessages(pedne(ped, reference = reference, by = NULL,
+                           method = "inbreeding")),
+    error = function(e) NULL
+  )
+
+  message("Calculating Ne (demographic)...")
+  ne_d <- tryCatch(
+    suppressMessages(pedne(ped, reference = reference, by = NULL,
+                           method = "demographic")),
+    error = function(e) NULL
+  )
+
+  extract_ne <- function(dt) {
+    if (is.null(dt) || nrow(dt) == 0) NA_real_ else dt$Ne[1]
+  }
+
+  # ---- Assemble summary ----
+  summary_dt <- data.table::data.table(
+    NRef          = s$n_ref,
+    NFounder      = s$n_founder,
+    fe            = s$f_e,
+    NAncestor     = s$n_ancestor,
+    fa            = s$f_a,
+    fafe          = if (!is.na(s$f_a) && !is.na(s$f_e) && s$f_e > 0)
+                      round(s$f_a / s$f_e, 6) else NA_real_,
+    NeCoancestry  = extract_ne(ne_c),
+    NeInbreeding  = extract_ne(ne_i),
+    NeDemographic = extract_ne(ne_d)
+  )
+
+  result <- list(
+    summary   = summary_dt,
+    founders  = contrib$founders,
+    ancestors = contrib$ancestors
+  )
+  class(result) <- "pediv"
+  return(result)
+}
+
+#' Print Genetic Diversity Summary
+#'
+#' @param x A \code{pediv} object.
+#' @param ... Additional arguments.
+#'
+#' @export
+print.pediv <- function(x, ...) {
+  cat("Genetic Diversity Summary\n")
+  cat("=========================\n")
+
+  s <- x$summary
+
+  cat(sprintf("Reference population size : %d\n", s$NRef))
+
+  cat("\n-- Founder / Ancestor Contributions --\n")
+  cat(sprintf("Founders  (total) : %d    fe = %.3f\n", s$NFounder, s$fe))
+  cat(sprintf("Ancestors (total) : %d    fa = %.3f\n", s$NAncestor, s$fa))
+  cat(sprintf("fa/fe ratio       : %.4f\n", s$fafe))
+
+  cat("\n-- Effective Population Size (Ne) --\n")
+  fmt_ne <- function(v) if (is.na(v)) "     NA" else sprintf("%7.1f", v)
+  cat(sprintf("  Coancestry  : %s\n", fmt_ne(s$NeCoancestry)))
+  cat(sprintf("  Inbreeding  : %s\n", fmt_ne(s$NeInbreeding)))
+  cat(sprintf("  Demographic : %s\n", fmt_ne(s$NeDemographic)))
+
+  if (!is.null(x$founders) && nrow(x$founders) > 0) {
+    cat("\nTop Founder Contributions (top 5):\n")
+    print(head(x$founders, 5))
+  }
+
+  if (!is.null(x$ancestors) && nrow(x$ancestors) > 0) {
+    cat("\nTop Ancestor Contributions (top 5):\n")
+    print(head(x$ancestors, 5))
+  }
+
   invisible(x)
 }

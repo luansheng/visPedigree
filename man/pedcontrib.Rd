@@ -4,12 +4,17 @@
 \alias{pedcontrib}
 \title{Calculate Founder and Ancestor Contributions}
 \usage{
-pedcontrib(ped, cand = NULL, mode = c("both", "founder", "ancestor"), top = 20)
+pedcontrib(
+  ped,
+  reference = NULL,
+  mode = c("both", "founder", "ancestor"),
+  top = 20
+)
 }
 \arguments{
 \item{ped}{A \code{tidyped} object.}
 
-\item{cand}{Character vector. Optional subset of individual IDs defining the reference population (candidates).
+\item{reference}{Character vector. Optional subset of individual IDs defining the reference population.
 If NULL, uses all individuals in the most recent generation.}
 
 \item{mode}{Character. Type of contribution to calculate:
@@ -62,9 +67,9 @@ library(data.table)
 # Load a sample pedigree
 tp <- tidyped(small_ped)
 
-# Calculate both founder and ancestor contributions for candidates
-cand_ids <- c("Z1", "Z2", "X", "Y")
-contrib <- pedcontrib(tp, cand = cand_ids, mode = "both")
+# Calculate both founder and ancestor contributions for reference population
+ref_ids <- c("Z1", "Z2", "X", "Y")
+contrib <- pedcontrib(tp, reference = ref_ids, mode = "both")
 
 # Print results including f_e and f_a
 print(contrib)

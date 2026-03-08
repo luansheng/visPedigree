@@ -34,3 +34,5 @@ packrat/
 /.quarto/
 **/*.quarto_ipynb
 papers/
+
+sandbox/

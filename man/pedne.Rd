@@ -8,7 +8,7 @@ pedne(
   ped,
   method = c("coancestry", "inbreeding", "demographic"),
   by = NULL,
-  cand = NULL,
+  reference = NULL,
   nsamples = 1000,
   ncores = 1
 )
@@ -21,7 +21,7 @@ pedne(
 \item{by}{Character. The name of the column used to group cohorts (e.g., "Year", "BirthYear").
 If NULL, calculates overall Ne for all individuals.}
 
-\item{cand}{Character vector. Optional subset of individual IDs defining the reference cohort.
+\item{reference}{Character vector. Optional subset of individual IDs defining the reference cohort.
 If NULL, uses all individuals in the pedigree.}
 
 \item{nsamples}{Integer. Number of individuals to randomly sample per cohort when using the \code{"coancestry"} method. Very large cohorts will be sampled down to this size to save memory and time (default: 1000).}

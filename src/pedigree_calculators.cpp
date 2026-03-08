@@ -1,6 +1,8 @@
 #include <RcppArmadillo.h>
 #include <vector>
 #include <map>
+#include <algorithm>
+#include <functional>
 
 #ifdef _OPENMP
 #include <omp.h>
@@ -590,8 +592,16 @@ IntegerVector cpp_assign_generations_top(IntegerVector sire, IntegerVector dam, 
 // ============================================================================
 // Calculate Partial Inbreeding (pF)
 // ============================================================================
-// Decomposes the inbreeding coefficient into contributions from specific ancestors.
-// Based on the recursive path tracing property of the Meuwissen & Luo algorithm.
+// Decomposes the inbreeding coefficient F_i into contributions from specific
+// ancestors j using the identity:
+//   F_{i(j)} = sum_k  L_{s_i,k} * L_{d_i,k} * (0.5 * D_kk) * q_{k,j}
+//
+// where:
+//   q_{k,j} = probability a random allele in k originated from founder j
+//   L_{s,k} = path coefficient from s_i back to ancestor k (T matrix row)
+//   D_kk    = Mendelian sampling variance at k
+//
+// The sum over all founders j recovers the total inbreeding: sum_j F_{i(j)} = F_i
 // ============================================================================
 // [[Rcpp::export]]
 NumericMatrix cpp_calculate_partial_inbreeding(IntegerVector sire, IntegerVector dam, NumericVector dii, IntegerVector ancestors) {
@@ -599,58 +609,119 @@ NumericMatrix cpp_calculate_partial_inbreeding(IntegerVector sire, IntegerVector
     int n_anc = ancestors.size();
     NumericMatrix pF(n, n_anc);
     
-    // We use a reusable flow vector to avoid reallocation
-    std::vector<double> flow(n);
-
-    // DEBUG
-    // Rcpp::Rcout << "Calculating partial inbreeding for " << n_anc << " ancestors. N=" << n << "\n";
-
-    // For each target ancestor k
+    // Step 1: Forward gene-flow. q[j][k] = P(random allele in k came from ancestor j)
+    std::vector<std::vector<double>> q(n_anc, std::vector<double>(n, 0.0));
     for (int j = 0; j < n_anc; ++j) {
-        int anc_idx = ancestors[j] - 1; // 0-based index
-        // Rcpp::Rcout << "Ancestor " << j << " Index: " << anc_idx << "\n";
+        int anc = ancestors[j] - 1;
+        q[j][anc] = 1.0;
+        for (int i = anc + 1; i < n; ++i) {
+            int s = sire[i] - 1; int d = dam[i] - 1;
+            double fs = (s >= 0) ? q[j][s] : 0.0;
+            double fd = (d >= 0) ? q[j][d] : 0.0;
+            q[j][i] = 0.5 * (fs + fd);
+        }
+    }
+    
+    // Step 2: For each individual i with both parents known, trace back through
+    // sire and dam lineages separately, then accumulate partial inbreeding.
+    std::vector<double> L_s(n, 0.0);
+    std::vector<double> L_d(n, 0.0);
+    std::vector<int> visited_s;
+    std::vector<int> visited_d;
+    visited_s.reserve(n / 4);
+    visited_d.reserve(n / 4);
+
+    for (int i = 0; i < n; ++i) {
+        int s_i = sire[i] - 1;
+        int d_i = dam[i] - 1;
+        if (s_i < 0 || d_i < 0) continue;
         
-        // 1. Calculate gene flow from ancestor k to all descendents (Forward Pass)
-        std::fill(flow.begin(), flow.end(), 0.0);
-        flow[anc_idx] = 1.0;
-        
-        // Iterate from ancestor to end of pedigree
-        // Assumes pedigree is sorted or at least parents appear before children
-        // (Our tidyped guarantees partial order, but rigorous topological sort is best. 
-        //  However, IndNum order usually respects birth date/generation).
-        for (int i = anc_idx; i < n; ++i) {
-            
-            // This is "pull" logic (looking at parents), but we need "push" (parent to offspring).
-            // But we don't have offspring list. 
-            // So we stick to standard "pull" logic? No, pull calculates ancestor's contribution.
-            // Wait, standard relationship calculation A_ik is exactly what we need.
-            // A_ik = 0.5 * A_sk + 0.5 * A_dk.
-            // This can be computed forward if we process i=1..N.
-            
-            int s = sire[i] - 1;
-            int d = dam[i] - 1;
-            
-            if (i > anc_idx) { // Skip the ancestor itself
-                double from_s = (s >= 0) ? flow[s] : 0.0;
-                double from_d = (d >= 0) ? flow[d] : 0.0;
-                flow[i] = 0.5 * (from_s + from_d);
+        // Full-sib shortcut: same parents → same partial inbreeding
+        if (i > 0 && sire[i] == sire[i-1] && dam[i] == dam[i-1]) {
+            for (int j = 0; j < n_anc; ++j) pF(i, j) = pF(i - 1, j);
+            continue;
+        }
+
+        // Trace sire lineage: discover ancestors via BFS, then propagate
+        // L values in reverse topological order (descending index).
+        // BFS alone has a bug: when a non-founder ancestor is reached via
+        // paths of different lengths, the shorter path processes it first,
+        // and later contributions from longer paths don't propagate further.
+        // Fix: separate discovery from propagation.
+
+        // Phase 1: BFS to discover sire-side ancestor set
+        L_s[s_i] = 1.0;  // flag as discovered
+        visited_s.push_back(s_i);
+        for (size_t ptr = 0; ptr < visited_s.size(); ++ptr) {
+            int k = visited_s[ptr];
+            int sk = sire[k] - 1;
+            int dk = dam[k] - 1;
+            if (sk >= 0 && L_s[sk] == 0.0) {
+                L_s[sk] = 1.0;  // flag
+                visited_s.push_back(sk);
+            }
+            if (dk >= 0 && L_s[dk] == 0.0) {
+                L_s[dk] = 1.0;  // flag
+                visited_s.push_back(dk);
             }
         }
-        
-        // 2. Compute partial inbreeding contribution
-        // F_i(k) = 0.5 * flow[s] * flow[d] * dii[k]
-        
-        double dk = dii[anc_idx];
-        
-        for (int i = 0; i < n; ++i) {
-            int s = sire[i] - 1;
-            int d = dam[i] - 1;
-            
-            if (s >= 0 && d >= 0) {
-                pF(i, j) = 0.5 * flow[s] * flow[d] * dk;
-                // if (pF(i, j) > 0) Rcpp::Rcout << "  pF[" << i << "," << j << "] = " << pF(i, j) << "\n";
+        // Phase 2: Sort in decreasing index order (reverse topological)
+        std::sort(visited_s.begin(), visited_s.end(), std::greater<int>());
+        // Phase 3: Reset flags and propagate L correctly
+        for (int k : visited_s) L_s[k] = 0.0;
+        L_s[s_i] = 1.0;
+        for (int k : visited_s) {
+            if (L_s[k] == 0.0) continue;
+            double val = 0.5 * L_s[k];
+            int sk = sire[k] - 1;
+            int dk = dam[k] - 1;
+            if (sk >= 0) L_s[sk] += val;
+            if (dk >= 0) L_s[dk] += val;
+        }
+
+        // Trace dam lineage: same approach
+        L_d[d_i] = 1.0;  // flag as discovered
+        visited_d.push_back(d_i);
+        for (size_t ptr = 0; ptr < visited_d.size(); ++ptr) {
+            int k = visited_d[ptr];
+            int sk = sire[k] - 1;
+            int dk = dam[k] - 1;
+            if (sk >= 0 && L_d[sk] == 0.0) {
+                L_d[sk] = 1.0;  // flag
+                visited_d.push_back(sk);
+            }
+            if (dk >= 0 && L_d[dk] == 0.0) {
+                L_d[dk] = 1.0;  // flag
+                visited_d.push_back(dk);
             }
         }
+        std::sort(visited_d.begin(), visited_d.end(), std::greater<int>());
+        for (int k : visited_d) L_d[k] = 0.0;
+        L_d[d_i] = 1.0;
+        for (int k : visited_d) {
+            if (L_d[k] == 0.0) continue;
+            double val = 0.5 * L_d[k];
+            int sk = sire[k] - 1;
+            int dk = dam[k] - 1;
+            if (sk >= 0) L_d[sk] += val;
+            if (dk >= 0) L_d[dk] += val;
+        }
+
+        // Accumulate: only ancestors shared by both parents contribute
+        for (int k : visited_s) {
+            if (L_d[k] > 0) {
+                double c_ik = L_s[k] * L_d[k] * (0.5 * dii[k]);
+                for (int j = 0; j < n_anc; ++j) {
+                    pF(i, j) += c_ik * q[j][k];
+                }
+            }
+        }
+
+        // Reset for next individual
+        for (int k : visited_s) L_s[k] = 0.0;
+        for (int k : visited_d) L_d[k] = 0.0;
+        visited_s.clear();
+        visited_d.clear();
     }
     
     return pF;
