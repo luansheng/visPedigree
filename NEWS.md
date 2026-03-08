@@ -1,3 +1,21 @@
+# Changes in version 1.2.2 released on 08 Mar 2026
+
+## New Features
+1. **Unified Diversity Analysis (`pediv`)**: Added `pediv()` as a single entry-point wrapper that aggregates founder contributions ($f_e$), ancestor contributions ($f_a$), and all three Ne estimates (coancestry, inbreeding, demographic) into one consolidated `pediv` S3 object. A dedicated `print.pediv()` method provides a formatted summary table.
+2. **New Dataset (`complex_ped`)**: Added `complex_ped`, a multi-generation pedigree dataset suitable for testing deeper ancestry tracing and cross-generation diversity analyses.
+
+## API Changes
+1. **Parameter Rename (`cand` → `reference`)**: Standardized the reference population parameter name across all relevant analysis functions:
+    - `pedne(... , reference = NULL)` (previously `cand`)
+    - `pedcontrib(... , reference = NULL)` (previously `cand`)
+    - `pedrel(... , reference = NULL)` (previously `cand`)
+    
+    The new name better reflects population genetics terminology, where the target group is the **reference population** rather than a set of "candidates". *(Note: Old `cand` argument is no longer supported; please update existing scripts.)*
+
+## Documentation
+1. **Vignette Rewrite (`pedigree-analysis.Rmd`)**: Completely restructured the pedigree analysis vignette with expanded theory explanations for $f_e$, $f_a$, and Ne, updated code examples using `pediv()` and the new `reference` parameter, and improved narrative linking the statistical outputs to practical breeding decisions.
+2. **Workspace Reorganization**: Moved development-only files (`MACOS_OPENMP_FIX.md`, `manuscript.md`, analysis scripts) into `sandbox/` to keep the package root clean. Added corresponding `.gitignore` and `.Rbuildignore` rules.
+
 # Changes in version 1.2.1 released on 07 Mar 2026
 
 ## New Features

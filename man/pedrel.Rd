@@ -4,18 +4,18 @@
 \alias{pedrel}
 \title{Calculate Average Relationship Coefficients}
 \usage{
-pedrel(ped, by = "Gen", cand = NULL, compact = FALSE)
+pedrel(ped, by = "Gen", reference = NULL, compact = FALSE)
 }
 \arguments{
 \item{ped}{A \code{tidyped} object.}
 
 \item{by}{Character. The column name to group by (e.g., "Year", "Breed", "Generation").}
 
-\item{cand}{Character vector. An optional vector of candidate individual IDs to calculate 
-relationships for. If provided, only individuals matching these IDs in each group 
+\item{reference}{Character vector. An optional vector of reference individual IDs to calculate
+relationships for. If provided, only individuals matching these IDs in each group
 will be used. Default is NULL (use all individuals in the group).}
 
-\item{compact}{Logical. Whether to use compact representation for large families to 
+\item{compact}{Logical. Whether to use compact representation for large families to
 save memory. Recommended when pedigree size exceeds 25,000. Default is FALSE.}
 }
 \value{
@@ -23,7 +23,7 @@ A \code{data.table} with columns:
 \itemize{
   \item \code{Group}: The grouping identifier.
   \item \code{NTotal}: Total number of individuals in the group.
-  \item \code{NUsed}: Number of individuals used in calculation (could be subset by cand).
+  \item \code{NUsed}: Number of individuals used in calculation (could be subset by reference).
   \item \code{MeanRel}: Average of off-diagonal elements in the A matrix for this group. NA if less than 2 individuals.
 }
 }

@@ -351,22 +351,22 @@ pedsubpop <- function(ped, by = NULL) {
 #'
 #' @param ped A \code{tidyped} object.
 #' @param by Character. The column name to group by (e.g., "Year", "Breed", "Generation").
-#' @param cand Character vector. An optional vector of candidate individual IDs to calculate 
-#'   relationships for. If provided, only individuals matching these IDs in each group 
+#' @param reference Character vector. An optional vector of reference individual IDs to calculate
+#'   relationships for. If provided, only individuals matching these IDs in each group
 #'   will be used. Default is NULL (use all individuals in the group).
-#' @param compact Logical. Whether to use compact representation for large families to 
+#' @param compact Logical. Whether to use compact representation for large families to
 #'   save memory. Recommended when pedigree size exceeds 25,000. Default is FALSE.
 #'
 #' @return A \code{data.table} with columns:
 #' \itemize{
 #'   \item \code{Group}: The grouping identifier.
 #'   \item \code{NTotal}: Total number of individuals in the group.
-#'   \item \code{NUsed}: Number of individuals used in calculation (could be subset by cand).
+#'   \item \code{NUsed}: Number of individuals used in calculation (could be subset by reference).
 #'   \item \code{MeanRel}: Average of off-diagonal elements in the A matrix for this group. NA if less than 2 individuals.
 #' }
 #' 
 #' @export
-pedrel <- function(ped, by = "Gen", cand = NULL, compact = FALSE) {
+pedrel <- function(ped, by = "Gen", reference = NULL, compact = FALSE) {
   if (!inherits(ped, "tidyped")) stop("ped must be a tidyped object")
   if (!by %in% names(ped)) stop(sprintf("Column '%s' not found.", by))
   
@@ -382,15 +382,15 @@ pedrel <- function(ped, by = "Gen", cand = NULL, compact = FALSE) {
       return(data.table(Group = g, NTotal = n_total, NUsed = n_total, MeanRel = NA_real_))
     }
     
-    if (!is.null(cand)) {
-      sub_ped <- sub_ped_full[Ind %in% cand]
+    if (!is.null(reference)) {
+      sub_ped <- sub_ped_full[Ind %in% reference]
     } else {
       sub_ped <- sub_ped_full
     }
     n_used <- nrow(sub_ped)
     
     if (n_used < 2) {
-      warning(sprintf("Group '%s' has less than 2 individuals after applying 'cand', returning NA_real_.", g))
+      warning(sprintf("Group '%s' has less than 2 individuals after applying 'reference', returning NA_real_.", g))
       return(data.table(Group = g, NTotal = n_total, NUsed = n_used, MeanRel = NA_real_))
     }
     
@@ -413,7 +413,7 @@ pedrel <- function(ped, by = "Gen", cand = NULL, compact = FALSE) {
         warning(sprintf(
           paste0("Group '%s': pedigree too large (%d individuals including ancestors) ",
                  "for dense A matrix (limit: %d). Returning NA.\n",
-                 "Hint: use 'cand' parameter to reduce group size, or set compact = TRUE."),
+                 "Hint: use 'reference' parameter to reduce group size, or set compact = TRUE."),
           g, nrow(local_ped), max_dense))
         return(data.table(Group = g, NTotal = n_total, NUsed = n_used, MeanRel = NA_real_))
       }
@@ -424,7 +424,7 @@ pedrel <- function(ped, by = "Gen", cand = NULL, compact = FALSE) {
         }, error = function(e) {
           warning(sprintf(
             paste0("Group '%s': %s\n",
-                   "Hint: subset with 'cand' or use 'compact = TRUE'."),
+                   "Hint: subset with 'reference' or use 'compact = TRUE'."),
             g, e$message))
           return(NULL)
         })
@@ -472,7 +472,7 @@ pedrel <- function(ped, by = "Gen", cand = NULL, compact = FALSE) {
         }, error = function(e) {
           warning(sprintf(
             paste0("Group '%s': %s\n",
-                   "Hint: subset with 'cand' or use 'compact = TRUE'."),
+                   "Hint: subset with 'reference' or use 'compact = TRUE'."),
             g, e$message))
           return(NA_real_)
         })
@@ -1098,7 +1098,7 @@ pedcontrib <- function(ped, reference = NULL, mode = c("both", "founder", "ances
   }
   
   if (length(reference) == 0) {
-    stop("No valid candidate individuals specified.")
+    stop("No valid reference individuals specified.")
   }
   
   n <- nrow(ped)
@@ -1109,7 +1109,7 @@ pedcontrib <- function(ped, reference = NULL, mode = c("both", "founder", "ances
   dam_num <- ped$DamNum     # 0 = unknown
   ind_ids <- ped$Ind
   
-  # Map candidate IDs to integer positions
+  # Map reference IDs to integer positions
   ind_to_pos <- setNames(seq_len(n), ind_ids)
   cohort_pos <- as.integer(ind_to_pos[reference])
   
