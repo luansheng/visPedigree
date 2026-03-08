@@ -1,3 +1,9 @@
+# Changes in version 1.2.3 released on 08 Mar 2026
+
+## Bug Fixes
+1. **Trace edge highlighting in `visped()`**: Fixed incorrect edge highlighting when using `trace = "all"`. Previously, when a node was highlighted as both an ancestor (via upward tracing) and a parent of descendants (via downward tracing), the cross-path edges were incorrectly highlighted. For example, `visped(tp, highlight = "X", trace = "all")` would incorrectly highlight the edge from N to Z1/Z2, even though that parent-child relationship is not on X's trace path. The fix separates the up and down trace paths and uses `trace_edges` to precisely control which edges are highlighted.
+2. **Focal node upward edge in `trace = "down"`**: Fixed an issue where the focal node's upward connection to its parents' family node was incorrectly shown as highlighted when tracing downward only. For example, `visped(tp, highlight = "X", trace = "down")` would show X's edge to the UxV family node in solid black, even though X's ancestors are not part of the downward trace. Now, `individual → family` edges are only highlighted when the individual appears as a child in the traced path.
+
 # Changes in version 1.2.2 released on 08 Mar 2026
 
 ## New Features
