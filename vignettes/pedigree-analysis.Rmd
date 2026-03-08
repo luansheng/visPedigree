@@ -1,8 +1,8 @@
 ---
-title: "Pedigree Analysis Pipeline"
+title: "Pedigree Analysis and Population Genetics"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Pedigree Analysis Pipeline}
+  %\VignetteIndexEntry{Pedigree Analysis and Population Genetics}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -14,189 +14,136 @@ knitr::opts_chunk$set(
 )
 ```
 
-This vignette demonstrates a complete workflow for pedigree analysis using the `visPedigree` package. We will cover basic statistics, inbreeding monitoring, population structure analysis, and advanced ancestral tracking using the implemented gene flow and partial inbreeding algorithms.
+This vignette demonstrates a comprehensive workflow for analyzing population genetics using the `visPedigree` package. It introduces the unified `pediv()` framework, tracks the evolution of inbreeding, measures genetic diversity, and estimates effective population sizes based on robust mathematical models.
 
 ## 1. Setup and Data Preparation
 
-First, we load the package and prepare a sample pedigree. We will use a simulated pedigree `simple_ped` included in the package, but for this demonstration, we'll simulate a slightly more complex structure with inbreeding events to showcase the features.
+We begin by loading a simulated historical pedigree.
 
 ```{r setup}
-# Ensure the development version is loaded instead of the globally installed one
-devtools::load_all("../")
 library(visPedigree)
 library(data.table)
 
-# Simulate a pedigree with 4 generations
-# Foundation: 2 males (S1, S2), 2 females (D1, D2)
-ped_data <- data.table(
-  Ind = c("S1", "S2", "D1", "D2", 
-          "G1_1", "G1_2", "G1_3", "G1_4",
-          "G2_1", "G2_Inbred", "G2_2", 
-          "G3_1", "G3_2", "G3_3"),
-  Sire = c(NA, NA, NA, NA, 
-           "S1", "S1", "S2", "S2", 
-           "G1_1", "G1_1", "G1_2",
-           "G2_1", "G2_1", "G2_1"),
-  Dam = c(NA, NA, NA, NA, 
-          "D1", "D2", "D1", "D2", 
-          "G1_3", "G1_3", "G1_4",
-          "G2_Inbred", "G2_Inbred", "G2_2"),
-  Sex = c("male", "male", "female", "female",
-          "male", "male", "female", "female",
-          "male", "female", "female",
-          "male", "female", "male"),
-  BirthYear = c(2010, 2010, 2010, 2010,
-                2012, 2012, 2013, 2013,
-                2015, 2016, 2016,
-                2019, 2019, 2019)
-)
+# Use a simulated complex pedigree provided with the package
+data(deep_ped, package = "visPedigree")
 
-# Tidy the pedigree (sorts, adds generations, checks integrity)
-tped <- tidyped(ped_data)
-print(tped)
+# Tidy the pedigree: This automatically computes generations and sorts appropriately
+tped <- tidyped(ped = deep_ped)
 ```
 
-## 2. Basic Statistics & Generation Intervals
+## 2. Demographic Overview and Generation Intervals
 
-Before deeper analysis, we look at the general structure and reproductive cycle speed.
+Good population management starts with understanding demographic turnover. `pedstats()` returns the structural depth and census sizes. The expected equivalent complete generations (ECG, Maignel et al., 1996) provides a measure of pedigree completeness, defined as:
+
+$$ ECG = \sum_{i=1}^n \left(\frac{1}{2}\right)^{g_i} $$
+where $n$ is the number of ancestors and $g_i$ is the number of generations separating the individual from its ancestor.
 
 ```{r stats}
 # General Statistics
-stats <- pedstats(tped, timevar = "BirthYear", unit = "year")
+stats <- pedstats(tped)
 print(stats)
-
-# The 'stats' object contains:
-# - Summary counts (N, Sires, Dams)
-# - Ancestral depth (ECG) summary
-# - Generation intervals (if birth dates provided)
 ```
 
-## 3. Inbreeding Analysis
+*(Note: Provide a `timevar` such as `BirthYear` to compute generation intervals, providing insight into the age of parents when offspring are born).*
 
-Monitoring inbreeding is crucial for population management.
+## 3. Comprehensive Diversity Metrics using `pediv`
 
-### Calculate Inbreeding Coefficients (F)
-```{r inbreed}
-# Calculate F
-tped <- inbreed(tped)
+Instead of running separate components, `visPedigree` offers the `pediv()` wrapper function to conduct a sweeping analysis of a target reference population. The metrics include genetic contributions ($f_a$, $f_e$) and Effective Population Sizes ($N_e$).
 
-# Show individuals with non-zero inbreeding
-print(tped[f > 0, .(Ind, Sire, Dam, Gen, f)])
+Let's define a **reference population** (e.g., individuals in the last two generations) to evaluate.
+
+```{r define_ref}
+# Identify our cohort of interest (e.g., modern descendants)
+ref_pop <- tped[Gen >= max(Gen) - 1, Ind]
+length(ref_pop)
 ```
 
-### Stratification
-Classify the population by inbreeding levels.
-```{r inbreed_class}
-# Summary of inbreeding levels
-f_class <- pedinbreed_class(tped)
+```{r pediv_analysis}
+# Run comprehensive population diversity analysis
+div_res <- pediv(tped, reference = ref_pop, top = 10, ncores = 1)
+
+# Summary table provides an elegant overview
+print(div_res$summary)
+```
+
+### 3.1 Effective Ancestors and Founders ($f_a$ and $f_e$)
+
+The metrics $f_e$ (Lacy, 1989) and $f_a$ (Boichard et al., 1997) evaluate how unbalanced the founding genome has become:
+
+- **Effective Number of Founders ($f_e$)**: 
+  $$ f_e = \frac{1}{\sum_{i=1}^f p_i^2} $$
+  where $p_i$ is the expected genetic contribution of founder $i$. It assumes all founders contribute independently.
+  
+- **Effective Number of Ancestors ($f_a$)**: 
+  $$ f_a = \frac{1}{\sum_{j=1}^a q_j^2} $$
+  where $q_j$ is the **marginal** genetic contribution of ancestor $j$ not explained by previously selected ancestors. This metric directly addresses population bottlenecks.
+
+The top ancestors driving these metrics can be investigated:
+```{r top_ancestors}
+print(div_res$ancestors)
+```
+
+### 3.2 Effective Population Size ($N_e$)
+
+$N_e$ reflects the size of an idealized population that would experience the same rate of genetic drift or inbreeding as the observed population. `pediv()` calculates three variations:
+
+1. **Demographic $N_e$**: Based purely on the census of breeding males and females.
+2. **Inbreeding $N_e$**: Driven by the individual rate of inbreeding ($\Delta F_i$).
+3. **Coancestry $N_e$**: Computed from the rate of coancestry ($\Delta c$) between pairs in the reference group, generally yielding the most strictly conservative estimate in heavily managed setups.
+
+## 4. Inbreeding Evolution ($F$)
+
+If we wish to extract granular, individual-level metrics, we can calculate Wright's (1922) coefficient of inbreeding ($F$).
+
+$$ F_{XY} = \sum \left( \frac{1}{2} \right)^{n_1 + n_2 + 1} (1 + F_A) $$
+
+```{r inbreed_analysis}
+# Calculate Individual F
+tped_f <- inbreed(tped)
+
+# Evaluate average inbreeding by generation
+f_trend <- tped_f[, .(MeanF = mean(f, na.rm=TRUE)), by = Gen]
+print(f_trend)
+```
+
+Using `pedinbreed_class()`, we can stratify the reference population by their inbreeding severity.
+
+```{r F_class}
+f_class <- pedinbreed_class(tped_f)
 print(f_class)
 ```
 
-### Effective Population Size (Ne)
-Estimate the effective population size ($N_e$), which is a key metric for monitoring genetic diversity. `visPedigree` provides three calculation methods to analyze $N_e$ from different population genetics perspectives.
+## 5. Advanced: Partial Inbreeding and Gene Flow
 
-We can analyze $N_e$ for individuals in later generations (e.g., $Gen \ge 3$) to compare these three methods side by side. We use `by = "Gen"` to group the outputs.
-
-```{r ne_methods_compare}
-# Identify candidates in later generations and assign a grouping variable
-ne_candidates <- tped[Gen >= 3, .(Ind, Gen)]
-
-# 1. Coancestry-based Ne (Default)
-# Relies on the rate of coancestry ($\Delta c$) between pairs of individuals.
-# Very robust for managed populations, sensitive to shared bloodlines.
-ne_co <- pedne(tped, cand = ne_candidates$Ind, by = "Gen", method = "coancestry")
-print(ne_co)
-
-# 2. Inbreeding-based Ne
-# Uses the individual rate of inbreeding ($\Delta F$). Evaluates how rapidly 
-# individuals become inbred compared to their ancestors.
-ne_in <- pedne(tped, cand = ne_candidates$Ind, by = "Gen", method = "inbreeding")
-print(ne_in)
-
-# 3. Demographic-based Ne
-# Counts distinct sires and dams contributing to the cohort.
-# Simplistic baseline, ignores complex historical relationships.
-ne_de <- pedne(tped, cand = ne_candidates$Ind, by = "Gen", method = "demographic")
-print(ne_de)
-```
-
-**Understanding the Differences:**
-- **Demographic** fluctuates simply based on how many parent IDs are directly listed as sires and dams for the cohort.
-- **Inbreeding** evaluates individual paths to shared ancestors. For deliberate crossing schemes, it tends to yield higher, more optimistic estimates ($\sim 4.01$).
-- **Coancestry** accurately detects the true loss of genetic variance by checking relationships between *pairs* in the generation. It recognizes widespread shared grandparents and great-grandparents, appropriately yielding a more conservative and arguably more relevant estimate for modern populations ($\sim 2.90$).
-
-## 4. Genetic Diversity & Relationships
-
-Track the average relationship within the population. Increasing mean relationship indicates a loss of genetic diversity.
-
-```{r rel}
-# Mean relationship by generation
-avg_rel <- pedrel(tped, by = "Gen")
-print(avg_rel)
-```
-
-## 5. Ancestral Analysis
-
-Identify which ancestors are most influential and trace gene flow. The algorithm estimates both the effective number of founders ($f_e$) and the effective number of ancestors ($f_a$). 
-
-- $f_e$: Quantifies genetic variation assuming founders contribute equally and independently to the reference cohort.
-- $f_a$: Accounts for bottlenecks in the pedigree, providing a more stringent measure of the genetic base by identifying the marginal contributions of specific influential ancestors.
-
-### Most Influential Ancestors
-Find ancestors with the highest marginal genetic contribution. We'll use a subset of a more complex pedigree to demonstrate `pedcontrib`.
-
-```{r contrib}
-# Provide candidates from the last generation to evaluate their genetic origins
-last_gen_ids <- tped[Gen == max(Gen), Ind]
-
-# mode = "both" calculates both founder and ancestor contributions
-contributions <- pedcontrib(tped, cand = last_gen_ids, mode = "both", top = 5)
-
-# The summary shows the cohort size, expected and actual founder/ancestor metrics
-print(contributions$summary)
-
-# The top ancestors identified by Boichard's algorithm
-print(contributions$ancestors)
-```
-
-### Gene Flow / Ancestry Proportions
-If our founders came from different origins (e.g., Line A vs Line B), we can trace their proportions.
+### 5.1 Gene Flow (Ancestry Proportions)
+Track the segregation of traits across historical founder groups. E.g., if founders are tagged by geographic origin:
 
 ```{r gene_flow}
-# Assign arbitrary labels to founders for demonstration
+# Simulate 'origin' labels for founders (Gen = 1)
 tped_dated <- copy(tped)
-tped_dated[Ind %in% c("S1", "D1"), Origin := "LineA"]
-tped_dated[Ind %in% c("S2", "D2"), Origin := "LineB"]
+founders <- tped_dated[Gen == 1, Ind]
+tped_dated[Ind %in% founders[1:5], Origin := "LineA"]
+tped_dated[Ind %in% founders[6:10], Origin := "LineB"]
 
-# Calculate proportion of LineA vs LineB in all individuals
+# Gene flow traces LineA and LineB presence in descendants
 ancestry <- pedancestry(tped_dated, labelvar = "Origin")
-print(tail(ancestry))
+print(head(ancestry))
 ```
 
-## 6. Advanced: Partial Inbreeding
+### 5.2 Partial Inbreeding ($F_{ij}$)
+The total inbreeding coefficient $F_i$ can be partitioned to isolate the blame of specific shared ancestors (Gulisija & Crow, 2007).
 
-Partial inbreeding ($F_{ij}$) allows us to decompose an individual's total inbreeding coefficient into the specific contributions from each ancestor. This answers: *"Who is responsible for the inbreeding of this animal?"*
+```{r partial_f}
+# Select highly inbred descendants to query
+target_inbred <- tped_f[f > 0.1, Ind][1]
 
-```{r partial}
-# Let's analyze the inbreeding of the last individual (G3_1)
-target_ind <- "G3_1"
-total_f <- tped[Ind == target_ind, f]
-cat("Total Inbreeding for", target_ind, ":", total_f, "\n")
+# Decompose inbreeding mapped to the top historical ancestors
+partial_f <- pedpartial(tped_f, ancestors = div_res$ancestors$Ind, top = 5)
 
-# Calculate partial inbreeding from top ancestors
-partial_f <- pedpartial(tped, ancestors = c("S1", "D1", "S2", "D2"), top = 5)
-
-# Extract result for the target individual
-res <- partial_f[Ind == target_ind]
-print(res)
+# View exactly which ancestors caused F in our target
+print(partial_f[Ind == target_inbred])
 ```
 
-## Summary
+## Conclusion
 
-`visPedigree` provides a full suite of tools for:
-1.  **Demography**: Stats and intervals.
-2.  **Health**: Inbreeding and diversity monitoring.
-3.  **Structure**: Ancestral contributions and gene flow.
-4.  **Visualization**: (See `vignette("draw-pedigree")` for plotting details).
-
-These tools enable efficient management of breeding programs and conservation genetics.
+By adopting `pediv()`, demographic summaries, and partial tracing, breeders can pinpoint bottleneck risks, mitigate rapid coancestry accumulation, and curate genetically resilient populations.
