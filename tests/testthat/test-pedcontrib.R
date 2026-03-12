@@ -362,7 +362,7 @@ test_that("pedcontrib errors on empty candidate set", {
   tp <- make_theory_ped()
   expect_error(
     suppressMessages(suppressWarnings(pedcontrib(tp, reference = "NONEXISTENT", mode = "both"))),
-    "No valid candidate"
+    "No valid reference"
   )
 })
 

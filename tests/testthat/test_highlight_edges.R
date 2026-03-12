@@ -108,7 +108,7 @@ test_that("highlight edges work correctly with trace down", {
   j1j576_family_id <- j1j576_node$familynum
   edge_to_family <- graph_data$edge[from == j1j576_node$id & to == j1j576_family_id]
   expect_equal(nrow(edge_to_family), 1)
-  expect_equal(edge_to_family$color, "#333333")
+  expect_equal(edge_to_family$color, "#3333334D")
   
   # J1J576's parents should NOT be highlighted (trace = "down" only traces descendants)
   j0z938_node <- graph_data$node[label == "J0Z938"]

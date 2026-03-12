@@ -14,7 +14,7 @@ test_ped_dt <- data.table::data.table(
 # C and D are full siblings (F _ offspring = 0.25). 
 # E and F are offspring of full siblings.
 
-test_ped <- suppressMessages(tidyped(test_ped_dt, cand = c("E", "F")))
+test_ped <- suppressMessages(tidyped(test_ped_dt, reference = c("E", "F")))
 
 test_that("pedrel calculates relation correctly and handles boundaries", {
   # N < 2 case for G1 (after subsetting by Gen, if one was dropped, or just test N=1)
@@ -35,7 +35,7 @@ test_that("pedrel calculates relation correctly and handles boundaries", {
   expect_equal(rel[Gen == 2, MeanRel], 0.5)
   
   # Test sample size
-  rel_sample <- suppressWarnings(pedrel(test_ped, by = "Gen", cand = c("A", "C")))
+  rel_sample <- suppressWarnings(pedrel(test_ped, by = "Gen", reference = c("A", "C")))
   expect_true(all(is.na(rel_sample$MeanRel)))
 })
 
@@ -79,18 +79,18 @@ test_that("pedgenint computes Average from all parent-offspring pairs", {
                c("Average", "DD", "DO", "DS", "SD", "SO", "SS"))
 })
 
-test_that("pedcontrib Ne_f and Ne_a compute on full sets despite top cutoff", {
+test_that("pedcontrib f_e and f_a compute on full sets despite top cutoff", {
   cont_all <- suppressMessages(pedcontrib(test_ped, mode = "both", top = 100))
   cont_top1 <- suppressMessages(pedcontrib(test_ped, mode = "both", top = 1))
   
-  # Ne_f and Ne_a should be identical because they're based on full arrays before truncation
-  expect_equal(cont_all$summary$Ne_f, cont_top1$summary$Ne_f)
-  expect_equal(cont_all$summary$Ne_a, cont_top1$summary$Ne_a)
+  # f_e and f_a should be identical because they're based on full arrays before truncation
+  expect_equal(cont_all$summary$f_e, cont_top1$summary$f_e)
+  expect_equal(cont_all$summary$f_a, cont_top1$summary$f_a)
   
   # Ensure reported reflects top
-  expect_equal(cont_top1$summary$n_founders_reported, 1)
-  expect_equal(cont_all$summary$n_founders_reported, length(cont_all$founders$Ind))
-  expect_true(cont_top1$summary$n_founders_total > 1) 
+  expect_equal(cont_top1$summary$n_founder_show, 1)
+  expect_equal(cont_all$summary$n_founder_show, length(cont_all$founders$Ind))
+  expect_true(cont_top1$summary$n_founder > 1) 
 })
 
 test_that("pedpartial and pedancestry run without addnum=TRUE initially", {
