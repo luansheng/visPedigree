@@ -711,6 +711,9 @@ print.pedstats <- function(x, ...) {
 #'   If NULL, uses all individuals in the pedigree.
 #' @param nsamples Integer. Number of individuals to randomly sample per cohort when using the \code{"coancestry"} method. Very large cohorts will be sampled down to this size to save memory and time (default: 1000).
 #' @param ncores Integer. Number of cores for parallel processing. Currently only effective for \code{method = "coancestry"} (default: 1).
+#' @param seed Integer or NULL. Random seed passed to \code{set.seed()} before sampling
+#'   in the coancestry method, ensuring reproducible \eqn{N_e} estimates.
+#'   Default is \code{NULL} (no fixed seed).
 #'
 #' @return A \code{data.table} with columns:
 #' \itemize{
@@ -748,8 +751,9 @@ print.pedstats <- function(x, ...) {
 #' Wright, S. (1931). Evolution in Mendelian populations. \emph{Genetics}, 16(2), 97-159.
 #' 
 #' @export
-pedne <- function(ped, method = c("coancestry", "inbreeding", "demographic"), 
-                  by = NULL, reference = NULL, nsamples = 1000, ncores = 1) {
+pedne <- function(ped, method = c("coancestry", "inbreeding", "demographic"),
+                  by = NULL, reference = NULL, nsamples = 1000, ncores = 1,
+                  seed = NULL) {
   
   if (!inherits(ped, "tidyped")) stop("ped must be a tidyped object")
   method <- match.arg(method)
@@ -801,11 +805,17 @@ pedne <- function(ped, method = c("coancestry", "inbreeding", "demographic"),
   
   # Dispatch to specific calculator
   res <- switch(method,
-    "inbreeding" = calc_ne_inbreeding(ped_subset, by),
-    "coancestry" = calc_ne_coancestry(ped_subset, ped_dt, by, nsamples),
+    "inbreeding"  = calc_ne_inbreeding(ped_subset, by),
+    "coancestry"  = {
+      raw <- calc_ne_coancestry(ped_subset, ped_dt, by, nsamples, seed = seed)
+      # Strip fg/MeanCoan/NSampledCoan: exposed only via pediv(), not pedne()
+      cols_to_drop <- intersect(names(raw), c("fg", "MeanCoan", "NSampledCoan"))
+      if (length(cols_to_drop) > 0) raw[, (cols_to_drop) := NULL]
+      raw
+    },
     "demographic" = calc_ne_demographic(ped_subset, by)
   )
-  
+
   return(res)
 }
 
@@ -879,76 +889,118 @@ calc_ne_demographic <- function(ped, by) {
   return(result)
 }
 
-calc_ne_coancestry <- function(ped_subset, ped_full, by, nsamples) {
-  # ECG is already merged into ped_subset from ped_full by the caller function
-  
+calc_ne_coancestry <- function(ped_subset, ped_full, by, nsamples,
+                               seed = NULL, max_trace = 25000L) {
+  # ECG is already merged into ped_subset from ped_full by the caller function.
+  # Returns extended table with fg/MeanCoan/NSampledCoan columns.
+  # NOTE: pedne() strips fg columns before exposing its public output;
+  #       pediv() calls this function directly to access fg without duplication.
+
   ped_subset[, CohortLabel := get(by)]
   cohorts <- sort(unique(ped_subset$CohortLabel))
-  
+
   results_list <- list()
-  
+
   for (coh in cohorts) {
     sub_ped <- ped_subset[CohortLabel == coh]
     n_total <- nrow(sub_ped)
-    
+
     if (n_total == 0) next
-    
-    # Sampling
+
+    # Reproducible sampling
+    if (!is.null(seed)) set.seed(seed)
+
+    # Initial sampling
     if (n_total > nsamples) {
       sampled_inds <- sample(sub_ped$Ind, nsamples)
     } else {
       sampled_inds <- sub_ped$Ind
     }
-    
-    # Trace back ancestors to build sub-pedigree USING THE FULL PEDIGREE
-    # This is critical for performance to avoid large matrix on full pedigree
-    trace_ped <- tidyped(ped_full, cand = sampled_inds, trace = "up", addgen = TRUE, addnum = TRUE)
-    
-    # Ensure sorted by Gen for correct matrix build (though C++ uses numeric)
-    setorder(trace_ped, Gen, IndNum)
-    
-    # Re-identify target numeric IDs
-    target_nums <- trace_ped[Ind %in% sampled_inds, IndNum]
-    
-    # Ensure ECG is present
-    if (!"ECG" %in% names(trace_ped)) {
-       ecg_map <- ped_full[Ind %in% trace_ped$Ind, .(Ind, ECG)]
-       trace_ped <- merge(trace_ped, ecg_map, by = "Ind", all.x = TRUE)
+
+    # Trace back ancestors using the FULL pedigree
+    trace_ped <- tidyped(ped_full, cand = sampled_inds, trace = "up",
+                         addgen = TRUE, addnum = TRUE)
+
+    # Adaptive resampling: if traced pedigree exceeds memory limit, reduce sample
+    if (nrow(trace_ped) > max_trace) {
+      n_reduced <- max(2L, floor(length(sampled_inds) * max_trace / nrow(trace_ped)))
+      if (!is.null(seed)) set.seed(seed)
+      sampled_inds <- sample(sub_ped$Ind, min(n_reduced, n_total))
+      trace_ped <- tidyped(ped_full, cand = sampled_inds, trace = "up",
+                           addgen = TRUE, addnum = TRUE)
     }
-    
-    # If any ECG missing (e.g. base founders in trace not in original?), fill 0
-    trace_ped[is.na(ECG), ECG := 0]
-    
-    # Call C++
-    # Ensure vectors are 0-indexed for C++ if needed, but Rcpp usually handles R 1-based logic 
-    # if implemented. Our C++ uses 1-based input (subtracts 1 inside).
-    
-    # The trace_ped MUST be reordered by IndNum 1..N
+
+    # Must be sorted by IndNum for correct C++ indexing (1..N)
     setorder(trace_ped, IndNum)
-    
+
+    # Re-identify target numeric IDs (1-based)
+    target_nums <- trace_ped[Ind %in% sampled_inds, IndNum]
+
+    # Ensure ECG is present (propagate from full pedigree if missing after trace)
+    if (!"ECG" %in% names(trace_ped)) {
+      ecg_map <- ped_full[Ind %in% trace_ped$Ind, .(Ind, ECG)]
+      trace_ped <- merge(trace_ped, ecg_map, by = "Ind", all.x = TRUE)
+      setorder(trace_ped, IndNum)
+    }
+    trace_ped[is.na(ECG), ECG := 0]
+
+    # ---- 1. DeltaC / Ne ----
     avg_delta_c <- tryCatch({
-       cpp_calculate_sampled_coancestry_delta(
-        trace_ped$SireNum, 
-        trace_ped$DamNum, 
-        target_nums, 
+      cpp_calculate_sampled_coancestry_delta(
+        trace_ped$SireNum,
+        trace_ped$DamNum,
+        target_nums,
         trace_ped$ECG
       )
     }, error = function(e) {
       warning(paste("Error in coancestry calculation for cohort", coh, ":", e$message))
-      return(NA_real_)
+      NA_real_
     })
 
     ne_val <- if (!is.na(avg_delta_c) && avg_delta_c > 0) 1 / (2 * avg_delta_c) else NA_real_
-    
+
+    # ---- 2. fg: founder genome equivalents (Caballero & Toro 2000) ----
+    # Reuses the same traced pedigree — zero extra tidyped() cost.
+    # Corrected mean coancestry:
+    #   C_bar = (N-1)/N * rbar_off/2 + (1 + mean_F_s) / (2N)
+    # where N = full reference cohort size (NOT sample size).
+    fg_val     <- NA_real_
+    mean_coan  <- NA_real_
+
+    tryCatch({
+      # Off-diagonal mean relationship (cpp returns off-diagonal only)
+      rbar_off <- cpp_mean_relationship(
+        trace_ped$SireNum,
+        trace_ped$DamNum,
+        target_nums
+      )
+
+      # Inbreeding for diagonal correction (on traced pedigree — fast)
+      f_traced  <- cpp_calculate_inbreeding(trace_ped$SireNum, trace_ped$DamNum)$f
+      mean_f_s  <- mean(f_traced[target_nums], na.rm = TRUE)
+
+      # Diagonal-corrected mean coancestry weighted by full N
+      N_ref     <- n_total
+      mean_coan <- (N_ref - 1) / N_ref * rbar_off / 2 +
+                   (1 + mean_f_s) / (2 * N_ref)
+
+      fg_val    <- if (!is.na(mean_coan) && mean_coan > 0) 1 / (2 * mean_coan) else NA_real_
+    }, error = function(e) {
+      warning(paste("Error in fg calculation for cohort", coh, ":", e$message))
+    })
+
     results_list[[as.character(coh)]] <- data.table(
-      Cohort = coh,
-      N = n_total,
-      NSampled = length(sampled_inds),
-      DeltaC = avg_delta_c,
-      Ne = ne_val
+      Cohort       = coh,
+      N            = n_total,
+      NSampled     = length(sampled_inds),
+      DeltaC       = avg_delta_c,
+      Ne           = ne_val,
+      MeanCoan     = mean_coan,
+      fg           = fg_val,
+      NSampledCoan = length(sampled_inds)
     )
   }
-  
+
   result <- rbindlist(results_list)
   return(result)
 }
@@ -1478,35 +1530,53 @@ print.pedcontrib <- function(x, ...) {
 #' @param reference Character vector. Optional subset of individual IDs defining the reference population.
 #'   If NULL, uses all individuals in the most recent generation.
 #' @param top Integer. Number of top contributors to return in founder/ancestor tables. Default is 20.
-#' @param nsamples Integer. Number of individuals sampled per cohort for the coancestry Ne method. Default is 1000.
+#' @param nsamples Integer. Number of individuals sampled per cohort for the coancestry
+#'   Ne method and for \eqn{f_g} estimation. Very large cohorts are sampled down to this
+#'   size to control memory usage (default: 1000).
 #' @param ncores Integer. Number of cores for parallel processing in the coancestry method. Default is 1.
+#' @param seed Integer or NULL. Random seed passed to \code{set.seed()} before sampling
+#'   in the coancestry method, ensuring reproducible \eqn{f_g} and \eqn{N_e} estimates.
+#'   Default is \code{NULL} (no fixed seed).
 #'
 #' @return A list with class \code{pediv} containing:
 #' \itemize{
 #'   \item \code{summary}: A single-row \code{data.table} with columns
 #'     \code{NRef}, \code{NFounder}, \code{fe}, \code{NAncestor}, \code{fa},
-#'     \code{fafe}, \code{NeCoancestry}, \code{NeInbreeding}, \code{NeDemographic}.
+#'     \code{fafe}, \code{fg}, \code{MeanCoan}, \code{NSampledCoan},
+#'     \code{NeCoancestry}, \code{NeInbreeding}, \code{NeDemographic}.
 #'   \item \code{founders}: A \code{data.table} of top founder contributions.
 #'   \item \code{ancestors}: A \code{data.table} of top ancestor contributions.
 #' }
 #'
 #' @details
-#' Internally calls \code{\link{pedcontrib}} for $f_e$ and $f_a$, and
-#' \code{\link{pedne}} for each of the three Ne estimation methods.
+#' Internally calls \code{\link{pedcontrib}} for \eqn{f_e} and \eqn{f_a}.
+#' The coancestry method is called via the internal \code{calc_ne_coancestry()}
+#' function directly so that \eqn{f_g} and the Ne estimate can be obtained from
+#' the same traced pedigree without duplication.
+#' The inbreeding and demographic Ne methods are obtained via \code{\link{pedne}}.
 #' All calculations use the same \code{reference} population.
-#' If a Ne method fails (e.g., insufficient pedigree depth), its value is \code{NA}
+#' If any method fails (e.g., insufficient pedigree depth), its value is \code{NA}
 #' rather than stopping execution.
+#'
+#' \eqn{f_g} (founder genome equivalents, Caballero & Toro 2000) is estimated from
+#' the diagonal-corrected mean coancestry of the reference population:
+#' \deqn{\hat{\bar{C}} = \frac{N-1}{N} \cdot \frac{\bar{a}_{off}}{2} + \frac{1 + \bar{F}_s}{2N}}
+#' \deqn{f_g = \frac{1}{2 \hat{\bar{C}}}}
+#' where \eqn{N} is the full reference cohort size, \eqn{\bar{a}_{off}} is the
+#' off-diagonal mean relationship among sampled individuals, and \eqn{\bar{F}_s}
+#' is their mean inbreeding coefficient.
 #'
 #' @examples
 #' \donttest{
 #' tp <- tidyped(small_ped)
-#' div <- pediv(tp, reference = c("Z1", "Z2", "X", "Y"))
+#' div <- pediv(tp, reference = c("Z1", "Z2", "X", "Y"), seed = 42L)
 #' print(div)
 #' }
 #'
 #' @seealso \code{\link{pedcontrib}}, \code{\link{pedne}}, \code{\link{pedstats}}
 #' @export
-pediv <- function(ped, reference = NULL, top = 20, nsamples = 1000, ncores = 1) {
+pediv <- function(ped, reference = NULL, top = 20, nsamples = 1000, ncores = 1,
+                  seed = NULL) {
   if (!inherits(ped, "tidyped")) stop("ped must be a tidyped object")
 
   # ---- Founder and ancestor contributions ----
@@ -1514,14 +1584,31 @@ pediv <- function(ped, reference = NULL, top = 20, nsamples = 1000, ncores = 1) 
   contrib <- pedcontrib(ped, reference = reference, mode = "both", top = top)
   s <- contrib$summary
 
-  # ---- Ne: three methods (failures yield NA, not errors) ----
-  message("Calculating Ne (coancestry)...")
-  ne_c <- tryCatch(
-    suppressMessages(pedne(ped, reference = reference, by = NULL,
-                           method = "coancestry", nsamples = nsamples, ncores = ncores)),
+  # ---- Prepare pedigree with ECG (mirrors pedne() preprocessing) ----
+  ped_dt <- data.table::copy(ped)
+  if (!"ECG" %in% names(ped_dt)) {
+    ecg_dt <- pedecg(ped_dt)
+    ped_dt <- merge(ped_dt, ecg_dt[, .(Ind, ECG)], by = "Ind", all.x = TRUE)
+  }
+  by_all <- ".CohortAll"
+  ped_dt[[by_all]] <- "All"
+
+  if (!is.null(reference)) {
+    ped_subset <- ped_dt[Ind %in% reference]
+  } else {
+    ped_subset <- ped_dt
+  }
+
+  # ---- Ne (coancestry) + fg: call internal function directly ----
+  # pedne(method="coancestry") strips fg from its public output; bypass it here
+  # so both Ne and fg are computed from the same single traced pedigree.
+  message("Calculating Ne (coancestry) and fg...")
+  raw_coan <- tryCatch(
+    calc_ne_coancestry(ped_subset, ped_dt, by_all, nsamples, seed = seed),
     error = function(e) NULL
   )
 
+  # ---- Ne: inbreeding and demographic (via public pedne API) ----
   message("Calculating Ne (inbreeding)...")
   ne_i <- tryCatch(
     suppressMessages(pedne(ped, reference = reference, by = NULL,
@@ -1540,6 +1627,14 @@ pediv <- function(ped, reference = NULL, top = 20, nsamples = 1000, ncores = 1) 
     if (is.null(dt) || nrow(dt) == 0) NA_real_ else dt$Ne[1]
   }
 
+  # Extract fg and MeanCoan from raw coancestry result
+  fg_val      <- if (!is.null(raw_coan) && nrow(raw_coan) > 0 && "fg" %in% names(raw_coan))
+                   raw_coan$fg[1] else NA_real_
+  mean_coan   <- if (!is.null(raw_coan) && nrow(raw_coan) > 0 && "MeanCoan" %in% names(raw_coan))
+                   raw_coan$MeanCoan[1] else NA_real_
+  n_samp_coan <- if (!is.null(raw_coan) && nrow(raw_coan) > 0 && "NSampledCoan" %in% names(raw_coan))
+                   as.integer(raw_coan$NSampledCoan[1]) else NA_integer_
+
   # ---- Assemble summary ----
   summary_dt <- data.table::data.table(
     NRef          = s$n_ref,
@@ -1549,7 +1644,10 @@ pediv <- function(ped, reference = NULL, top = 20, nsamples = 1000, ncores = 1) 
     fa            = s$f_a,
     fafe          = if (!is.na(s$f_a) && !is.na(s$f_e) && s$f_e > 0)
                       round(s$f_a / s$f_e, 6) else NA_real_,
-    NeCoancestry  = extract_ne(ne_c),
+    fg            = fg_val,
+    MeanCoan      = mean_coan,
+    NSampledCoan  = n_samp_coan,
+    NeCoancestry  = extract_ne(raw_coan),
     NeInbreeding  = extract_ne(ne_i),
     NeDemographic = extract_ne(ne_d)
   )
@@ -1581,6 +1679,16 @@ print.pediv <- function(x, ...) {
   cat(sprintf("Founders  (total) : %d    fe = %.3f\n", s$NFounder, s$fe))
   cat(sprintf("Ancestors (total) : %d    fa = %.3f\n", s$NAncestor, s$fa))
   cat(sprintf("fa/fe ratio       : %.4f\n", s$fafe))
+  if (!is.null(s$fg) && !is.na(s$fg)) {
+    cat(sprintf("Founder genomes   : fg = %.3f  (MeanCoan = %.6f, NSampled = %d)\n",
+                s$fg, s$MeanCoan, s$NSampledCoan))
+    # Hierarchy fg <= fa <= fe <= NFounder holds only when all metrics share
+    # the same reference population. Display it only when the order is intact.
+    if (!is.na(s$fa) && !is.na(s$fe) && s$fg <= s$fa + 1e-6 && s$fa <= s$fe + 1e-6) {
+      cat(sprintf("Hierarchy: fg <= fa <= fe <= NFounder  =  %.2f <= %.3f <= %.3f <= %d\n",
+                  s$fg, s$fa, s$fe, s$NFounder))
+    }
+  }
 
   cat("\n-- Effective Population Size (Ne) --\n")
   fmt_ne <- function(v) if (is.na(v)) "     NA" else sprintf("%7.1f", v)

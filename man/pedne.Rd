@@ -10,7 +10,8 @@ pedne(
   by = NULL,
   reference = NULL,
   nsamples = 1000,
-  ncores = 1
+  ncores = 1,
+  seed = NULL
 )
 }
 \arguments{
@@ -27,6 +28,10 @@ If NULL, uses all individuals in the pedigree.}
 \item{nsamples}{Integer. Number of individuals to randomly sample per cohort when using the \code{"coancestry"} method. Very large cohorts will be sampled down to this size to save memory and time (default: 1000).}
 
 \item{ncores}{Integer. Number of cores for parallel processing. Currently only effective for \code{method = "coancestry"} (default: 1).}
+
+\item{seed}{Integer or NULL. Random seed passed to \code{set.seed()} before sampling
+in the coancestry method, ensuring reproducible \eqn{N_e} estimates.
+Default is \code{NULL} (no fixed seed).}
 }
 \value{
 A \code{data.table} with columns:

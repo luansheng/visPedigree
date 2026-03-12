@@ -60,16 +60,20 @@ length(ref_pop)
 
 ```{r pediv_analysis}
 # Run comprehensive population diversity analysis
-div_res <- pediv(tped, reference = ref_pop, top = 10, ncores = 1)
+div_res <- pediv(tped, reference = ref_pop, top = 10, ncores = 1, seed = 42L)
 
 # Summary table provides an elegant overview
 print(div_res$summary)
 ```
 
-### 3.1 Effective Ancestors and Founders ($f_a$ and $f_e$)
+### 3.1 Founder Equivalents ($f_g$, $f_a$ and $f_e$)
 
-The metrics $f_e$ (Lacy, 1989) and $f_a$ (Boichard et al., 1997) evaluate how unbalanced the founding genome has become:
+The metrics $f_g$ (Caballero & Toro, 2000), $f_a$ (Boichard et al., 1997), and $f_e$ (Lacy, 1989) evaluate how unbalanced the founding genome has become:
 
+- **Founder Genome Equivalents ($f_g$)**:
+  $$ f_g = \frac{1}{2\bar{C}} $$
+  where $\bar{C}$ is the mean coancestry of the reference population. $f_g$ accounts for unequal founder contributions, bottlenecks, and the loss of alleles due to random genetic drift. It strictly follows the hierarchy $f_g \leq f_a \leq f_e \leq N_{founders}$.
+  
 - **Effective Number of Founders ($f_e$)**: 
   $$ f_e = \frac{1}{\sum_{i=1}^f p_i^2} $$
   where $p_i$ is the expected genetic contribution of founder $i$. It assumes all founders contribute independently.

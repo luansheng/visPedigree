@@ -1,3 +1,9 @@
+# Changes in version 1.3.0 released on 10 Mar 2026
+
+## New Features
+1. **Founder Genome Equivalents ($f_g$)**: Integrated the robust calculation of Founder Genome Equivalents into `pediv()`. It directly evaluates the mean coancestry while properly correcting for diagonal intra-cohort elements through adaptive scaling, keeping computational costs linear relative to the reference cohort size.
+2. **Reproducible Parameter Inference**: Added a `seed` argument to both `pedne()` and `pediv()` functions functions enabling precise reproducible sampling for effective population size estimations (Ne) and $f_g$ computations using Monte Carlo approximations.
+
 # Changes in version 1.2.3 released on 08 Mar 2026
 
 ## Bug Fixes
