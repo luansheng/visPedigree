@@ -111,6 +111,12 @@ test_that("sex conflict detection works", {
     tidyped(bad_ped),
     "Sex conflict detected"
   )
+  
+  # Same pedigree should work with selfing = TRUE
+  res <- tidyped(bad_ped, selfing = TRUE)
+  expect_s3_class(res, "tidyped")
+  expect_equal(res[Ind == "A", Sex], "monoecious")
+  expect_true(isTRUE(attr(res, "selfing")))
 })
 
 test_that("sex annotation conflict detection works", {

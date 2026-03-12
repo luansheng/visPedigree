@@ -98,6 +98,7 @@ summary.tidyped <- function(object, ...) {
   res$n_ind <- nrow(x)
   res$n_male <- sum(x$Sex == "male", na.rm = TRUE)
   res$n_female <- sum(x$Sex == "female", na.rm = TRUE)
+  res$n_monoecious <- sum(x$Sex == "monoecious", na.rm = TRUE)
   res$n_unknown_sex <- sum(is.na(x$Sex))
   
   # Founders: Individuals with both parents unknown (NA)
@@ -230,6 +231,11 @@ print.summary.tidyped <- function(x, ...) {
   
   cat("  - Males:   ", sprintf("%d (%.1f%%)", x$n_male, pct_male), "\n")
   cat("  - Females: ", sprintf("%d (%.1f%%)", x$n_female, pct_female), "\n")
+  
+  if (!is.null(x$n_monoecious) && x$n_monoecious > 0) {
+    pct_monoecious <- if(x$n_ind > 0) 100 * x$n_monoecious / x$n_ind else 0
+    cat("  - Monoecious: ", sprintf("%d (%.1f%%)", x$n_monoecious, pct_monoecious), "\n")
+  }
   
   if (x$n_unknown_sex > 0) {
     pct_unknown <- if(x$n_ind > 0) 100 * x$n_unknown_sex / x$n_ind else 0

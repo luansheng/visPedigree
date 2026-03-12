@@ -11,6 +11,7 @@
 #' @param addgen A logical value indicating whether to generate generation numbers. Default is TRUE, which adds a \strong{Gen} column to the output.
 #' @param addnum A logical value indicating whether to generate a numeric pedigree. Default is TRUE, which adds \strong{IndNum}, \strong{SireNum}, and \strong{DamNum} columns to the output.
 #' @param inbreed A logical value indicating whether to calculate inbreeding coefficients. Default is FALSE. If TRUE, an \strong{f} column is added to the output. This uses the same optimized engine as \code{pedmat(..., method = "f")}.
+#' @param selfing A logical value indicating whether to allow the same individual to appear as both sire and dam. This is common in plant breeding (monoecious species) where the same plant can serve as both male and female parent. If TRUE, individuals appearing in both the Sire and Dam columns will be assigned Sex = "monoecious" instead of triggering an error. Default is FALSE.
 #' @param genmethod A character value specifying the generation assignment method: "\strong{top}" or "\strong{bottom}". "top" (top-aligned) assigns generations from parents to offspring, starting founders at Gen 1. "bottom" (bottom-aligned) assigns generations from offspring to parents, aligning terminal nodes at the bottom. Default is "top".
 #' @param ... Additional arguments passed to \code{\link{inbreed}}.
 #' 
@@ -63,6 +64,7 @@ tidyped <- function(ped,
                           addgen = TRUE,
                           addnum = TRUE,
                           inbreed = FALSE,
+                          selfing = FALSE,
                           genmethod = "top",
                           ...) {
   # 1. Parameter Validation
@@ -74,7 +76,7 @@ tidyped <- function(ped,
   }
   
   # Boolean checks
-  for (arg in c("addgen", "addnum", "inbreed")) {
+  for (arg in c("addgen", "addnum", "inbreed", "selfing")) {
     val <- get(arg)
     if (!is.logical(val) || length(val) != 1 || is.na(val)) {
       stop(sprintf("The %s parameter only is assigned using TRUE or FALSE", arg))
@@ -99,7 +101,7 @@ tidyped <- function(ped,
   }
 
   # 2. Data Preparation
-  res_prep <- validate_and_prepare_ped(ped)
+  res_prep <- validate_and_prepare_ped(ped, selfing = selfing)
   ped_dt <- res_prep$ped_dt
   bisexual_parents <- res_prep$bisexual_parents
   
@@ -228,7 +230,7 @@ tidyped <- function(ped,
   }
   
   # 7. Sex Inference and Check
-  ped_dt <- infer_and_check_sex(ped_dt)
+  ped_dt <- infer_and_check_sex(ped_dt, selfing = selfing)
   
   # 8. Sorting and Numeric IDs
   if (addgen) {
@@ -252,6 +254,7 @@ tidyped <- function(ped,
   # 9. Final S3 and Inbreeding
   ped_dt <- new_tidyped(ped_dt)
   attr(ped_dt, "bisexual_parents") <- bisexual_parents
+  attr(ped_dt, "selfing") <- selfing
   
   if (inbreed) {
     ped_dt <- inbreed(ped_dt, ...)
@@ -266,7 +269,7 @@ tidyped <- function(ped,
 
 #' Validate and Prepare Pedigree Data
 #' @noRd
-validate_and_prepare_ped <- function(ped) {
+validate_and_prepare_ped <- function(ped, selfing = FALSE) {
   ped_dt <- if (is.data.table(ped)) copy(ped) else as.data.table(ped)
   
   # Standardize primary column names
@@ -305,12 +308,21 @@ validate_and_prepare_ped <- function(ped) {
   dams <- unique(ped_dt[!is.na(Dam), Dam])
   bisexual_parents <- sort(intersect(sires, dams))
   
-  if (length(bisexual_parents) > 0) {
+  if (length(bisexual_parents) > 0 && !selfing) {
     stop(sprintf(
       paste0("Sex conflict detected: The following individual(s) appear as both Sire and Dam: %s. ",
-             "This is biologically impossible. Please check and correct the pedigree data."),
+             "This is biologically impossible. Please check and correct the pedigree data. ",
+             "If this is a plant pedigree with monoecious species, set selfing = TRUE."),
       paste(bisexual_parents, collapse = ", ")
     ), call. = FALSE)
+  }
+  
+  if (length(bisexual_parents) > 0 && selfing) {
+    message(sprintf(
+      "Selfing mode: %d individual(s) appear as both Sire and Dam: %s. These will be assigned Sex = 'monoecious'.",
+      length(bisexual_parents),
+      paste(head(bisexual_parents, 10), collapse = ", ")
+    ))
   }
 
   # Add missing founders
@@ -498,7 +510,7 @@ assign_ped_generations <- function(g, ped_dt, topo_order, genmethod) {
 
 #' Infer and Check Sex of Individuals
 #' @noRd
-infer_and_check_sex <- function(ped_dt) {
+infer_and_check_sex <- function(ped_dt, selfing = FALSE) {
   if (!("Sex" %in% names(ped_dt))) {
     ped_dt[, Sex := NA_character_]
   } else {
@@ -509,23 +521,61 @@ infer_and_check_sex <- function(ped_dt) {
   sires <- unique(ped_dt[!is.na(Sire), Sire])
   dams <- unique(ped_dt[!is.na(Dam), Dam])
   
-  # Note: Sex conflict (same individual as both Sire and Dam) is already checked 
-  # in validate_and_prepare_ped() earlier in the pipeline
+  # Identify monoecious individuals (appear as both Sire and Dam)
+  monoecious_ids <- intersect(sires, dams)
   
-  # Sex conflicts with explicit sex annotation
-  sex_conflicts <- ped_dt[(Ind %in% sires & Sex == "female") | (Ind %in% dams & Sex == "male"), Ind]
-  if (length(sex_conflicts) > 0) {
-    stop(sprintf(
-      paste0("Sex annotation conflicts detected for: %s. ",
-             "These individuals have explicit sex that contradicts their role as Sire/Dam. ",
-             "Please check and correct the pedigree data."),
-      paste(sex_conflicts, collapse = ", ")
-    ), call. = FALSE)
+  if (selfing && length(monoecious_ids) > 0) {
+    # In selfing mode: monoecious individuals can be both Sire and Dam
+    # Check for conflicts with explicit sex annotation (only non-monoecious annotations)
+    sex_conflicts <- ped_dt[
+      !(Ind %in% monoecious_ids) & 
+      ((Ind %in% sires & Sex == "female") | (Ind %in% dams & Sex == "male")), Ind]
+    if (length(sex_conflicts) > 0) {
+      stop(sprintf(
+        paste0("Sex annotation conflicts detected for: %s. ",
+               "These individuals have explicit sex that contradicts their role as Sire/Dam. ",
+               "Please check and correct the pedigree data."),
+        paste(sex_conflicts, collapse = ", ")
+      ), call. = FALSE)
+    }
+    
+    # Check that monoecious individuals are not explicitly annotated as male or female
+    mono_sex_conflicts <- ped_dt[
+      Ind %in% monoecious_ids & Sex %in% c("male", "female"), Ind]
+    if (length(mono_sex_conflicts) > 0) {
+      stop(sprintf(
+        paste0("Sex annotation conflicts for monoecious individuals: %s. ",
+               "These individuals appear as both Sire and Dam but have explicit male/female annotation. ",
+               "Remove or change their Sex annotation to 'monoecious' or NA."),
+        paste(mono_sex_conflicts, collapse = ", ")
+      ), call. = FALSE)
+    }
+    
+    # Assign monoecious sex
+    ped_dt[Ind %in% monoecious_ids & (is.na(Sex) | Sex != "monoecious"), Sex := "monoecious"]
+    
+    # Infer sex for remaining individuals (excluding monoecious)
+    sires_only <- setdiff(sires, monoecious_ids)
+    dams_only <- setdiff(dams, monoecious_ids)
+    ped_dt[is.na(Sex) & (Ind %in% sires_only), Sex := "male"]
+    ped_dt[is.na(Sex) & (Ind %in% dams_only), Sex := "female"]
+  } else {
+    # Standard mode: no selfing allowed
+    # Sex conflicts with explicit sex annotation
+    sex_conflicts <- ped_dt[(Ind %in% sires & Sex == "female") | (Ind %in% dams & Sex == "male"), Ind]
+    if (length(sex_conflicts) > 0) {
+      stop(sprintf(
+        paste0("Sex annotation conflicts detected for: %s. ",
+               "These individuals have explicit sex that contradicts their role as Sire/Dam. ",
+               "Please check and correct the pedigree data."),
+        paste(sex_conflicts, collapse = ", ")
+      ), call. = FALSE)
+    }
+    
+    # Infer sex from roles
+    ped_dt[is.na(Sex) & (Ind %in% sires), Sex := "male"]
+    ped_dt[is.na(Sex) & (Ind %in% dams), Sex := "female"]
   }
-  
-  # Infer sex from roles
-  ped_dt[is.na(Sex) & (Ind %in% sires), Sex := "male"]
-  ped_dt[is.na(Sex) & (Ind %in% dams), Sex := "female"]
   
   return(ped_dt)
 }

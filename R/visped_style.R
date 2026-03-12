@@ -59,7 +59,8 @@ get_highlight_ids <- function(ped, highlight, trace) {
     
     if (!isFALSE(trace) && length(focal_ids) > 0) {
       trace_dir <- if (isTRUE(trace)) "all" else trace
-      relatives_ped <- suppressWarnings(tidyped(ped, cand = focal_ids, trace = trace_dir))
+      selfing_val <- isTRUE(attr(ped, "selfing"))
+      relatives_ped <- suppressWarnings(tidyped(ped, cand = focal_ids, trace = trace_dir, selfing = selfing_val))
       relative_ids <- setdiff(unique(relatives_ped$Ind), focal_ids)
       
       # Build trace_edges: parent-child pairs that are ON the trace path.
@@ -112,6 +113,7 @@ apply_node_styles <- function(ped_node, highlight_info) {
   ped_node[nodetype == "compact", shape := "square"]
   ped_node[sex == "male", `:=`(frame.color = "#119ecc", color = "#119ecc")]
   ped_node[sex == "female", `:=`(frame.color = "#f4b131", color = "#f4b131")]
+  ped_node[sex == "monoecious", `:=`(frame.color = "#26a69a", color = "#26a69a")]
   ped_node[is.na(sex) | sex == "unknown", `:=`(frame.color = "#9cb383", color = "#9cb383")]
   
   # Virtual nodes: circle with tiny size and transparency to fix edge gaps
@@ -181,7 +183,7 @@ finalize_graph <- function(ped_node, ped_edge, highlight_info, trace, showf) {
   
   real_max <- max(ped_node[nodetype %in% c("real", "compact")]$id, na.rm = TRUE)
   
-  tonodecolor = i.color = i.highlighted = from_highlighted = NULL
+  tonodecolor = i.color = i.highlighted = from_highlighted = role = NULL
   ped_edge[ped_node, ":="(tonodecolor = i.color, to_highlighted = i.highlighted), on = .(to = id)]
   ped_edge[ped_node, from_highlighted := i.highlighted, on = .(from = id)]
   
@@ -189,12 +191,19 @@ finalize_graph <- function(ped_node, ped_edge, highlight_info, trace, showf) {
   has_trace <- !isFALSE(trace) && length(highlight_info$relatives) > 0
   trace_edges <- highlight_info$trace_edges
   
-  # Default: edges from family nodes to parents follow the parent node color
-  ped_edge[from > real_max, color := tonodecolor]
+  # Role-based edge coloring for family→parent edges
+  ped_edge[role == "sire", color := "#119ecc"]
+  ped_edge[role == "dam", color := "#f4b131"]
+  ped_edge[role == "selfing", color := "#26a69a"]
   
-  # If highlighting is active and family node is not highlighted, fade the edge
+  # If highlighting is active, fade edges based on endpoint highlight status
   if (length(h_ids) > 0) {
-    ped_edge[from > real_max & from_highlighted == FALSE, color := fade_cols(tonodecolor)]
+    # Fade if target parent is not highlighted
+    ped_edge[role %in% c("sire", "dam", "selfing") & to_highlighted == FALSE,
+             color := fade_cols(color)]
+    # Further fade if source family node is not highlighted
+    ped_edge[role %in% c("sire", "dam", "selfing") & from_highlighted == FALSE,
+             color := fade_cols(color)]
   }
   
   if (length(h_ids) > 0 && has_trace) {
@@ -251,7 +260,7 @@ finalize_graph <- function(ped_node, ped_edge, highlight_info, trace, showf) {
   
   ped_edge[from <= real_max, ":="(curved = 0, arrow.size = 0, arrow.width = 0, arrow.mode = 0)]
   
-  new_names_edge <- c(c("from", "to"), setdiff(colnames(ped_edge), c("from", "to", "tonodecolor")))
+  new_names_edge <- c(c("from", "to"), setdiff(colnames(ped_edge), c("from", "to", "tonodecolor", "role")))
   ped_edge <- ped_edge[, ..new_names_edge][order(from, to)]
   
   new_names_node <- c("id", setdiff(colnames(ped_node), "id"))
