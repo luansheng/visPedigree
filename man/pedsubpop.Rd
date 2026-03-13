@@ -10,7 +10,7 @@ pedsubpop(ped, by = NULL)
 \item{ped}{A \code{tidyped} object.}
 
 \item{by}{Character. The name of the column to group by. 
-If NULL, uses connected components via \code{\link{splitped}}.}
+If NULL, summarizes disconnected components via \code{\link{splitped}}.}
 }
 \value{
 A \code{data.table} with columns:
@@ -23,5 +23,27 @@ A \code{data.table} with columns:
 }
 }
 \description{
-Splits the pedigree into subpopulations and calculates basic statistics for each group.
+Summarizes pedigree subpopulations and group structure.
+}
+\details{
+When \code{by = NULL}, this function is a lightweight summary wrapper around
+\code{\link{splitped}}, returning one row per disconnected pedigree component
+plus an optional \code{"Isolated"} row for individuals with no known parents
+and no offspring. When \code{by} is provided, it instead summarizes the pedigree
+directly by the specified column (e.g. \code{"Gen"}, \code{"Year"}, \code{"Breed"}).
+
+
+Use \code{pedsubpop()} when you want a compact analytical summary table.
+Use \code{\link{splitped}} when you need the actual re-tidied sub-pedigree
+objects for downstream plotting or analysis.
+}
+\examples{
+tp <- tidyped(simple_ped)
+
+# Summarize disconnected pedigree components
+pedsubpop(tp)
+
+# Summarize by an existing grouping variable
+pedsubpop(tp, by = "Gen")
+
 }

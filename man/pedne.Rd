@@ -50,12 +50,18 @@ coancestry, the rate of inbreeding, or demographic parent numbers.
 The effective population size can be calculated using one of three methods:
 
 \itemize{
-  \item \strong{"coancestry"} (Default): Based on the rate of coancestry between pairs of individuals. This method is generally more robust as it accounts for full genetic drift and bottlenecks (Cervantes et al., 2011).
+  \item \strong{"coancestry"} (Default): Based on the rate of coancestry ($f_{ij}$) between 
+  pairs of individuals. In this context, $f_{ij}$ is the probability that two alleles 
+  randomly sampled from individuals $i$ and $j$ are identical by descent, which is equivalent 
+  to half the additive genetic relationship ($f_{ij} = a_{ij} / 2$). 
+  This method is generally more robust as it accounts for full genetic drift and 
+  bottlenecks (Cervantes et al., 2011).
   \deqn{\Delta c_{ij} = 1 - (1 - c_{ij})^{1/(\frac{ECG_i + ECG_j}{2})}}
   \deqn{N_e = \frac{1}{2 \overline{\Delta c}}}
-  To handle large populations, this method samples \code{nsamples} individuals per cohort and computes the mean rate of coancestry among them.
+  To handle large populations, this method samples \code{nsamples} individuals per cohort 
+  and computes the mean rate of coancestry among them.
   
-  \item \strong{"inbreeding"}: Based on the individual rate of inbreeding (Gutiérrez et al., 2008, 2009).
+  \item \strong{"inbreeding"}: Based on the individual rate of inbreeding ($F_i$) (Gutiérrez et al., 2008, 2009).
   \deqn{\Delta F_i = 1 - (1 - F_i)^{1/(ECG_i - 1)}}
   \deqn{N_e = \frac{1}{2 \overline{\Delta F}}}
   
@@ -63,6 +69,25 @@ The effective population size can be calculated using one of three methods:
   \deqn{N_e = \frac{4 N_m N_f}{N_m + N_f}}
   Where \eqn{N_m} and \eqn{N_f} are the number of unique male and female parents contributing to the cohort.
 }
+}
+\examples{
+\donttest{
+# Coancestry-based Ne (default) using a simple pedigree grouped by year
+tp_simple <- tidyped(simple_ped)
+tp_simple$BirthYear <- 2000 + tp_simple$Gen
+ne_coan <- suppressMessages(pedne(tp_simple, by = "BirthYear", seed = 42L))
+ne_coan
+
+# Inbreeding-based Ne using an inbred pedigree
+tp_inbred <- tidyped(inbred_ped)
+ne_inb <- suppressMessages(pedne(tp_inbred, method = "inbreeding", by = "Gen"))
+ne_inb
+
+# Demographic Ne from the number of contributing sires and dams
+ne_demo <- suppressMessages(pedne(tp_simple, method = "demographic", by = "BirthYear"))
+ne_demo
+}
+
 }
 \references{
 Cervantes, I., Goyache, F., Molina, A., Valera, M., & Gutiérrez, J. P. (2011). Estimation of effective population size from the rate of coancestry in pedigreed populations. \emph{Journal of Animal Breeding and Genetics}, 128(1), 56-63.

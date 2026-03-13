@@ -22,6 +22,17 @@ A \code{data.table} with columns:
 Estimates the number of distinct ancestral generations using the Equi-Generate Coefficient (ECG).
 The ECG is calculated as 1/2 of the sum of the parents' ECG values plus 1.
 }
+\examples{
+tp <- tidyped(simple_ped)
+ecg <- pedecg(tp)
+
+# ECG combines pedigree depth and completeness
+head(ecg)
+
+# Individuals with deeper and more complete ancestry have larger ECG values
+ecg[order(-ECG)][1:5]
+
+}
 \references{
 Boichard, D., Maignel, L., & Verrier, E. (1997). The value of using probabilities of gene origin to measure genetic variability in a population. Genetics Selection Evolution, 29(1), 5.
 }

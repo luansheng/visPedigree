@@ -1,15 +1,39 @@
+# Changes in version 1.3.2 released on 13 Mar 2026
+## New features
+1. **Added Comprehensive Examples**: Added `@examples` to core analysis functions `pedne()`, `pedecg()`, and `pedsubpop()` to improve documentation completeness and provide immediate value to users.
+2. **Pedigree Connectivity Analysis (`pedsubpop`)**: Enhanced `pedsubpop()` to better distinguish between pedigree splitting (via `splitped`) and grouping/summary analysis. It now provides clear counts of total individuals, sires, dams, and founders within subgroups or connected components.
+
+## API Changes
+1. **`pedfclass()` rename**: Renamed the inbreeding-class summary helper from `pedinbreedclass()` to `pedfclass()` to align with the package naming guide and provide a shorter, clearer user-facing API.
+2. **`pedfclass()` output refinement**: Renamed the returned class column from `F_Class` to `FClass`, and added support for user-defined inbreeding class breakpoints through the `breaks` and `labels` arguments.
+3. **`pedgenint()` parameter rename**: Renamed `cycle_length` to `cycle` for consistency with the package naming guide.
+4. **`pedgenint()` / `pedstats()` `unit` parameter**: Removed `"gen"` from `unit` options. The `unit` parameter now only accepts `"year"`, `"month"`, `"day"`, or `"hour"`. The previous `"gen"` option produced incorrect results when combined with date inputs.
+5. **`pedgenint()` `timevar` definition**: Clarified `timevar` as a **birth date** column. Numeric year inputs (e.g., `2020`) are now automatically converted to `Date` (`"YYYY-07-01"`) with an informational message. Character date strings are parsed via `as.POSIXct()` with `tz = "UTC"` to avoid DST artifacts.
+
+## Minor improvements and bug fixes
+1. **Documentation Audit**: Refined internal documentation for `pedsubpop()` to clarify its use cases alongside `splitped()`.
+2. **`vispstat()` pathway filter fix**: Fixed an issue where the generation-interval bar chart could silently drop pathways due to an overly broad `factor()` filter. Now uses explicit `%in% c("SS", "SD", "DS", "DD")` subsetting.
+3. **`.parse_to_numeric_time()` rewrite**: Completely rewrote the internal time parser to handle `Date`, `POSIXct`, character date strings, and numeric years robustly. All `POSIXct` conversions now use `tz = "UTC"` to prevent DST-related artifacts.
+
 # Changes in version 1.3.1 released on 12 Mar 2026
 ## New features
 1. Added the `selfing` argument to `tidyped()` to support plant and aquaculture pedigrees where an individual can appear as both Sire and Dam, resolving biologically impossible sex conflict errors (#10).
+2. **`pedrel()` logic upgrade**: Modified `pedrel()` to use full ancestral tracing via `tidyped(ped, cand = ...)` when calculating sub-group relationships. This ensures that relationships in deep-inbred populations (e.g., full-sib mating over multiple generations) are calculated correctly rather than being underestimated due to ancestor truncation.
 
 ## API Changes
 1. **`pedancestry()` parameter rename**: Renamed `labelvar` to `foundervar` and `labels` to `target_labels` to align with the package naming guide and make the ancestry-tracing interface more explicit. Old argument names are no longer supported because this function is still under active development.
+2. **`pedecg()` parameter cleanup**: Removed the short-lived `reference` argument. It only filtered rows after a full ECG pass and did not define a true reference population or prune the pedigree before calculation. Users should subset the returned table directly if needed.
 
 ## Minor improvements and bug fixes
-1. Individuals acting as both parents are now identified as `"monoecious"` in the `Sex` column.
-2. `visped()` now uses a distinct teal color (`#26a69a`) to render `"monoecious"` individuals, ensuring clear visual separation from males, females, and highlighted nodes.
-3. Pedigree edges are now colored based on the parent's role in a specific mating (Sire blue, Dam gold, Selfing teal) rather than invariant node sex, allowing monoecious individuals to display role-appropriate connection colors.
-4. `summary()` and `print()` methods for `tidyped` objects now accurately report the count and percentage of monoecious individuals.
+1. **Academic nomenclature alignment**: Updated documentation for `pedrel()` and `pedne()` to explicitly distinguish between **Additive Genetic Relationship ($a_{ij}$)** and **Coancestry ($f_{ij}$)**. 
+    - `pedrel()` now clearly states it returns $a_{ij} = 2f_{ij}$.
+    - `pedne()` documentation now specifies that its `"coancestry"` method is based on $f_{ij}$.
+2. Individuals acting as both parents are now identified as `"monoecious"` in the `Sex` column.
+3. `visped()` now uses a distinct teal color (`#26a69a`) to render `"monoecious"` individuals, ensuring clear visual separation from males, females, and highlighted nodes.
+4. Pedigree edges are now colored based on the parent's role in a specific mating (Sire blue, Dam gold, Selfing teal) rather than invariant node sex, allowing monoecious individuals to display role-appropriate connection colors.
+5. `summary()` and `print()` methods for `tidyped` objects now accurately report the count and percentage of monoecious individuals.
+6. **Efficiency Optimization**: Optimized `pedancestry()` initialization on large pedigrees by using vectorized matrix indexing, significantly reducing overhead for pedigrees with >25k nodes.
+7. Added a new unit test for `pedrel()` to verify correct relationship calculation in deep-inbreeding scenarios (Gen 4 relationships reaching 1.0).
 
 # Changes in version 1.3.0 released on 10 Mar 2026
 

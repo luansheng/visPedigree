@@ -17,24 +17,22 @@ pedstats(
 \arguments{
 \item{ped}{A \code{tidyped} object.}
 
-\item{timevar}{Optional character. Name of the column containing birth time or
-year information (e.g., \code{"BirthYear"}, \code{"HatchDate"}).
+\item{timevar}{Optional character. Name of the column containing the
+\strong{birth date} (or hatch date) of each individual.
 Accepted column formats:
 \itemize{
-  \item \strong{Integer/numeric year}: e.g., \code{2020}, \code{2020.5}.
-    Use \code{unit = "year"} (default).
-  \item \strong{ISO date string}: e.g., \code{"2020-06-15"}.
-    Detected automatically; set \code{unit} to \code{"day"} or \code{"month"}.
-  \item \strong{Custom date format}: e.g., \code{"15/06/2020"} (DD/MM/YYYY).
-    Must specify \code{format = "\%d/\%m/\%Y"} and pass via \code{...}.
+  \item \code{Date} or \code{POSIXct} (recommended).
+  \item A date string parseable by \code{as.POSIXct}
+    (e.g., \code{"2020-06-15"}).  Use \code{format} via \code{...}
+    for non-ISO strings.
+  \item A numeric year (e.g., \code{2020}).  Automatically converted
+    to \code{Date} (\code{"YYYY-07-01"}) with a message.
 }
 If \code{NULL}, attempts auto-detection from common column names
 (\code{"BirthYear"}, \code{"Year"}, \code{"BirthDate"}, etc.).}
 
 \item{unit}{Character. Time unit for reporting generation intervals:
-\code{"year"} (default), \code{"month"}, \code{"day"}, \code{"hour"},
-or \code{"gen"} (raw numeric). Must match the scale of \code{timevar};
-e.g., use \code{unit = "day"} when \code{timevar} holds date strings.}
+\code{"year"} (default), \code{"month"}, \code{"day"}, or \code{"hour"}.}
 
 \item{cycle}{Numeric. Optional target generation cycle length in
 \code{unit}s. When provided, \code{gen_intervals} will include a

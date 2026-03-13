@@ -1,6 +1,6 @@
 # visPedigree 优化与验证计划
 
-> 创建日期：2026-03-08  
+> 创建日期：2026-03-08
 > 分支：`pedigreeAnalysis`
 
 ---
@@ -19,28 +19,23 @@
 
 ### 1.2 `pedinbreed_class`
 
-- [ ] 补全 `@return`：明确列出返回列名 `F_Class`（有序 factor）、`Count`（integer）、`Percentage`（numeric）及 5 个固定等级
-- [ ] 新增 `@examples`：使用 `inbred_ped` 或 `simple_ped` 包内数据集，至少一个可直接运行的 `\donttest{}` 示例
-- [ ] 验证：各近交等级阈值（0, 0.0625, 0.125, 0.25）的分类逻辑是否正确
+- [X] 补全 `@return`：明确列出返回列名 `F_Class`（有序 factor）、`Count`（integer）、`Percentage`（numeric）及 5 个固定等级
+- [X] 新增 `@examples`：使用 `inbred_ped` 或 `simple_ped` 包内数据集，至少一个可直接运行的 `\donttest{}` 示例
+- [X] 验证：各近交等级阈值（0, 0.0625, 0.125, 0.25）的分类逻辑是否正确
 
 ### 1.3 `pedrel`
 
-- [ ] **修复文档 Bug**：`@return` 中声称返回列名为 `Group`，但代码实际上执行了 `setnames(result, "Group", by)`，真实列名是 `by` 参数的值（如 `Gen`、`Year`）
-- [ ] 新增 `@examples`：覆盖 `by = "Gen"` 和 `by = "Year"` 两种用法，以及 `reference` 参数的使用
-- [ ] 验证：`reference` 参数在不同 `by` 列下的过滤行为
-
-### 1.4 `pedancestry`
-
-- [ ] 验证现有 `@examples` 在最新包版本下正常运行（函数签名和输出无变化）
-- [ ] 确认 `@return` 中列出了动态列名（即各 `labels` 标签对应的列）的描述
+- [X] **修复文档 Bug**：`@return` 中声称返回列名为 `Group`，但代码实际上执行了 `setnames(result, "Group", by)`，真实列名是 `by` 参数的值（如 `Gen`、`Year`）
+- [X] 新增 `@examples`：覆盖 `by = "Gen"` 和 `by = "Year"` 两种用法，以及 `reference` 参数的使用
+- [X] 验证：`reference` 参数在不同 `by` 列下的过滤行为
 
 ### 1.5 补充缺失 `@examples` 的函数
 
 以下函数目前完全没有 `@examples`，需新增：
 
-- [ ] `pedne`：使用 `simple_ped` / `inbred_ped`，覆盖 `method = "coancestry"`（默认）、`"inbreeding"`、`"demographic"` 三种
-- [ ] `pedecg`：使用 `simple_ped`，展示 ECG / 系谱完整度计算
-- [ ] `pedsubpop`：使用包内数据集，展示亚群体统计输出
+- [X] `pedne`：使用 `simple_ped` / `inbred_ped`，覆盖 `method = "coancestry"`（默认）、`"inbreeding"`、`"demographic"` 三种
+- [X] `pedecg`：使用 `simple_ped`，展示 ECG / 系谱完整度计算
+- [X] `pedsubpop`：使用包内数据集，展示亚群体统计输出
 
 ---
 
