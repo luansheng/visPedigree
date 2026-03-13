@@ -313,9 +313,9 @@ test_that("pedstats returns correct structure without timevar", {
 
   # $summary columns and types
   expect_true(is.data.table(ps$summary))
-  expect_named(ps$summary, c("N", "N_Sire", "N_Dam", "N_Founder", "Max_Gen"))
+  expect_named(ps$summary, c("N", "NSire", "NDam", "NFounder", "MaxGen"))
   expect_equal(ps$summary$N, nrow(tp))
-  expect_true(ps$summary$N_Founder > 0)
+  expect_true(ps$summary$NFounder > 0)
 
   # $ecg columns
   expect_true(is.data.table(ps$ecg))
@@ -335,11 +335,11 @@ test_that("pedstats returns gen_intervals with timevar", {
   expect_true(all(c("Pathway", "N", "Mean", "SD") %in% names(ps2$gen_intervals)))
   expect_true("Average" %in% ps2$gen_intervals$Pathway)
 
-  # calc_ecg = FALSE suppresses ecg
-  ps_no_ecg <- pedstats(tp2, timevar = "Year", calc_ecg = FALSE)
+  # ecg = FALSE suppresses ecg
+  ps_no_ecg <- pedstats(tp2, timevar = "Year", ecg = FALSE)
   expect_null(ps_no_ecg$ecg)
 
-  # calc_genint = FALSE suppresses gen_intervals
-  ps_no_gi <- pedstats(tp2, timevar = "Year", calc_genint = FALSE)
+  # genint = FALSE suppresses gen_intervals
+  ps_no_gi <- pedstats(tp2, timevar = "Year", genint = FALSE)
   expect_null(ps_no_gi$gen_intervals)
 })

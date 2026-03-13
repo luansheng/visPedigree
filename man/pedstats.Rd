@@ -8,9 +8,9 @@ pedstats(
   ped,
   timevar = NULL,
   unit = "year",
-  cycle_length = NULL,
-  calc_ecg = TRUE,
-  calc_genint = TRUE,
+  cycle = NULL,
+  ecg = TRUE,
+  genint = TRUE,
   ...
 )
 }
@@ -36,15 +36,15 @@ If \code{NULL}, attempts auto-detection from common column names
 or \code{"gen"} (raw numeric). Must match the scale of \code{timevar};
 e.g., use \code{unit = "day"} when \code{timevar} holds date strings.}
 
-\item{cycle_length}{Numeric. Optional target generation cycle length in
+\item{cycle}{Numeric. Optional target generation cycle length in
 \code{unit}s. When provided, \code{gen_intervals} will include a
-\code{GenEquiv} column (observed Mean / cycle_length). See
+\code{GenEquiv} column (observed Mean / cycle). See
 \code{\link{pedgenint}} for details.}
 
-\item{calc_ecg}{Logical. Whether to compute equivalent complete generations
-(ECG) for each individual via \code{\link{pedecg}}. Default \code{TRUE}.}
+\item{ecg}{Logical. Whether to compute equivalent complete generations
+for each individual via \code{\link{pedecg}}. Default \code{TRUE}.}
 
-\item{calc_genint}{Logical. Whether to compute generation intervals via
+\item{genint}{Logical. Whether to compute generation intervals via
 \code{\link{pedgenint}}. Requires a detectable \code{timevar} column.
 Default \code{TRUE}.}
 
@@ -58,14 +58,14 @@ An object of class \code{pedstats}, which is a list containing:
     whole pedigree.  Columns:
     \itemize{
       \item \code{N} — total number of individuals.
-      \item \code{N_Sire} — number of unique sires.
-      \item \code{N_Dam} — number of unique dams.
-      \item \code{N_Founder} — number of founder individuals
+      \item \code{NSire} — number of unique sires.
+      \item \code{NDam} — number of unique dams.
+      \item \code{NFounder} — number of founder individuals
         (both parents unknown).
-      \item \code{Max_Gen} — maximum generation number.
+      \item \code{MaxGen} — maximum generation number.
     }
   \item \code{ecg}: A \code{data.table} with one row per individual
-    (\code{NULL} if \code{calc_ecg = FALSE}).  Columns:
+    (\code{NULL} if \code{ecg = FALSE}).  Columns:
     \itemize{
       \item \code{Ind} — individual identifier.
       \item \code{ECG} — equivalent complete generations.
@@ -74,7 +74,7 @@ An object of class \code{pedstats}, which is a list containing:
     }
   \item \code{gen_intervals}: A \code{data.table} of generation intervals
     (\code{NULL} if no \code{timevar} is detected or
-    \code{calc_genint = FALSE}).  Columns:
+    \code{genint = FALSE}).  Columns:
     \itemize{
       \item \code{Pathway} — gametic pathway label
         (\code{"SS"}, \code{"SD"}, \code{"DS"}, \code{"DD"}, or
@@ -82,8 +82,8 @@ An object of class \code{pedstats}, which is a list containing:
       \item \code{N} — number of parent–offspring pairs.
       \item \code{Mean} — mean generation interval.
       \item \code{SD} — standard deviation of the interval.
-      \item \code{GenEquiv} — \code{Mean / cycle_length} (only present when
-        \code{cycle_length} is supplied).
+      \item \code{GenEquiv} — \code{Mean / cycle} (only present when
+        \code{cycle} is supplied).
     }
 }
 }

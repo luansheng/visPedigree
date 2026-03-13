@@ -645,13 +645,13 @@ pedecg <- function(ped) {
 #'   \code{"year"} (default), \code{"month"}, \code{"day"}, \code{"hour"},
 #'   or \code{"gen"} (raw numeric). Must match the scale of \code{timevar};
 #'   e.g., use \code{unit = "day"} when \code{timevar} holds date strings.
-#' @param cycle_length Numeric. Optional target generation cycle length in
+#' @param cycle Numeric. Optional target generation cycle length in
 #'   \code{unit}s. When provided, \code{gen_intervals} will include a
-#'   \code{GenEquiv} column (observed Mean / cycle_length). See
+#'   \code{GenEquiv} column (observed Mean / cycle). See
 #'   \code{\link{pedgenint}} for details.
-#' @param calc_ecg Logical. Whether to compute equivalent complete generations
-#'   (ECG) for each individual via \code{\link{pedecg}}. Default \code{TRUE}.
-#' @param calc_genint Logical. Whether to compute generation intervals via
+#' @param ecg Logical. Whether to compute equivalent complete generations
+#'   for each individual via \code{\link{pedecg}}. Default \code{TRUE}.
+#' @param genint Logical. Whether to compute generation intervals via
 #'   \code{\link{pedgenint}}. Requires a detectable \code{timevar} column.
 #'   Default \code{TRUE}.
 #' @param ... Additional arguments passed to \code{\link{pedgenint}},
@@ -663,14 +663,14 @@ pedecg <- function(ped) {
 #'     whole pedigree.  Columns:
 #'     \itemize{
 #'       \item \code{N} — total number of individuals.
-#'       \item \code{N_Sire} — number of unique sires.
-#'       \item \code{N_Dam} — number of unique dams.
-#'       \item \code{N_Founder} — number of founder individuals
+#'       \item \code{NSire} — number of unique sires.
+#'       \item \code{NDam} — number of unique dams.
+#'       \item \code{NFounder} — number of founder individuals
 #'         (both parents unknown).
-#'       \item \code{Max_Gen} — maximum generation number.
+#'       \item \code{MaxGen} — maximum generation number.
 #'     }
 #'   \item \code{ecg}: A \code{data.table} with one row per individual
-#'     (\code{NULL} if \code{calc_ecg = FALSE}).  Columns:
+#'     (\code{NULL} if \code{ecg = FALSE}).  Columns:
 #'     \itemize{
 #'       \item \code{Ind} — individual identifier.
 #'       \item \code{ECG} — equivalent complete generations.
@@ -679,7 +679,7 @@ pedecg <- function(ped) {
 #'     }
 #'   \item \code{gen_intervals}: A \code{data.table} of generation intervals
 #'     (\code{NULL} if no \code{timevar} is detected or
-#'     \code{calc_genint = FALSE}).  Columns:
+#'     \code{genint = FALSE}).  Columns:
 #'     \itemize{
 #'       \item \code{Pathway} — gametic pathway label
 #'         (\code{"SS"}, \code{"SD"}, \code{"DS"}, \code{"DD"}, or
@@ -687,8 +687,8 @@ pedecg <- function(ped) {
 #'       \item \code{N} — number of parent–offspring pairs.
 #'       \item \code{Mean} — mean generation interval.
 #'       \item \code{SD} — standard deviation of the interval.
-#'       \item \code{GenEquiv} — \code{Mean / cycle_length} (only present when
-#'         \code{cycle_length} is supplied).
+#'       \item \code{GenEquiv} — \code{Mean / cycle} (only present when
+#'         \code{cycle} is supplied).
 #'     }
 #' }
 #'
@@ -708,19 +708,19 @@ pedecg <- function(ped) {
 #' }
 #'
 #' @export
-pedstats <- function(ped, timevar = NULL, unit = "year", cycle_length = NULL, calc_ecg = TRUE, calc_genint = TRUE, ...) {
+pedstats <- function(ped, timevar = NULL, unit = "year", cycle = NULL, ecg = TRUE, genint = TRUE, ...) {
   if (!inherits(ped, "tidyped")) stop("ped must be a tidyped object")
   
   summ <- data.table(
     N = nrow(ped),
-    N_Sire = data.table::uniqueN(ped$Sire, na.rm = TRUE),
-    N_Dam = data.table::uniqueN(ped$Dam, na.rm = TRUE),
-    N_Founder = sum(is.na(ped$Sire) & is.na(ped$Dam)),
-    Max_Gen = max(ped$Gen)
+    NSire = data.table::uniqueN(ped$Sire, na.rm = TRUE),
+    NDam = data.table::uniqueN(ped$Dam, na.rm = TRUE),
+    NFounder = sum(is.na(ped$Sire) & is.na(ped$Dam)),
+    MaxGen = max(ped$Gen)
   )
   
   ecg_dt <- NULL
-  if (calc_ecg) {
+  if (ecg) {
     ecg_dt <- pedecg(ped)
   }
   
@@ -733,9 +733,9 @@ pedstats <- function(ped, timevar = NULL, unit = "year", cycle_length = NULL, ca
     if (length(match_col) > 0) target_timevar <- match_col[1]
   }
   
-  if (calc_genint && !is.null(target_timevar) && target_timevar %in% names(ped)) {
+  if (genint && !is.null(target_timevar) && target_timevar %in% names(ped)) {
     gen_int <- tryCatch({
-      pedgenint(ped, timevar = target_timevar, unit = unit, cycle_length = cycle_length, ...)
+      pedgenint(ped, timevar = target_timevar, unit = unit, cycle_length = cycle, ...)
     }, error = function(e) {
       warning("Failed to calculate generation intervals: ", e$message)
       NULL
@@ -763,8 +763,8 @@ print.pedstats <- function(x, ...) {
   
   s <- x$summary
   cat(sprintf("Total Individuals: %d\n", s$N))
-  cat(sprintf("Sires: %d | Dams: %d | Founders: %d\n", s$N_Sire, s$N_Dam, s$N_Founder))
-  cat(sprintf("Max Generation: %d\n", s$Max_Gen))
+  cat(sprintf("Sires: %d | Dams: %d | Founders: %d\n", s$NSire, s$NDam, s$NFounder))
+  cat(sprintf("Max Generation: %d\n", s$MaxGen))
   
   if (!is.null(x$gen_intervals)) {
     unit <- attr(x$gen_intervals, "unit")
