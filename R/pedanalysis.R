@@ -31,7 +31,7 @@
 #'   \item \code{N}: Number of parent-offspring pairs used.
 #'   \item \code{Mean}: Average generation interval in \code{unit}.
 #'   \item \code{SD}: Standard deviation of the interval.
-#'   \item \code{GenEquiv}: (Optional) Generation equivalents based on \code{cycle_length}.
+#'   \item \code{GenEquiv}: (Optional) Generation equivalents based on \code{cycle}.
 #' }
 #' 
 #' @details
