@@ -379,3 +379,38 @@ test_that("pedstats returns gen_intervals with timevar", {
   ps_no_gi <- pedstats(tp2, timevar = "Year", genint = FALSE)
   expect_null(ps_no_gi$gen_intervals)
 })
+
+test_that("pedancestry proportions sum to 1 for multi-line admixture", {
+  ped_df <- data.table::data.table(
+    Ind = c("A","B","C","D", "E","F","G"),
+    Sire = c(NA, NA, NA, NA, "A","C","E"),
+    Dam =  c(NA, NA, NA, NA, "B","D","F"),
+    Sex = c("male","female","male","female", "male","female","male")
+  )
+  ped_df$Line <- c("Line1", "Line1", "Line2", "Line2", NA, NA, NA)
+
+  tp <- suppressMessages(tidyped(ped_df))
+  res <- pedancestry(tp, foundervar = "Line")
+
+  # Calculate sum of all label columns for each individual
+  res[, Sum := rowSums(.SD, na.rm = TRUE), .SDcols = c("Line1", "Line2")]
+  
+  # Check specific admixture for the final hybrid (G)
+  expect_equal(res[Ind == "G", Line1], 0.5)
+  expect_equal(res[Ind == "G", Line2], 0.5)
+  
+  # All proportions must sum strictly to 1.0 (with floating point tolerance)
+  expect_true(all(abs(res$Sum - 1.0) < 1e-12))
+})
+
+test_that("pedrel results match between compact and non-compact modes", {
+  # Use a medium subset to explicitly test folding performance equivalence
+  # 500 rows is large enough to contain multi-generational sib-groups for compression
+  ped_sub <- head(visPedigree::big_family_size_ped, 500)
+  tp <- suppressMessages(tidyped(ped_sub))
+
+  rel_comp <- pedrel(tp, compact = TRUE)
+  rel_full <- pedrel(tp, compact = FALSE)
+
+  expect_equal(rel_comp, rel_full)
+})

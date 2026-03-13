@@ -9,13 +9,13 @@
 
 ### 1.1 `pedstats`
 
-- [ ] 补充缺失的 `@param` 文档：`calc_ecg`、`calc_genint` 两个参数在函数签名中存在，但 roxygen 中完全未文档化
-- [ ] 完善 `@return`：在 `$summary`、`$ecg`、`$gen_intervals` 条目中明确列出所有列名
+- [X] 补充缺失的 `@param` 文档：`calc_ecg`、`calc_genint` 两个参数在函数签名中存在，但 roxygen 中完全未文档化
+- [X] 完善 `@return`：在 `$summary`、`$ecg`、`$gen_intervals` 条目中明确列出所有列名
   - `$summary`：`N`, `N_Sire`, `N_Dam`, `N_Founder`, `Max_Gen`
   - `$ecg`：`Ind`, `ECG`, `FullGen`, `MaxGen`
   - `$gen_intervals`：`Pathway`, `N`, `Mean`, `SD`
-- [ ] 将 `@examples` 中的 `\dontrun{}` 改为 `\donttest{}`，并改用包内数据集（`simple_ped`、`big_family_size_ped`）实现可运行示例
-- [ ] 验证：带 `timevar` 和不带 `timevar` 两种场景下的完整运行测试
+- [X] 将 `@examples` 中的 `\dontrun{}` 改为 `\donttest{}`，并改用包内数据集（`simple_ped`、`big_family_size_ped`）实现可运行示例
+- [X] 验证：带 `timevar` 和不带 `timevar` 两种场景下的完整运行测试
 
 ### 1.2 `pedinbreed_class`
 
@@ -41,11 +41,11 @@
 
 ## 二、代码验证（中优先级）
 
-- [ ] `pedstats`：在 `big_family_size_ped` 上执行带 `timevar = "Year"` 的完整测试，检查 `$gen_intervals` 输出
-- [ ] `pedrel`：大型系谱（>25,000 个体）下 `compact = TRUE` 与 `compact = FALSE` 的结果一致性检验
-- [ ] `pedinbreed_class`：构造包含所有 5 个等级个体的人工系谱，验证分类统计正确
-- [ ] `pedancestry`：多品系混合系谱下各标签比例之和是否等于 1
-- [ ] `pediv` → `pedcontrib` → `pedne` 调用链：确保 `reference` 参数在所有三层函数中传递一致
+- [x] `pedstats`：在 `big_family_size_ped` 上执行带 `timevar = "Year"` 的完整测试，检查 `$gen_intervals` 输出
+- [x] `pedrel`：大型系谱（>25,000 个体）下 `compact = TRUE` 与 `compact = FALSE` 的结果一致性检验
+- [x] `pedinbreed_class`：构造包含所有 5 个等级个体的人工系谱，验证分类统计正确
+- [x] `pedancestry`：多品系混合系谱下各标签比例之和是否等于 1
+- [x] `pediv` → `pedcontrib` → `pedne` 调用链：确保 `reference` 参数在所有三层函数中传递一致
 
 ---
 
@@ -53,7 +53,7 @@
 
 `vignettes/pedigree-analysis.Rmd` 目前缺少以下函数的独立示例章节：
 
-- [ ] `pedrel`：新增"平均亲缘系数趋势"章节
+- [x] `pedrel`：新增"平均亲缘系数趋势"章节
 - [ ] `pedecg`：新增"系谱完整度（ECG）"章节
 - [ ] `pedgenint`：新增"世代间隔"章节（目前仅通过 `pedstats` 间接涉及）
 - [ ] `pedsubpop`：新增"亚群体分析"章节
