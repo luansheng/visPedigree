@@ -58,8 +58,8 @@ vispstat <- function(x, type = c("genint", "ecg"), metric = "ECG", ...) {
     }
     
     dt <- data.table::copy(x$gen_intervals)
-    # Filter out the overall "Average" row to avoid duplication in plot
-    dt <- dt[Pathway != "Average"]
+    # Keep only the four classic gametic pathways
+    dt <- dt[Pathway %in% c("SS", "SD", "DS", "DD")]
     
     if (nrow(dt) == 0) {
       stop("No pathway-specific generation intervals found.")
@@ -72,7 +72,7 @@ vispstat <- function(x, type = c("genint", "ecg"), metric = "ECG", ...) {
     unit <- attr(x$gen_intervals, "unit")
     unit_label <- switch(unit, 
                         "year" = "Years", "month" = "Months", "day" = "Days", 
-                        "hour" = "Hours", "gen" = "Units", "Years")
+                        "hour" = "Hours", "Years")
     
     # Basic formula
     f <- Mean ~ Pathway

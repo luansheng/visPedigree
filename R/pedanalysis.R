@@ -1,15 +1,27 @@
 #' Calculate Generation Intervals
 #'
-#' Computes the generation intervals for the four gametic pathways: 
+#' Computes the generation intervals for the four gametic pathways:
 #' Sire to Son (SS), Sire to Daughter (SD), Dam to Son (DS), and Dam to Daughter (DD).
 #' The generation interval is defined as the age of the parents at the birth of their offspring.
 #'
 #' @param ped A \code{tidyped} object.
-#' @param timevar Character. The name of the column containing time information (e.g., "BirthYear", "Year").
-#'   Defaults to "Year" or "BirthYear" if found.
-#' @param unit Character. Time unit for the interval: \code{"year"} (default), 
-#'   \code{"month"}, \code{"day"}, \code{"hour"}, or \code{"gen"} (raw numeric).
-#' @param format Character. Optional format string for parsing \code{timevar} if it's character.
+#' @param timevar Character. The name of the column containing the \strong{birth date}
+#'   (or hatch date) of each individual. The column must be one of:
+#'   \itemize{
+#'     \item \code{Date} or \code{POSIXct} (recommended).
+#'     \item A date string parseable by \code{as.POSIXct} (e.g., \code{"2020-03-15"}).
+#'       Use \code{format} for non-ISO strings.
+#'     \item A numeric year (e.g., \code{2020}). Automatically converted to
+#'       \code{Date} (\code{"YYYY-07-01"}) with a message. For finer precision,
+#'       convert to \code{Date} beforehand.
+#'   }
+#'   If \code{NULL}, auto-detects columns named \code{"BirthYear"}, \code{"Year"},
+#'   \code{"BirthDate"}, or \code{"Date"}.
+#' @param unit Character. Output time unit for the interval:
+#'   \code{"year"} (default), \code{"month"}, \code{"day"}, or \code{"hour"}.
+#' @param format Character. Optional format string for parsing \code{timevar}
+#'   when it contains non-standard date strings (e.g., \code{"\%d/\%m/\%Y"}
+#'   for \code{"15/03/2020"}).
 #' @param cycle Numeric. Optional target (designed) length of one generation
 #'   cycle expressed in \code{unit}s. When provided, an additional column
 #'   \code{GenEquiv} is appended to the result, defined as:
@@ -19,13 +31,14 @@
 #'   interval exceeds the target cycle (lower breeding efficiency).
 #'   Example: for Pacific white shrimp with a 180-day target cycle, set
 #'   \code{unit = "day", cycle = 180}.
-#' @param by Character. Optional grouping column (e.g., "Breed", "Farm"). 
+#' @param by Character. Optional grouping column (e.g., \code{"Breed"}, \code{"Farm"}).
 #'   If provided, intervals are calculated within each group.
 #'
 #' @return A \code{data.table} with columns:
 #' \itemize{
 #'   \item \code{Group}: Grouping level (if \code{by} is used).
-#'   \item \code{Pathway}: One of "SS", "SD", "DS", "DD", "SO", "DO", or "Average".
+#'   \item \code{Pathway}: One of \code{"SS"}, \code{"SD"}, \code{"DS"}, \code{"DD"},
+#'     \code{"SO"}, \code{"DO"}, or \code{"Average"}.
 #'     SS/SD/DS/DD require offspring sex; SO (Sire-Offspring) and DO (Dam-Offspring)
 #'     are computed from all parent-offspring pairs regardless of offspring sex.
 #'   \item \code{N}: Number of parent-offspring pairs used.
@@ -33,7 +46,7 @@
 #'   \item \code{SD}: Standard deviation of the interval.
 #'   \item \code{GenEquiv}: (Optional) Generation equivalents based on \code{cycle}.
 #' }
-#' 
+#'
 #' @details
 #' Parent-offspring pairs with zero or negative intervals are excluded from
 #' the calculation because they typically indicate data entry errors or
@@ -41,9 +54,13 @@
 #' when using \code{unit = "year"} with annual spawners), consider using a
 #' finer time unit such as \code{"month"} or \code{"day"}.
 #'
+#' Numeric year columns (e.g., \code{2020}) are automatically converted to
+#' \code{Date} by appending \code{"-07-01"} (mid-year) as a reasonable default.
+#' For more precise results, convert to \code{Date} before calling this function.
+#'
 #' @examples
 #' \donttest{
-#' # ---- Basic usage with package dataset ----
+#' # ---- Basic usage with package dataset (numeric Year auto-converted) ----
 #' tped <- tidyped(big_family_size_ped)
 #' gi <- pedgenint(tped, timevar = "Year")
 #' gi
@@ -54,7 +71,7 @@
 #' }
 #'
 #' @export
-pedgenint <- function(ped, timevar = NULL, unit = c("year", "month", "day", "hour", "gen"), 
+pedgenint <- function(ped, timevar = NULL, unit = c("year", "month", "day", "hour"),
                       format = NULL, cycle = NULL, by = NULL) {
   # Input validation
   if (!inherits(ped, "tidyped")) stop("ped must be a tidyped object")
@@ -223,44 +240,75 @@ pedgenint <- function(ped, timevar = NULL, unit = c("year", "month", "day", "hou
 }
 
 .parse_to_numeric_time <- function(x, unit = "year", format = NULL) {
-  # Internal factors relative to second
-  factors <- c(year = 31557600, month = 2629800, day = 86400, hour = 3600, gen = 1)
-  target_factor <- factors[unit]
-  
-  if (is.numeric(x)) {
-    # If numeric, we assume input is in 'years' by default unless unit is 'gen'
-    if (unit == "gen") return(x)
-    if (unit == "year") return(x)
-    # Convert 'years' to target unit
-    return(x * (factors["year"] / target_factor))
+  # Seconds per unit
+  factors <- c(year = 365.25 * 86400, month = 30.4375 * 86400,
+               day = 86400, hour = 3600)
+  if (!unit %in% names(factors)) {
+    stop("unit must be one of: ", paste(names(factors), collapse = ", "))
   }
-  
-  # String parsing with caching for performance
+  target_factor <- factors[unit]
+
+  # --- Numeric input: assume integer years, auto-convert to Date ---
+  if (is.numeric(x)) {
+    message("Numeric time column detected. Converting to Date (YYYY-07-01). ",
+            "For finer precision, convert to Date beforehand.")
+    date_strings <- ifelse(is.na(x), NA_character_, paste0(as.integer(x), "-07-01"))
+    x <- as.Date(date_strings)
+  }
+
+  # --- Date input ---
+  if (inherits(x, "Date")) {
+    seconds <- as.numeric(as.POSIXct(x, tz = "UTC"))
+    return(seconds / target_factor)
+  }
+
+  # --- POSIXct input ---
+  if (inherits(x, "POSIXct")) {
+    return(as.numeric(x) / target_factor)
+  }
+
+  # --- Character input: parse date strings ---
+  if (!is.character(x)) {
+    stop("timevar must be Date, POSIXct, character, or numeric year. Got ",
+         class(x)[1], ".")
+  }
+
   u_x <- unique(x[!is.na(x)])
   if (length(u_x) == 0) return(rep(NA_real_, length(x)))
-  
+
   parsed <- if (!is.null(format)) {
-    as.POSIXct(u_x, format = format)
+    as.POSIXct(u_x, format = format, tz = "UTC")
   } else {
-    # Try ISO/Common formats
-    p <- suppressWarnings(as.POSIXct(u_x, optional = TRUE))
+    # Try ISO / common formats
+    p <- suppressWarnings(as.POSIXct(u_x, tz = "UTC", optional = TRUE))
     if (all(is.na(p))) {
-      p <- suppressWarnings(as.Date(u_x, optional = TRUE))
+      p <- as.POSIXct(suppressWarnings(as.Date(u_x, optional = TRUE)), tz = "UTC")
     }
     if (all(is.na(p))) {
-      # Fallback for YYYY/MM/DD
-      p <- suppressWarnings(as.Date(u_x, format = "%Y/%m/%d", optional = TRUE))
+      p <- as.POSIXct(suppressWarnings(
+        as.Date(u_x, format = "%Y/%m/%d", optional = TRUE)
+      ), tz = "UTC")
     }
-    as.POSIXct(p)
+    # Fallback: bare year strings like "2020"
+    if (all(is.na(p))) {
+      num_try <- suppressWarnings(as.numeric(u_x))
+      if (!all(is.na(num_try))) {
+        p <- as.POSIXct(as.Date(paste0(as.integer(num_try), "-07-01")), tz = "UTC")
+        message("Bare year strings detected. Converting to Date (YYYY-07-01). ",
+                "For finer precision, convert to Date beforehand.")
+      }
+    }
+    p
   }
-  
+
   if (all(is.na(parsed))) {
-    stop("Failed to parse time variable. Please provide numeric years or specify 'format' (e.g. '%Y-%m-%d').")
+    stop("Failed to parse time variable. Provide Date, POSIXct, or specify ",
+         "'format' (e.g. '%Y-%m-%d').")
   }
-  
+
   val_map <- setNames(as.numeric(parsed), u_x)
   numeric_seconds <- val_map[as.character(x)]
-  
+
   return(numeric_seconds / target_factor)
 }
 

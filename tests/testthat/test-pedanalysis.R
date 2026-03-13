@@ -92,36 +92,65 @@ test_that("pedgenint computes Average from all parent-offspring pairs", {
   # DS: C-B (4), E-D (4) -> mean=4
   # DD: D-B (5), F-D (6) -> mean=5.5
   # Average from ALL 8 pairs: (5+6+5+7+4+5+4+6)/8 = 5.25
+  # Note: numeric years auto-converted to Date (YYYY-07-01); leap years cause
+  # tiny deviations from exact integers, so we use tolerance = 0.01.
   
   suppressMessages(
     genint_res <- pedgenint(test_ped, timevar = "BirthYear", unit = "year")
   )
   
   avg_res <- genint_res[Pathway == "Average"]
-  expect_equal(avg_res$Mean, 5.25)
+  expect_equal(avg_res$Mean, 5.25, tolerance = 0.01)
   expect_equal(avg_res$N, 8L)
   expect_true(!is.na(avg_res$SD))
   
   # Sex-specific pathways should still work
-  expect_equal(genint_res[Pathway == "SS", Mean], 5)
-  expect_equal(genint_res[Pathway == "SD", Mean], 6.5)
-  expect_equal(genint_res[Pathway == "DS", Mean], 4)
-  expect_equal(genint_res[Pathway == "DD", Mean], 5.5)
+  expect_equal(genint_res[Pathway == "SS", Mean], 5, tolerance = 0.01)
+  expect_equal(genint_res[Pathway == "SD", Mean], 6.5, tolerance = 0.01)
+  expect_equal(genint_res[Pathway == "DS", Mean], 4, tolerance = 0.01)
+  expect_equal(genint_res[Pathway == "DD", Mean], 5.5, tolerance = 0.01)
   
   # SO/DO: sex-independent pathways
   # SO (Sire→Offspring): A→C(5), A→D(6), C→E(5), C→F(7) -> N=4, Mean=5.75
   so_res <- genint_res[Pathway == "SO"]
   expect_equal(so_res$N, 4L)
-  expect_equal(so_res$Mean, 5.75)
+  expect_equal(so_res$Mean, 5.75, tolerance = 0.01)
   
   # DO (Dam→Offspring): B→C(4), B→D(5), D→E(4), D→F(6) -> N=4, Mean=4.75
   do_res <- genint_res[Pathway == "DO"]
   expect_equal(do_res$N, 4L)
-  expect_equal(do_res$Mean, 4.75)
+  expect_equal(do_res$Mean, 4.75, tolerance = 0.01)
   
   # All 7 pathways present
   expect_equal(sort(genint_res$Pathway),
                c("Average", "DD", "DO", "DS", "SD", "SO", "SS"))
+})
+
+test_that("pedgenint works with Date and character date inputs", {
+  # Date input — exact control, no auto-conversion message
+  test_ped$BirthDate <- as.Date(c(
+    "2000-03-15", "2001-06-20",  # A, B
+    "2005-03-15", "2006-06-20",  # C, D
+    "2010-03-15", "2012-06-20"   # E, F
+  ))
+  genint_date <- suppressMessages(
+    pedgenint(test_ped, timevar = "BirthDate", unit = "day")
+  )
+  expect_true(all(genint_date$Mean > 0))
+  expect_true("Average" %in% genint_date$Pathway)
+
+  # Character date input
+  test_ped$BirthStr <- as.character(test_ped$BirthDate)
+  genint_str <- suppressMessages(
+    pedgenint(test_ped, timevar = "BirthStr", unit = "month")
+  )
+  expect_true(all(genint_str$Mean > 0))
+
+  # unit = "hour"
+  genint_hr <- suppressMessages(
+    pedgenint(test_ped, timevar = "BirthDate", unit = "hour")
+  )
+  expect_true(all(genint_hr$Mean > 0))
 })
 
 test_that("pedcontrib f_e and f_a compute on full sets despite top cutoff", {
@@ -305,8 +334,15 @@ test_that("pedfclass respects custom labels aligned to breaks", {
 })
 
 test_that("pedstats returns correct structure without timevar", {
-  tp <- suppressMessages(tidyped(simple_ped))
-  ps <- pedstats(tp)
+  # Use a pedigree without any time column to test no-timevar path
+  ped_no_time <- data.table::data.table(
+    ID = c("A", "B", "C", "D"),
+    Sire = c(NA, NA, "A", "A"),
+    Dam = c(NA, NA, "B", "B"),
+    Sex = c("male", "female", "male", "female")
+  )
+  tp <- suppressMessages(tidyped(ped_no_time))
+  ps <- suppressMessages(pedstats(tp))
 
   # class
   expect_s3_class(ps, "pedstats")

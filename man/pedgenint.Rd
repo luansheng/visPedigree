@@ -7,7 +7,7 @@
 pedgenint(
   ped,
   timevar = NULL,
-  unit = c("year", "month", "day", "hour", "gen"),
+  unit = c("year", "month", "day", "hour"),
   format = NULL,
   cycle = NULL,
   by = NULL
@@ -16,13 +16,25 @@ pedgenint(
 \arguments{
 \item{ped}{A \code{tidyped} object.}
 
-\item{timevar}{Character. The name of the column containing time information (e.g., "BirthYear", "Year").
-Defaults to "Year" or "BirthYear" if found.}
+\item{timevar}{Character. The name of the column containing the \strong{birth date}
+(or hatch date) of each individual. The column must be one of:
+\itemize{
+  \item \code{Date} or \code{POSIXct} (recommended).
+  \item A date string parseable by \code{as.POSIXct} (e.g., \code{"2020-03-15"}).
+    Use \code{format} for non-ISO strings.
+  \item A numeric year (e.g., \code{2020}). Automatically converted to
+    \code{Date} (\code{"YYYY-07-01"}) with a message. For finer precision,
+    convert to \code{Date} beforehand.
+}
+If \code{NULL}, auto-detects columns named \code{"BirthYear"}, \code{"Year"},
+\code{"BirthDate"}, or \code{"Date"}.}
 
-\item{unit}{Character. Time unit for the interval: \code{"year"} (default), 
-\code{"month"}, \code{"day"}, \code{"hour"}, or \code{"gen"} (raw numeric).}
+\item{unit}{Character. Output time unit for the interval:
+\code{"year"} (default), \code{"month"}, \code{"day"}, or \code{"hour"}.}
 
-\item{format}{Character. Optional format string for parsing \code{timevar} if it's character.}
+\item{format}{Character. Optional format string for parsing \code{timevar}
+when it contains non-standard date strings (e.g., \code{"\%d/\%m/\%Y"}
+for \code{"15/03/2020"}).}
 
 \item{cycle}{Numeric. Optional target (designed) length of one generation
 cycle expressed in \code{unit}s. When provided, an additional column
@@ -34,14 +46,15 @@ interval exceeds the target cycle (lower breeding efficiency).
 Example: for Pacific white shrimp with a 180-day target cycle, set
 \code{unit = "day", cycle = 180}.}
 
-\item{by}{Character. Optional grouping column (e.g., "Breed", "Farm"). 
+\item{by}{Character. Optional grouping column (e.g., \code{"Breed"}, \code{"Farm"}).
 If provided, intervals are calculated within each group.}
 }
 \value{
 A \code{data.table} with columns:
 \itemize{
   \item \code{Group}: Grouping level (if \code{by} is used).
-  \item \code{Pathway}: One of "SS", "SD", "DS", "DD", "SO", "DO", or "Average".
+  \item \code{Pathway}: One of \code{"SS"}, \code{"SD"}, \code{"DS"}, \code{"DD"},
+    \code{"SO"}, \code{"DO"}, or \code{"Average"}.
     SS/SD/DS/DD require offspring sex; SO (Sire-Offspring) and DO (Dam-Offspring)
     are computed from all parent-offspring pairs regardless of offspring sex.
   \item \code{N}: Number of parent-offspring pairs used.
@@ -51,7 +64,7 @@ A \code{data.table} with columns:
 }
 }
 \description{
-Computes the generation intervals for the four gametic pathways: 
+Computes the generation intervals for the four gametic pathways:
 Sire to Son (SS), Sire to Daughter (SD), Dam to Son (DS), and Dam to Daughter (DD).
 The generation interval is defined as the age of the parents at the birth of their offspring.
 }
@@ -61,10 +74,14 @@ the calculation because they typically indicate data entry errors or
 insufficient time resolution. If many zero intervals are expected (e.g.,
 when using \code{unit = "year"} with annual spawners), consider using a
 finer time unit such as \code{"month"} or \code{"day"}.
+
+Numeric year columns (e.g., \code{2020}) are automatically converted to
+\code{Date} by appending \code{"-07-01"} (mid-year) as a reasonable default.
+For more precise results, convert to \code{Date} before calling this function.
 }
 \examples{
 \donttest{
-# ---- Basic usage with package dataset ----
+# ---- Basic usage with package dataset (numeric Year auto-converted) ----
 tped <- tidyped(big_family_size_ped)
 gi <- pedgenint(tped, timevar = "Year")
 gi
