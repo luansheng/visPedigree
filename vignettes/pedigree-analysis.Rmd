@@ -130,7 +130,7 @@ tped_dated[Ind %in% founders[1:5], Origin := "LineA"]
 tped_dated[Ind %in% founders[6:10], Origin := "LineB"]
 
 # Gene flow traces LineA and LineB presence in descendants
-ancestry <- pedancestry(tped_dated, labelvar = "Origin")
+ancestry <- pedancestry(tped_dated, foundervar = "Origin")
 print(head(ancestry))
 ```
 

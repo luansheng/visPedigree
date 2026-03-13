@@ -2,6 +2,9 @@
 ## New features
 1. Added the `selfing` argument to `tidyped()` to support plant and aquaculture pedigrees where an individual can appear as both Sire and Dam, resolving biologically impossible sex conflict errors (#10).
 
+## API Changes
+1. **`pedancestry()` parameter rename**: Renamed `labelvar` to `foundervar` and `labels` to `target_labels` to align with the package naming guide and make the ancestry-tracing interface more explicit. Old argument names are no longer supported because this function is still under active development.
+
 ## Minor improvements and bug fixes
 1. Individuals acting as both parents are now identified as `"monoecious"` in the `Sex` column.
 2. `visped()` now uses a distinct teal color (`#26a69a`) to render `"monoecious"` individuals, ensuring clear visual separation from males, females, and highlighted nodes.

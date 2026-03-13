@@ -1001,7 +1001,7 @@ List cpp_pedcontrib(IntegerVector sire, IntegerVector dam,
 
 // Calculate Ancestry (Forward P)
 // [[Rcpp::export]]
-NumericMatrix cpp_calculate_ancestry(IntegerVector sire, IntegerVector dam, NumericMatrix res_mat, IntegerVector ind_to_row) {
+NumericMatrix cpp_calculate_ancestry(IntegerVector sire, IntegerVector dam, NumericMatrix res_mat) {
     int n = sire.size();
     int n_cols = res_mat.ncol();
     

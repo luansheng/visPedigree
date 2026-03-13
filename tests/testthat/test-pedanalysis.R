@@ -106,7 +106,7 @@ test_that("pedpartial and pedancestry run without addnum=TRUE initially", {
   
   # pedancestry with labels
   ped_nonum$Label <- ifelse(ped_nonum$Ind %in% c("A", "B"), "Base", NA)
-  anc_res <- pedancestry(ped_nonum, labelvar = "Label")
+  anc_res <- pedancestry(ped_nonum, foundervar = "Label")
   expect_true("Base" %in% names(anc_res))
   # All non-founders descend completely from A and B, so Base should be 1.0 for all
   expect_true(all(anc_res$Base == 1.0))

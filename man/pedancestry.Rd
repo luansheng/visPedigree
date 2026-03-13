@@ -4,19 +4,27 @@
 \alias{pedancestry}
 \title{Calculate Ancestry Proportions}
 \usage{
-pedancestry(ped, labelvar, labels = NULL)
+pedancestry(ped, foundervar, target_labels = NULL)
 }
 \arguments{
 \item{ped}{A \code{tidyped} object.}
 
-\item{labelvar}{Character. The name of the column containing founder labels 
-(e.g., "Breed", "Origin").}
+\item{foundervar}{Character. The name of the column containing founder-group
+labels (e.g., "Breed", "Origin").}
 
-\item{labels}{Character vector. Specific labels to calculate proportions for. 
-If NULL, all unique labels in \code{labelvar} for founders are used.}
+\item{target_labels}{Character vector. Specific founder-group labels to track.
+If NULL, all unique labels in \code{foundervar} among founders are used.}
 }
 \value{
-A \code{data.table} with columns for \code{Ind} and each tracked label.
+A \code{data.table} with columns:
+\itemize{
+  \item \code{Ind}: Individual ID.
+  \item One column per tracked label (named after each unique value in
+    \code{foundervar} among founders, or as specified by
+    \code{target_labels}).
+    Each value gives the proportion of genes (0--1) originating from that
+    founder group. Row sums across all label columns equal 1.
+}
 }
 \description{
 Estimates the proportion of genes for each individual that originates from 
@@ -34,7 +42,7 @@ tp_dated[Ind \%in\% founders[1:(length(founders)/2)], Origin := "LineA"]
 tp_dated[is.na(Origin), Origin := "LineB"]
 
 # Calculate ancestry proportions for all individuals
-anc <- pedancestry(tp_dated, labelvar = "Origin")
+anc <- pedancestry(tp_dated, foundervar = "Origin")
 print(tail(anc))
 }
 

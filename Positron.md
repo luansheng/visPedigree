@@ -52,6 +52,7 @@ Columns in `data.table` or `data.frame` objects returned by the package must use
 
 *   **Object-Centric**: Statistics and analysis should revolve around the `tidyped` object. 
 *   **Tidy Output**: Functions typically return `data.table` objects or lists of `data.table`s.
+*   **Performance via `data.table`**: For R-level data manipulation, always prioritize `data.table` syntax and modify-in-place operations (`:=`) over base R to guarantee high performance and minimal memory overhead on large pedigree datasets.
 *   **Layered Computation**:
     *   **Level 1 (Basic)**: Pure R implementation.
     *   **Level 2/3 (Heavy)**: Use `Rcpp` / `RcppArmadillo` for computationally intensive tasks (e.g., matrix inversion, iterative gene contributions), leveraging the `IndNum` integer indices.

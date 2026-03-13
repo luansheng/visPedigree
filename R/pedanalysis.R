@@ -1264,12 +1264,20 @@ pedcontrib <- function(ped, reference = NULL, mode = c("both", "founder", "ances
 #' specific founder groups (e.g., breeds, source populations).
 #'
 #' @param ped A \code{tidyped} object.
-#' @param labelvar Character. The name of the column containing founder labels 
-#'   (e.g., "Breed", "Origin").
-#' @param labels Character vector. Specific labels to calculate proportions for. 
-#'   If NULL, all unique labels in \code{labelvar} for founders are used.
+#' @param foundervar Character. The name of the column containing founder-group
+#'   labels (e.g., "Breed", "Origin").
+#' @param target_labels Character vector. Specific founder-group labels to track.
+#'   If NULL, all unique labels in \code{foundervar} among founders are used.
 #'
-#' @return A \code{data.table} with columns for \code{Ind} and each tracked label.
+#' @return A \code{data.table} with columns:
+#' \itemize{
+#'   \item \code{Ind}: Individual ID.
+#'   \item One column per tracked label (named after each unique value in
+#'     \code{foundervar} among founders, or as specified by
+#'     \code{target_labels}).
+#'     Each value gives the proportion of genes (0--1) originating from that
+#'     founder group. Row sums across all label columns equal 1.
+#' }
 #'
 #' @examples
 #' \donttest{
@@ -1283,14 +1291,14 @@ pedcontrib <- function(ped, reference = NULL, mode = c("both", "founder", "ances
 #' tp_dated[is.na(Origin), Origin := "LineB"]
 #' 
 #' # Calculate ancestry proportions for all individuals
-#' anc <- pedancestry(tp_dated, labelvar = "Origin")
+#' anc <- pedancestry(tp_dated, foundervar = "Origin")
 #' print(tail(anc))
 #' }
 #' 
 #' @export
-pedancestry <- function(ped, labelvar, labels = NULL) {
+pedancestry <- function(ped, foundervar, target_labels = NULL) {
   if (!inherits(ped, "tidyped")) stop("ped must be a tidyped object")
-  if (!labelvar %in% names(ped)) stop(sprintf("Column '%s' not found.", labelvar))
+  if (!foundervar %in% names(ped)) stop(sprintf("Column '%s' not found.", foundervar))
   
   # Forward pass requires numbers
   if (!all(c("SireNum", "DamNum", "IndNum") %in% names(ped))) {
@@ -1304,43 +1312,40 @@ pedancestry <- function(ped, labelvar, labels = NULL) {
   
   # Identify founder labels
   founders_idx <- which(is.na(ped_work$Sire) & is.na(ped_work$Dam))
-  if (is.null(labels)) {
-    labels <- unique(ped_work[[labelvar]][founders_idx])
-    labels <- labels[!is.na(labels) & labels != ""]
+  if (is.null(target_labels)) {
+    target_labels <- unique(ped_work[[foundervar]][founders_idx])
+    target_labels <- target_labels[!is.na(target_labels) & target_labels != ""]
   }
   
-  if (length(labels) == 0) {
-    stop("No valid labels found in founders. Please check 'labelvar'.")
+  if (length(target_labels) == 0) {
+    stop("No valid founder-group labels found. Please check 'foundervar'.")
   }
 
   n <- nrow(ped_work)
-  res_mat <- matrix(0, nrow = n, ncol = length(labels))
-  colnames(res_mat) <- labels
+  res_mat <- matrix(0, nrow = n, ncol = length(target_labels))
+  colnames(res_mat) <- target_labels
   
-  # Initialize founders with their respective labels
-  for (j in seq_along(labels)) {
-    lab <- labels[j]
-    idx <- which(ped_work[[labelvar]] == lab & is.na(ped_work$Sire) & is.na(ped_work$Dam))
-    res_mat[idx, j] <- 1.0
+  # Initialize founders with their respective labels using vectorized matrix indexing
+  founder_labels <- ped_work[[foundervar]][founders_idx]
+  valid_matches <- match(founder_labels, target_labels)
+  valid_mask <- !is.na(valid_matches)
+  
+  if (any(valid_mask)) {
+    res_mat[cbind(founders_idx[valid_mask], valid_matches[valid_mask])] <- 1.0
   }
   
   sire_nums <- ped_work$SireNum
   dam_nums <- ped_work$DamNum
   
-  # Map global IndNum to matrix row index in the sorted set
-  indnum_to_row <- integer(max(ped_work$IndNum, na.rm = TRUE))
-  indnum_to_row[ped_work$IndNum] <- seq_len(n)
-  
   # Forward pass via Rcpp
   res_mat <- cpp_calculate_ancestry(
     sire_nums, 
     dam_nums, 
-    res_mat, 
-    indnum_to_row
+    res_mat
   )
   
   ans <- as.data.table(res_mat)
-  colnames(ans) <- labels
+  colnames(ans) <- target_labels
   ans[, Ind := ped_work$Ind]
   setcolorder(ans, "Ind")
   return(ans)
