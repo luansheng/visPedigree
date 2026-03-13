@@ -74,10 +74,13 @@ An object of class \code{pedstats}, which is a list containing:
     (\code{NULL} if no \code{timevar} is detected or
     \code{genint = FALSE}).  Columns:
     \itemize{
-      \item \code{Pathway} — gametic pathway label
-        (\code{"SS"}, \code{"SD"}, \code{"DS"}, \code{"DD"}, or
-        \code{"Average"}).
-      \item \code{N} — number of parent–offspring pairs.
+      \item \code{Pathway} — gametic pathway label.  Seven values:
+        \code{"SS"} (sire to son), \code{"SD"} (sire to daughter),
+        \code{"DS"} (dam to son), \code{"DD"} (dam to daughter) —
+        require offspring sex; \code{"SO"} (sire to offspring) and
+        \code{"DO"} (dam to offspring) — sex-independent; and
+        \code{"Average"} — all parent-offspring pairs combined.
+      \item \code{N} — number of parent-offspring pairs.
       \item \code{Mean} — mean generation interval.
       \item \code{SD} — standard deviation of the interval.
       \item \code{GenEquiv} — \code{Mean / cycle} (only present when
