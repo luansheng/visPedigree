@@ -278,11 +278,17 @@ pedgenint <- function(ped, timevar = NULL, unit = c("year", "month", "day", "hou
 
 #' Pedigree Subpopulations
 #'
-#' Splits the pedigree into subpopulations and calculates basic statistics for each group.
+#' Summarizes pedigree subpopulations and group structure.
+#'
+#' When \code{by = NULL}, this function is a lightweight summary wrapper around
+#' \code{\link{splitped}}, returning one row per disconnected pedigree component
+#' plus an optional \code{"Isolated"} row for individuals with no known parents
+#' and no offspring. When \code{by} is provided, it instead summarizes the pedigree
+#' directly by the specified column (e.g. \code{"Gen"}, \code{"Year"}, \code{"Breed"}).
 #'
 #' @param ped A \code{tidyped} object.
 #' @param by Character. The name of the column to group by. 
-#'   If NULL, uses connected components via \code{\link{splitped}}.
+#'   If NULL, summarizes disconnected components via \code{\link{splitped}}.
 #'
 #' @return A \code{data.table} with columns:
 #' \itemize{
@@ -292,6 +298,20 @@ pedgenint <- function(ped, timevar = NULL, unit = c("year", "month", "day", "hou
 #'   \item \code{N_Dam}: Number of distinct dams.
 #'   \item \code{N_Founder}: Number of founders (parents unknown).
 #' }
+#'
+#' @details
+#' Use \code{pedsubpop()} when you want a compact analytical summary table.
+#' Use \code{\link{splitped}} when you need the actual re-tidied sub-pedigree
+#' objects for downstream plotting or analysis.
+#'
+#' @examples
+#' tp <- tidyped(simple_ped)
+#'
+#' # Summarize disconnected pedigree components
+#' pedsubpop(tp)
+#'
+#' # Summarize by an existing grouping variable
+#' pedsubpop(tp, by = "Gen")
 #' 
 #' @export
 pedsubpop <- function(ped, by = NULL) {
@@ -343,11 +363,12 @@ pedsubpop <- function(ped, by = NULL) {
   data.table::rbindlist(res_list)
 }
 
-#' Calculate Average Relationship Coefficients
+#' Calculate Average Additive Genetic Relationship ($a_{ij}$)
 #'
-#' Computes the average pairwise relationship coefficients within cohorts or groups.
-#' This corresponds to the "mean relationship" mentioned in academic literature 
-#' to monitor genetic diversity.
+#' Computes the average pairwise additive genetic relationship coefficients ($a_{ij}$) 
+#' within cohorts or groups. The relationship $a_{ij}$ is defined as twice the 
+#' coancestry coefficient ($f_{ij}$), representing the expected proportion of 
+#' genes shared by descent (e.g., 0.5 for full siblings).
 #'
 #' @param ped A \code{tidyped} object.
 #' @param by Character. The column name to group by (e.g., "Year", "Breed", "Generation").
@@ -359,10 +380,32 @@ pedsubpop <- function(ped, by = NULL) {
 #'
 #' @return A \code{data.table} with columns:
 #' \itemize{
-#'   \item \code{Group}: The grouping identifier.
+#'   \item A grouping identifier column, named after the \code{by} parameter (e.g., \code{Gen}, \code{Year}).
 #'   \item \code{NTotal}: Total number of individuals in the group.
 #'   \item \code{NUsed}: Number of individuals used in calculation (could be subset by reference).
-#'   \item \code{MeanRel}: Average of off-diagonal elements in the A matrix for this group. NA if less than 2 individuals.
+#'   \item \code{MeanRel}: Average of off-diagonal elements in the Additive Relationship (A) matrix 
+#'     for this group ($a_{ij} = 2f_{ij}$). Returns NA if the group has fewer than 2 individuals.
+#' }
+#' 
+#' @examples
+#' \donttest{
+#' library(data.table)
+#' # Use the sample dataset and simulate a birth year
+#' tp <- tidyped(small_ped)
+#' tp$Year <- 2010 + tp$Gen
+#' 
+#' # Example 1: Calculate average relationship grouped by Generation (default)
+#' rel_by_gen <- pedrel(tp, by = "Gen")
+#' print(rel_by_gen)
+#' 
+#' # Example 2: Calculate average relationship grouped by Year
+#' rel_by_year <- pedrel(tp, by = "Year")
+#' print(rel_by_year)
+#' 
+#' # Example 3: Filter calculations with a reference list in a chosen group
+#' candidates <- c("N", "O", "P", "Q", "T", "U", "V", "X", "Y")
+#' rel_subset <- pedrel(tp, by = "Gen", reference = candidates)
+#' print(rel_subset)
 #' }
 #' 
 #' @export
@@ -395,7 +438,7 @@ pedrel <- function(ped, by = "Gen", reference = NULL, compact = FALSE) {
     }
     
     local_ped <- tryCatch({
-      suppressMessages(tidyped(sub_ped, addnum = TRUE))
+      suppressMessages(tidyped(ped, cand = sub_ped$Ind, addnum = TRUE))
     }, error = function(e) {
       if (all(is.na(sub_ped$Sire) & is.na(sub_ped$Dam))) {
         return(NULL)
@@ -502,6 +545,16 @@ pedrel <- function(ped, by = "Gen", reference = NULL, compact = FALSE) {
 #'   \item \code{FullGen}: Fully traced generations (depth of complete ancestry).
 #'   \item \code{MaxGen}: Maximum ancestral generations (depth of deepest ancestor).
 #' }
+#'
+#' @examples
+#' tp <- tidyped(simple_ped)
+#' ecg <- pedecg(tp)
+#'
+#' # ECG combines pedigree depth and completeness
+#' head(ecg)
+#'
+#' # Individuals with deeper and more complete ancestry have larger ECG values
+#' ecg[order(-ECG)][1:5]
 #' 
 #' @references
 #' Boichard, D., Maignel, L., & Verrier, E. (1997). The value of using probabilities of gene origin to measure genetic variability in a population. Genetics Selection Evolution, 29(1), 5.
@@ -559,12 +612,14 @@ pedecg <- function(ped) {
     max_gen_val[idx] <- pmax(sire_max, dam_max) + 1
   }
   
-  data.table(
+  res <- data.table(
     Ind = ped$Ind,
     ECG = ecg,
     FullGen = full_gen,
     MaxGen = max_gen_val
   )
+
+  return(res)
 }
 
 #' Pedigree Statistics
@@ -594,32 +649,62 @@ pedecg <- function(ped) {
 #'   \code{unit}s. When provided, \code{gen_intervals} will include a
 #'   \code{GenEquiv} column (observed Mean / cycle_length). See
 #'   \code{\link{pedgenint}} for details.
+#' @param calc_ecg Logical. Whether to compute equivalent complete generations
+#'   (ECG) for each individual via \code{\link{pedecg}}. Default \code{TRUE}.
+#' @param calc_genint Logical. Whether to compute generation intervals via
+#'   \code{\link{pedgenint}}. Requires a detectable \code{timevar} column.
+#'   Default \code{TRUE}.
 #' @param ... Additional arguments passed to \code{\link{pedgenint}},
 #'   e.g., \code{format} for custom date parsing or \code{by} for grouping.
 #'
 #' @return An object of class \code{pedstats}, which is a list containing:
 #' \itemize{
-#'   \item \code{summary}: Basic summary statistics.
-#'   \item \code{gen_intervals}: Generation intervals (\code{NULL} if no
-#'     \code{timevar} is detected).
-#'   \item \code{ecg}: Equi-Generate Coefficients and ancestral depth.
+#'   \item \code{summary}: A \code{data.table} with one row summarising the
+#'     whole pedigree.  Columns:
+#'     \itemize{
+#'       \item \code{N} — total number of individuals.
+#'       \item \code{N_Sire} — number of unique sires.
+#'       \item \code{N_Dam} — number of unique dams.
+#'       \item \code{N_Founder} — number of founder individuals
+#'         (both parents unknown).
+#'       \item \code{Max_Gen} — maximum generation number.
+#'     }
+#'   \item \code{ecg}: A \code{data.table} with one row per individual
+#'     (\code{NULL} if \code{calc_ecg = FALSE}).  Columns:
+#'     \itemize{
+#'       \item \code{Ind} — individual identifier.
+#'       \item \code{ECG} — equivalent complete generations.
+#'       \item \code{FullGen} — number of fully known generations.
+#'       \item \code{MaxGen} — maximum traceable generation depth.
+#'     }
+#'   \item \code{gen_intervals}: A \code{data.table} of generation intervals
+#'     (\code{NULL} if no \code{timevar} is detected or
+#'     \code{calc_genint = FALSE}).  Columns:
+#'     \itemize{
+#'       \item \code{Pathway} — gametic pathway label
+#'         (\code{"SS"}, \code{"SD"}, \code{"DS"}, \code{"DD"}, or
+#'         \code{"Average"}).
+#'       \item \code{N} — number of parent–offspring pairs.
+#'       \item \code{Mean} — mean generation interval.
+#'       \item \code{SD} — standard deviation of the interval.
+#'       \item \code{GenEquiv} — \code{Mean / cycle_length} (only present when
+#'         \code{cycle_length} is supplied).
+#'     }
 #' }
 #'
 #' @examples
-#' \dontrun{
-#' # ---- Standard annual pedigree ----
-#' # 'BirthYear' column contains integer years like 2020, 2021
-#' tped <- tidyped(ped)
-#' pedstats(tped, timevar = "BirthYear")
+#' \donttest{
+#' # ---- Without time variable ----
+#' tp <- tidyped(simple_ped)
+#' ps <- pedstats(tp)
+#' ps$summary
+#' ps$ecg
 #'
-#' # ---- Short-cycle species (e.g. Pacific white shrimp) ----
-#' # 'HatchDate' column contains ISO strings like "2020-06-15"
-#' # target generation cycle = 180 days
-#' pedstats(tped, timevar = "HatchDate", unit = "day", cycle_length = 180)
-#'
-#' # ---- Custom date format passed via ... ----
-#' # 'HatchDate' contains "15/06/2020" (DD/MM/YYYY)
-#' pedstats(tped, timevar = "HatchDate", unit = "day", format = "%d/%m/%Y")
+#' # ---- With annual Year column (big_family_size_ped) ----
+#' tp2 <- tidyped(big_family_size_ped)
+#' ps2 <- pedstats(tp2, timevar = "Year")
+#' ps2$summary
+#' ps2$gen_intervals
 #' }
 #'
 #' @export
@@ -727,12 +812,18 @@ print.pedstats <- function(x, ...) {
 #' The effective population size can be calculated using one of three methods:
 #' 
 #' \itemize{
-#'   \item \strong{"coancestry"} (Default): Based on the rate of coancestry between pairs of individuals. This method is generally more robust as it accounts for full genetic drift and bottlenecks (Cervantes et al., 2011).
+#'   \item \strong{"coancestry"} (Default): Based on the rate of coancestry ($f_{ij}$) between 
+#'   pairs of individuals. In this context, $f_{ij}$ is the probability that two alleles 
+#'   randomly sampled from individuals $i$ and $j$ are identical by descent, which is equivalent 
+#'   to half the additive genetic relationship ($f_{ij} = a_{ij} / 2$). 
+#'   This method is generally more robust as it accounts for full genetic drift and 
+#'   bottlenecks (Cervantes et al., 2011).
 #'   \deqn{\Delta c_{ij} = 1 - (1 - c_{ij})^{1/(\frac{ECG_i + ECG_j}{2})}}
 #'   \deqn{N_e = \frac{1}{2 \overline{\Delta c}}}
-#'   To handle large populations, this method samples \code{nsamples} individuals per cohort and computes the mean rate of coancestry among them.
+#'   To handle large populations, this method samples \code{nsamples} individuals per cohort 
+#'   and computes the mean rate of coancestry among them.
 #'   
-#'   \item \strong{"inbreeding"}: Based on the individual rate of inbreeding (Gutiérrez et al., 2008, 2009).
+#'   \item \strong{"inbreeding"}: Based on the individual rate of inbreeding ($F_i$) (Gutiérrez et al., 2008, 2009).
 #'   \deqn{\Delta F_i = 1 - (1 - F_i)^{1/(ECG_i - 1)}}
 #'   \deqn{N_e = \frac{1}{2 \overline{\Delta F}}}
 #'   
@@ -749,6 +840,24 @@ print.pedstats <- function(x, ...) {
 #' Gutiérrez, J. P., Cervantes, I., & Goyache, F. (2009). Improving the estimation of realized effective population sizes in farm animals. \emph{Journal of Animal Breeding and Genetics}, 126(4), 327-332.
 #' 
 #' Wright, S. (1931). Evolution in Mendelian populations. \emph{Genetics}, 16(2), 97-159.
+#'
+#' @examples
+#' \donttest{
+#' # Coancestry-based Ne (default) using a simple pedigree grouped by year
+#' tp_simple <- tidyped(simple_ped)
+#' tp_simple$BirthYear <- 2000 + tp_simple$Gen
+#' ne_coan <- suppressMessages(pedne(tp_simple, by = "BirthYear", seed = 42L))
+#' ne_coan
+#'
+#' # Inbreeding-based Ne using an inbred pedigree
+#' tp_inbred <- tidyped(inbred_ped)
+#' ne_inb <- suppressMessages(pedne(tp_inbred, method = "inbreeding", by = "Gen"))
+#' ne_inb
+#'
+#' # Demographic Ne from the number of contributing sires and dams
+#' ne_demo <- suppressMessages(pedne(tp_simple, method = "demographic", by = "BirthYear"))
+#' ne_demo
+#' }
 #' 
 #' @export
 pedne <- function(ped, method = c("coancestry", "inbreeding", "demographic"),
@@ -1354,37 +1463,108 @@ pedancestry <- function(ped, foundervar, target_labels = NULL) {
 #' Summarize Inbreeding Levels
 #'
 #' Classifies individuals into inbreeding levels based on their inbreeding 
-#' coefficients (F) according to standard academic thresholds.
+#' coefficients (F) according to standard or user-defined thresholds.
 #'
 #' @param ped A \code{tidyped} object.
+#' @param breaks Numeric vector of strictly increasing positive upper bounds for
+#'   inbreeding classes. Default is \code{c(0.0625, 0.125, 0.25)}, corresponding
+#'   approximately to half-sib, avuncular/grandparent, and full-sib/parent-offspring
+#'   mating thresholds. The class \code{"F = 0"} is always kept as a fixed first
+#'   level. A final open-ended class \code{"F > max(breaks)"} is always appended
+#'   automatically.
+#' @param labels Optional character vector of interval labels. If \code{NULL},
+#'   labels are generated automatically from \code{breaks}. When supplied, its
+#'   length must equal \code{length(breaks)}, with each element naming the
+#'   bounded interval \code{(breaks[i-1], breaks[i]]}. The open-ended tail
+#'   class is always auto-generated and cannot be overridden.
 #'
-#' @return A \code{data.table} with counts and percentages for each F-group.
+#' @return A \code{data.table} with 3 columns:
+#' \describe{
+#'   \item{\code{FClass}}{An ordered factor. By default it contains 5 levels:
+#'   \code{"F = 0"}, \code{"0 < F <= 0.0625"}, \code{"0.0625 < F <= 0.125"},
+#'   \code{"0.125 < F <= 0.25"}, and \code{"F > 0.25"}. The number of levels
+#'   equals \code{length(breaks) + 2} (the fixed zero class plus one class per
+#'   bounded interval plus the open-ended tail).}
+#'   \item{\code{Count}}{Integer. Number of individuals in each class.}
+#'   \item{\code{Percentage}}{Numeric. Percentage of individuals in each class.}
+#' }
+#'
+#' @details
+#' The default thresholds follow common pedigree interpretation rules:
+#' \itemize{
+#'   \item \code{F = 0.0625}: approximately the offspring of half-sib mating.
+#'   \item \code{F = 0.125}: approximately the offspring of avuncular or grandparent-grandchild mating.
+#'   \item \code{F = 0.25}: approximately the offspring of full-sib or parent-offspring mating.
+#' }
+#' Therefore, assigning \code{F = 0.25} to the class \code{"0.125 < F <= 0.25"}
+#' is appropriate. If finer reporting is needed, supply custom \code{breaks},
+#' for example to separate \code{0.25}, \code{0.375}, or \code{0.5}.
+#'
+#' @examples
+#' tp <- tidyped(simple_ped, addnum = TRUE)
+#' pedfclass(tp)
+#'
+#' # Finer custom classes (4 breaks, labels auto-generated)
+#' pedfclass(tp, breaks = c(0.03125, 0.0625, 0.125, 0.25))
+#'
+#' # Custom labels aligned to breaks (3 labels for 3 breaks; tail is auto)
+#' pedfclass(tp, labels = c("Low", "Moderate", "High"))
+#'
+#' \donttest{
+#' tp_inbred <- tidyped(inbred_ped, addnum = TRUE)
+#' pedfclass(tp_inbred)
+#' }
 #'
 #' @export
-pedinbreed_class <- function(ped) {
+pedfclass <- function(ped,
+                      breaks = c(0.0625, 0.125, 0.25),
+                      labels = NULL) {
   if (!inherits(ped, "tidyped")) stop("ped must be a tidyped object")
+
+  if (!is.numeric(breaks) || length(breaks) < 1L || any(!is.finite(breaks)) ||
+      any(breaks <= 0) || is.unsorted(breaks, strictly = TRUE)) {
+    stop("breaks must be a strictly increasing numeric vector of positive values")
+  }
+
+  # Build bounded-interval labels (one per break, no tail)
+  if (is.null(labels)) {
+    lower_bounds <- c(0, head(breaks, -1))
+    labels <- ifelse(
+      lower_bounds == 0,
+      paste0("0 < F <= ", breaks),
+      paste0(lower_bounds, " < F <= ", breaks)
+    )
+  } else {
+    if (!is.character(labels) || length(labels) != length(breaks)) {
+      stop("labels must be a character vector of length equal to length(breaks)")
+    }
+  }
+  # The open-ended tail class is always auto-generated
+  tail_label <- paste0("F > ", max(breaks))
+  all_labels  <- c(labels, tail_label)
   
   if (!"f" %in% names(ped)) {
     message("Calculating inbreeding coefficients...")
     ped <- inbreed(ped)
   }
   
-  breaks <- c(-Inf, 0.000001, 0.0625, 0.125, 0.25, Inf)
-  labels <- c("F = 0", "0 < F <= 0.0625", "0.0625 < F <= 0.125", "0.125 < F <= 0.25", "F > 0.25")
-  
+  cut_breaks   <- c(-Inf, .Machine$double.eps, breaks, Inf)
+  class_levels <- c("F = 0", all_labels)
+
   # Classify
-  f_classes <- cut(ped$f, breaks = breaks, labels = labels, include.lowest = TRUE)
+  f_classes <- cut(ped$f, breaks = cut_breaks, labels = class_levels, include.lowest = TRUE)
   
-  dt <- data.table(F_Class = factor(f_classes, levels = labels))
-  summary_dt <- dt[, .(Count = .N), by = F_Class]
+  dt <- data.table(FClass = factor(f_classes, levels = class_levels, ordered = TRUE))
+  summary_dt <- dt[, .(Count = .N), by = FClass]
   
   # Ensure all categories appear
-  all_cats <- data.table(F_Class = factor(labels, levels = labels))
-  summary_dt <- merge(all_cats, summary_dt, by = "F_Class", all.x = TRUE)
+  all_cats <- data.table(FClass = factor(class_levels, levels = class_levels, ordered = TRUE))
+  summary_dt <- merge(all_cats, summary_dt, by = "FClass", all.x = TRUE)
   summary_dt[is.na(Count), Count := 0]
+  summary_dt[, Count := as.integer(Count)]
   
   summary_dt[, Percentage := (Count / sum(Count)) * 100]
-  setorder(summary_dt, F_Class)
+  setorder(summary_dt, FClass)
   
   return(summary_dt)
 }

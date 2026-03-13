@@ -34,9 +34,54 @@ test_that("pedrel calculates relation correctly and handles boundaries", {
   # Gen 2: C, D (full sibs). a_ij = 0.5. Mean of off-diagonals = 0.5
   expect_equal(rel[Gen == 2, MeanRel], 0.5)
   
-  # Test sample size
+  # Test sample size behavior (less than 2 individuals after filtering)
   rel_sample <- suppressWarnings(pedrel(test_ped, by = "Gen", reference = c("A", "C")))
   expect_true(all(is.na(rel_sample$MeanRel)))
+  
+  # Test with a different by parameter (e.g. BirthYear)
+  test_ped$YearGroup <- c(1, 1, 2, 2, 3, 3) 
+  rel_year <- pedrel(test_ped, by = "YearGroup")
+  expect_true("YearGroup" %in% names(rel_year))
+  expect_false("Group" %in% names(rel_year))
+  expect_equal(rel_year[YearGroup == 2, MeanRel], 0.5) # C, D in YearGroup 2
+  
+  # Test reference parameter filtering with another by variable
+  # If reference is only C, D, E, then YearGroup 3 should only have E left -> NUsed=1, NA MeanRel
+  rel_year_ref <- suppressWarnings(pedrel(test_ped, by = "YearGroup", reference = c("C", "D", "E")))
+  expect_equal(rel_year_ref[YearGroup == 2, NUsed], 2)
+  expect_equal(rel_year_ref[YearGroup == 2, MeanRel], 0.5)
+  expect_equal(rel_year_ref[YearGroup == 3, NUsed], 1)
+  expect_true(is.na(rel_year_ref[YearGroup == 3, MeanRel]))
+})
+
+test_that("pedrel captures deep inbreeding and correct ancestor tracing", {
+  # Deep inbreeding: Full-sib mating (Gen 3), then their offspring full-sib mating (Gen 4)
+  dt_deep <- data.table::data.table(
+    Ind  = c("A", "B", "C", "D", "E", "F", "G", "H"),
+    Sire = c(NA, NA, "A", "A", "C", "C", "E", "E"),
+    Dam  = c(NA, NA, "B", "B", "D", "D", "F", "F"),
+    Gen  = c(1, 1, 2, 2, 3, 3, 4, 4)
+  )
+  tp_deep <- tidyped(dt_deep)
+  rel_deep <- pedrel(tp_deep, by = "Gen")
+  
+  # Gen 1: Unrelated founders
+  expect_equal(rel_deep[Gen == 1, MeanRel], 0.0)
+  
+  # Gen 2: C, D are full sibs (0.5)
+  expect_equal(rel_deep[Gen == 2, MeanRel], 0.5)
+  
+  # Gen 3: E, F's parents are C, D (full sibs). a_EF = 0.5 + 0.5 * f_CD = 0.5 + 0.5 * 0.5 = 0.75
+  # Error check: if ancestor tracing failed, this would be 0.5
+  expect_equal(rel_deep[Gen == 3, MeanRel], 0.75)
+  
+  # Gen 4: G, H's parents are E, F. a_GH = 0.5 + 0.5 * f_EF = 0.5 + 0.5 * 1.0 (since F_E=0.25+0.25*0.5=0.375? No, a_EF=0.75)
+  # Actually a_GH = 0.5 + 0.5 * a_EF = 0.5 + 0.5 * 0.75 = 0.875? 
+  # Wait, manual calibration: 
+  # A_mat[G, H] = 0.5 * (A[E, G] + A[F, G]) = 0.5 * (0.5*(A[E,E]+A[E,F]) + 0.5*(A[F,E]+A[F,F]))
+  # A[E,E] = 1 + f_CD = 1 + 0.25 = 1.25. A[E,F] = 0.75.
+  # A_mat[G,H] = 0.5 * (0.5*(1.25+0.75) + 0.5*(0.75+1.25)) = 0.5 * (1.0 + 1.0) = 1.0
+  expect_equal(rel_deep[Gen == 4, MeanRel], 1.0)
 })
 
 test_that("pedgenint computes Average from all parent-offspring pairs", {
@@ -112,7 +157,7 @@ test_that("pedpartial and pedancestry run without addnum=TRUE initially", {
   expect_true(all(anc_res$Base == 1.0))
 })
 
-# --- Additional tests for pedne, pedecg, pedsubpop, pedinbreed_class ---
+# --- Additional tests for pedne, pedecg, pedsubpop, pedfclass ---
 
 test_that("pedecg computes equivalent complete generations", {
   ecg_res <- pedecg(test_ped)
@@ -148,11 +193,153 @@ test_that("pedsubpop splits pedigree by grouping variable", {
   expect_equal(res_gen[Group == 2, N], 2)
 })
 
-test_that("pedinbreed_class classifies inbreeding levels", {
-  res <- pedinbreed_class(test_ped)
+test_that("pedsubpop summarizes disconnected groups and isolated individuals", {
+  ped_multi_dt <- data.table::data.table(
+    Ind = c("A", "B", "C", "D", "E", "F", "ISO"),
+    Sire = c(NA, NA, "A", NA, NA, "D", NA),
+    Dam = c(NA, NA, "B", NA, NA, "E", NA),
+    Sex = c("male", "female", "male", "male", "female", "male", NA_character_)
+  )
+  ped_multi <- suppressMessages(tidyped(ped_multi_dt))
+
+  res_null <- pedsubpop(ped_multi)
+
+  expect_true(is.data.table(res_null))
+  expect_equal(nrow(res_null), 3)
+  expect_true(all(c("GP1", "GP2", "Isolated") %in% res_null$Group))
+
+  expect_equal(res_null[Group == "GP1", N], 3)
+  expect_equal(res_null[Group == "GP1", N_Founder], 2)
+
+  expect_equal(res_null[Group == "GP2", N], 3)
+  expect_equal(res_null[Group == "GP2", N_Founder], 2)
+
+  expect_equal(res_null[Group == "Isolated", N], 1)
+  expect_equal(res_null[Group == "Isolated", N_Sire], 0)
+  expect_equal(res_null[Group == "Isolated", N_Dam], 0)
+  expect_equal(res_null[Group == "Isolated", N_Founder], 1)
+})
+
+test_that("pedfclass classifies inbreeding levels", {
+  res <- pedfclass(test_ped)
   expect_true(is.data.table(res))
-  expect_true("F_Class" %in% names(res))
+  expect_true("FClass" %in% names(res))
+  expect_s3_class(res$FClass, "ordered")
   # A, B, C, D have f=0 (4 individuals); E, F have f=0.25 (2 individuals)
   expect_equal(sum(res$Count), nrow(test_ped))
-  expect_equal(res[F_Class == "F = 0", Count], 4)
+  expect_equal(res[FClass == "F = 0", Count], 4)
+  expect_equal(res[FClass == "0.125 < F <= 0.25", Count], 2)
+})
+
+test_that("pedfclass handles threshold boundaries correctly", {
+  threshold_ped <- data.table(
+    Ind = c("A", "B", "C", "D", "E"),
+    Sire = NA_character_,
+    Dam = NA_character_,
+    Sex = c("male", "female", "male", "female", "male"),
+    f = c(0, 0.0625, 0.125, 0.25, 0.250001)
+  )
+  threshold_ped <- new_tidyped(threshold_ped)
+
+  res <- pedfclass(threshold_ped)
+
+  expect_equal(res[FClass == "F = 0", Count], 1L)
+  expect_equal(res[FClass == "0 < F <= 0.0625", Count], 1L)
+  expect_equal(res[FClass == "0.0625 < F <= 0.125", Count], 1L)
+  expect_equal(res[FClass == "0.125 < F <= 0.25", Count], 1L)
+  expect_equal(res[FClass == "F > 0.25", Count], 1L)
+})
+
+test_that("pedfclass supports custom breaks", {
+  threshold_ped <- data.table(
+    Ind = c("A", "B", "C", "D", "E", "F", "G"),
+    Sire = NA_character_,
+    Dam = NA_character_,
+    Sex = c("male", "female", "male", "female", "male", "female", "male"),
+    f = c(0, 0.03125, 0.0625, 0.125, 0.25, 0.5, 0.6)
+  )
+  threshold_ped <- new_tidyped(threshold_ped)
+
+  res <- pedfclass(threshold_ped, breaks = c(0.03125, 0.0625, 0.125, 0.25, 0.5))
+
+  # labels auto-generated: 5 bounded + 1 tail = 6 positives, plus "F = 0" = 7 levels
+  expect_equal(
+    as.character(res$FClass),
+    c("F = 0", "0 < F <= 0.03125", "0.03125 < F <= 0.0625",
+      "0.0625 < F <= 0.125", "0.125 < F <= 0.25", "0.25 < F <= 0.5", "F > 0.5")
+  )
+  expect_equal(res[FClass == "0 < F <= 0.03125",      Count], 1L)
+  expect_equal(res[FClass == "0.03125 < F <= 0.0625", Count], 1L)
+  expect_equal(res[FClass == "0.0625 < F <= 0.125",   Count], 1L)
+  expect_equal(res[FClass == "0.125 < F <= 0.25",     Count], 1L)
+  expect_equal(res[FClass == "0.25 < F <= 0.5",       Count], 1L)
+  expect_equal(res[FClass == "F > 0.5",               Count], 1L)
+})
+
+test_that("pedfclass respects custom labels aligned to breaks", {
+  threshold_ped <- data.table(
+    Ind = c("A", "B", "C", "D", "E"),
+    Sire = NA_character_,
+    Dam = NA_character_,
+    Sex = c("male", "female", "male", "female", "male"),
+    f = c(0, 0.0625, 0.125, 0.25, 0.4)
+  )
+  threshold_ped <- new_tidyped(threshold_ped)
+
+  res <- pedfclass(
+    threshold_ped,
+    breaks = c(0.0625, 0.125, 0.25),
+    labels = c("Low", "Moderate", "High")
+  )
+  # tail auto-generated as "F > 0.25"
+  expect_equal(as.character(res$FClass), c("F = 0", "Low", "Moderate", "High", "F > 0.25"))
+  expect_equal(res[FClass == "Low",       Count], 1L)
+  expect_equal(res[FClass == "High",      Count], 1L)
+  expect_equal(res[FClass == "F > 0.25",  Count], 1L)
+
+  # Wrong length should error
+  expect_error(
+    pedfclass(threshold_ped, breaks = c(0.0625, 0.125, 0.25), labels = c("A", "B")),
+    "length equal to length\\(breaks\\)"
+  )
+})
+
+test_that("pedstats returns correct structure without timevar", {
+  tp <- suppressMessages(tidyped(simple_ped))
+  ps <- pedstats(tp)
+
+  # class
+  expect_s3_class(ps, "pedstats")
+
+  # $summary columns and types
+  expect_true(is.data.table(ps$summary))
+  expect_named(ps$summary, c("N", "N_Sire", "N_Dam", "N_Founder", "Max_Gen"))
+  expect_equal(ps$summary$N, nrow(tp))
+  expect_true(ps$summary$N_Founder > 0)
+
+  # $ecg columns
+  expect_true(is.data.table(ps$ecg))
+  expect_named(ps$ecg, c("Ind", "ECG", "FullGen", "MaxGen"))
+  expect_equal(nrow(ps$ecg), nrow(tp))
+
+  # no timevar -> gen_intervals is NULL
+  expect_null(ps$gen_intervals)
+})
+
+test_that("pedstats returns gen_intervals with timevar", {
+  tp2 <- suppressMessages(tidyped(big_family_size_ped))
+  ps2 <- pedstats(tp2, timevar = "Year")
+
+  # $gen_intervals columns
+  expect_true(is.data.table(ps2$gen_intervals))
+  expect_true(all(c("Pathway", "N", "Mean", "SD") %in% names(ps2$gen_intervals)))
+  expect_true("Average" %in% ps2$gen_intervals$Pathway)
+
+  # calc_ecg = FALSE suppresses ecg
+  ps_no_ecg <- pedstats(tp2, timevar = "Year", calc_ecg = FALSE)
+  expect_null(ps_no_ecg$ecg)
+
+  # calc_genint = FALSE suppresses gen_intervals
+  ps_no_gi <- pedstats(tp2, timevar = "Year", calc_genint = FALSE)
+  expect_null(ps_no_gi$gen_intervals)
 })

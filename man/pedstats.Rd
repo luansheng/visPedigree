@@ -41,16 +41,50 @@ e.g., use \code{unit = "day"} when \code{timevar} holds date strings.}
 \code{GenEquiv} column (observed Mean / cycle_length). See
 \code{\link{pedgenint}} for details.}
 
+\item{calc_ecg}{Logical. Whether to compute equivalent complete generations
+(ECG) for each individual via \code{\link{pedecg}}. Default \code{TRUE}.}
+
+\item{calc_genint}{Logical. Whether to compute generation intervals via
+\code{\link{pedgenint}}. Requires a detectable \code{timevar} column.
+Default \code{TRUE}.}
+
 \item{...}{Additional arguments passed to \code{\link{pedgenint}},
 e.g., \code{format} for custom date parsing or \code{by} for grouping.}
 }
 \value{
 An object of class \code{pedstats}, which is a list containing:
 \itemize{
-  \item \code{summary}: Basic summary statistics.
-  \item \code{gen_intervals}: Generation intervals (\code{NULL} if no
-    \code{timevar} is detected).
-  \item \code{ecg}: Equi-Generate Coefficients and ancestral depth.
+  \item \code{summary}: A \code{data.table} with one row summarising the
+    whole pedigree.  Columns:
+    \itemize{
+      \item \code{N} — total number of individuals.
+      \item \code{N_Sire} — number of unique sires.
+      \item \code{N_Dam} — number of unique dams.
+      \item \code{N_Founder} — number of founder individuals
+        (both parents unknown).
+      \item \code{Max_Gen} — maximum generation number.
+    }
+  \item \code{ecg}: A \code{data.table} with one row per individual
+    (\code{NULL} if \code{calc_ecg = FALSE}).  Columns:
+    \itemize{
+      \item \code{Ind} — individual identifier.
+      \item \code{ECG} — equivalent complete generations.
+      \item \code{FullGen} — number of fully known generations.
+      \item \code{MaxGen} — maximum traceable generation depth.
+    }
+  \item \code{gen_intervals}: A \code{data.table} of generation intervals
+    (\code{NULL} if no \code{timevar} is detected or
+    \code{calc_genint = FALSE}).  Columns:
+    \itemize{
+      \item \code{Pathway} — gametic pathway label
+        (\code{"SS"}, \code{"SD"}, \code{"DS"}, \code{"DD"}, or
+        \code{"Average"}).
+      \item \code{N} — number of parent–offspring pairs.
+      \item \code{Mean} — mean generation interval.
+      \item \code{SD} — standard deviation of the interval.
+      \item \code{GenEquiv} — \code{Mean / cycle_length} (only present when
+        \code{cycle_length} is supplied).
+    }
 }
 }
 \description{
@@ -58,20 +92,18 @@ Calculates comprehensive statistics for a pedigree, including population structu
 generation intervals, and ancestral depth.
 }
 \examples{
-\dontrun{
-# ---- Standard annual pedigree ----
-# 'BirthYear' column contains integer years like 2020, 2021
-tped <- tidyped(ped)
-pedstats(tped, timevar = "BirthYear")
+\donttest{
+# ---- Without time variable ----
+tp <- tidyped(simple_ped)
+ps <- pedstats(tp)
+ps$summary
+ps$ecg
 
-# ---- Short-cycle species (e.g. Pacific white shrimp) ----
-# 'HatchDate' column contains ISO strings like "2020-06-15"
-# target generation cycle = 180 days
-pedstats(tped, timevar = "HatchDate", unit = "day", cycle_length = 180)
-
-# ---- Custom date format passed via ... ----
-# 'HatchDate' contains "15/06/2020" (DD/MM/YYYY)
-pedstats(tped, timevar = "HatchDate", unit = "day", format = "\%d/\%m/\%Y")
+# ---- With annual Year column (big_family_size_ped) ----
+tp2 <- tidyped(big_family_size_ped)
+ps2 <- pedstats(tp2, timevar = "Year")
+ps2$summary
+ps2$gen_intervals
 }
 
 }
