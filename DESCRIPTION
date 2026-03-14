@@ -1,19 +1,17 @@
 Package: visPedigree
 Type: Package
-Title: Tidying and Visualizing Animal Pedigrees
+Title: Tidying, Analysis, and Fast Visualization of Animal and Plant Pedigrees
 Version: 1.3.4
 Authors@R: person("Sheng","Luan", email="luansheng@gmail.com", role = c("aut","cre"))
-Description: Built on graph theory and the high-performance 'data.table' framework, 
-    this package provides a comprehensive suite of tools for tidying, analyzing, 
-    and visualizing animal pedigrees. By modeling pedigrees as directed acyclic 
-    graphs using 'igraph', it ensures robust loop detection, efficient 
-    generation assignment, and optimal sub-population splitting. Key features 
-    include standardizing pedigree formats, flexible ancestry tracing, and 
-    generating legible vector-based PDF graphs. A unique compaction algorithm 
-    enables the visualization of massive pedigrees by grouping full-sib families. 
-    Furthermore, the package implements high-performance C++ algorithms for 
-    calculating and visualizing genetic relationship matrices (A, D, AA, and 
-    their inverses) and inbreeding coefficients.
+Description: A comprehensive toolkit for the standardization, statistical analysis, 
+    and fast visualization of animal and plant pedigrees. It robustly handles 
+    complex mating systems, such as selfing and monoecious reproduction. Core 
+    analytical methods compute generation intervals, effective population size, 
+    founder and ancestor contributions, partial inbreeding, genetic relationship 
+    matrices, and inbreeding coefficients using optimized C++ algorithms and the 
+    'data.table' framework. For exploration, it uses 'igraph' to offer scalable 
+    network graphing and matrix plotting methods, simplifying the visualization 
+    of deep genealogies and large full-sib families.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
