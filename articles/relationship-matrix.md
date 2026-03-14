@@ -508,11 +508,11 @@ group related individuals together.
 #### Grouping by Labels
 
 You can aggregate relationships by groups (e.g., generations) using the
-`grouping` parameter.
+`by` parameter.
 
 ``` r
 # Mean relationship between generations
-vismat(mat_A, ped = tped, grouping = "Gen")
+vismat(mat_A, ped = tped, by = "Gen")
 #> Aggregating 28 individuals into 6 groups based on 'Gen'...
 ```
 

@@ -20,6 +20,7 @@ tidyped(
   addgen = TRUE,
   addnum = TRUE,
   inbreed = FALSE,
+  selfing = FALSE,
   genmethod = "top",
   ...
 )
@@ -73,6 +74,15 @@ tidyped(
   coefficients. Default is FALSE. If TRUE, an **f** column is added to
   the output. This uses the same optimized engine as
   `pedmat(..., method = "f")`.
+
+- selfing:
+
+  A logical value indicating whether to allow the same individual to
+  appear as both sire and dam. This is common in plant breeding
+  (monoecious species) where the same plant can serve as both male and
+  female parent. If TRUE, individuals appearing in both the Sire and Dam
+  columns will be assigned Sex = "monoecious" instead of triggering an
+  error. Default is FALSE.
 
 - genmethod:
 

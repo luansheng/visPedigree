@@ -15,6 +15,7 @@ vismat(
   type = "heatmap",
   ids = NULL,
   reorder = TRUE,
+  by = NULL,
   grouping = NULL,
   labelcex = NULL,
   ...
@@ -45,7 +46,7 @@ vismat(
 - ped:
 
   Optional. A tidied pedigree object (`tidyped`), used for extracting
-  labels or grouping information. Required when using the `grouping`
+  labels or grouping information. Required when using the `by`
   parameter. If `mat` is a `pedmat` object, the pedigree can be
   automatically extracted from its attributes.
 
@@ -79,7 +80,7 @@ vismat(
   (Euclidean). Full-sibs have nearly identical relationship profiles
   with the population, so they cluster tightly together.
 
-- grouping:
+- by:
 
   Optional. Column name in `ped` to group by (e.g., `"Family"`, `"Gen"`,
   `"Year"`). When grouping is enabled:
@@ -94,6 +95,10 @@ vismat(
     group
 
   This is useful for analyzing the structure of large populations.
+
+- grouping:
+
+  `[Deprecated]` Use `by` instead.
 
 - labelcex:
 
@@ -257,13 +262,13 @@ vismat(A, type = "histogram", nint = 30)
 # ============================================================
 
 # Group by generation
-vismat(A, ped = ped, grouping = "Gen", 
+vismat(A, ped = ped, by = "Gen", 
        main = "Mean Relationship Between Generations")
 #> Aggregating 59 individuals into 6 groups based on 'Gen'...
 
 
 # Group by family (if pedigree has Family column)
-# vismat(A, ped = ped, grouping = "Family")
+# vismat(A, ped = ped, by = "Family")
 
 # ============================================================
 # Different Types of Relationship Matrices

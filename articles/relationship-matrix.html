@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">visPedigree</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,6 +34,7 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/draw-pedigree.html">2. How to draw a pedigree</a></li>
+    <li><a class="dropdown-item" href="../articles/pedigree-analysis.html">Pedigree Analysis and Population Genetics</a></li>
     <li><a class="dropdown-item" href="../articles/relationship-matrix.html">3. Calculation and visualization of relationship matrix</a></li>
     <li><a class="dropdown-item" href="../articles/tidy-pedigree.html">1. How to tidy a pedigree</a></li>
   </ul>
@@ -618,10 +619,10 @@ clustering to group related individuals together.</p>
 <h4 id="grouping-by-labels">Grouping by Labels<a class="anchor" aria-label="anchor" href="#grouping-by-labels"></a>
 </h4>
 <p>You can aggregate relationships by groups (e.g., generations) using
-the <code>grouping</code> parameter.</p>
+the <code>by</code> parameter.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Mean relationship between generations</span></span>
-<span><span class="fu"><a href="../reference/vismat.html">vismat</a></span><span class="op">(</span><span class="va">mat_A</span>, ped <span class="op">=</span> <span class="va">tped</span>, grouping <span class="op">=</span> <span class="st">"Gen"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/vismat.html">vismat</a></span><span class="op">(</span><span class="va">mat_A</span>, ped <span class="op">=</span> <span class="va">tped</span>, by <span class="op">=</span> <span class="st">"Gen"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Aggregating 28 individuals into 6 groups based on 'Gen'...</span></span></code></pre></div>
 <p><img src="relationship-matrix_files/figure-html/heatmap_group-1.png" class="r-plt" alt="" width="100%"></p>
 </div>

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">visPedigree</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -19,6 +19,7 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/draw-pedigree.html">2. How to draw a pedigree</a></li>
+    <li><a class="dropdown-item" href="../articles/pedigree-analysis.html">Pedigree Analysis and Population Genetics</a></li>
     <li><a class="dropdown-item" href="../articles/relationship-matrix.html">3. Calculation and visualization of relationship matrix</a></li>
     <li><a class="dropdown-item" href="../articles/tidy-pedigree.html">1. How to tidy a pedigree</a></li>
   </ul></li>
@@ -53,6 +54,7 @@
 <span>  addgen <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  addnum <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  inbreed <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  selfing <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  genmethod <span class="op">=</span> <span class="st">"top"</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -88,6 +90,10 @@
 
 <dt id="arg-inbreed">inbreed<a class="anchor" aria-label="anchor" href="#arg-inbreed"></a></dt>
 <dd><p>A logical value indicating whether to calculate inbreeding coefficients. Default is FALSE. If TRUE, an <strong>f</strong> column is added to the output. This uses the same optimized engine as <code>pedmat(..., method = "f")</code>.</p></dd>
+
+
+<dt id="arg-selfing">selfing<a class="anchor" aria-label="anchor" href="#arg-selfing"></a></dt>
+<dd><p>A logical value indicating whether to allow the same individual to appear as both sire and dam. This is common in plant breeding (monoecious species) where the same plant can serve as both male and female parent. If TRUE, individuals appearing in both the Sire and Dam columns will be assigned Sex = "monoecious" instead of triggering an error. Default is FALSE.</p></dd>
 
 
 <dt id="arg-genmethod">genmethod<a class="anchor" aria-label="anchor" href="#arg-genmethod"></a></dt>

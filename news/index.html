@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">visPedigree</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -19,6 +19,7 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/draw-pedigree.html">2. How to draw a pedigree</a></li>
+    <li><a class="dropdown-item" href="../articles/pedigree-analysis.html">Pedigree Analysis and Population Genetics</a></li>
     <li><a class="dropdown-item" href="../articles/relationship-matrix.html">3. Calculation and visualization of relationship matrix</a></li>
     <li><a class="dropdown-item" href="../articles/tidy-pedigree.html">1. How to tidy a pedigree</a></li>
   </ul></li>
@@ -38,6 +39,284 @@
       <small>Source: <a href="https://github.com/luansheng/visPedigree/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.3.4" id="changes-in-version-134-released-on-14-mar-2026">Changes in version 1.3.4 released on 14 Mar 2026<a class="anchor" aria-label="anchor" href="#changes-in-version-134-released-on-14-mar-2026"></a></h2>
+<div class="section level3">
+<h3 id="bug-fixes-1-3-4">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-1-3-4"></a></h3>
+<ol style="list-style-type: decimal"><li>
+<strong><code>data.table</code> invisibility</strong>: Fixed a subtle but pervasive issue where functions returning <code>data.table</code> or <code>tidyped</code> objects (which are based on <code>data.table</code>) were returning them invisibly. This occurred because internal <code>data.table</code> operations like <code>:=</code> and <code>set*</code> set an internal “invisible” flag. Affected functions included <code><a href="../reference/pedancestry.html">pedancestry()</a></code>, <code><a href="../reference/pedpartial.html">pedpartial()</a></code>, <code><a href="../reference/pedne.html">pedne()</a></code>, <code><a href="../reference/pedrel.html">pedrel()</a></code>, <code><a href="../reference/tidyped.html">tidyped()</a></code>, and many others. All relevant functions now explicitly return the object using the <code>[]</code> syntax to ensure they auto-print correctly in the R console and knitted documents.</li>
+<li>
+<strong>Side-effect prevention</strong>: Updated <code>calc_ne_demographic()</code> to operate on a copy of the input pedigree instead of modifying the user’s data by reference.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="documentation-1-3-4">Documentation<a class="anchor" aria-label="anchor" href="#documentation-1-3-4"></a></h3>
+<ol style="list-style-type: decimal"><li>
+<strong>Positron Guide</strong>: Added a new coding standard to <code>Positron.md</code> regarding <code>data.table</code> return visibility to prevent regressive “invisible output” bugs in future development.</li>
+</ol></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.3.3" id="changes-in-version-133-released-on-14-mar-2026">Changes in version 1.3.3 released on 14 Mar 2026<a class="anchor" aria-label="anchor" href="#changes-in-version-133-released-on-14-mar-2026"></a></h2>
+<div class="section level3">
+<h3 id="documentation-1-3-3">Documentation<a class="anchor" aria-label="anchor" href="#documentation-1-3-3"></a></h3>
+<ol style="list-style-type: decimal"><li>
+<strong><code>pedigree-analysis.Rmd</code> rewrite</strong>: Reorganized the main pedigree analysis vignette into clearer thematic sections covering pedigree overview, pedigree completeness (<code><a href="../reference/pedecg.html">pedecg()</a></code>), generation intervals (<code><a href="../reference/pedgenint.html">pedgenint()</a></code>), subpopulation structure (<code><a href="../reference/pedsubpop.html">pedsubpop()</a></code>), diversity indicators (<code><a href="../reference/pediv.html">pediv()</a></code>), effective population size (<code><a href="../reference/pedne.html">pedne()</a></code>), average relationship trends (<code><a href="../reference/pedrel.html">pedrel()</a></code>), inbreeding classification (<code><a href="../reference/pedfclass.html">pedfclass()</a></code>), and ancestry / partial inbreeding diagnostics.</li>
+<li>
+<strong>Theory expansion</strong>: Added core formulas, interpretation notes, and breeding-use explanations for Equivalent Complete Generations (ECG), generation intervals, effective numbers of founders / ancestors / founder genomes (<code>f_e</code>, <code>f_a</code>, <code>f_g</code>), three effective population size definitions (<code>N_e</code> by demographic, inbreeding, and coancestry methods), and average additive relationship (<code>MeanRel</code>).</li>
+<li>
+<strong>Reference update</strong>: Expanded the vignette bibliography to include the key classical references underlying the package’s diversity and effective population size metrics, including Wright (1922, 1931), Lacy (1989), Boichard et al. (1997), Caballero &amp; Toro (2000), Cervantes et al. (2011), and Gutiérrez et al. (2008, 2009).</li>
+</ol></div>
+<div class="section level3">
+<h3 id="bug-fixes-1-3-3">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-1-3-3"></a></h3>
+<ol style="list-style-type: decimal"><li>
+<strong>Vignette API synchronization</strong>: Replaced outdated <code>pedinbreed_class()</code> calls in the pedigree analysis vignette with the current <code><a href="../reference/pedfclass.html">pedfclass()</a></code> interface and aligned all examples with the current <code>reference</code>, <code>foundervar</code>, and <code>cycle</code> argument names.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="testing-1-3-3">Testing<a class="anchor" aria-label="anchor" href="#testing-1-3-3"></a></h3>
+<ol style="list-style-type: decimal"><li>
+<strong>Analysis regression coverage</strong>: Added focused unit tests to verify that <code><a href="../reference/pedancestry.html">pedancestry()</a></code> proportions sum to 1 in a multi-line admixture pedigree and that <code><a href="../reference/pedrel.html">pedrel()</a></code> returns identical results between <code>compact = TRUE</code> and <code>compact = FALSE</code> modes on the same pedigree.</li>
+</ol></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.3.2" id="changes-in-version-132-released-on-13-mar-2026">Changes in version 1.3.2 released on 13 Mar 2026<a class="anchor" aria-label="anchor" href="#changes-in-version-132-released-on-13-mar-2026"></a></h2>
+<div class="section level3">
+<h3 id="new-features-1-3-2">New features<a class="anchor" aria-label="anchor" href="#new-features-1-3-2"></a></h3>
+<ol style="list-style-type: decimal"><li>
+<strong>Added Comprehensive Examples</strong>: Added <code>@examples</code> to core analysis functions <code><a href="../reference/pedne.html">pedne()</a></code>, <code><a href="../reference/pedecg.html">pedecg()</a></code>, and <code><a href="../reference/pedsubpop.html">pedsubpop()</a></code> to improve documentation completeness and provide immediate value to users.</li>
+<li>
+<strong>Pedigree Connectivity Analysis (<code>pedsubpop</code>)</strong>: Enhanced <code><a href="../reference/pedsubpop.html">pedsubpop()</a></code> to better distinguish between pedigree splitting (via <code>splitped</code>) and grouping/summary analysis. It now provides clear counts of total individuals, sires, dams, and founders within subgroups or connected components.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="api-changes-1-3-2">API Changes<a class="anchor" aria-label="anchor" href="#api-changes-1-3-2"></a></h3>
+<ol style="list-style-type: decimal"><li>
+<strong><code><a href="../reference/pedfclass.html">pedfclass()</a></code> rename</strong>: Renamed the inbreeding-class summary helper from <code>pedinbreedclass()</code> to <code><a href="../reference/pedfclass.html">pedfclass()</a></code> to align with the package naming guide and provide a shorter, clearer user-facing API.</li>
+<li>
+<strong><code><a href="../reference/pedfclass.html">pedfclass()</a></code> output refinement</strong>: Renamed the returned class column from <code>F_Class</code> to <code>FClass</code>, and added support for user-defined inbreeding class breakpoints through the <code>breaks</code> and <code>labels</code> arguments.</li>
+<li>
+<strong><code><a href="../reference/pedgenint.html">pedgenint()</a></code> parameter rename</strong>: Renamed <code>cycle_length</code> to <code>cycle</code> for consistency with the package naming guide.</li>
+<li>
+<strong><code><a href="../reference/pedgenint.html">pedgenint()</a></code> / <code><a href="../reference/pedstats.html">pedstats()</a></code> <code>unit</code> parameter</strong>: Removed <code>"gen"</code> from <code>unit</code> options. The <code>unit</code> parameter now only accepts <code>"year"</code>, <code>"month"</code>, <code>"day"</code>, or <code>"hour"</code>. The previous <code>"gen"</code> option produced incorrect results when combined with date inputs.</li>
+<li>
+<strong><code><a href="../reference/pedgenint.html">pedgenint()</a></code> <code>timevar</code> definition</strong>: Clarified <code>timevar</code> as a <strong>birth date</strong> column. Numeric year inputs (e.g., <code>2020</code>) are now automatically converted to <code>Date</code> (<code>"YYYY-07-01"</code>) with an informational message. Character date strings are parsed via <code><a href="https://rdrr.io/r/base/as.POSIXlt.html" class="external-link">as.POSIXct()</a></code> with <code>tz = "UTC"</code> to avoid DST artifacts.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="minor-improvements-and-bug-fixes-1-3-2">Minor improvements and bug fixes<a class="anchor" aria-label="anchor" href="#minor-improvements-and-bug-fixes-1-3-2"></a></h3>
+<ol style="list-style-type: decimal"><li>
+<strong>Documentation Audit</strong>: Refined internal documentation for <code><a href="../reference/pedsubpop.html">pedsubpop()</a></code> to clarify its use cases alongside <code><a href="../reference/splitped.html">splitped()</a></code>.</li>
+<li>
+<strong><code><a href="../reference/vispstat.html">vispstat()</a></code> pathway filter fix</strong>: Fixed an issue where the generation-interval bar chart could silently drop pathways due to an overly broad <code><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor()</a></code> filter. Now uses explicit <code>%in% c("SS", "SD", "DS", "DD")</code> subsetting.</li>
+<li>
+<strong><code>.parse_to_numeric_time()</code> rewrite</strong>: Completely rewrote the internal time parser to handle <code>Date</code>, <code>POSIXct</code>, character date strings, and numeric years robustly. All <code>POSIXct</code> conversions now use <code>tz = "UTC"</code> to prevent DST-related artifacts.</li>
+</ol></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.3.1" id="changes-in-version-131-released-on-12-mar-2026">Changes in version 1.3.1 released on 12 Mar 2026<a class="anchor" aria-label="anchor" href="#changes-in-version-131-released-on-12-mar-2026"></a></h2>
+<div class="section level3">
+<h3 id="new-features-1-3-1">New features<a class="anchor" aria-label="anchor" href="#new-features-1-3-1"></a></h3>
+<ol style="list-style-type: decimal"><li>Added the <code>selfing</code> argument to <code><a href="../reference/tidyped.html">tidyped()</a></code> to support plant and aquaculture pedigrees where an individual can appear as both Sire and Dam, resolving biologically impossible sex conflict errors (<a href="https://github.com/luansheng/visPedigree/issues/10" class="external-link">#10</a>).</li>
+<li>
+<strong><code><a href="../reference/pedrel.html">pedrel()</a></code> logic upgrade</strong>: Modified <code><a href="../reference/pedrel.html">pedrel()</a></code> to use full ancestral tracing via <code>tidyped(ped, cand = ...)</code> when calculating sub-group relationships. This ensures that relationships in deep-inbred populations (e.g., full-sib mating over multiple generations) are calculated correctly rather than being underestimated due to ancestor truncation.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="api-changes-1-3-1">API Changes<a class="anchor" aria-label="anchor" href="#api-changes-1-3-1"></a></h3>
+<ol style="list-style-type: decimal"><li>
+<strong><code><a href="../reference/pedancestry.html">pedancestry()</a></code> parameter rename</strong>: Renamed <code>labelvar</code> to <code>foundervar</code> and <code>labels</code> to <code>target_labels</code> to align with the package naming guide and make the ancestry-tracing interface more explicit. Old argument names are no longer supported because this function is still under active development.</li>
+<li>
+<strong><code><a href="../reference/pedecg.html">pedecg()</a></code> parameter cleanup</strong>: Removed the short-lived <code>reference</code> argument. It only filtered rows after a full ECG pass and did not define a true reference population or prune the pedigree before calculation. Users should subset the returned table directly if needed.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="minor-improvements-and-bug-fixes-1-3-1">Minor improvements and bug fixes<a class="anchor" aria-label="anchor" href="#minor-improvements-and-bug-fixes-1-3-1"></a></h3>
+<ol style="list-style-type: decimal"><li>
+<strong>Academic nomenclature alignment</strong>: Updated documentation for <code><a href="../reference/pedrel.html">pedrel()</a></code> and <code><a href="../reference/pedne.html">pedne()</a></code> to explicitly distinguish between <strong>Additive Genetic Relationship (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>a</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><annotation encoding="application/x-tex">a_{ij}</annotation></semantics></math>)</strong> and <strong>Coancestry (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>f</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><annotation encoding="application/x-tex">f_{ij}</annotation></semantics></math>)</strong>.
+<ul><li>
+<code><a href="../reference/pedrel.html">pedrel()</a></code> now clearly states it returns <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>a</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo>=</mo><mn>2</mn><msub><mi>f</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub></mrow><annotation encoding="application/x-tex">a_{ij} = 2f_{ij}</annotation></semantics></math>.</li>
+<li>
+<code><a href="../reference/pedne.html">pedne()</a></code> documentation now specifies that its <code>"coancestry"</code> method is based on <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>f</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><annotation encoding="application/x-tex">f_{ij}</annotation></semantics></math>.</li>
+</ul></li>
+<li>Individuals acting as both parents are now identified as <code>"monoecious"</code> in the <code>Sex</code> column.</li>
+<li>
+<code><a href="../reference/visped.html">visped()</a></code> now uses a distinct teal color (<code>#26a69a</code>) to render <code>"monoecious"</code> individuals, ensuring clear visual separation from males, females, and highlighted nodes.</li>
+<li>Pedigree edges are now colored based on the parent’s role in a specific mating (Sire blue, Dam gold, Selfing teal) rather than invariant node sex, allowing monoecious individuals to display role-appropriate connection colors.</li>
+<li>
+<code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> and <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> methods for <code>tidyped</code> objects now accurately report the count and percentage of monoecious individuals.</li>
+<li>
+<strong>Efficiency Optimization</strong>: Optimized <code><a href="../reference/pedancestry.html">pedancestry()</a></code> initialization on large pedigrees by using vectorized matrix indexing, significantly reducing overhead for pedigrees with &gt;25k nodes.</li>
+<li>Added a new unit test for <code><a href="../reference/pedrel.html">pedrel()</a></code> to verify correct relationship calculation in deep-inbreeding scenarios (Gen 4 relationships reaching 1.0).</li>
+</ol></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.3.0" id="changes-in-version-130-released-on-10-mar-2026">Changes in version 1.3.0 released on 10 Mar 2026<a class="anchor" aria-label="anchor" href="#changes-in-version-130-released-on-10-mar-2026"></a></h2>
+<div class="section level3">
+<h3 id="new-features-1-3-0">New Features<a class="anchor" aria-label="anchor" href="#new-features-1-3-0"></a></h3>
+<ol style="list-style-type: decimal"><li>
+<strong>Founder Genome Equivalents (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>f</mi><mi>g</mi></msub><annotation encoding="application/x-tex">f_g</annotation></semantics></math>)</strong>: Integrated the robust calculation of Founder Genome Equivalents into <code><a href="../reference/pediv.html">pediv()</a></code>. It directly evaluates the mean coancestry while properly correcting for diagonal intra-cohort elements through adaptive scaling, keeping computational costs linear relative to the reference cohort size.</li>
+<li>
+<strong>Reproducible Parameter Inference</strong>: Added a <code>seed</code> argument to both <code><a href="../reference/pedne.html">pedne()</a></code> and <code><a href="../reference/pediv.html">pediv()</a></code> functions functions enabling precise reproducible sampling for effective population size estimations (Ne) and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>f</mi><mi>g</mi></msub><annotation encoding="application/x-tex">f_g</annotation></semantics></math> computations using Monte Carlo approximations.</li>
+</ol></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.2.3" id="changes-in-version-123-released-on-08-mar-2026">Changes in version 1.2.3 released on 08 Mar 2026<a class="anchor" aria-label="anchor" href="#changes-in-version-123-released-on-08-mar-2026"></a></h2>
+<div class="section level3">
+<h3 id="bug-fixes-1-2-3">Bug Fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-1-2-3"></a></h3>
+<ol style="list-style-type: decimal"><li>
+<strong>Trace edge highlighting in <code><a href="../reference/visped.html">visped()</a></code></strong>: Fixed incorrect edge highlighting when using <code>trace = "all"</code>. Previously, when a node was highlighted as both an ancestor (via upward tracing) and a parent of descendants (via downward tracing), the cross-path edges were incorrectly highlighted. For example, <code>visped(tp, highlight = "X", trace = "all")</code> would incorrectly highlight the edge from N to Z1/Z2, even though that parent-child relationship is not on X’s trace path. The fix separates the up and down trace paths and uses <code>trace_edges</code> to precisely control which edges are highlighted.</li>
+<li>
+<strong>Focal node upward edge in <code>trace = "down"</code></strong>: Fixed an issue where the focal node’s upward connection to its parents’ family node was incorrectly shown as highlighted when tracing downward only. For example, <code>visped(tp, highlight = "X", trace = "down")</code> would show X’s edge to the UxV family node in solid black, even though X’s ancestors are not part of the downward trace. Now, <code>individual → family</code> edges are only highlighted when the individual appears as a child in the traced path.</li>
+</ol></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.2.2" id="changes-in-version-122-released-on-08-mar-2026">Changes in version 1.2.2 released on 08 Mar 2026<a class="anchor" aria-label="anchor" href="#changes-in-version-122-released-on-08-mar-2026"></a></h2>
+<div class="section level3">
+<h3 id="new-features-1-2-2">New Features<a class="anchor" aria-label="anchor" href="#new-features-1-2-2"></a></h3>
+<ol style="list-style-type: decimal"><li>
+<strong>Unified Diversity Analysis (<code>pediv</code>)</strong>: Added <code><a href="../reference/pediv.html">pediv()</a></code> as a single entry-point wrapper that aggregates founder contributions (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>f</mi><mi>e</mi></msub><annotation encoding="application/x-tex">f_e</annotation></semantics></math>), ancestor contributions (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>f</mi><mi>a</mi></msub><annotation encoding="application/x-tex">f_a</annotation></semantics></math>), and all three Ne estimates (coancestry, inbreeding, demographic) into one consolidated <code>pediv</code> S3 object. A dedicated <code><a href="../reference/print.pediv.html">print.pediv()</a></code> method provides a formatted summary table.</li>
+<li>
+<strong>New Dataset (<code>complex_ped</code>)</strong>: Added <code>complex_ped</code>, a multi-generation pedigree dataset suitable for testing deeper ancestry tracing and cross-generation diversity analyses.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="api-changes-1-2-2">API Changes<a class="anchor" aria-label="anchor" href="#api-changes-1-2-2"></a></h3>
+<ol style="list-style-type: decimal"><li>
+<strong>Parameter Rename (<code>cand</code> → <code>reference</code>)</strong>: Standardized the reference population parameter name across all relevant analysis functions:
+<ul><li>
+<code>pedne(... , reference = NULL)</code> (previously <code>cand</code>)</li>
+<li>
+<code>pedcontrib(... , reference = NULL)</code> (previously <code>cand</code>)</li>
+<li>
+<code>pedrel(... , reference = NULL)</code> (previously <code>cand</code>)</li>
+</ul>
+The new name better reflects population genetics terminology, where the target group is the <strong>reference population</strong> rather than a set of “candidates”. <em>(Note: Old <code>cand</code> argument is no longer supported; please update existing scripts.)</em>
+</li>
+</ol></div>
+<div class="section level3">
+<h3 id="documentation-1-2-2">Documentation<a class="anchor" aria-label="anchor" href="#documentation-1-2-2"></a></h3>
+<ol style="list-style-type: decimal"><li>
+<strong>Vignette Rewrite (<code>pedigree-analysis.Rmd</code>)</strong>: Completely restructured the pedigree analysis vignette with expanded theory explanations for <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>f</mi><mi>e</mi></msub><annotation encoding="application/x-tex">f_e</annotation></semantics></math>, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>f</mi><mi>a</mi></msub><annotation encoding="application/x-tex">f_a</annotation></semantics></math>, and Ne, updated code examples using <code><a href="../reference/pediv.html">pediv()</a></code> and the new <code>reference</code> parameter, and improved narrative linking the statistical outputs to practical breeding decisions.</li>
+<li>
+<strong>Workspace Reorganization</strong>: Moved development-only files (<code>MACOS_OPENMP_FIX.md</code>, <code>manuscript.md</code>, analysis scripts) into <code>sandbox/</code> to keep the package root clean. Added corresponding <code>.gitignore</code> and <code>.Rbuildignore</code> rules.</li>
+</ol></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.2.1" id="changes-in-version-121-released-on-07-mar-2026">Changes in version 1.2.1 released on 07 Mar 2026<a class="anchor" aria-label="anchor" href="#changes-in-version-121-released-on-07-mar-2026"></a></h2>
+<div class="section level3">
+<h3 id="new-features-1-2-1">New Features<a class="anchor" aria-label="anchor" href="#new-features-1-2-1"></a></h3>
+<ol style="list-style-type: decimal"><li>
+<strong>Ancestral Analysis (<code>pedcontrib</code>)</strong>: Added robust algorithms for assessing genetic diversity through gene origin probabilities. Computes the <strong>effective number of founders (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>f</mi><mi>e</mi></msub><annotation encoding="application/x-tex">f_e</annotation></semantics></math>)</strong> via recursive gene derivation and the <strong>effective number of ancestors (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>f</mi><mi>a</mi></msub><annotation encoding="application/x-tex">f_a</annotation></semantics></math>)</strong> via Boichard’s iterative algorithm.</li>
+<li>
+<strong>Missing Parent Conservation (“Phantom Parents”)</strong>: Implemented correct probability mass conservation. In <code>pedcontrib</code>, single missing parents (half-founders) are seamlessly augmented with temporary “phantom parents” before processing, overcoming the critical issue of gene probability leakage found in earlier tools.</li>
+<li>
+<strong>Ancestry Proportions (<code>pedancestry</code>)</strong>: Added <code><a href="../reference/pedancestry.html">pedancestry()</a></code> function to trace line origins and monitor the surviving proportion of genes from specified historic founder lines or strains down to modern descendants.</li>
+<li>
+<strong>Partial Inbreeding (<code>pedpartial</code>)</strong>: Engineered the Meuwissen &amp; Luo (1992) based partial inbreeding decomposition <code><a href="../reference/pedpartial.html">pedpartial()</a></code>. Enables breaking down the overall inbreeding coefficient into discrete fractions attributed to specifically targeted ancestors.</li>
+<li>
+<strong>New Dataset (<code>half_founder_ped</code>)</strong>: Added empirical ENDOG dataset containing instances of strictly missing single parents (sire known, dam unknown, etc.) specifically engineered to test and validate phantom-parent corrections.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="performance-1-2-1">Performance<a class="anchor" aria-label="anchor" href="#performance-1-2-1"></a></h3>
+<ol style="list-style-type: decimal"><li>
+<strong>Peeling Core Engine</strong>: Rebuilt the C++ core array engine backing the <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>f</mi><mi>a</mi></msub><annotation encoding="application/x-tex">f_a</annotation></semantics></math> and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>f</mi><mi>e</mi></msub><annotation encoding="application/x-tex">f_e</annotation></semantics></math> calculations. Execution latency for incredibly massive and deep graphs (&gt;180,000 nodes) was resolved, avoiding hanging scenarios by limiting computational bounds optimally inside <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>K</mi><mo>×</mo><mi>N</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">O(K \times N)</annotation></semantics></math> array states.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="documentation-1-2-1">Documentation<a class="anchor" aria-label="anchor" href="#documentation-1-2-1"></a></h3>
+<ol style="list-style-type: decimal"><li>
+<strong>Analysis Indexing</strong>: Expanded <code>_pkgdown.yml</code> configuration mapping to fully expose all newly engineered high-level pedigree statistical functions (<code>pedancestry</code>, <code>pedcontrib</code>, <code>pedpartial</code>, <code>pedecg</code>, etc.) within the main Reference documentation.</li>
+<li>
+<strong>Analysis Vignettes</strong>: Updated <code>vignettes/pedigree-analysis.Rmd</code> carefully illustrating Boichard’s genetic bottleneck interpretations (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>f</mi><mi>e</mi></msub><annotation encoding="application/x-tex">f_e</annotation></semantics></math> vs <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>f</mi><mi>a</mi></msub><annotation encoding="application/x-tex">f_a</annotation></semantics></math>) alongside new code examples for tracing targeted lineage flows.</li>
+</ol></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.2.0" id="changes-in-version-120-released-on-04-mar-2026">Changes in version 1.2.0 released on 04 Mar 2026<a class="anchor" aria-label="anchor" href="#changes-in-version-120-released-on-04-mar-2026"></a></h2>
+<div class="section level3">
+<h3 id="new-features-1-2-0">New Features<a class="anchor" aria-label="anchor" href="#new-features-1-2-0"></a></h3>
+<ol style="list-style-type: decimal"><li>
+<strong>Enhanced Effective Population Size (Ne) Calculation</strong>:
+<ul><li>The <code><a href="../reference/pedne.html">pedne()</a></code> function has been significantly expanded and now supports three robust methods for estimating Ne in breeding populations:
+<ul><li>
+<strong><code>coancestry</code></strong> (New Default): Based on the rate of coancestry (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Δ</mi><mi>c</mi></mrow><annotation encoding="application/x-tex">\Delta c</annotation></semantics></math>). This method captures the loss of genetic potential and is considered the “gold standard” for populations under selection pressure. It typically yields a smaller, more conservative Ne estimate than inbreeding-based methods, providing a better early warning signal for genetic diversity loss.</li>
+<li>
+<strong><code>inbreeding</code></strong>: Based on the individual rate of inbreeding (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Δ</mi><mi>F</mi></mrow><annotation encoding="application/x-tex">\Delta F</annotation></semantics></math>). This method reflects the realized inbreeding but may overestimate Ne in managed populations where mating between relatives is actively avoided.</li>
+<li>
+<strong><code>demographic</code></strong>: A census-based method using the number of breeding males (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>N</mi><mi>m</mi></msub><annotation encoding="application/x-tex">N_m</annotation></semantics></math>) and females (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>N</mi><mi>f</mi></msub><annotation encoding="application/x-tex">N_f</annotation></semantics></math>).</li>
+</ul></li>
+</ul></li>
+<li>
+<strong>Parallel Processing Support</strong>:
+<ul><li>Introduced <strong>OpenMP multi-threading</strong> for the computationally intensive <code>coancestry</code> method. Users can now specify <code>ncores</code> to speed up large-scale matrix calculations.</li>
+<li>Added a <code>nsamples</code> parameter to allow efficient estimation on massive pedigrees by sampling subsets of each cohort.</li>
+</ul></li>
+</ol></div>
+<div class="section level3">
+<h3 id="performance-1-2-0">Performance<a class="anchor" aria-label="anchor" href="#performance-1-2-0"></a></h3>
+<ol style="list-style-type: decimal"><li>
+<strong>C++ Optimization</strong>:
+<ul><li>Implemented a high-performance C++ backend (<code>cpp_calculate_sampled_coancestry_delta</code>) using <code>RcppArmadillo</code>. This replaces the previous R-based logic for coancestry calculations, enabling the analysis of much larger datasets.</li>
+</ul></li>
+</ol></div>
+<div class="section level3">
+<h3 id="documentation-1-2-0">Documentation<a class="anchor" aria-label="anchor" href="#documentation-1-2-0"></a></h3>
+<ol style="list-style-type: decimal"><li>
+<strong>Clarified Parameter Scopes</strong>: Updated documentation for <code><a href="../reference/pedne.html">pedne()</a></code> to explicitly state that <code>ncores</code> and <code>nsamples</code> parameters are specific to the <code>method = "coancestry"</code> calculation path.</li>
+<li>
+<strong>Method Descriptions</strong>: Expanded details on the three Ne calculation methods to help users choose the most appropriate metric for their breeding program.</li>
+</ol></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.1.1" id="changes-in-version-111-released-on-02-mar-2026">Changes in version 1.1.1 released on 02 Mar 2026<a class="anchor" aria-label="anchor" href="#changes-in-version-111-released-on-02-mar-2026"></a></h2>
+<div class="section level3">
+<h3 id="new-features-1-1-1">New Features<a class="anchor" aria-label="anchor" href="#new-features-1-1-1"></a></h3>
+<ol style="list-style-type: decimal"><li>
+<strong>pedgenint Sex-Independent Pathways</strong>: Added evaluation of <code>SO</code> (Sire-to-Offspring) and <code>DO</code> (Dam-to-Offspring) generation intervals alongside the standard 4 pathways. This is especially useful for aquatic species (like shrimp) or early-stage screening where offspring sex might remain unknown.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="api-changes-and-refactoring-1-1-1">API Changes and Refactoring<a class="anchor" aria-label="anchor" href="#api-changes-and-refactoring-1-1-1"></a></h3>
+<ol style="list-style-type: decimal"><li>
+<strong>pedne Interface Standardization</strong>:
+<ul><li>Renamed arguments <code>timevar</code> to <code>by</code>, and <code>cohort</code> to <code>cand</code> to harmonize parameter naming conventions across the package.</li>
+<li>Removed unused and misleading parameters (<code>unit</code>, <code>cycle_length</code>, <code>maxgen</code>). The effective population size Ne calculation innately depends on Equivalent Complete Generations (ECG), making it independent of scalar temporal units.</li>
+</ul></li>
+<li>
+<strong>vismat Parameter Alignment</strong>: Renamed <code>grouping</code> argument to <code>by</code> to maintain grouping consistency.<br><em>(Note: Old arguments <code>timevar</code>, <code>cohort</code> in <code><a href="../reference/pedne.html">pedne()</a></code> and <code>grouping</code> in <code><a href="../reference/vismat.html">vismat()</a></code> are retained for backward compatibility but will display a deprecation warning.)</em>
+</li>
+</ol></div>
+<div class="section level3">
+<h3 id="bug-fixes-1-1-1">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-1-1-1"></a></h3>
+<ol style="list-style-type: decimal"><li>
+<strong>pedrel Correctness</strong>: Fixed a critical calculation bug in <code><a href="../reference/pedrel.html">pedrel()</a></code> where the mean average relatedness calculation erroneously divided the sum of the full relationship matrix (including all traced ancestors) by only the size of the target subgroup. It now cleanly subsets the relationship matrix, and correctly handles boundary limits (<code>NUsed &lt; 2</code>). The output columns <code>N</code> and <code>MeanRel</code> behavior has been replaced with <code>NTotal</code>, <code>NUsed</code>, and <code>MeanRel</code>.</li>
+<li>
+<strong>pedgenint Aggregation</strong>: Fixed <code><a href="../reference/pedgenint.html">pedgenint()</a></code> to output appropriate unweighted mixture standard deviation for generating generation intervals alongside its unweighted 4-pathway average interval estimate.</li>
+<li>
+<strong>pedgenint Sample Size (N)</strong>: Fixed an issue where the <code>Average</code> pathway N was severely underestimated. It now accurately evaluates all parent-offspring pairs via <code>calc_all_pathway()</code>.</li>
+<li>
+<strong>pedcontrib Accuracy</strong>: Standardized effective founders (<code>Ne_f</code>) and effective ancestors (<code>Ne_a</code>) calculation in <code><a href="../reference/pedcontrib.html">pedcontrib()</a></code> to ensure they are calculated based upon the full un-truncated cohort before outputting strictly the <code>top</code> n-ranked figures. Results list has been augmented with variables tracking the <code>_total</code> and <code>_reported</code> count values.</li>
+<li>
+<strong>pedcontrib Deep Pedigree Latency</strong>: Replaced a string-named vector backward pass with a pure integer-indexed backward pass, resolving instances where evaluating contributions on deep, large pedigrees (e.g., &gt; 200,000 records) would hang indefinitely due to scaling constraints.</li>
+<li>
+<strong>pedpartial / pedancestry Input Compatibility</strong>: Ensured missing numeric identifiers in incoming pedigrees (e.g. <code>addnum = FALSE</code>) do not break <code><a href="../reference/pedpartial.html">pedpartial()</a></code> or <code><a href="../reference/pedancestry.html">pedancestry()</a></code>. Increased performance of the pedigree propagation loop in <code>pedancestry</code> by dropping an internal array linear probe algorithm with an immediate linear vector lookup.</li>
+<li>
+<strong>pedne Performance bottleneck</strong>: Removed an obsolete <code>O(N^2)</code> individual traversal evaluation (<code>calc_ancestral_f()</code>), streamlining calculation purely around the efficient direct formula by Gutiérrez et al.</li>
+</ol></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.1.0" id="changes-in-version-110-released-on-01-mar-2026">Changes in version 1.1.0 released on 01 Mar 2026<a class="anchor" aria-label="anchor" href="#changes-in-version-110-released-on-01-mar-2026"></a></h2>
+<div class="section level3">
+<h3 id="new-features-1-1-0">New Features<a class="anchor" aria-label="anchor" href="#new-features-1-1-0"></a></h3>
+<ol style="list-style-type: decimal"><li>
+<strong>Pedigree Analysis Module</strong>: Introduced a comprehensive suite of pedigree analysis and population genetics tools.
+<ul><li>
+<code><a href="../reference/pedstats.html">pedstats()</a></code>: Calculate holistic and demographic statistics.</li>
+<li>
+<code><a href="../reference/pedrel.html">pedrel()</a></code>: Formulate average relatedness within specific population groupings.</li>
+<li>
+<code><a href="../reference/pedgenint.html">pedgenint()</a></code>: Compute distinct breeding pathways (SS, SD, DS, DD) and overall population generation intervals.</li>
+<li>
+<code><a href="../reference/pedcontrib.html">pedcontrib()</a></code>: Determine genetic contributions from founders (<code>Ne_f</code>) and prominent ancestors (<code>Ne_a</code>) utilizing iterative gene flow derivations.</li>
+<li>
+<code><a href="../reference/pedancestry.html">pedancestry()</a></code>: Establish proportionality of ancestral lineages on subsequent descendants.</li>
+<li>
+<code><a href="../reference/pedpartial.html">pedpartial()</a></code>: Decompose inbreeding mechanisms to detect fractional/partial origins from core ancestors.</li>
+</ul></li>
+<li>
+<strong>Pedigree Analysis Visualization</strong>: Added <code><a href="../reference/vispstat.html">vispstat()</a></code> to intuitively render bar charts of generation intervals and histogram distributions detailing depth tracking factors (like Equivalent Complete Generations).</li>
+</ol></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.0.1" id="changes-in-version-101-released-on-31-jan-2026">Changes in version 1.0.1 released on 31 Jan 2026<a class="anchor" aria-label="anchor" href="#changes-in-version-101-released-on-31-jan-2026"></a></h2><p class="text-muted">CRAN release: 2026-02-23</p>
 <div class="section level3">

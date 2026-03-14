@@ -154,7 +154,7 @@ x <- data.table::copy(simple_ped)
 x[ID == "J2F588", Sire := "J0Z167"]
 y <- tidyped(x)
 #> Error:
-#> ! Sex conflict detected: The following individual(s) appear as both Sire and Dam: J0Z167. This is biologically impossible. Please check and correct the pedigree data.
+#> ! Sex conflict detected: The following individual(s) appear as both Sire and Dam: J0Z167. This is biologically impossible. Please check and correct the pedigree data. If this is a plant pedigree with monoecious species, set selfing = TRUE.
 ```
 
 The

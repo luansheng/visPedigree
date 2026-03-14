@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">visPedigree</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -19,6 +19,7 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/draw-pedigree.html">2. How to draw a pedigree</a></li>
+    <li><a class="dropdown-item" href="../articles/pedigree-analysis.html">Pedigree Analysis and Population Genetics</a></li>
     <li><a class="dropdown-item" href="../articles/relationship-matrix.html">3. Calculation and visualization of relationship matrix</a></li>
     <li><a class="dropdown-item" href="../articles/tidy-pedigree.html">1. How to tidy a pedigree</a></li>
   </ul></li>
@@ -120,6 +121,90 @@
 
         </dt>
         <dd>Calculate inbreeding coefficients</dd>
+
+        <dt>
+
+          <code><a href="pedancestry.html">pedancestry()</a></code>
+
+        </dt>
+        <dd>Calculate Ancestry Proportions</dd>
+
+        <dt>
+
+          <code><a href="pedcontrib.html">pedcontrib()</a></code>
+
+        </dt>
+        <dd>Calculate Founder and Ancestor Contributions</dd>
+
+        <dt>
+
+          <code><a href="pedecg.html">pedecg()</a></code>
+
+        </dt>
+        <dd>Calculate Equi-Generate Coefficient</dd>
+
+        <dt>
+
+          <code><a href="pedfclass.html">pedfclass()</a></code>
+
+        </dt>
+        <dd>Summarize Inbreeding Levels</dd>
+
+        <dt>
+
+          <code><a href="pedgenint.html">pedgenint()</a></code>
+
+        </dt>
+        <dd>Calculate Generation Intervals</dd>
+
+        <dt>
+
+          <code><a href="pediv.html">pediv()</a></code>
+
+        </dt>
+        <dd>Calculate Genetic Diversity Indicators</dd>
+
+        <dt>
+
+          <code><a href="pedmat.html">pedmat()</a></code>
+
+        </dt>
+        <dd>Genetic Relationship Matrices and Inbreeding Coefficients</dd>
+
+        <dt>
+
+          <code><a href="pedne.html">pedne()</a></code>
+
+        </dt>
+        <dd>Calculate Effective Population Size</dd>
+
+        <dt>
+
+          <code><a href="pedpartial.html">pedpartial()</a></code>
+
+        </dt>
+        <dd>Calculate Partial Inbreeding</dd>
+
+        <dt>
+
+          <code><a href="pedrel.html">pedrel()</a></code>
+
+        </dt>
+        <dd>Calculate Average Additive Genetic Relationship ($a_ij$)</dd>
+
+        <dt>
+
+          <code><a href="pedstats.html">pedstats()</a></code>
+
+        </dt>
+        <dd>Pedigree Statistics</dd>
+
+        <dt>
+
+          <code><a href="pedsubpop.html">pedsubpop()</a></code>
+
+        </dt>
+        <dd>Pedigree Subpopulations</dd>
       </dl></div><div class="section level2">
       <h2 id="datasets">Datasets<a class="anchor" aria-label="anchor" href="#datasets"></a></h2>
 
@@ -139,10 +224,31 @@
 
         <dt>
 
+          <code><a href="complex_ped.html">complex_ped</a></code>
+
+        </dt>
+        <dd>A complex pedigree</dd>
+
+        <dt>
+
           <code><a href="deep_ped.html">deep_ped</a></code>
 
         </dt>
         <dd>A deep pedigree</dd>
+
+        <dt>
+
+          <code><a href="half_founder_ped.html">half_founder_ped</a></code>
+
+        </dt>
+        <dd>A pedigree with half founders</dd>
+
+        <dt>
+
+          <code><a href="inbred_ped.html">inbred_ped</a></code>
+
+        </dt>
+        <dd>A highly inbred pedigree</dd>
 
         <dt>
 
@@ -183,6 +289,13 @@
 
         <dt>
 
+          <code><a href="vispstat.html">vispstat()</a></code> <code><a href="vispstat.html">plot(<i>&lt;pedstats&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Visualize Pedigree Statistics</dd>
+
+        <dt>
+
           <code><a href="summary.tidyped.html">summary(<i>&lt;tidyped&gt;</i>)</a></code>
 
         </dt>
@@ -194,6 +307,27 @@
 
         </dt>
         <dd>Summary Statistics for Pedigree Matrices</dd>
+
+        <dt>
+
+          <code><a href="print.pedcontrib.html">print(<i>&lt;pedcontrib&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Print Founder and Ancestor Contributions</dd>
+
+        <dt>
+
+          <code><a href="print.pediv.html">print(<i>&lt;pediv&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Print Genetic Diversity Summary</dd>
+
+        <dt>
+
+          <code><a href="print.pedstats.html">print(<i>&lt;pedstats&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Print Pedigree Statistics</dd>
 
         <dt>
 

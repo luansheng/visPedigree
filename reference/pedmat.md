@@ -345,6 +345,6 @@ AA <- pedmat(tped, method = "AA")
 if (FALSE) { # \dontrun{
 vismat(A)                       # Heatmap of relationship matrix
 vismat(A_compact)               # Works with compact matrices
-vismat(A, grouping = "Gen")     # Group by generation
+vismat(A, by = "Gen")     # Group by generation
 } # }
 ```

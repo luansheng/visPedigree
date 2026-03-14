@@ -176,12 +176,14 @@ The outline of a pedigree without individual labels is still shown if
 the width of a pedigree graph exceeds the maximum width (500 inches) of
 the PDF file.
 
-In the graph, two shapes and three colors are used. Circles represent
+In the graph, two shapes and four colors are used. Circles represent
 individuals, and squares represent families. Dark sky blue indicates
-males, dark goldenrod indicates females, and dark olive green indicates
-unknown sex. For example, a dark sky blue circle represents a male
-individual; a dark goldenrod square represents all female individuals in
-a full-sib family when `compact = TRUE`.
+males, dark goldenrod indicates females, purple indicates monoecious
+individuals (common in plant breeding, where the same individual serves
+as both male and female parent), and dark olive green indicates unknown
+sex. For example, a dark sky blue circle represents a male individual; a
+dark goldenrod square represents all female individuals in a full-sib
+family when `compact = TRUE`.
 
 ## Note
 
@@ -245,7 +247,7 @@ visped(simple_ped_tidy,
        symbolsize=5.5, 
        pagewidth = 100, 
        file = tempfile(fileext = ".pdf"))
-#> Pedigree saved to: /tmp/Rtmp4xYfen/file1d34d0bc3e8.pdf
+#> Pedigree saved to: /tmp/RtmpOtTUMv/file1cb12e64a956.pdf
 #> Label cex: 0.25. Symbol size: 5.5. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 
 
@@ -275,7 +277,7 @@ visped(big_ped_tidy,
        symbolsize=5.5, 
        file = tempfile(fileext = ".pdf"))
 #> Note: Removed 351 isolated individuals (no parents, no progeny) from the plot.
-#> Pedigree saved to: /tmp/Rtmp4xYfen/file1d3486aa255.pdf
+#> Pedigree saved to: /tmp/RtmpOtTUMv/file1cb15978f396.pdf
 #> Label cex: 0.08. Symbol size: 5.5. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 
 
@@ -285,7 +287,7 @@ visped(big_ped_tidy,
        outline = TRUE, 
        file = tempfile(fileext = ".pdf"))
 #> Note: Removed 351 isolated individuals (no parents, no progeny) from the plot.
-#> Pedigree saved to: /tmp/Rtmp4xYfen/file1d3416cdb1ef.pdf
+#> Pedigree saved to: /tmp/RtmpOtTUMv/file1cb155940313.pdf
 
 # }
 ```

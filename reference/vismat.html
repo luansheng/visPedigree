@@ -13,7 +13,7 @@ inbred individuals, and analyzing kinship between families."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">visPedigree</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -25,6 +25,7 @@ inbred individuals, and analyzing kinship between families."></head><body>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/draw-pedigree.html">2. How to draw a pedigree</a></li>
+    <li><a class="dropdown-item" href="../articles/pedigree-analysis.html">Pedigree Analysis and Population Genetics</a></li>
     <li><a class="dropdown-item" href="../articles/relationship-matrix.html">3. Calculation and visualization of relationship matrix</a></li>
     <li><a class="dropdown-item" href="../articles/tidy-pedigree.html">1. How to tidy a pedigree</a></li>
   </ul></li>
@@ -60,6 +61,7 @@ inbred individuals, and analyzing kinship between families.</p>
 <span>  type <span class="op">=</span> <span class="st">"heatmap"</span>,</span>
 <span>  ids <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  reorder <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  by <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  grouping <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  labelcex <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
@@ -83,7 +85,7 @@ coefficients.</p></dd>
 <dt id="arg-ped">ped<a class="anchor" aria-label="anchor" href="#arg-ped"></a></dt>
 <dd><p>Optional. A tidied pedigree object (<code>tidyped</code>), used for
 extracting labels or grouping information. Required when using the
-<code>grouping</code> parameter. If <code>mat</code> is a <code>pedmat</code> object,
+<code>by</code> parameter. If <code>mat</code> is a <code>pedmat</code> object,
 the pedigree can be automatically extracted from its attributes.</p></dd>
 
 
@@ -112,13 +114,17 @@ Full-sibs have nearly identical relationship profiles with the population,
 so they cluster tightly together.</p></dd>
 
 
-<dt id="arg-grouping">grouping<a class="anchor" aria-label="anchor" href="#arg-grouping"></a></dt>
+<dt id="arg-by">by<a class="anchor" aria-label="anchor" href="#arg-by"></a></dt>
 <dd><p>Optional. Column name in <code>ped</code> to group by (e.g.,
 <code>"Family"</code>, <code>"Gen"</code>, <code>"Year"</code>). When grouping is enabled:</p><ul><li><p>Individual-level matrix is aggregated to group-level matrix
         (computing mean relationship coefficients between groups)</p></li>
 <li><p>For <code>"Family"</code> grouping, founders without family assignment are excluded</p></li>
 <li><p>For other grouping columns, NA values are assigned to <code>"Unknown"</code> group</p></li>
 </ul><p>This is useful for analyzing the structure of large populations.</p></dd>
+
+
+<dt id="arg-grouping">grouping<a class="anchor" aria-label="anchor" href="#arg-grouping"></a></dt>
+<dd><p><code>[Deprecated]</code> Use <code>by</code> instead.</p></dd>
 
 
 <dt id="arg-labelcex">labelcex<a class="anchor" aria-label="anchor" href="#arg-labelcex"></a></dt>
@@ -258,13 +264,13 @@ generated on the current graphics device.</p>
 <span class="r-in"><span><span class="co"># ============================================================</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Group by generation</span></span></span>
-<span class="r-in"><span><span class="fu">vismat</span><span class="op">(</span><span class="va">A</span>, ped <span class="op">=</span> <span class="va">ped</span>, grouping <span class="op">=</span> <span class="st">"Gen"</span>, </span></span>
+<span class="r-in"><span><span class="fu">vismat</span><span class="op">(</span><span class="va">A</span>, ped <span class="op">=</span> <span class="va">ped</span>, by <span class="op">=</span> <span class="st">"Gen"</span>, </span></span>
 <span class="r-in"><span>       main <span class="op">=</span> <span class="st">"Mean Relationship Between Generations"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Aggregating 59 individuals into 6 groups based on 'Gen'...</span>
 <span class="r-plt img"><img src="vismat-11.png" alt="" width="1800" height="1800"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Group by family (if pedigree has Family column)</span></span></span>
-<span class="r-in"><span><span class="co"># vismat(A, ped = ped, grouping = "Family")</span></span></span>
+<span class="r-in"><span><span class="co"># vismat(A, ped = ped, by = "Family")</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># ============================================================</span></span></span>
 <span class="r-in"><span><span class="co"># Different Types of Relationship Matrices</span></span></span>
