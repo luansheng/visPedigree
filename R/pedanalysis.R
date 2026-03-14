@@ -74,7 +74,7 @@
 pedgenint <- function(ped, timevar = NULL, unit = c("year", "month", "day", "hour"),
                       format = NULL, cycle = NULL, by = NULL) {
   # Input validation
-  if (!inherits(ped, "tidyped")) stop("ped must be a tidyped object")
+  ped <- ensure_tidyped(ped)
   unit <- match.arg(unit)
   
   # Auto-detect timevar
@@ -351,7 +351,7 @@ pedgenint <- function(ped, timevar = NULL, unit = c("year", "month", "day", "hou
 #' 
 #' @export
 pedsubpop <- function(ped, by = NULL) {
-  if (!inherits(ped, "tidyped")) stop("ped must be a tidyped object")
+  ped <- ensure_tidyped(ped)
   
   if (is.null(by)) {
     splits <- splitped(ped)
@@ -446,7 +446,7 @@ pedsubpop <- function(ped, by = NULL) {
 #' 
 #' @export
 pedrel <- function(ped, by = "Gen", reference = NULL, compact = FALSE) {
-  if (!inherits(ped, "tidyped")) stop("ped must be a tidyped object")
+  ped <- ensure_tidyped(ped)
   if (!by %in% names(ped)) stop(sprintf("Column '%s' not found.", by))
   
   groups <- unique(ped[[by]])
@@ -597,7 +597,7 @@ pedrel <- function(ped, by = "Gen", reference = NULL, compact = FALSE) {
 #'
 #' @export
 pedecg <- function(ped) {
-  if (!inherits(ped, "tidyped")) stop("ped must be a tidyped object")
+  ped <- ensure_tidyped(ped)
   
   n <- nrow(ped)
   ecg <- numeric(n)
@@ -746,7 +746,7 @@ pedecg <- function(ped) {
 #'
 #' @export
 pedstats <- function(ped, timevar = NULL, unit = "year", cycle = NULL, ecg = TRUE, genint = TRUE, ...) {
-  if (!inherits(ped, "tidyped")) stop("ped must be a tidyped object")
+  ped <- ensure_tidyped(ped)
   
   summ <- data.table(
     N = nrow(ped),
@@ -901,7 +901,7 @@ pedne <- function(ped, method = c("coancestry", "inbreeding", "demographic"),
                   by = NULL, reference = NULL, nsamples = 1000, ncores = 1,
                   seed = NULL) {
   
-  if (!inherits(ped, "tidyped")) stop("ped must be a tidyped object")
+  ped <- ensure_tidyped(ped)
   method <- match.arg(method)
   
   # Protect the original data from being modified by reference
@@ -1270,7 +1270,7 @@ fill_phantoms <- function(ped) {
 #'
 #' @export
 pedcontrib <- function(ped, reference = NULL, mode = c("both", "founder", "ancestor"), top = 20) {
-  if (!inherits(ped, "tidyped")) stop("ped must be a tidyped object")
+  ped <- ensure_tidyped(ped)
   
   # Inject phantom parents to conserve genetic contributions accurately
   ped <- fill_phantoms(ped)
@@ -1444,7 +1444,7 @@ pedcontrib <- function(ped, reference = NULL, mode = c("both", "founder", "ances
 #' 
 #' @export
 pedancestry <- function(ped, foundervar, target_labels = NULL) {
-  if (!inherits(ped, "tidyped")) stop("ped must be a tidyped object")
+  ped <- ensure_tidyped(ped)
   if (!foundervar %in% names(ped)) stop(sprintf("Column '%s' not found.", foundervar))
   
   # Forward pass requires numbers
@@ -1557,7 +1557,7 @@ pedancestry <- function(ped, foundervar, target_labels = NULL) {
 pedfclass <- function(ped,
                       breaks = c(0.0625, 0.125, 0.25),
                       labels = NULL) {
-  if (!inherits(ped, "tidyped")) stop("ped must be a tidyped object")
+  ped <- ensure_tidyped(ped)
 
   if (!is.numeric(breaks) || length(breaks) < 1L || any(!is.finite(breaks)) ||
       any(breaks <= 0) || is.unsorted(breaks, strictly = TRUE)) {
@@ -1646,7 +1646,7 @@ pedfclass <- function(ped,
 #' 
 #' @export
 pedpartial <- function(ped, ancestors = NULL, top = 20) {
-  if (!inherits(ped, "tidyped")) stop("ped must be a tidyped object")
+  ped <- ensure_tidyped(ped)
   
   # Need dii from inbreeding algorithm which requires integer indices
   if (!all(c("SireNum", "DamNum", "IndNum") %in% names(ped))) {
@@ -1800,7 +1800,7 @@ print.pedcontrib <- function(x, ...) {
 #' @export
 pediv <- function(ped, reference = NULL, top = 20, nsamples = 1000, ncores = 1,
                   seed = NULL) {
-  if (!inherits(ped, "tidyped")) stop("ped must be a tidyped object")
+  ped <- ensure_tidyped(ped)
 
   # ---- Founder and ancestor contributions ----
   message("Calculating founder and ancestor contributions...")

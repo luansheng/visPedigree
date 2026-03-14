@@ -11,6 +11,121 @@ new_tidyped <- function(x) {
   x[]
 }
 
+#' Internal helper to ensure ped is a tidyped object
+#'
+#' If the object has lost its \code{tidyped} class (e.g., after \code{merge()},
+#' \code{rbind()}, or dplyr operations) but still contains the required columns,
+#' the class is automatically restored with an informational message. Otherwise,
+#' an error is raised guiding the user to call \code{tidyped()} or
+#' \code{as_tidyped()}.
+#'
+#' @param ped An object expected to be a tidyped.
+#' @return A valid tidyped object.
+#' @keywords internal
+ensure_tidyped <- function(ped) {
+  if (inherits(ped, "tidyped")) return(ped)
+
+  if (!is.data.frame(ped)) {
+    stop("'ped' must be a tidyped object. Run `tp <- tidyped(ped)` first.",
+         call. = FALSE)
+  }
+
+  core <- c("Ind", "Sire", "Dam", "Sex", "Gen", "IndNum", "SireNum", "DamNum")
+  missing <- setdiff(core, names(ped))
+
+  if (length(missing) > 0) {
+    stop("'ped' must be a tidyped object. Run `tp <- tidyped(ped)` first.",
+         call. = FALSE)
+  }
+
+  # Structure is intact, only the class label was dropped
+  message(
+    "Note: 'ped' lost its tidyped class ",
+    "(common after merge/rbind/dplyr). Restoring automatically."
+  )
+  if (!inherits(ped, "data.table")) {
+    ped <- data.table::as.data.table(ped)
+  }
+  new_tidyped(ped)
+}
+
+#' Restore the tidyped class to a manipulated pedigree
+#'
+#' Rapidly restores the \code{tidyped} class to a \code{data.table} or
+#' \code{data.frame} that was previously processed by \code{\link{tidyped}()}
+#' but lost its class attributes due to data manipulation (e.g.,
+#' \code{merge()}, \code{rbind()}, or dplyr verbs).
+#'
+#' This is a lightweight operation that only checks for the required columns
+#' and re-attaches the class---it does \strong{not} re-run the full pedigree
+#' sorting, generation inference, or loop detection.
+#'
+#' @param x A \code{data.table} or \code{data.frame} that was previously a
+#'   tidyped object. It must still contain the core columns: \code{Ind},
+#'   \code{Sire}, \code{Dam}, \code{Sex}, \code{Gen}, \code{IndNum},
+#'   \code{SireNum}, \code{DamNum}.
+#'
+#' @return A \code{tidyped} object.
+#'
+#' @details
+#' Many common R operations silently strip custom S3 class attributes:
+#' \itemize{
+#'   \item \code{merge(tped, extra)} --- returns plain \code{data.table}
+#'   \item \code{rbind(tped1, tped2)} --- returns plain \code{data.table}
+#'   \item \code{dplyr::filter(tped, ...)} --- returns \code{tbl_df}
+#'   \item \code{subset(tped, ...)} --- returns \code{data.frame}
+#' }
+#' After such operations, downstream analysis functions (e.g.,
+#' \code{\link{pedstats}}, \code{\link{pedne}}) will either error or
+#' automatically restore the class. You can also call \code{as_tidyped()}
+#' explicitly to restore the class yourself.
+#'
+#' @examples
+#' library(visPedigree)
+#' tp <- tidyped(simple_ped)
+#' class(tp)
+#' # [1] "tidyped"    "data.table" "data.frame"
+#'
+#' # Simulate class loss via merge
+#' extra <- data.table::data.table(Ind = tp$Ind[1:5], Note = "example")
+#' tp2 <- merge(tp, extra, by = "Ind", all.x = TRUE)
+#' class(tp2)
+#' # [1] "data.table" "data.frame"
+#'
+#' # Restore the class
+#' tp3 <- as_tidyped(tp2)
+#' class(tp3)
+#' # [1] "tidyped"    "data.table" "data.frame"
+#'
+#' @seealso \code{\link{tidyped}}, \code{\link{new_tidyped}}
+#' @export
+as_tidyped <- function(x) {
+  if (inherits(x, "tidyped")) return(x)
+
+  if (!is.data.frame(x)) {
+    stop("Cannot coerce to tidyped: input is not a data.frame or data.table.",
+         call. = FALSE)
+  }
+
+  if (!inherits(x, "data.table")) {
+    x <- data.table::as.data.table(x)
+  }
+
+  core <- c("Ind", "Sire", "Dam", "Sex", "Gen", "IndNum", "SireNum", "DamNum")
+  missing <- setdiff(core, names(x))
+
+  if (length(missing) > 0) {
+    stop(
+      "Cannot restore tidyped class. Missing columns: ",
+      paste(missing, collapse = ", "),
+      ". Run `tidyped()` on raw data instead.",
+      call. = FALSE
+    )
+  }
+
+  new_tidyped(x)
+}
+
 #' Internal validator for tidyped class
 #' @param x A tidyped object
 #' @return The object if valid, otherwise an error
