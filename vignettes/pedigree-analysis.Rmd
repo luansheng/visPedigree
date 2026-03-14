@@ -1,5 +1,5 @@
 ---
-title: "Pedigree Analysis and Population Genetics"
+title: "4. Pedigree Analysis and Population Genetics"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Pedigree Analysis and Population Genetics}
