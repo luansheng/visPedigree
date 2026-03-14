@@ -236,7 +236,7 @@ pedgenint <- function(ped, timevar = NULL, unit = c("year", "month", "day", "hou
   }
   
   attr(final_res, "unit") <- unit
-  return(final_res)
+  return(final_res[])
 }
 
 .parse_to_numeric_time <- function(x, unit = "year", format = NULL) {
@@ -564,7 +564,7 @@ pedrel <- function(ped, by = "Gen", reference = NULL, compact = FALSE) {
   result <- rbindlist(res_list)
   setnames(result, "Group", by)
   setorderv(result, cols = by)
-  return(result)
+  return(result[])
 }
 
 #' Calculate Equi-Generate Coefficient
@@ -962,7 +962,7 @@ pedne <- function(ped, method = c("coancestry", "inbreeding", "demographic"),
     "demographic" = calc_ne_demographic(ped_subset, by)
   )
 
-  return(res)
+  return(res[])
 }
 
 calc_ne_inbreeding <- function(ped, by) {
@@ -999,7 +999,7 @@ calc_ne_inbreeding <- function(ped, by) {
   result[, Ne := ifelse(DeltaF > 0, 1 / (2 * DeltaF), NA_real_)]
   setorder(result, Cohort)
   
-  return(result)
+  return(result[])
 }
 
 calc_ne_demographic <- function(ped, by) {
@@ -1008,6 +1008,7 @@ calc_ne_demographic <- function(ped, by) {
      stop("Pedigree must contain 'Sire', 'Dam', and 'Sex' columns for demographic Ne.")
   }
 
+  ped <- copy(ped)
   ped[, CohortLabel := get(by)]
   
   # Need to find parents contributing to EACH cohort
@@ -1032,7 +1033,7 @@ calc_ne_demographic <- function(ped, by) {
   }, by = .(Cohort = CohortLabel)]
   
   setorder(result, Cohort)
-  return(result)
+  return(result[])
 }
 
 calc_ne_coancestry <- function(ped_subset, ped_full, by, nsamples,
@@ -1494,7 +1495,7 @@ pedancestry <- function(ped, foundervar, target_labels = NULL) {
   colnames(ans) <- target_labels
   ans[, Ind := ped_work$Ind]
   setcolorder(ans, "Ind")
-  return(ans)
+  return(ans[])
 }
 
 #' Summarize Inbreeding Levels
@@ -1603,7 +1604,7 @@ pedfclass <- function(ped,
   summary_dt[, Percentage := (Count / sum(Count)) * 100]
   setorder(summary_dt, FClass)
   
-  return(summary_dt)
+  return(summary_dt[])
 }
 
 #' Calculate Partial Inbreeding
@@ -1710,7 +1711,7 @@ pedpartial <- function(ped, ancestors = NULL, top = 20) {
   result[, Ind := ped_work$Ind]
   setcolorder(result, "Ind")
   
-  return(result)
+  return(result[])
 }
 
 #' Print Founder and Ancestor Contributions

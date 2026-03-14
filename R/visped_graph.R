@@ -97,7 +97,7 @@ inject_missing_parents <- function(ped) {
     ped_new <- rbind(ped_new, new_dams, fill = TRUE)
   }
   
-  return(ped_new)
+  return(ped_new[])
 }
 
 #' Prepare initial node table for igraph conversion
@@ -128,7 +128,7 @@ prepare_initial_nodes <- function(ped) {
   nodetype = NULL
   ped_node[, nodetype := "real"]
   
-  return(ped_node)
+  return(ped_node[])
 }
 
 #' Compact pedigree by merging full siblings
@@ -195,7 +195,7 @@ compact_pedigree <- function(ped_node, compact, h_ids) {
       ped_node[is.na(familynum), familynum := 0]
     }
   }
-  return(ped_node)
+  return(ped_node[])
 }
 
 #' Generate edges and virtual family nodes

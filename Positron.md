@@ -56,3 +56,4 @@ Columns in `data.table` or `data.frame` objects returned by the package must use
 *   **Layered Computation**:
     *   **Level 1 (Basic)**: Pure R implementation.
     *   **Level 2/3 (Heavy)**: Use `Rcpp` / `RcppArmadillo` for computationally intensive tasks (e.g., matrix inversion, iterative gene contributions), leveraging the `IndNum` integer indices.
+*   **`data.table` Return Visibility**: Any function that returns a `data.table` object **must** use `return(x[])` (with trailing `[]`) instead of `return(x)`. The empty `[]` clears the invisible flag set by `:=` and `set*()` operations, ensuring the object auto-prints correctly in console and knitr.

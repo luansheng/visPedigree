@@ -8,7 +8,7 @@ new_tidyped <- function(x) {
   if (!inherits(x, "tidyped")) {
     class(x) <- c("tidyped", class(x))
   }
-  x
+  x[]
 }
 
 #' Internal validator for tidyped class

@@ -342,11 +342,10 @@ Genetics</h1>
 
 
 
-<p>This vignette presents a practical workflow for pedigree analysis
-with <code>visPedigree</code>. The aim is not only to show function
-calls, but also to explain what the main indicators mean biologically
-and why they are useful in breeding programs.</p>
-<p>The workflow follows five questions:</p>
+<p>This vignette summarizes a practical workflow for pedigree analysis
+with <code>visPedigree</code>, with emphasis on the interpretation of
+the main indicators used in breeding and conservation genetics.</p>
+<p>The discussion is organized around five questions:</p>
 <ol style="list-style-type: decimal">
 <li>How complete and deep is the pedigree?</li>
 <li>How long is the generation cycle?</li>
@@ -359,7 +358,8 @@ under control?</li>
 </ol>
 <div id="setup-and-data-preparation" class="section level2">
 <h2>1. Setup and Data Preparation</h2>
-<p>Different functions are best illustrated with different datasets.</p>
+<p>Different package datasets are used for different analytical
+tasks.</p>
 <ul>
 <li><code>deep_ped</code> is useful for pedigree depth and diversity
 summaries.</li>
@@ -383,17 +383,17 @@ classification examples.</li>
 </div>
 <div id="pedigree-overview-with-pedstats" class="section level2">
 <h2>2. Pedigree Overview with <code>pedstats()</code></h2>
-<p><code>pedstats()</code> is the quickest entry point for a structural
-summary. It returns a list with three components:</p>
+<p><code>pedstats()</code> provides a compact structural summary with
+three components:</p>
 <ul>
 <li><code>$summary</code>: pedigree size and parental structure.</li>
 <li><code>$ecg</code>: pedigree completeness and ancestral depth.</li>
 <li><code>$gen_intervals</code>: generation intervals, only when a
 usable time column is available.</li>
 </ul>
-<p>We first use <code>deep_ped</code>, which has no explicit birth-date
-column. Therefore, <code>pedstats()</code> returns <code>$summary</code>
-and <code>$ecg</code>, while <code>$gen_intervals</code> remains
+<p>Here <code>deep_ped</code> has no explicit birth-date column.
+Accordingly, <code>pedstats()</code> returns <code>$summary</code> and
+<code>$ecg</code>, whereas <code>$gen_intervals</code> remains
 <code>NULL</code>.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>stats_deep <span class="ot">&lt;-</span> <span class="fu">pedstats</span>(tp_deep)</span>
 <span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a></span>
@@ -401,33 +401,32 @@ and <code>$ecg</code>, while <code>$gen_intervals</code> remains
 <span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co">#&gt;        N NSire  NDam NFounder MaxGen</span></span>
 <span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co">#&gt;    &lt;int&gt; &lt;int&gt; &lt;int&gt;    &lt;int&gt;  &lt;int&gt;</span></span>
 <span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co">#&gt; 1:  4399   483   554      138     13</span></span>
-<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="fu">head</span>(stats_deep<span class="sc">$</span>ecg)</span>
-<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co">#&gt;         Ind   ECG FullGen MaxGen</span></span>
-<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="co">#&gt;      &lt;char&gt; &lt;num&gt;   &lt;num&gt;  &lt;num&gt;</span></span>
-<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="co">#&gt; 1: K00044N4     0       0      0</span></span>
-<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="co">#&gt; 2: K000F533     0       0      0</span></span>
-<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="co">#&gt; 3: K000F535     0       0      0</span></span>
-<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a><span class="co">#&gt; 4: K000F544     0       0      0</span></span>
-<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a><span class="co">#&gt; 5: K000F591     0       0      0</span></span>
-<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a><span class="co">#&gt; 6: K000F592     0       0      0</span></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="fu">tail</span>(stats_deep<span class="sc">$</span>ecg)</span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co">#&gt;         Ind      ECG FullGen MaxGen</span></span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="co">#&gt;      &lt;char&gt;    &lt;num&gt;   &lt;num&gt;  &lt;num&gt;</span></span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="co">#&gt; 1: K110997Q 7.616211       5     12</span></span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="co">#&gt; 2: K110997Z 6.722656       5     12</span></span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="co">#&gt; 3: K110998Q 4.606445       2     12</span></span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a><span class="co">#&gt; 4: K110998Z 6.417969       5     12</span></span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a><span class="co">#&gt; 5: K110999Q 7.345215       5     12</span></span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a><span class="co">#&gt; 6: K110999Z 6.875977       5     12</span></span>
 <span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a>stats_deep<span class="sc">$</span>gen_intervals</span>
 <span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a><span class="co">#&gt; NULL</span></span></code></pre></div>
-<p>This distinction matters: pedigree depth and pedigree time are
-related, but they are not the same quantity. Depth is handled by
-<code>pedecg()</code>, whereas generation timing is handled by
-<code>pedgenint()</code>.</p>
+<p>Pedigree depth and pedigree time are related but distinct quantities.
+The former is addressed by <code>pedecg()</code>, whereas the latter is
+addressed by <code>pedgenint()</code>.</p>
 </div>
 <div id="pedigree-completeness-with-pedecg" class="section level2">
 <h2>3. Pedigree Completeness with <code>pedecg()</code></h2>
-<p>Equivalent complete generations (ECG) summarize how much ancestral
-information is available for each individual:</p>
+<p>Equivalent complete generations (ECG) summarize the amount of
+ancestral information available for each individual:</p>
 <p><span class="math display">\[
 ECG_i = \sum_j \left(\frac{1}{2}\right)^{g_{ij}}
 \]</span></p>
 <p>where <span class="math inline">\(g_{ij}\)</span> is the number of
 generations between individual <span class="math inline">\(i\)</span>
-and ancestor <span class="math inline">\(j\)</span>. ECG increases when
-the pedigree is both deeper and more complete.</p>
+and ancestor <span class="math inline">\(j\)</span>. ECG increases with
+both pedigree depth and pedigree completeness.</p>
 <p>In practice:</p>
 <ul>
 <li><code>ECG</code> combines depth and completeness.</li>
@@ -436,8 +435,8 @@ generations exist.</li>
 <li><code>MaxGen</code> records the deepest known ancestral path.</li>
 </ul>
 <p><code>ECG</code> is especially useful because it provides the depth
-adjustment used by realized effective population size estimators based
-on inbreeding or coancestry.</p>
+adjustment required by realized effective population size estimators
+based on inbreeding or coancestry.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>ecg_deep <span class="ot">&lt;-</span> <span class="fu">pedecg</span>(tp_deep)</span>
 <span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a></span>
 <span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>ecg_deep[<span class="fu">order</span>(<span class="sc">-</span>ECG)][<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>]</span>
@@ -470,10 +469,10 @@ sex-specific gametic pathways.</li>
 dam-offspring pathways.</li>
 <li><code>Average</code>: all parent-offspring pairs combined.</li>
 </ul>
-<p>The package accepts true <code>Date</code>/<code>POSIXct</code>
-columns, date strings, or numeric years. When only an integer year is
-available, it is converted internally to <code>YYYY-07-01</code> as a
-mid-year approximation.</p>
+<p>The function accepts <code>Date</code>/<code>POSIXct</code> columns,
+date strings, or numeric years. When only an integer year is available,
+it is converted internally to <code>YYYY-07-01</code> as a mid-year
+approximation.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>tp_time <span class="ot">&lt;-</span> <span class="fu">tidyped</span>(big_family_size_ped)</span>
 <span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a></span>
 <span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>genint_year <span class="ot">&lt;-</span> <span class="fu">pedgenint</span>(tp_time, <span class="at">timevar =</span> <span class="st">&quot;Year&quot;</span>, <span class="at">unit =</span> <span class="st">&quot;year&quot;</span>)</span>
@@ -495,7 +494,7 @@ cycle:</p>
 GenEquiv_i = \frac{\bar{L}_i}{L_{cycle}}
 \]</span></p>
 <p>Values larger than 1 indicate that the realized generation interval
-is longer than the target cycle.</p>
+exceeds the target cycle.</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>genint_cycle <span class="ot">&lt;-</span> <span class="fu">pedgenint</span>(tp_time, <span class="at">timevar =</span> <span class="st">&quot;Year&quot;</span>, <span class="at">unit =</span> <span class="st">&quot;year&quot;</span>, <span class="at">cycle =</span> <span class="fl">1.2</span>)</span>
 <span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#&gt; Numeric time column detected. Converting to Date (YYYY-07-01). For finer precision, convert to Date beforehand.</span></span>
 <span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a></span>
@@ -510,8 +509,8 @@ is longer than the target cycle.</p>
 </div>
 <div id="subpopulation-structure-with-pedsubpop" class="section level2">
 <h2>5. Subpopulation Structure with <code>pedsubpop()</code></h2>
-<p>Before interpreting diversity or relationship metrics, it is often
-useful to check whether the pedigree is one connected population or a
+<p>Before interpreting diversity or relationship metrics, it is useful
+to check whether the pedigree forms a single connected population or a
 mixture of separate components.</p>
 <p><code>pedsubpop()</code> has two modes:</p>
 <ul>
@@ -542,8 +541,8 @@ grouping variable.</li>
 <span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a><span class="co">#&gt; 1:     L1     4      1     1         3</span></span>
 <span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a><span class="co">#&gt; 2:     L3     2      0     0         2</span></span>
 <span id="cb6-22"><a href="#cb6-22" tabindex="-1"></a><span class="co">#&gt; 3:     L2     2      1     0         1</span></span></code></pre></div>
-<p>This is a compact summary tool. If you need the actual split pedigree
-objects for downstream plotting or analysis, use
+<p>This is a compact summary tool. When the actual split pedigree
+objects are needed for downstream analysis, use
 <code>splitped()</code>.</p>
 </div>
 <div id="diversity-indicators-with-pediv" class="section level2">
@@ -556,9 +555,10 @@ combines:</p>
 <li>founder genome equivalents (<code>fg</code>),</li>
 <li>three effective population size estimates (<code>Ne</code>).</li>
 </ul>
-<p>All of these depend on the definition of the <strong>reference
-population</strong>. In this example, we use the most recent two
-generations in <code>deep_ped</code>.</p>
+<p>All of these quantities depend on the definition of the
+<strong>reference population</strong>. In the present example, the
+reference population is defined as the most recent two generations in
+<code>deep_ped</code>.</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>ref_pop <span class="ot">&lt;-</span> tp_deep[Gen <span class="sc">&gt;=</span> <span class="fu">max</span>(Gen) <span class="sc">-</span> <span class="dv">1</span>, Ind]</span>
 <span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="fu">length</span>(ref_pop)</span>
 <span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="co">#&gt; [1] 3471</span></span></code></pre></div>
@@ -593,7 +593,7 @@ generations in <code>deep_ped</code>.</p>
 <div id="fe-fa-and-fg-what-do-they-measure" class="section level3">
 <h3>6.1 <code>fe</code>, <code>fa</code>, and <code>fg</code>: what do
 they measure?</h3>
-<p>These three indicators describe diversity loss from different
+<p>These three indicators describe diversity loss from complementary
 angles.</p>
 <div id="effective-number-of-founders-fe" class="section level4">
 <h4>Effective number of founders (<code>fe</code>)</h4>
@@ -603,7 +603,7 @@ f_e = \frac{1}{\sum_{i=1}^{f} p_i^2}
 <p>where <span class="math inline">\(p_i\)</span> is the expected
 contribution of founder <span class="math inline">\(i\)</span> to the
 reference population. <code>fe</code> answers the question: if all
-founders had contributed equally, how many founders would produce the
+founders had contributed equally, how many founders would generate the
 same diversity?</p>
 <p>Use <code>fe</code> when the main concern is <strong>unequal founder
 representation</strong>.</p>
@@ -618,7 +618,7 @@ f_a = \frac{1}{\sum_{j=1}^{a} q_j^2}
 already explained by more influential ancestors. <code>fa</code> is
 usually smaller than <code>fe</code> when bottlenecks occurred.</p>
 <p>Use <code>fa</code> when the main concern is <strong>genetic
-bottlenecks caused by a small number of influential
+bottlenecks caused by a limited set of influential
 ancestors</strong>.</p>
 </div>
 <div id="founder-genome-equivalents-fg" class="section level4">
@@ -654,8 +654,7 @@ conservative diversity indicator.</p>
 <h2>7. Effective Population Size with <code>pedne()</code> and
 <code>pediv()</code></h2>
 <p><code>pediv()</code> reports three complementary effective population
-size definitions. Each answers a slightly different biological
-question.</p>
+size definitions. Each addresses a distinct biological question.</p>
 <div id="demographic-ne" class="section level3">
 <h3>7.1 Demographic <code>Ne</code></h3>
 <p><span class="math display">\[
@@ -674,10 +673,10 @@ often optimistic.</p>
 <p><span class="math display">\[
 N_e = \frac{1}{2\overline{\Delta F}}
 \]</span></p>
-<p>This estimator uses the realized rate of inbreeding. The role of
-<code>ECG</code> is to standardize individuals with different pedigree
-depths. Use this estimate when the main concern is <strong>how quickly
-inbreeding is accumulating</strong>.</p>
+<p>This estimator uses the realized rate of inbreeding. <code>ECG</code>
+standardizes individuals with different pedigree depths. Use this
+estimate when the primary concern is <strong>the rate of inbreeding
+accumulation</strong>.</p>
 </div>
 <div id="coancestry-ne" class="section level3">
 <h3>7.3 Coancestry <code>Ne</code></h3>
@@ -689,9 +688,9 @@ N_e = \frac{1}{2\overline{\Delta c}}
 \]</span></p>
 <p>This estimator is based on the rate of coancestry among members of
 the reference population. Because it captures the accumulation of
-relatedness before it fully appears as realized inbreeding, it is often
-the strictest and most sensitive warning signal in managed breeding
-populations.</p>
+relatedness before it is fully expressed as realized inbreeding, it is
+often the strictest and most sensitive warning signal in managed
+breeding populations.</p>
 </div>
 </div>
 <div id="average-relationship-trends-with-pedrel" class="section level2">
@@ -704,7 +703,7 @@ MeanRel = \frac{1}{n(n-1)} \sum_{i \ne j} a_{ij}
 <p>where <span class="math inline">\(a_{ij} = 2f_{ij}\)</span>. A higher
 <code>MeanRel</code> means that individuals within the group are, on
 average, more related by descent.</p>
-<p>This is especially useful for tracking relatedness by generation or
+<p>This summary is useful for tracking relatedness by generation or
 year.</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>tp_small<span class="sc">$</span>BirthYear <span class="ot">&lt;-</span> <span class="dv">2010</span> <span class="sc">+</span> tp_small<span class="sc">$</span>Gen</span>
 <span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a></span>
@@ -763,9 +762,15 @@ to inspect the mean trend by generation.</p>
 <span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a><span class="co">#&gt; 3:     3 0.2500</span></span>
 <span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a><span class="co">#&gt; 4:     4 0.2500</span></span>
 <span id="cb11-12"><a href="#cb11-12" tabindex="-1"></a><span class="co">#&gt; 5:     5 0.4375</span></span></code></pre></div>
-<p>To make the results more interpretable, <code>pedfclass()</code>
-classifies individuals by inbreeding severity.</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="fu">pedfclass</span>(tp_inbred_f)</span></code></pre></div>
+<p>For classification by inbreeding severity, <code>pedfclass()</code>
+can be applied directly to the pedigree object. If the inbreeding
+coefficient is not yet present, the function computes it internally.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="fu">pedfclass</span>(tp_inbred)</span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a><span class="co">#&gt; Calculating inbreeding coefficients...</span></span></code></pre></div>
+<p>Custom reporting thresholds can be supplied through
+<code>breaks</code>.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="fu">pedfclass</span>(tp_inbred, <span class="at">breaks =</span> <span class="fu">c</span>(<span class="fl">0.03125</span>, <span class="fl">0.0625</span>, <span class="fl">0.125</span>, <span class="fl">0.25</span>))</span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a><span class="co">#&gt; Calculating inbreeding coefficients...</span></span></code></pre></div>
 <p>The default thresholds correspond approximately to familiar pedigree
 scenarios:</p>
 <ul>
@@ -784,40 +789,28 @@ parent-offspring mating.</li>
 <p><code>pedancestry()</code> tracks how founder groups contribute to
 later descendants. This is useful when founders are labeled by line,
 strain, or geographic origin.</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a>ped_line <span class="ot">&lt;-</span> <span class="fu">data.table</span>(</span>
-<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>  <span class="at">Ind =</span> <span class="fu">c</span>(<span class="st">&quot;A&quot;</span>, <span class="st">&quot;B&quot;</span>, <span class="st">&quot;C&quot;</span>, <span class="st">&quot;D&quot;</span>, <span class="st">&quot;E&quot;</span>, <span class="st">&quot;F&quot;</span>, <span class="st">&quot;G&quot;</span>),</span>
-<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a>  <span class="at">Sire =</span> <span class="fu">c</span>(<span class="cn">NA</span>, <span class="cn">NA</span>, <span class="cn">NA</span>, <span class="cn">NA</span>, <span class="st">&quot;A&quot;</span>, <span class="st">&quot;C&quot;</span>, <span class="st">&quot;E&quot;</span>),</span>
-<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a>  <span class="at">Dam  =</span> <span class="fu">c</span>(<span class="cn">NA</span>, <span class="cn">NA</span>, <span class="cn">NA</span>, <span class="cn">NA</span>, <span class="st">&quot;B&quot;</span>, <span class="st">&quot;D&quot;</span>, <span class="st">&quot;F&quot;</span>),</span>
-<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a>  <span class="at">Sex =</span> <span class="fu">c</span>(<span class="st">&quot;male&quot;</span>, <span class="st">&quot;female&quot;</span>, <span class="st">&quot;male&quot;</span>, <span class="st">&quot;female&quot;</span>, <span class="st">&quot;male&quot;</span>, <span class="st">&quot;female&quot;</span>, <span class="st">&quot;male&quot;</span>),</span>
-<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a>  <span class="at">Line =</span> <span class="fu">c</span>(<span class="st">&quot;Line1&quot;</span>, <span class="st">&quot;Line1&quot;</span>, <span class="st">&quot;Line2&quot;</span>, <span class="st">&quot;Line2&quot;</span>, <span class="cn">NA</span>, <span class="cn">NA</span>, <span class="cn">NA</span>)</span>
-<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a>)</span>
-<span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a></span>
-<span id="cb13-9"><a href="#cb13-9" tabindex="-1"></a>tp_line <span class="ot">&lt;-</span> <span class="fu">tidyped</span>(ped_line)</span>
-<span id="cb13-10"><a href="#cb13-10" tabindex="-1"></a></span>
-<span id="cb13-11"><a href="#cb13-11" tabindex="-1"></a><span class="fu">pedancestry</span>(tp_line, <span class="at">foundervar =</span> <span class="st">&quot;Line&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a>ped_line <span class="ot">&lt;-</span> <span class="fu">data.table</span>(</span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a>  <span class="at">Ind =</span> <span class="fu">c</span>(<span class="st">&quot;A&quot;</span>, <span class="st">&quot;B&quot;</span>, <span class="st">&quot;C&quot;</span>, <span class="st">&quot;D&quot;</span>, <span class="st">&quot;E&quot;</span>, <span class="st">&quot;F&quot;</span>, <span class="st">&quot;G&quot;</span>),</span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a>  <span class="at">Sire =</span> <span class="fu">c</span>(<span class="cn">NA</span>, <span class="cn">NA</span>, <span class="cn">NA</span>, <span class="cn">NA</span>, <span class="st">&quot;A&quot;</span>, <span class="st">&quot;C&quot;</span>, <span class="st">&quot;E&quot;</span>),</span>
+<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a>  <span class="at">Dam  =</span> <span class="fu">c</span>(<span class="cn">NA</span>, <span class="cn">NA</span>, <span class="cn">NA</span>, <span class="cn">NA</span>, <span class="st">&quot;B&quot;</span>, <span class="st">&quot;D&quot;</span>, <span class="st">&quot;F&quot;</span>),</span>
+<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a>  <span class="at">Sex =</span> <span class="fu">c</span>(<span class="st">&quot;male&quot;</span>, <span class="st">&quot;female&quot;</span>, <span class="st">&quot;male&quot;</span>, <span class="st">&quot;female&quot;</span>, <span class="st">&quot;male&quot;</span>, <span class="st">&quot;female&quot;</span>, <span class="st">&quot;male&quot;</span>),</span>
+<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a>  <span class="at">Line =</span> <span class="fu">c</span>(<span class="st">&quot;Line1&quot;</span>, <span class="st">&quot;Line1&quot;</span>, <span class="st">&quot;Line2&quot;</span>, <span class="st">&quot;Line2&quot;</span>, <span class="cn">NA</span>, <span class="cn">NA</span>, <span class="cn">NA</span>)</span>
+<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a>)</span>
+<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a></span>
+<span id="cb14-9"><a href="#cb14-9" tabindex="-1"></a>tp_line <span class="ot">&lt;-</span> <span class="fu">tidyped</span>(ped_line)</span>
+<span id="cb14-10"><a href="#cb14-10" tabindex="-1"></a></span>
+<span id="cb14-11"><a href="#cb14-11" tabindex="-1"></a>anc <span class="ot">&lt;-</span> <span class="fu">pedancestry</span>(tp_line, <span class="at">foundervar =</span> <span class="st">&quot;Line&quot;</span>)</span>
+<span id="cb14-12"><a href="#cb14-12" tabindex="-1"></a>anc</span></code></pre></div>
 </div>
 <div id="pedpartial-which-ancestors-explain-inbreeding" class="section level3">
 <h3>10.2 <code>pedpartial()</code>: which ancestors explain
 inbreeding?</h3>
 <p><code>pedpartial()</code> decomposes total inbreeding into
-contributions from selected ancestors. It is a diagnostic tool for
-understanding which ancestors are most responsible for the observed
-inbreeding.</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a>partial_f <span class="ot">&lt;-</span> <span class="fu">pedpartial</span>(tp_inbred_f, <span class="at">top =</span> <span class="dv">3</span>)</span>
-<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a><span class="co">#&gt; No ancestors specified. Identifying top contributors...</span></span>
-<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a><span class="co">#&gt; Using 1 individuals from generation 5 as reference population.</span></span>
-<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a><span class="co">#&gt; Calculating ancestor contributions (Boichard&#39;s iterative algorithm)...</span></span>
-<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a><span class="co">#&gt; Calculating partial inbreeding for 1 ancestors...</span></span>
-<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a></span>
-<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a><span class="fu">head</span>(partial_f)</span>
-<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a><span class="co">#&gt;       Ind     G</span></span>
-<span id="cb14-9"><a href="#cb14-9" tabindex="-1"></a><span class="co">#&gt;    &lt;char&gt; &lt;num&gt;</span></span>
-<span id="cb14-10"><a href="#cb14-10" tabindex="-1"></a><span class="co">#&gt; 1:      A     0</span></span>
-<span id="cb14-11"><a href="#cb14-11" tabindex="-1"></a><span class="co">#&gt; 2:      B     0</span></span>
-<span id="cb14-12"><a href="#cb14-12" tabindex="-1"></a><span class="co">#&gt; 3:      C     0</span></span>
-<span id="cb14-13"><a href="#cb14-13" tabindex="-1"></a><span class="co">#&gt; 4:      D     0</span></span>
-<span id="cb14-14"><a href="#cb14-14" tabindex="-1"></a><span class="co">#&gt; 5:      E     0</span></span>
-<span id="cb14-15"><a href="#cb14-15" tabindex="-1"></a><span class="co">#&gt; 6:      F     0</span></span></code></pre></div>
+contributions from selected ancestors. It is useful for identifying
+which ancestors are most responsible for the observed inbreeding.</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a>partial_f <span class="ot">&lt;-</span> <span class="fu">pedpartial</span>(tp_inbred, <span class="at">ancestors =</span> <span class="fu">c</span>(<span class="st">&quot;A&quot;</span>, <span class="st">&quot;B&quot;</span>))</span>
+<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a><span class="co">#&gt; Calculating partial inbreeding for 2 ancestors...</span></span>
+<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a>partial_f</span></code></pre></div>
 </div>
 </div>
 <div id="practical-interpretation" class="section level2">

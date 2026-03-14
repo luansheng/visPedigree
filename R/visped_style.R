@@ -169,7 +169,7 @@ apply_node_styles <- function(ped_node, highlight_info) {
       )]
     }
   }
-  return(ped_node)
+  return(ped_node[])
 }
 
 #' Finalize graph and reindex IDs

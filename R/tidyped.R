@@ -467,7 +467,7 @@ trace_ped_candidates <- function(g, ped_dt, cand, trace, tracegen) {
   ped_dt[!(Sire %in% keep_inds), Sire := NA_character_]
   ped_dt[!(Dam %in% keep_inds), Dam := NA_character_]
   
-  return(ped_dt)
+  return(ped_dt[])
 }
 
 #' Assigns individual generation numbers based on topological sorting and parentage.
@@ -505,7 +505,7 @@ assign_ped_generations <- function(g, ped_dt, topo_order, genmethod) {
   }
   
   ped_dt[, Gen := gen_vec]
-  return(ped_dt)
+  return(ped_dt[])
 }
 
 #' Infer and Check Sex of Individuals
@@ -577,5 +577,5 @@ infer_and_check_sex <- function(ped_dt, selfing = FALSE) {
     ped_dt[is.na(Sex) & (Ind %in% dams), Sex := "female"]
   }
   
-  return(ped_dt)
+  return(ped_dt[])
 }

@@ -1,3 +1,11 @@
+# Changes in version 1.3.4 released on 14 Mar 2026
+## Bug fixes
+1. **`data.table` invisibility**: Fixed a subtle but pervasive issue where functions returning `data.table` or `tidyped` objects (which are based on `data.table`) were returning them invisibly. This occurred because internal `data.table` operations like `:=` and `set*` set an internal "invisible" flag. Affected functions included `pedancestry()`, `pedpartial()`, `pedne()`, `pedrel()`, `tidyped()`, and many others. All relevant functions now explicitly return the object using the `[]` syntax to ensure they auto-print correctly in the R console and knitted documents.
+2. **Side-effect prevention**: Updated `calc_ne_demographic()` to operate on a copy of the input pedigree instead of modifying the user's data by reference.
+
+## Documentation
+1. **Positron Guide**: Added a new coding standard to `Positron.md` regarding `data.table` return visibility to prevent regressive "invisible output" bugs in future development.
+
 # Changes in version 1.3.3 released on 14 Mar 2026
 ## Documentation
 1. **`pedigree-analysis.Rmd` rewrite**: Reorganized the main pedigree analysis vignette into clearer thematic sections covering pedigree overview, pedigree completeness (`pedecg()`), generation intervals (`pedgenint()`), subpopulation structure (`pedsubpop()`), diversity indicators (`pediv()`), effective population size (`pedne()`), average relationship trends (`pedrel()`), inbreeding classification (`pedfclass()`), and ancestry / partial inbreeding diagnostics.
