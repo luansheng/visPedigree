@@ -1,6 +1,7 @@
 # visPedigree: Tidying, Analysis, and Fast Visualization of Animal and Plant Pedigrees
 
-# visPedigree
+[![visPedigree
+website](reference/figures/logo.png)](https://luansheng.github.io/visPedigree/)
 
 `visPedigree` is a comprehensive toolkit for the standardization,
 statistical analysis, and fast visualization of animal and plant
