@@ -1,3 +1,15 @@
+# Changes in version 1.3.3 released on 14 Mar 2026
+## Documentation
+1. **`pedigree-analysis.Rmd` rewrite**: Reorganized the main pedigree analysis vignette into clearer thematic sections covering pedigree overview, pedigree completeness (`pedecg()`), generation intervals (`pedgenint()`), subpopulation structure (`pedsubpop()`), diversity indicators (`pediv()`), effective population size (`pedne()`), average relationship trends (`pedrel()`), inbreeding classification (`pedfclass()`), and ancestry / partial inbreeding diagnostics.
+2. **Theory expansion**: Added core formulas, interpretation notes, and breeding-use explanations for Equivalent Complete Generations (ECG), generation intervals, effective numbers of founders / ancestors / founder genomes (`f_e`, `f_a`, `f_g`), three effective population size definitions (`N_e` by demographic, inbreeding, and coancestry methods), and average additive relationship (`MeanRel`).
+3. **Reference update**: Expanded the vignette bibliography to include the key classical references underlying the package's diversity and effective population size metrics, including Wright (1922, 1931), Lacy (1989), Boichard et al. (1997), Caballero & Toro (2000), Cervantes et al. (2011), and Gutiérrez et al. (2008, 2009).
+
+## Bug fixes
+1. **Vignette API synchronization**: Replaced outdated `pedinbreed_class()` calls in the pedigree analysis vignette with the current `pedfclass()` interface and aligned all examples with the current `reference`, `foundervar`, and `cycle` argument names.
+
+## Testing
+1. **Analysis regression coverage**: Added focused unit tests to verify that `pedancestry()` proportions sum to 1 in a multi-line admixture pedigree and that `pedrel()` returns identical results between `compact = TRUE` and `compact = FALSE` modes on the same pedigree.
+
 # Changes in version 1.3.2 released on 13 Mar 2026
 ## New features
 1. **Added Comprehensive Examples**: Added `@examples` to core analysis functions `pedne()`, `pedecg()`, and `pedsubpop()` to improve documentation completeness and provide immediate value to users.
