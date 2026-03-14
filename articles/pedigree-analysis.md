@@ -1,4 +1,4 @@
-# Pedigree Analysis and Population Genetics
+# 4. Pedigree Analysis and Population Genetics
 
 This vignette summarizes a practical workflow for pedigree analysis with
 `visPedigree`, with emphasis on the interpretation of the main
