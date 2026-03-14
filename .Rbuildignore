@@ -37,5 +37,6 @@
 # --- 开发过程产生的临时文件 ---
 ^Rplots\.pdf$
 ^.*\.png$
+^man/figures/.*\.png$
 ^sandbox$
 ^Positron\.md$
