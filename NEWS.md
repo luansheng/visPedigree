@@ -1,3 +1,10 @@
+# Changes in version 1.3.5 released on 14 Mar 2026
+## New features
+1. **S3 Class Protection**: Added `as_tidyped()` and an internal `ensure_tidyped()` mechanism to robustly handle the "silent class loss" bug. Standard R operations like `merge()`, `rbind()`, and `dplyr` verbs often strip custom S3 classes from `data.table` objects. Major analysis functions now automatically detect if the `tidyped` class is missing and restore it if the underlying data structure is intact, providing an informational message to the user instead of erroring.
+
+## Bug fixes
+1. **Robust Analysis Entry**: Updated all 11 core analysis functions (including `pedstats()`, `pedne()`, `pediv()`, `pedrel()`, etc.) to use the new auto-recovery logic. This ensures that analysis remains user-friendly and reliable even after manual data manipulation by the user.
+
 # Changes in version 1.3.4 released on 14 Mar 2026
 ## Bug fixes
 1. **`data.table` invisibility**: Fixed a subtle but pervasive issue where functions returning `data.table` or `tidyped` objects (which are based on `data.table`) were returning them invisibly. This occurred because internal `data.table` operations like `:=` and `set*` set an internal "invisible" flag. Affected functions included `pedancestry()`, `pedpartial()`, `pedne()`, `pedrel()`, `tidyped()`, and many others. All relevant functions now explicitly return the object using the `[]` syntax to ensure they auto-print correctly in the R console and knitted documents.
