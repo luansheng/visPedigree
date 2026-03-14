@@ -1,0 +1,417 @@
+---
+title: "Pedigree Analysis and Population Genetics"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Pedigree Analysis and Population Genetics}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+This vignette summarizes a practical workflow for pedigree analysis with
+`visPedigree`, with emphasis on the interpretation of the main indicators used
+in breeding and conservation genetics.
+
+The discussion is organized around five questions:
+
+1. How complete and deep is the pedigree?
+2. How long is the generation cycle?
+3. Has genetic diversity been eroded by unequal founder use, bottlenecks, or drift?
+4. How large is the effective population size under different definitions?
+5. Are relationship, inbreeding, subpopulation structure, and gene flow under control?
+
+## 1. Setup and Data Preparation
+
+Different package datasets are used for different analytical tasks.
+
+- `deep_ped` is useful for pedigree depth and diversity summaries.
+- `big_family_size_ped` contains a `Year` column and is suitable for generation intervals.
+- `small_ped` is convenient for relationship examples.
+- `inbred_ped` is convenient for inbreeding and classification examples.
+
+```{r setup}
+library(visPedigree)
+library(data.table)
+
+data(deep_ped, package = "visPedigree")
+data(big_family_size_ped, package = "visPedigree")
+data(small_ped, package = "visPedigree")
+data(inbred_ped, package = "visPedigree")
+
+tp_deep <- tidyped(deep_ped)
+tp_small <- tidyped(small_ped)
+tp_inbred <- tidyped(inbred_ped)
+```
+
+## 2. Pedigree Overview with `pedstats()`
+
+`pedstats()` provides a compact structural summary with three components:
+
+- `$summary`: pedigree size and parental structure.
+- `$ecg`: pedigree completeness and ancestral depth.
+- `$gen_intervals`: generation intervals, only when a usable time column is available.
+
+Here `deep_ped` has no explicit birth-date column. Accordingly,
+`pedstats()` returns `$summary` and `$ecg`, whereas `$gen_intervals` remains
+`NULL`.
+
+```{r pedstats-overview}
+stats_deep <- pedstats(tp_deep)
+
+stats_deep$summary
+tail(stats_deep$ecg)
+stats_deep$gen_intervals
+```
+
+Pedigree depth and pedigree time are related but distinct quantities. The former
+is addressed by `pedecg()`, whereas the latter is addressed by `pedgenint()`.
+
+## 3. Pedigree Completeness with `pedecg()`
+
+Equivalent complete generations (ECG) summarize the amount of ancestral
+information available for each individual:
+
+$$
+ECG_i = \sum_j \left(\frac{1}{2}\right)^{g_{ij}}
+$$
+
+where $g_{ij}$ is the number of generations between individual $i$ and ancestor
+$j$. ECG increases with both pedigree depth and pedigree completeness.
+
+In practice:
+
+- `ECG` combines depth and completeness.
+- `FullGen` counts how many fully known ancestral generations exist.
+- `MaxGen` records the deepest known ancestral path.
+
+`ECG` is especially useful because it provides the depth adjustment required by
+realized effective population size estimators based on inbreeding or coancestry.
+
+```{r pedecg-example}
+ecg_deep <- pedecg(tp_deep)
+
+ecg_deep[order(-ECG)][1:10]
+```
+
+## 4. Generation Intervals with `pedgenint()`
+
+Generation interval is the age of a parent at the birth of its offspring:
+
+$$
+L = t_{offspring} - t_{parent}
+$$
+
+`pedgenint()` estimates this quantity for seven pathway summaries:
+
+- `SS`, `SD`, `DS`, `DD`: sex-specific gametic pathways.
+- `SO`, `DO`: sex-independent sire-offspring and dam-offspring pathways.
+- `Average`: all parent-offspring pairs combined.
+
+The function accepts `Date`/`POSIXct` columns, date strings, or numeric years.
+When only an integer year is available, it is converted internally to
+`YYYY-07-01` as a mid-year approximation.
+
+```{r pedgenint-basic}
+tp_time <- tidyped(big_family_size_ped)
+
+genint_year <- pedgenint(tp_time, timevar = "Year", unit = "year")
+genint_year
+```
+
+The optional `cycle` parameter adds `GenEquiv`, which compares the observed mean
+interval with a target breeding cycle:
+
+$$
+GenEquiv_i = \frac{\bar{L}_i}{L_{cycle}}
+$$
+
+Values larger than 1 indicate that the realized generation interval exceeds the
+target cycle.
+
+```{r pedgenint-cycle}
+genint_cycle <- pedgenint(tp_time, timevar = "Year", unit = "year", cycle = 1.2)
+
+genint_cycle[Pathway %in% c("SS", "SD", "DS", "DD", "Average")]
+```
+
+## 5. Subpopulation Structure with `pedsubpop()`
+
+Before interpreting diversity or relationship metrics, it is useful to check
+whether the pedigree forms a single connected population or a mixture of
+separate components.
+
+`pedsubpop()` has two modes:
+
+- `by = NULL`: summarize disconnected pedigree components.
+- `by = "..."`: summarize the pedigree by an existing grouping variable.
+
+```{r pedsubpop-example}
+ped_demo <- data.table(
+  Ind = c("A", "B", "C", "D", "E", "F", "G", "H"),
+  Sire = c(NA, NA, "A", NA, NA, "E", NA, NA),
+  Dam  = c(NA, NA, "B", NA, NA, NA, NA, NA),
+  Sex = c("male", "female", "male", "female", "male", "female", "male", "female"),
+  Batch = c("L1", "L1", "L1", "L1", "L2", "L2", "L3", "L3")
+)
+
+tp_demo <- tidyped(ped_demo)
+
+pedsubpop(tp_demo)
+pedsubpop(tp_demo, by = "Batch")
+```
+
+This is a compact summary tool. When the actual split pedigree objects are
+needed for downstream analysis, use `splitped()`.
+
+## 6. Diversity Indicators with `pediv()`
+
+`pediv()` is the integrated diversity summary. It combines:
+
+- founder and ancestor contributions (`fe`, `fa`),
+- founder genome equivalents (`fg`),
+- three effective population size estimates (`Ne`).
+
+All of these quantities depend on the definition of the **reference
+population**. In the present example, the reference population is defined as the
+most recent two generations in `deep_ped`.
+
+```{r pediv-setup}
+ref_pop <- tp_deep[Gen >= max(Gen) - 1, Ind]
+length(ref_pop)
+```
+
+```{r pediv-analysis}
+div_res <- pediv(tp_deep, reference = ref_pop, top = 10, seed = 42L)
+
+div_res$summary
+div_res$ancestors
+```
+
+### 6.1 `fe`, `fa`, and `fg`: what do they measure?
+
+These three indicators describe diversity loss from complementary angles.
+
+#### Effective number of founders (`fe`)
+
+$$
+f_e = \frac{1}{\sum_{i=1}^{f} p_i^2}
+$$
+
+where $p_i$ is the expected contribution of founder $i$ to the reference
+population. `fe` answers the question: if all founders had contributed equally,
+how many founders would generate the same diversity?
+
+Use `fe` when the main concern is **unequal founder representation**.
+
+#### Effective number of ancestors (`fa`)
+
+$$
+f_a = \frac{1}{\sum_{j=1}^{a} q_j^2}
+$$
+
+where $q_j$ is the **marginal** contribution of ancestor $j$ after removing the
+contributions already explained by more influential ancestors. `fa` is usually
+smaller than `fe` when bottlenecks occurred.
+
+Use `fa` when the main concern is **genetic bottlenecks caused by a limited set
+of influential ancestors**.
+
+#### Founder genome equivalents (`fg`)
+
+In its simplest interpretation,
+
+$$
+f_g = \frac{1}{2\bar{C}}
+$$
+
+where $\bar{C}$ is the mean coancestry of the reference population. In
+`visPedigree`, `fg` is estimated from a diagonal-corrected mean coancestry:
+
+$$
+\hat{\bar{C}} = \frac{N-1}{N}\cdot\frac{\bar{a}_{off}}{2} + \frac{1 + \bar{F}_s}{2N}
+$$
+
+$$
+f_g = \frac{1}{2\hat{\bar{C}}}
+$$
+
+where $N$ is the size of the full reference cohort, $\bar{a}_{off}$ is the mean
+off-diagonal additive relationship among sampled individuals, and $\bar{F}_s$
+is their mean inbreeding coefficient.
+
+Use `fg` when the main concern is **the amount of founder genome still surviving
+after unequal use, bottlenecks, and drift**. In practice, `fg` is often the
+most conservative diversity indicator.
+
+## 7. Effective Population Size with `pedne()` and `pediv()`
+
+`pediv()` reports three complementary effective population size definitions.
+Each addresses a distinct biological question.
+
+### 7.1 Demographic `Ne`
+
+$$
+N_e = \frac{4 N_m N_f}{N_m + N_f}
+$$
+
+where $N_m$ and $N_f$ are the numbers of contributing males and females. This is
+the easiest estimate to understand, but it ignores realized pedigree structure,
+inbreeding, and drift. It is therefore often optimistic.
+
+### 7.2 Inbreeding `Ne`
+
+$$
+\Delta F_i = 1 - (1 - F_i)^{1/(ECG_i - 1)}
+$$
+
+$$
+N_e = \frac{1}{2\overline{\Delta F}}
+$$
+
+This estimator uses the realized rate of inbreeding. `ECG` standardizes
+individuals with different pedigree depths. Use this estimate when the primary
+concern is **the rate of inbreeding accumulation**.
+
+### 7.3 Coancestry `Ne`
+
+$$
+\Delta c_{ij} = 1 - (1 - c_{ij})^{1/(\frac{ECG_i + ECG_j}{2})}
+$$
+
+$$
+N_e = \frac{1}{2\overline{\Delta c}}
+$$
+
+This estimator is based on the rate of coancestry among members of the
+reference population. Because it captures the accumulation of relatedness
+before it is fully expressed as realized inbreeding, it is often the strictest
+and most sensitive warning signal in managed breeding populations.
+
+## 8. Average Relationship Trends with `pedrel()`
+
+`pedrel()` summarizes the mean off-diagonal additive relationship within groups:
+
+$$
+MeanRel = \frac{1}{n(n-1)} \sum_{i \ne j} a_{ij}
+$$
+
+where $a_{ij} = 2f_{ij}$. A higher `MeanRel` means that individuals within the
+group are, on average, more related by descent.
+
+This summary is useful for tracking relatedness by generation or year.
+
+```{r pedrel-example}
+tp_small$BirthYear <- 2010 + tp_small$Gen
+
+rel_by_gen <- pedrel(tp_small, by = "Gen")
+rel_by_gen
+```
+
+The `reference` argument lets you focus on a subset of interest inside each
+group, such as candidate breeders.
+
+```{r pedrel-reference}
+ref_ids <- c("Z1", "Z2", "X", "Y")
+
+pedrel(tp_small, by = "Gen", reference = ref_ids)
+```
+
+`MeanRel` and coancestry-based `Ne` are conceptually linked, but they are not
+identical summaries. `MeanRel` is an average additive relationship within a
+group, whereas coancestry-based `Ne` is derived from the *rate of increase* in
+coancestry across pedigree depth.
+
+## 9. Inbreeding Trends with `inbreed()` and `pedfclass()`
+
+Wright's inbreeding coefficient $F$ is the probability that the two alleles of
+an individual are identical by descent. A practical starting point is to inspect
+the mean trend by generation.
+
+```{r inbreed-trend}
+tp_inbred_f <- inbreed(tp_inbred)
+
+f_trend <- tp_inbred_f[, .(MeanF = mean(f, na.rm = TRUE)), by = Gen]
+f_trend
+```
+
+For classification by inbreeding severity, `pedfclass()` can be applied
+directly to the pedigree object. If the inbreeding coefficient is not yet
+present, the function computes it internally.
+
+```{r pedfclass-example}
+pedfclass(tp_inbred)
+```
+
+Custom reporting thresholds can be supplied through `breaks`.
+
+```{r pedfclass-breaks}
+pedfclass(tp_inbred, breaks = c(0.03125, 0.0625, 0.125, 0.25))
+```
+
+The default thresholds correspond approximately to familiar pedigree scenarios:
+
+- $F = 0.0625$: half-sib mating.
+- $F = 0.125$: avuncular or grandparent-grandchild mating.
+- $F = 0.25$: full-sib or parent-offspring mating.
+
+## 10. Gene Flow and Partial Inbreeding
+
+### 10.1 `pedancestry()`: founder-line proportions
+
+`pedancestry()` tracks how founder groups contribute to later descendants. This
+is useful when founders are labeled by line, strain, or geographic origin.
+
+```{r pedancestry-example}
+ped_line <- data.table(
+  Ind = c("A", "B", "C", "D", "E", "F", "G"),
+  Sire = c(NA, NA, NA, NA, "A", "C", "E"),
+  Dam  = c(NA, NA, NA, NA, "B", "D", "F"),
+  Sex = c("male", "female", "male", "female", "male", "female", "male"),
+  Line = c("Line1", "Line1", "Line2", "Line2", NA, NA, NA)
+)
+
+tp_line <- tidyped(ped_line)
+
+anc <- pedancestry(tp_line, foundervar = "Line")
+anc
+```
+
+### 10.2 `pedpartial()`: which ancestors explain inbreeding?
+
+`pedpartial()` decomposes total inbreeding into contributions from selected
+ancestors. It is useful for identifying which ancestors are most responsible
+for the observed inbreeding.
+
+```{r pedpartial-example}
+partial_f <- pedpartial(tp_inbred, ancestors = c("A", "B"))
+partial_f
+```
+
+## 11. Practical Interpretation
+
+One useful interpretation order is:
+
+1. Check pedigree depth and completeness with `pedecg()`.
+2. Check generation timing with `pedgenint()`.
+3. Quantify diversity loss with `fe`, `fa`, and `fg`.
+4. Compare demographic, inbreeding, and coancestry-based `Ne`.
+5. Monitor `MeanRel` and `MeanF` over time.
+6. Use `pedsubpop()`, `pedancestry()`, and `pedpartial()` to diagnose structure,
+   introgression, and bottlenecks.
+
+## References
+
+- Boichard, D., Maignel, L., & Verrier, É. (1997). The value of using probabilities of gene origin to measure genetic variability in a population. *Genetics Selection Evolution*, 29(1), 5-23.
+- Caballero, A., & Toro, M. A. (2000). Interrelations between effective population size and other pedigree tools for the management of conserved populations. *Genetical Research*, 75(3), 331-343.
+- Cervantes, I., Goyache, F., Molina, A., Valera, M., & Gutiérrez, J. P. (2011). Estimation of effective population size from the rate of coancestry in pedigreed populations. *Journal of Animal Breeding and Genetics*, 128(1), 56-63.
+- Gutiérrez, J. P., Cervantes, I., Molina, A., Valera, M., & Goyache, F. (2008). Individual increase in inbreeding allows estimating effective sizes from pedigrees. *Genetics Selection Evolution*, 40(4), 359-370.
+- Gutiérrez, J. P., Cervantes, I., & Goyache, F. (2009). Improving the estimation of realized effective population sizes in farm animals. *Journal of Animal Breeding and Genetics*, 126(4), 327-332.
+- Lacy, R. C. (1989). Analysis of founder representation in pedigrees: founder equivalents and founder genome equivalents. *Zoo Biology*, 8(2), 111-123.
+- Wright, S. (1922). Coefficients of inbreeding and relationship. *The American Naturalist*, 56(645), 330-338.
+- Wright, S. (1931). Evolution in Mendelian populations. *Genetics*, 16(2), 97-159.

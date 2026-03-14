@@ -25,6 +25,7 @@ reference:
   desc: Functions for genealogical and genetic computations.
   contents:
   - inbreed
+  - starts_with("ped")
 - title: Datasets
   desc: Built-in pedigree examples for testing and demonstration.
   contents: ends_with("_ped")

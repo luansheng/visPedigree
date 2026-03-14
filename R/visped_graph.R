@@ -49,13 +49,22 @@ inject_missing_parents <- function(ped) {
   s_nums <- ped_new$SireNum
   missing_sire_nums <- unique(s_nums[s_nums != 0 & !is.na(s_nums) & !(s_nums %in% all_ind_nums)])
   
+  # Find missing Dams (compute early to detect monoecious)
+  d_nums <- ped_new$DamNum
+  missing_dam_nums <- unique(d_nums[d_nums != 0 & !is.na(d_nums) & !(d_nums %in% all_ind_nums)])
+  
+  # Detect monoecious: individuals that are both missing sires and missing dams
+  monoecious_nums <- intersect(missing_sire_nums, missing_dam_nums)
+  
   if (length(missing_sire_nums) > 0) {
     sire_info <- unique(ped_new[SireNum %in% missing_sire_nums, .(SireNum, Sire)])
+    # Determine sex: monoecious if also a dam, otherwise male
+    sire_sex <- ifelse(sire_info$SireNum %in% monoecious_nums, "monoecious", "male")
     new_sires <- data.table(
       Ind = sire_info$Sire,
       Sire = NA_character_,
       Dam = NA_character_,
-      Sex = "male",
+      Sex = sire_sex,
       Gen = min(ped_new$Gen, na.rm=TRUE) - 1,
       IndNum = sire_info$SireNum,
       SireNum = 0L,
@@ -68,12 +77,11 @@ inject_missing_parents <- function(ped) {
     all_ind_nums <- ped_new$IndNum
   }
 
-  # Find missing Dams
-  d_nums <- ped_new$DamNum
-  missing_dam_nums <- unique(d_nums[d_nums != 0 & !is.na(d_nums) & !(d_nums %in% all_ind_nums)])
+  # Find missing Dams (exclude monoecious already added as sires)
+  missing_dam_nums_only <- setdiff(missing_dam_nums, monoecious_nums)
   
-  if (length(missing_dam_nums) > 0) {
-    dam_info <- unique(ped_new[DamNum %in% missing_dam_nums, .(DamNum, Dam)])
+  if (length(missing_dam_nums_only) > 0) {
+    dam_info <- unique(ped_new[DamNum %in% missing_dam_nums_only, .(DamNum, Dam)])
     new_dams <- data.table(
       Ind = dam_info$Dam,
       Sire = NA_character_,
@@ -89,7 +97,7 @@ inject_missing_parents <- function(ped) {
     ped_new <- rbind(ped_new, new_dams, fill = TRUE)
   }
   
-  return(ped_new)
+  return(ped_new[])
 }
 
 #' Prepare initial node table for igraph conversion
@@ -120,7 +128,7 @@ prepare_initial_nodes <- function(ped) {
   nodetype = NULL
   ped_node[, nodetype := "real"]
   
-  return(ped_node)
+  return(ped_node[])
 }
 
 #' Compact pedigree by merging full siblings
@@ -187,7 +195,7 @@ compact_pedigree <- function(ped_node, compact, h_ids) {
       ped_node[is.na(familynum), familynum := 0]
     }
   }
-  return(ped_node)
+  return(ped_node[])
 }
 
 #' Generate edges and virtual family nodes
@@ -195,15 +203,31 @@ compact_pedigree <- function(ped_node, compact, h_ids) {
 #' @param h_ids Highlighted IDs.
 #' @keywords internal
 generate_graph_structure <- function(ped_node, h_ids) {
-  ped_edge <- rbind(
-    ped_node[, .(from = id, to = familynum)],
-    ped_node[, .(from = familynum, to = sirenum)],
-    ped_node[, .(from = familynum, to = damnum)]
+  # Individual → family edges
+  edge_ind <- ped_node[familynum > 0, .(from = id, to = familynum, role = "ind")]
+
+  # Family → sire edges (dedup siblings in same family)
+  edge_sire <- unique(
+    ped_node[sirenum > 0 & familynum > 0, .(from = familynum, to = sirenum, role = "sire")]
   )
-  ped_edge <- ped_edge[!(to == 0)]
-  ped_edge <- unique(ped_edge)
+
+  # Family → dam edges (dedup siblings in same family)
+  edge_dam <- unique(
+    ped_node[damnum > 0 & familynum > 0, .(from = familynum, to = damnum, role = "dam")]
+  )
+
+  # Detect selfing: same (from, to) appearing in both sire and dam roles
+  edge_parents <- rbind(edge_sire, edge_dam)
+  dup_ft <- edge_parents[, .N, by = .(from, to)]
+  selfing_ft <- dup_ft[N > 1]
+  if (nrow(selfing_ft) > 0) {
+    edge_parents[selfing_ft, on = .(from, to), role := "selfing"]
+    edge_parents <- unique(edge_parents, by = c("from", "to"))
+  }
+
+  ped_edge <- rbind(edge_ind, edge_parents)
   ped_edge <- ped_edge[order(from, to)]
-  
+
   width = arrow.size = arrow.width = color = curved = NULL
   edge_default_color <- if (length(h_ids) > 0) "#3333334D" else "#333333"
   ped_edge[, ":="(width = 1, arrow.size = 1, arrow.width = 1, arrow.mode = 2, 

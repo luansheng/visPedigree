@@ -1,3 +1,159 @@
+# Changes in version 1.3.4 released on 14 Mar 2026
+## Bug fixes
+1. **`data.table` invisibility**: Fixed a subtle but pervasive issue where functions returning `data.table` or `tidyped` objects (which are based on `data.table`) were returning them invisibly. This occurred because internal `data.table` operations like `:=` and `set*` set an internal "invisible" flag. Affected functions included `pedancestry()`, `pedpartial()`, `pedne()`, `pedrel()`, `tidyped()`, and many others. All relevant functions now explicitly return the object using the `[]` syntax to ensure they auto-print correctly in the R console and knitted documents.
+2. **Side-effect prevention**: Updated `calc_ne_demographic()` to operate on a copy of the input pedigree instead of modifying the user's data by reference.
+
+## Documentation
+1. **Positron Guide**: Added a new coding standard to `Positron.md` regarding `data.table` return visibility to prevent regressive "invisible output" bugs in future development.
+
+# Changes in version 1.3.3 released on 14 Mar 2026
+## Documentation
+1. **`pedigree-analysis.Rmd` rewrite**: Reorganized the main pedigree analysis vignette into clearer thematic sections covering pedigree overview, pedigree completeness (`pedecg()`), generation intervals (`pedgenint()`), subpopulation structure (`pedsubpop()`), diversity indicators (`pediv()`), effective population size (`pedne()`), average relationship trends (`pedrel()`), inbreeding classification (`pedfclass()`), and ancestry / partial inbreeding diagnostics.
+2. **Theory expansion**: Added core formulas, interpretation notes, and breeding-use explanations for Equivalent Complete Generations (ECG), generation intervals, effective numbers of founders / ancestors / founder genomes (`f_e`, `f_a`, `f_g`), three effective population size definitions (`N_e` by demographic, inbreeding, and coancestry methods), and average additive relationship (`MeanRel`).
+3. **Reference update**: Expanded the vignette bibliography to include the key classical references underlying the package's diversity and effective population size metrics, including Wright (1922, 1931), Lacy (1989), Boichard et al. (1997), Caballero & Toro (2000), Cervantes et al. (2011), and Gutiérrez et al. (2008, 2009).
+
+## Bug fixes
+1. **Vignette API synchronization**: Replaced outdated `pedinbreed_class()` calls in the pedigree analysis vignette with the current `pedfclass()` interface and aligned all examples with the current `reference`, `foundervar`, and `cycle` argument names.
+
+## Testing
+1. **Analysis regression coverage**: Added focused unit tests to verify that `pedancestry()` proportions sum to 1 in a multi-line admixture pedigree and that `pedrel()` returns identical results between `compact = TRUE` and `compact = FALSE` modes on the same pedigree.
+
+# Changes in version 1.3.2 released on 13 Mar 2026
+## New features
+1. **Added Comprehensive Examples**: Added `@examples` to core analysis functions `pedne()`, `pedecg()`, and `pedsubpop()` to improve documentation completeness and provide immediate value to users.
+2. **Pedigree Connectivity Analysis (`pedsubpop`)**: Enhanced `pedsubpop()` to better distinguish between pedigree splitting (via `splitped`) and grouping/summary analysis. It now provides clear counts of total individuals, sires, dams, and founders within subgroups or connected components.
+
+## API Changes
+1. **`pedfclass()` rename**: Renamed the inbreeding-class summary helper from `pedinbreedclass()` to `pedfclass()` to align with the package naming guide and provide a shorter, clearer user-facing API.
+2. **`pedfclass()` output refinement**: Renamed the returned class column from `F_Class` to `FClass`, and added support for user-defined inbreeding class breakpoints through the `breaks` and `labels` arguments.
+3. **`pedgenint()` parameter rename**: Renamed `cycle_length` to `cycle` for consistency with the package naming guide.
+4. **`pedgenint()` / `pedstats()` `unit` parameter**: Removed `"gen"` from `unit` options. The `unit` parameter now only accepts `"year"`, `"month"`, `"day"`, or `"hour"`. The previous `"gen"` option produced incorrect results when combined with date inputs.
+5. **`pedgenint()` `timevar` definition**: Clarified `timevar` as a **birth date** column. Numeric year inputs (e.g., `2020`) are now automatically converted to `Date` (`"YYYY-07-01"`) with an informational message. Character date strings are parsed via `as.POSIXct()` with `tz = "UTC"` to avoid DST artifacts.
+
+## Minor improvements and bug fixes
+1. **Documentation Audit**: Refined internal documentation for `pedsubpop()` to clarify its use cases alongside `splitped()`.
+2. **`vispstat()` pathway filter fix**: Fixed an issue where the generation-interval bar chart could silently drop pathways due to an overly broad `factor()` filter. Now uses explicit `%in% c("SS", "SD", "DS", "DD")` subsetting.
+3. **`.parse_to_numeric_time()` rewrite**: Completely rewrote the internal time parser to handle `Date`, `POSIXct`, character date strings, and numeric years robustly. All `POSIXct` conversions now use `tz = "UTC"` to prevent DST-related artifacts.
+
+# Changes in version 1.3.1 released on 12 Mar 2026
+## New features
+1. Added the `selfing` argument to `tidyped()` to support plant and aquaculture pedigrees where an individual can appear as both Sire and Dam, resolving biologically impossible sex conflict errors (#10).
+2. **`pedrel()` logic upgrade**: Modified `pedrel()` to use full ancestral tracing via `tidyped(ped, cand = ...)` when calculating sub-group relationships. This ensures that relationships in deep-inbred populations (e.g., full-sib mating over multiple generations) are calculated correctly rather than being underestimated due to ancestor truncation.
+
+## API Changes
+1. **`pedancestry()` parameter rename**: Renamed `labelvar` to `foundervar` and `labels` to `target_labels` to align with the package naming guide and make the ancestry-tracing interface more explicit. Old argument names are no longer supported because this function is still under active development.
+2. **`pedecg()` parameter cleanup**: Removed the short-lived `reference` argument. It only filtered rows after a full ECG pass and did not define a true reference population or prune the pedigree before calculation. Users should subset the returned table directly if needed.
+
+## Minor improvements and bug fixes
+1. **Academic nomenclature alignment**: Updated documentation for `pedrel()` and `pedne()` to explicitly distinguish between **Additive Genetic Relationship ($a_{ij}$)** and **Coancestry ($f_{ij}$)**. 
+    - `pedrel()` now clearly states it returns $a_{ij} = 2f_{ij}$.
+    - `pedne()` documentation now specifies that its `"coancestry"` method is based on $f_{ij}$.
+2. Individuals acting as both parents are now identified as `"monoecious"` in the `Sex` column.
+3. `visped()` now uses a distinct teal color (`#26a69a`) to render `"monoecious"` individuals, ensuring clear visual separation from males, females, and highlighted nodes.
+4. Pedigree edges are now colored based on the parent's role in a specific mating (Sire blue, Dam gold, Selfing teal) rather than invariant node sex, allowing monoecious individuals to display role-appropriate connection colors.
+5. `summary()` and `print()` methods for `tidyped` objects now accurately report the count and percentage of monoecious individuals.
+6. **Efficiency Optimization**: Optimized `pedancestry()` initialization on large pedigrees by using vectorized matrix indexing, significantly reducing overhead for pedigrees with >25k nodes.
+7. Added a new unit test for `pedrel()` to verify correct relationship calculation in deep-inbreeding scenarios (Gen 4 relationships reaching 1.0).
+
+# Changes in version 1.3.0 released on 10 Mar 2026
+
+## New Features
+1. **Founder Genome Equivalents ($f_g$)**: Integrated the robust calculation of Founder Genome Equivalents into `pediv()`. It directly evaluates the mean coancestry while properly correcting for diagonal intra-cohort elements through adaptive scaling, keeping computational costs linear relative to the reference cohort size.
+2. **Reproducible Parameter Inference**: Added a `seed` argument to both `pedne()` and `pediv()` functions functions enabling precise reproducible sampling for effective population size estimations (Ne) and $f_g$ computations using Monte Carlo approximations.
+
+# Changes in version 1.2.3 released on 08 Mar 2026
+
+## Bug Fixes
+1. **Trace edge highlighting in `visped()`**: Fixed incorrect edge highlighting when using `trace = "all"`. Previously, when a node was highlighted as both an ancestor (via upward tracing) and a parent of descendants (via downward tracing), the cross-path edges were incorrectly highlighted. For example, `visped(tp, highlight = "X", trace = "all")` would incorrectly highlight the edge from N to Z1/Z2, even though that parent-child relationship is not on X's trace path. The fix separates the up and down trace paths and uses `trace_edges` to precisely control which edges are highlighted.
+2. **Focal node upward edge in `trace = "down"`**: Fixed an issue where the focal node's upward connection to its parents' family node was incorrectly shown as highlighted when tracing downward only. For example, `visped(tp, highlight = "X", trace = "down")` would show X's edge to the UxV family node in solid black, even though X's ancestors are not part of the downward trace. Now, `individual → family` edges are only highlighted when the individual appears as a child in the traced path.
+
+# Changes in version 1.2.2 released on 08 Mar 2026
+
+## New Features
+1. **Unified Diversity Analysis (`pediv`)**: Added `pediv()` as a single entry-point wrapper that aggregates founder contributions ($f_e$), ancestor contributions ($f_a$), and all three Ne estimates (coancestry, inbreeding, demographic) into one consolidated `pediv` S3 object. A dedicated `print.pediv()` method provides a formatted summary table.
+2. **New Dataset (`complex_ped`)**: Added `complex_ped`, a multi-generation pedigree dataset suitable for testing deeper ancestry tracing and cross-generation diversity analyses.
+
+## API Changes
+1. **Parameter Rename (`cand` → `reference`)**: Standardized the reference population parameter name across all relevant analysis functions:
+    - `pedne(... , reference = NULL)` (previously `cand`)
+    - `pedcontrib(... , reference = NULL)` (previously `cand`)
+    - `pedrel(... , reference = NULL)` (previously `cand`)
+    
+    The new name better reflects population genetics terminology, where the target group is the **reference population** rather than a set of "candidates". *(Note: Old `cand` argument is no longer supported; please update existing scripts.)*
+
+## Documentation
+1. **Vignette Rewrite (`pedigree-analysis.Rmd`)**: Completely restructured the pedigree analysis vignette with expanded theory explanations for $f_e$, $f_a$, and Ne, updated code examples using `pediv()` and the new `reference` parameter, and improved narrative linking the statistical outputs to practical breeding decisions.
+2. **Workspace Reorganization**: Moved development-only files (`MACOS_OPENMP_FIX.md`, `manuscript.md`, analysis scripts) into `sandbox/` to keep the package root clean. Added corresponding `.gitignore` and `.Rbuildignore` rules.
+
+# Changes in version 1.2.1 released on 07 Mar 2026
+
+## New Features
+1. **Ancestral Analysis (`pedcontrib`)**: Added robust algorithms for assessing genetic diversity through gene origin probabilities. Computes the **effective number of founders ($f_e$)** via recursive gene derivation and the **effective number of ancestors ($f_a$)** via Boichard's iterative algorithm.
+2. **Missing Parent Conservation ("Phantom Parents")**: Implemented correct probability mass conservation. In `pedcontrib`, single missing parents (half-founders) are seamlessly augmented with temporary "phantom parents" before processing, overcoming the critical issue of gene probability leakage found in earlier tools.
+3. **Ancestry Proportions (`pedancestry`)**: Added `pedancestry()` function to trace line origins and monitor the surviving proportion of genes from specified historic founder lines or strains down to modern descendants.
+4. **Partial Inbreeding (`pedpartial`)**: Engineered the Meuwissen & Luo (1992) based partial inbreeding decomposition `pedpartial()`. Enables breaking down the overall inbreeding coefficient into discrete fractions attributed to specifically targeted ancestors.
+5. **New Dataset (`half_founder_ped`)**: Added empirical ENDOG dataset containing instances of strictly missing single parents (sire known, dam unknown, etc.) specifically engineered to test and validate phantom-parent corrections.
+
+## Performance
+1. **Peeling Core Engine**: Rebuilt the C++ core array engine backing the $f_a$ and $f_e$ calculations. Execution latency for incredibly massive and deep graphs (>180,000 nodes) was resolved, avoiding hanging scenarios by limiting computational bounds optimally inside $O(K \times N)$ array states.
+
+## Documentation
+1. **Analysis Indexing**: Expanded `_pkgdown.yml` configuration mapping to fully expose all newly engineered high-level pedigree statistical functions (`pedancestry`, `pedcontrib`, `pedpartial`, `pedecg`, etc.) within the main Reference documentation.
+2. **Analysis Vignettes**: Updated `vignettes/pedigree-analysis.Rmd` carefully illustrating Boichard's genetic bottleneck interpretations ($f_e$ vs $f_a$) alongside new code examples for tracing targeted lineage flows.
+
+# Changes in version 1.2.0 released on 04 Mar 2026
+
+## New Features
+1. **Enhanced Effective Population Size (Ne) Calculation**:
+    - The `pedne()` function has been significantly expanded and now supports three robust methods for estimating Ne in breeding populations:
+        - **`coancestry`** (New Default): Based on the rate of coancestry ($\Delta c$). This method captures the loss of genetic potential and is considered the "gold standard" for populations under selection pressure. It typically yields a smaller, more conservative Ne estimate than inbreeding-based methods, providing a better early warning signal for genetic diversity loss.
+        - **`inbreeding`**: Based on the individual rate of inbreeding ($\Delta F$). This method reflects the realized inbreeding but may overestimate Ne in managed populations where mating between relatives is actively avoided.
+        - **`demographic`**: A census-based method using the number of breeding males ($N_m$) and females ($N_f$).
+2. **Parallel Processing Support**:
+    - Introduced **OpenMP multi-threading** for the computationally intensive `coancestry` method. Users can now specify `ncores` to speed up large-scale matrix calculations.
+    - Added a `nsamples` parameter to allow efficient estimation on massive pedigrees by sampling subsets of each cohort.
+
+## Performance
+1. **C++ Optimization**:
+    - Implemented a high-performance C++ backend (`cpp_calculate_sampled_coancestry_delta`) using `RcppArmadillo`. This replaces the previous R-based logic for coancestry calculations, enabling the analysis of much larger datasets.
+
+## Documentation
+1. **Clarified Parameter Scopes**: Updated documentation for `pedne()` to explicitly state that `ncores` and `nsamples` parameters are specific to the `method = "coancestry"` calculation path.
+2. **Method Descriptions**: Expanded details on the three Ne calculation methods to help users choose the most appropriate metric for their breeding program.
+
+# Changes in version 1.1.1 released on 02 Mar 2026
+
+## New Features
+1. **pedgenint Sex-Independent Pathways**: Added evaluation of `SO` (Sire-to-Offspring) and `DO` (Dam-to-Offspring) generation intervals alongside the standard 4 pathways. This is especially useful for aquatic species (like shrimp) or early-stage screening where offspring sex might remain unknown.
+
+## API Changes and Refactoring
+1. **pedne Interface Standardization**: 
+    - Renamed arguments `timevar` to `by`, and `cohort` to `cand` to harmonize parameter naming conventions across the package.
+    - Removed unused and misleading parameters (`unit`, `cycle_length`, `maxgen`). The effective population size Ne calculation innately depends on Equivalent Complete Generations (ECG), making it independent of scalar temporal units.
+2. **vismat Parameter Alignment**: Renamed `grouping` argument to `by` to maintain grouping consistency.  
+*(Note: Old arguments `timevar`, `cohort` in `pedne()` and `grouping` in `vismat()` are retained for backward compatibility but will display a deprecation warning.)*
+
+## Bug fixes
+1. **pedrel Correctness**: Fixed a critical calculation bug in `pedrel()` where the mean average relatedness calculation erroneously divided the sum of the full relationship matrix (including all traced ancestors) by only the size of the target subgroup. It now cleanly subsets the relationship matrix, and correctly handles boundary limits (`NUsed < 2`). The output columns `N` and `MeanRel` behavior has been replaced with `NTotal`, `NUsed`, and `MeanRel`.
+2. **pedgenint Aggregation**: Fixed `pedgenint()` to output appropriate unweighted mixture standard deviation for generating generation intervals alongside its unweighted 4-pathway average interval estimate.
+3. **pedgenint Sample Size (N)**: Fixed an issue where the `Average` pathway N was severely underestimated. It now accurately evaluates all parent-offspring pairs via `calc_all_pathway()`.
+4. **pedcontrib Accuracy**: Standardized effective founders (`Ne_f`) and effective ancestors (`Ne_a`) calculation in `pedcontrib()` to ensure they are calculated based upon the full un-truncated cohort before outputting strictly the `top` n-ranked figures. Results list has been augmented with variables tracking the `_total` and `_reported` count values.
+5. **pedcontrib Deep Pedigree Latency**: Replaced a string-named vector backward pass with a pure integer-indexed backward pass, resolving instances where evaluating contributions on deep, large pedigrees (e.g., > 200,000 records) would hang indefinitely due to scaling constraints.
+6. **pedpartial / pedancestry Input Compatibility**: Ensured missing numeric identifiers in incoming pedigrees (e.g. `addnum = FALSE`) do not break `pedpartial()` or `pedancestry()`. Increased performance of the pedigree propagation loop in `pedancestry` by dropping an internal array linear probe algorithm with an immediate linear vector lookup.
+7. **pedne Performance bottleneck**: Removed an obsolete `O(N^2)` individual traversal evaluation (`calc_ancestral_f()`), streamlining calculation purely around the efficient direct formula by Gutiérrez et al.
+
+# Changes in version 1.1.0 released on 01 Mar 2026
+
+## New Features
+1. **Pedigree Analysis Module**: Introduced a comprehensive suite of pedigree analysis and population genetics tools.
+    - `pedstats()`: Calculate holistic and demographic statistics.
+    - `pedrel()`: Formulate average relatedness within specific population groupings.
+    - `pedgenint()`: Compute distinct breeding pathways (SS, SD, DS, DD) and overall population generation intervals.
+    - `pedcontrib()`: Determine genetic contributions from founders (`Ne_f`) and prominent ancestors (`Ne_a`) utilizing iterative gene flow derivations.
+    - `pedancestry()`: Establish proportionality of ancestral lineages on subsequent descendants.
+    - `pedpartial()`: Decompose inbreeding mechanisms to detect fractional/partial origins from core ancestors.
+2. **Pedigree Analysis Visualization**: Added `vispstat()` to intuitively render bar charts of generation intervals and histogram distributions detailing depth tracking factors (like Equivalent Complete Generations).
+
 # Changes in version 1.0.1 released on 31 Jan 2026
 ## Bug fixes
 1. **Compact Matrix Correctness**: Fixed a critical data integrity bug in `compact = TRUE` mode where relationship values (A, D, AA) were incorrect for parent-offspring and avuncular pairs due to improper merging of parent individuals with their non-parent siblings.

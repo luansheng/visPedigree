@@ -5,6 +5,7 @@
             "approve": true,
             "matchCommandLine": true
         },
-        "Rscript": true
+        "Rscript": true,
+        "git restore": true
     }
 }

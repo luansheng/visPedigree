@@ -161,7 +161,7 @@
 #' \dontrun{
 #' vismat(A)                       # Heatmap of relationship matrix
 #' vismat(A_compact)               # Works with compact matrices
-#' vismat(A, grouping = "Gen")     # Group by generation
+#' vismat(A, by = "Gen")     # Group by generation
 #' }
 #' 
 #' @references
@@ -762,7 +762,7 @@ compact_ped_for_matrix <- function(ped) {
   
   # Verify Family and FamilySize columns exist in ped_compact
   if (!("Family" %in% names(ped_compact))) {
-    warning("Family field missing in compact pedigree. This may cause issues with vismat grouping.")
+    warning("Family field missing in compact pedigree. This may cause issues with vismat(by = 'Family').")
   }
   
   # After tidyped, rebuild compact_map to include ALL individuals (kept + removed)

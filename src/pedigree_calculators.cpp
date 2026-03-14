@@ -1,6 +1,8 @@
 #include <RcppArmadillo.h>
 #include <vector>
 #include <map>
+#include <algorithm>
+#include <functional>
 
 #ifdef _OPENMP
 #include <omp.h>
@@ -345,6 +347,72 @@ arma::mat cpp_calculate_A(IntegerVector sire, IntegerVector dam) {
     return A;
 }
 
+// Calculate mean off-diagonal relationship for a target subset
+// [[Rcpp::export]]
+double cpp_mean_relationship(IntegerVector sire, IntegerVector dam, IntegerVector target_idx) {
+    int n = sire.size();
+    if (dam.size() != n) {
+        stop("sire and dam vectors must have the same length");
+    }
+    if (target_idx.size() < 2) {
+        return NA_REAL;
+    }
+
+    std::vector<unsigned char> is_target(n, 0);
+    int n_target = 0;
+    for (int k = 0; k < target_idx.size(); ++k) {
+        int idx = target_idx[k] - 1;
+        if (idx < 0 || idx >= n) {
+            stop("target_idx contains out-of-bounds index");
+        }
+        if (!is_target[idx]) {
+            is_target[idx] = 1;
+            ++n_target;
+        }
+    }
+    if (n_target < 2) {
+        return NA_REAL;
+    }
+
+    const size_t tri_size = static_cast<size_t>(n) * static_cast<size_t>(n + 1) / 2;
+    std::vector<double> A_tri(tri_size, 0.0);
+    auto tri_idx = [](int i, int j) -> size_t {
+        if (i < j) std::swap(i, j);
+        return static_cast<size_t>(i) * static_cast<size_t>(i + 1) / 2 + static_cast<size_t>(j);
+    };
+
+    std::vector<int> seen_targets;
+    seen_targets.reserve(n_target);
+    double lower_sum = 0.0;
+
+    for (int i = 0; i < n; ++i) {
+        int si = sire[i] - 1;
+        int di = dam[i] - 1;
+
+        if (si >= n || di >= n) {
+            stop("Parent index out of bounds");
+        }
+
+        double fi = (si >= 0 && di >= 0) ? 0.5 * A_tri[tri_idx(si, di)] : 0.0;
+        A_tri[tri_idx(i, i)] = 1.0 + fi;
+
+        for (int j = 0; j < i; ++j) {
+            double val = 0.5 * ((si >= 0 ? A_tri[tri_idx(j, si)] : 0.0) +
+                                (di >= 0 ? A_tri[tri_idx(j, di)] : 0.0));
+            A_tri[tri_idx(i, j)] = val;
+        }
+
+        if (is_target[i]) {
+            for (int tj : seen_targets) {
+                lower_sum += A_tri[tri_idx(i, tj)];
+            }
+            seen_targets.push_back(i);
+        }
+    }
+
+    return (2.0 * lower_sum) / (static_cast<double>(n_target) * static_cast<double>(n_target - 1));
+}
+
 // ============================================================================
 // Calculate Dominance Relationship Matrix (D)
 // ============================================================================
@@ -521,6 +589,144 @@ IntegerVector cpp_assign_generations_top(IntegerVector sire, IntegerVector dam, 
     return gen;
 }
 
+// ============================================================================
+// Calculate Partial Inbreeding (pF)
+// ============================================================================
+// Decomposes the inbreeding coefficient F_i into contributions from specific
+// ancestors j using the identity:
+//   F_{i(j)} = sum_k  L_{s_i,k} * L_{d_i,k} * (0.5 * D_kk) * q_{k,j}
+//
+// where:
+//   q_{k,j} = probability a random allele in k originated from founder j
+//   L_{s,k} = path coefficient from s_i back to ancestor k (T matrix row)
+//   D_kk    = Mendelian sampling variance at k
+//
+// The sum over all founders j recovers the total inbreeding: sum_j F_{i(j)} = F_i
+// ============================================================================
+// [[Rcpp::export]]
+NumericMatrix cpp_calculate_partial_inbreeding(IntegerVector sire, IntegerVector dam, NumericVector dii, IntegerVector ancestors) {
+    int n = sire.size();
+    int n_anc = ancestors.size();
+    NumericMatrix pF(n, n_anc);
+    
+    // Step 1: Forward gene-flow. q[j][k] = P(random allele in k came from ancestor j)
+    std::vector<std::vector<double>> q(n_anc, std::vector<double>(n, 0.0));
+    for (int j = 0; j < n_anc; ++j) {
+        int anc = ancestors[j] - 1;
+        q[j][anc] = 1.0;
+        for (int i = anc + 1; i < n; ++i) {
+            int s = sire[i] - 1; int d = dam[i] - 1;
+            double fs = (s >= 0) ? q[j][s] : 0.0;
+            double fd = (d >= 0) ? q[j][d] : 0.0;
+            q[j][i] = 0.5 * (fs + fd);
+        }
+    }
+    
+    // Step 2: For each individual i with both parents known, trace back through
+    // sire and dam lineages separately, then accumulate partial inbreeding.
+    std::vector<double> L_s(n, 0.0);
+    std::vector<double> L_d(n, 0.0);
+    std::vector<int> visited_s;
+    std::vector<int> visited_d;
+    visited_s.reserve(n / 4);
+    visited_d.reserve(n / 4);
+
+    for (int i = 0; i < n; ++i) {
+        int s_i = sire[i] - 1;
+        int d_i = dam[i] - 1;
+        if (s_i < 0 || d_i < 0) continue;
+        
+        // Full-sib shortcut: same parents → same partial inbreeding
+        if (i > 0 && sire[i] == sire[i-1] && dam[i] == dam[i-1]) {
+            for (int j = 0; j < n_anc; ++j) pF(i, j) = pF(i - 1, j);
+            continue;
+        }
+
+        // Trace sire lineage: discover ancestors via BFS, then propagate
+        // L values in reverse topological order (descending index).
+        // BFS alone has a bug: when a non-founder ancestor is reached via
+        // paths of different lengths, the shorter path processes it first,
+        // and later contributions from longer paths don't propagate further.
+        // Fix: separate discovery from propagation.
+
+        // Phase 1: BFS to discover sire-side ancestor set
+        L_s[s_i] = 1.0;  // flag as discovered
+        visited_s.push_back(s_i);
+        for (size_t ptr = 0; ptr < visited_s.size(); ++ptr) {
+            int k = visited_s[ptr];
+            int sk = sire[k] - 1;
+            int dk = dam[k] - 1;
+            if (sk >= 0 && L_s[sk] == 0.0) {
+                L_s[sk] = 1.0;  // flag
+                visited_s.push_back(sk);
+            }
+            if (dk >= 0 && L_s[dk] == 0.0) {
+                L_s[dk] = 1.0;  // flag
+                visited_s.push_back(dk);
+            }
+        }
+        // Phase 2: Sort in decreasing index order (reverse topological)
+        std::sort(visited_s.begin(), visited_s.end(), std::greater<int>());
+        // Phase 3: Reset flags and propagate L correctly
+        for (int k : visited_s) L_s[k] = 0.0;
+        L_s[s_i] = 1.0;
+        for (int k : visited_s) {
+            if (L_s[k] == 0.0) continue;
+            double val = 0.5 * L_s[k];
+            int sk = sire[k] - 1;
+            int dk = dam[k] - 1;
+            if (sk >= 0) L_s[sk] += val;
+            if (dk >= 0) L_s[dk] += val;
+        }
+
+        // Trace dam lineage: same approach
+        L_d[d_i] = 1.0;  // flag as discovered
+        visited_d.push_back(d_i);
+        for (size_t ptr = 0; ptr < visited_d.size(); ++ptr) {
+            int k = visited_d[ptr];
+            int sk = sire[k] - 1;
+            int dk = dam[k] - 1;
+            if (sk >= 0 && L_d[sk] == 0.0) {
+                L_d[sk] = 1.0;  // flag
+                visited_d.push_back(sk);
+            }
+            if (dk >= 0 && L_d[dk] == 0.0) {
+                L_d[dk] = 1.0;  // flag
+                visited_d.push_back(dk);
+            }
+        }
+        std::sort(visited_d.begin(), visited_d.end(), std::greater<int>());
+        for (int k : visited_d) L_d[k] = 0.0;
+        L_d[d_i] = 1.0;
+        for (int k : visited_d) {
+            if (L_d[k] == 0.0) continue;
+            double val = 0.5 * L_d[k];
+            int sk = sire[k] - 1;
+            int dk = dam[k] - 1;
+            if (sk >= 0) L_d[sk] += val;
+            if (dk >= 0) L_d[dk] += val;
+        }
+
+        // Accumulate: only ancestors shared by both parents contribute
+        for (int k : visited_s) {
+            if (L_d[k] > 0) {
+                double c_ik = L_s[k] * L_d[k] * (0.5 * dii[k]);
+                for (int j = 0; j < n_anc; ++j) {
+                    pF(i, j) += c_ik * q[j][k];
+                }
+            }
+        }
+
+        // Reset for next individual
+        for (int k : visited_s) L_s[k] = 0.0;
+        for (int k : visited_d) L_d[k] = 0.0;
+        visited_s.clear();
+        visited_d.clear();
+    }
+    
+    return pF;
+}
+
 // Generations Bottom-up
 // [[Rcpp::export]]
 IntegerVector cpp_assign_generations_bottom(IntegerVector sire, IntegerVector dam, IntegerVector topo_order) {
@@ -545,4 +751,270 @@ IntegerVector cpp_assign_generations_bottom(IntegerVector sire, IntegerVector da
     IntegerVector gen(n);
     for (int i = 0; i < n; ++i) gen[i] = max_h - height[i] + 1;
     return gen;
+}
+
+// ============================================================================
+// Calculate Coancestry-based Ne (Delta c)
+// ============================================================================
+// [[Rcpp::export]]
+double cpp_calculate_sampled_coancestry_delta(IntegerVector sire, IntegerVector dam, IntegerVector target_idx, NumericVector ecg) {
+    int n = sire.size();
+    if (dam.size() != n || ecg.size() != n) {
+        stop("sire, dam, and ecg vectors must have the same length");
+    }
+    if (target_idx.size() < 2) return NA_REAL;
+    std::vector<unsigned char> is_target(n, 0);
+    int n_target = 0;
+    for (int k = 0; k < target_idx.size(); ++k) {
+        int idx = target_idx[k] - 1;
+        if (idx < 0 || idx >= n) stop("target_idx contains out-of-bounds index");
+        if (!is_target[idx]) { is_target[idx] = 1; ++n_target; }
+    }
+    if (n_target < 2) return NA_REAL;
+    const size_t tri_size = static_cast<size_t>(n) * static_cast<size_t>(n + 1) / 2;
+    std::vector<double> A_tri(tri_size, 0.0);
+    auto tri_idx = [](int i, int j) -> size_t {
+        if (i < j) std::swap(i, j);
+        return static_cast<size_t>(i) * static_cast<size_t>(i + 1) / 2 + static_cast<size_t>(j);
+    };
+    std::vector<int> seen_targets;
+    seen_targets.reserve(n_target);
+    double sum_delta_c = 0.0;
+    double num_pairs = 0.0;
+    for (int i = 0; i < n; ++i) {
+        int si = sire[i] - 1;
+        int di = dam[i] - 1;
+        if (si >= n || di >= n) stop("Parent index out of bounds");
+        double fi = (si >= 0 && di >= 0) ? 0.5 * A_tri[tri_idx(si, di)] : 0.0;
+        A_tri[tri_idx(i, i)] = 1.0 + fi;
+        for (int j = 0; j < i; ++j) {
+            double val = 0.5 * ((si >= 0 ? A_tri[tri_idx(j, si)] : 0.0) + (di >= 0 ? A_tri[tri_idx(j, di)] : 0.0));
+            A_tri[tri_idx(i, j)] = val;
+        }
+        if (is_target[i]) {
+            for (int tj : seen_targets) {
+                double C_ij = A_tri[tri_idx(i, tj)] / 2.0;
+                double g_ij = (ecg[i] + ecg[tj]) / 2.0;
+                if (g_ij > 0.0) { // Note: changed from > 1.0 as Cervantes uses g_ij natively
+                    double delta_c = 1.0 - std::pow(1.0 - C_ij, 1.0 / g_ij); 
+                    sum_delta_c += delta_c;
+                    num_pairs += 1.0;
+                }
+            }
+            seen_targets.push_back(i);
+        }
+    }
+    if (num_pairs == 0.0) return NA_REAL;
+    return sum_delta_c / num_pairs;
+}
+
+// ============================================================================
+// Founder and Ancestor Contributions (Boichard 1997)
+// ============================================================================
+// Algorithm:
+//   Founders: single backward (gene-drop) pass, O(N).
+//   Ancestors: Boichard's iterative peeling – select max-contribution ancestor,
+//     sever its parental links, mask its descendants, repeat. Each iteration is
+//     O(N) (backward pass + descendant scan).  Total O(K·N) for K ancestors.
+// Inputs (all 1-based; 0 = unknown parent):
+//   sire, dam        – integer parent vectors of length N
+//   cohort_pos       – 1-based positions of reference (cohort) individuals
+//   mode             – 1 = founder only, 2 = ancestor only, 3 = both
+// Returns a named List whose elements depend on mode:
+//   founder_idx, founder_contrib   (mode 1 or 3)
+//   ancestor_idx, ancestor_contrib (mode 2 or 3)
+// ============================================================================
+// [[Rcpp::export]]
+List cpp_pedcontrib(IntegerVector sire, IntegerVector dam,
+                    IntegerVector cohort_pos, int mode) {
+
+    const int n = sire.size();
+    const int n_cohort = cohort_pos.size();
+    if (dam.size() != n)
+        stop("sire and dam vectors must have the same length");
+    if (n_cohort == 0)
+        stop("cohort_pos must not be empty");
+
+    const double w = 1.0 / static_cast<double>(n_cohort);
+
+    List result;
+
+    // ------------------------------------------------------------------
+    // Founder contributions (single backward pass)
+    // ------------------------------------------------------------------
+    if (mode == 1 || mode == 3) {
+        std::vector<double> contrib(n, 0.0);
+        for (int i = 0; i < n_cohort; ++i)
+            contrib[cohort_pos[i] - 1] += w;
+
+        for (int i = n - 1; i >= 0; --i) {
+            if (contrib[i] == 0.0) continue;
+            int s = sire[i] - 1;
+            int d = dam[i] - 1;
+            if (s >= 0) contrib[s] += 0.5 * contrib[i];
+            if (d >= 0) contrib[d] += 0.5 * contrib[i];
+        }
+
+        // Collect founders (both parents unknown)
+        std::vector<int>    f_idx;
+        std::vector<double> f_val;
+        for (int i = 0; i < n; ++i) {
+            if (sire[i] == 0 && dam[i] == 0) {
+                f_idx.push_back(i + 1);       // 1-based
+                f_val.push_back(contrib[i]);
+            }
+        }
+        result["founder_idx"]    = wrap(f_idx);
+        result["founder_contrib"] = wrap(f_val);
+    }
+
+    // ------------------------------------------------------------------
+    // Ancestor contributions – Boichard's iterative peeling
+    // ------------------------------------------------------------------
+    if (mode == 2 || mode == 3) {
+
+        // --- BFS: discover all ancestors of the cohort ---
+        std::vector<bool> visited(n, false);
+        std::vector<bool> is_anc(n, false);
+        std::vector<int>  bfs_queue;
+        bfs_queue.reserve(n);
+
+        for (int i = 0; i < n_cohort; ++i) {
+            int pos = cohort_pos[i] - 1;
+            if (!visited[pos]) {
+                visited[pos] = true;
+                is_anc[pos] = true; // COHORT MEMBERS Themselves are candidates!
+                bfs_queue.push_back(pos);
+            }
+        }
+
+        size_t head = 0;
+        while (head < bfs_queue.size()) {
+            int pos = bfs_queue[head++];
+            int s = sire[pos] - 1;
+            int d = dam[pos] - 1;
+            if (s >= 0 && !visited[s]) {
+                visited[s] = true;
+                is_anc[s] = true;
+                bfs_queue.push_back(s);
+            }
+            if (d >= 0 && !visited[d]) {
+                visited[d] = true;
+                is_anc[d] = true;
+                bfs_queue.push_back(d);
+            }
+        }
+
+        // Candidate ancestor list (0-based positions)
+        std::vector<int> cand_idx;
+        for (int i = 0; i < n; ++i)
+            if (is_anc[i]) cand_idx.push_back(i);
+
+        const int n_cand = static_cast<int>(cand_idx.size());
+
+        if (n_cand == 0) {
+            result["ancestor_idx"]    = IntegerVector(0);
+            result["ancestor_contrib"] = NumericVector(0);
+        } else {
+            // Mutable parent arrays (will be modified by severing links)
+            std::vector<int> w_sire(n), w_dam(n);
+            for (int i = 0; i < n; ++i) {
+                w_sire[i] = sire[i];
+                w_dam[i]  = dam[i];
+            }
+
+            std::vector<bool> active(n_cand, true);
+            std::vector<bool> is_sel(n, false);
+            std::vector<int>    sel_idx;
+            std::vector<double> sel_q;
+            sel_idx.reserve(n_cand);
+            sel_q.reserve(n_cand);
+
+            // Reusable work arrays
+            std::vector<double> contrib(n);
+            std::vector<double> a_array(n, 0.0);
+
+            for (;;) {
+                // --- Backward pass with current (modified) parent links (Calculates Q) ---
+                std::fill(contrib.begin(), contrib.end(), 0.0);
+                for (int i = 0; i < n_cohort; ++i)
+                    contrib[cohort_pos[i] - 1] += w;
+
+                for (int i = n - 1; i >= 0; --i) {
+                    if (contrib[i] == 0.0) continue;
+                    int s = w_sire[i] - 1;
+                    int d = w_dam[i]  - 1;
+                    if (s >= 0) contrib[s] += 0.5 * contrib[i];
+                    if (d >= 0) contrib[d] += 0.5 * contrib[i];
+                }
+
+                // --- Forward pass with updated parent links (Calculates A) ---
+                std::fill(a_array.begin(), a_array.end(), 0.0);
+                for (int i = 0; i < n; ++i) {
+                    if (is_sel[i]) {
+                        a_array[i] = 1.0;
+                    } else {
+                        int s = w_sire[i] - 1;
+                        int d = w_dam[i]  - 1;
+                        double a_s = (s >= 0) ? a_array[s] : 0.0;
+                        double a_d = (d >= 0) ? a_array[d] : 0.0;
+                        a_array[i] = 0.5 * a_s + 0.5 * a_d;
+                    }
+                }
+
+                // --- Find best among active candidates ---
+                int    best_j   = -1;
+                double best_val = -1.0;
+                for (int j = 0; j < n_cand; ++j) {
+                    if (active[j]) {
+                        int pos = cand_idx[j];
+                        // Marginal contribution = q_k * (1 - a_k)
+                        double p_k = contrib[pos] * std::max(0.0, 1.0 - a_array[pos]);
+                        if (p_k > best_val) {
+                            best_val = p_k;
+                            best_j   = j;
+                        }
+                    }
+                }
+                
+                if (best_val <= 1e-10) break;
+
+                int best_pos = cand_idx[best_j];
+                sel_idx.push_back(best_pos + 1);   // 1-based index
+                sel_q.push_back(best_val);
+
+                // Sever parent links of selected ancestor (to form pseudo-founder)
+                w_sire[best_pos] = 0;
+                w_dam[best_pos]  = 0;
+                // Mark as selected so it stops receiving and begins transmitting its own a_array=1.0 downwards
+                active[best_j]   = false;
+                is_sel[best_pos] = true;
+            }
+
+            result["ancestor_idx"]    = wrap(sel_idx);
+            result["ancestor_contrib"] = wrap(sel_q);
+        }
+    }
+
+    return result;
+}
+
+// Calculate Ancestry (Forward P)
+// [[Rcpp::export]]
+NumericMatrix cpp_calculate_ancestry(IntegerVector sire, IntegerVector dam, NumericMatrix res_mat) {
+    int n = sire.size();
+    int n_cols = res_mat.ncol();
+    
+    for(int i=0; i<n; ++i) {
+       int s = sire[i] - 1;
+       int d = dam[i] - 1;
+       if (s >= 0 || d >= 0) {
+           for(int k=0; k<n_cols; ++k) {
+               double ps = (s >= 0) ? res_mat(s,k) : 0.0;
+               double pd = (d >= 0) ? res_mat(d,k) : 0.0;
+               res_mat(i, k) = 0.5 * (ps + pd);
+           }
+       }
+    }
+    return res_mat;
 }

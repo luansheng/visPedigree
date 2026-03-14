@@ -213,8 +213,11 @@ retidy_subset <- function(ped) {
     return(result)
   }
 
+  # Propagate selfing attribute if present in the original pedigree
+  selfing_val <- isTRUE(attr(ped, "selfing"))
+  
   # Call tidyped to properly recalculate Gen, IndNum, SireNum, DamNum
-  tidyped(basic_ped)
+  tidyped(basic_ped, selfing = selfing_val)
 }
 
 # Build result from group membership vector

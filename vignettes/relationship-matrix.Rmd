@@ -165,11 +165,11 @@ vismat(mat_A)
 Setting `reorder = TRUE` (default) performs hierarchical clustering to group related individuals together.
 
 #### Grouping by Labels
-You can aggregate relationships by groups (e.g., generations) using the `grouping` parameter.
+You can aggregate relationships by groups (e.g., generations) using the `by` parameter.
 
 ```{r heatmap_group, fig.width=6, fig.height=6}
 # Mean relationship between generations
-vismat(mat_A, ped = tped, grouping = "Gen")
+vismat(mat_A, ped = tped, by = "Gen")
 ```
 
 ### 4.2 Inbreeding and Kinship Histograms {#4-2}

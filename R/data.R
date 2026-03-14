@@ -64,3 +64,40 @@
 #'   \item{Dam}{Dam ID}
 #' }
 "small_ped"
+
+#' A highly inbred pedigree
+#'
+#' A simulated pedigree designed to demonstrate high levels of inbreeding and partial inbreeding decomposition.
+#' Contains full-sib mating and backcrossing.
+#'
+#' @format A data.table with 5 columns:
+#' \describe{
+#'   \item{Ind}{Individual ID}
+#'   \item{Sire}{Sire ID}
+#'   \item{Dam}{Dam ID}
+#'   \item{Sex}{Sex of the individual}
+#'   \item{Gen}{Generation number}
+#' }
+"inbred_ped"
+
+#' A pedigree with half founders
+#'
+#' A dataset from ENDOG containing individuals with a single missing parent (half founders).
+#' Useful for testing genetic algorithms correctly conserving probability mass for missing lineages.
+#'
+#' @format A data.frame with 4 columns:
+#' \describe{
+#'   \item{Ind}{Individual ID}
+#'   \item{Sire}{Sire ID}
+#'   \item{Dam}{Dam ID}
+#'   \item{Sex}{Sex of the individual}
+#' }
+"half_founder_ped"
+
+#' A complex pedigree
+#'
+#' A dataset containing a large, complex pedigree covering about 100 generations,
+#' useful for testing the performance and accuracy of partial inbreeding and similar calculations.
+#'
+#' @format A data.table with a standard pedigree structure.
+"complex_ped"

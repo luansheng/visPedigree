@@ -1,0 +1,20 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "delete file",
+			"type": "shell",
+			"command": "rm -f /Users/luansheng/微云DPC/工作文档/06DPC/visPedigree/sandbox/information-theoretical-framework.qmd"
+		},
+		{
+			"label": "run g09 analysis",
+			"type": "shell",
+			"command": "Rscript sandbox/tests/check_g09.R"
+		},
+		{
+			"label": "render qmd",
+			"type": "shell",
+			"command": "quarto render sandbox/information-theoretical-framework.qmd"
+		}
+	]
+}

@@ -19,7 +19,7 @@
 #'
 #' @param ped Optional. A tidied pedigree object (\code{tidyped}), used for 
 #' extracting labels or grouping information. Required when using the 
-#' \code{grouping} parameter. If \code{mat} is a \code{pedmat} object, 
+#' \code{by} parameter. If \code{mat} is a \code{pedmat} object, 
 #' the pedigree can be automatically extracted from its attributes.
 #'
 #' @param type Character, type of visualization. Supported options:
@@ -44,7 +44,7 @@
 #' Full-sibs have nearly identical relationship profiles with the population,
 #' so they cluster tightly together.
 #'
-#' @param grouping Optional. Column name in \code{ped} to group by (e.g., 
+#' @param by Optional. Column name in \code{ped} to group by (e.g., 
 #' \code{"Family"}, \code{"Gen"}, \code{"Year"}). When grouping is enabled:
 #' \itemize{
 #'   \item Individual-level matrix is aggregated to group-level matrix 
@@ -53,6 +53,8 @@
 #'   \item For other grouping columns, NA values are assigned to \code{"Unknown"} group
 #' }
 #' This is useful for analyzing the structure of large populations.
+#'
+#' @param grouping \code{[Deprecated]} Use \code{by} instead.
 #'
 #' @param labelcex Numeric. Manual control for font size of individual labels. 
 #' If \code{NULL} (default), uses dynamic font size that adjusts automatically 
@@ -178,11 +180,11 @@
 #' # ============================================================
 #' 
 #' # Group by generation
-#' vismat(A, ped = ped, grouping = "Gen", 
+#' vismat(A, ped = ped, by = "Gen", 
 #'        main = "Mean Relationship Between Generations")
 #' 
 #' # Group by family (if pedigree has Family column)
-#' # vismat(A, ped = ped, grouping = "Family")
+#' # vismat(A, ped = ped, by = "Family")
 #' 
 #' # ============================================================
 #' # Different Types of Relationship Matrices
@@ -203,7 +205,13 @@
 #' @importFrom stats as.dist hclust
 #' @importFrom lattice levelplot panel.levelplot panel.abline histogram
 #' @importFrom data.table as.data.table
-vismat <- function(mat, ped = NULL, type = "heatmap", ids = NULL, reorder = TRUE, grouping = NULL, labelcex = NULL, ...) {
+vismat <- function(mat, ped = NULL, type = "heatmap", ids = NULL, reorder = TRUE, by = NULL, grouping = NULL, labelcex = NULL, ...) {
+  # Backward-compatible deprecation for 'grouping'
+  if (!is.null(grouping)) {
+    warning("'grouping' is deprecated in vismat(), use 'by' instead.", call. = FALSE)
+    if (is.null(by)) by <- grouping
+  }
+  
   # 0a. Extract ped from pedmat object if available
   is_pedmat <- inherits(mat, "pedmat") || !is.null(attr(mat, "pedmat_S4"))
   if (is_pedmat) {
@@ -309,15 +317,15 @@ vismat <- function(mat, ped = NULL, type = "heatmap", ids = NULL, reorder = TRUE
   }
 
   # 4. Handle Grouping (Aggregate)
-  if (!is.null(grouping)) {
+  if (!is.null(by)) {
     if (is.null(ped)) {
-      stop("'ped' must be provided when using 'grouping'.")
+      stop("'ped' must be provided when using 'by'.")
     }
 
     # Ensure ped is a data.table and includes the required column
     ped_dt <- data.table::as.data.table(ped)
-    if (!grouping %in% names(ped_dt)) {
-      stop(sprintf("Column '%s' not found in pedigree.", grouping))
+    if (!by %in% names(ped_dt)) {
+      stop(sprintf("Column '%s' not found in pedigree.", by))
     }
 
     # Match matrix IDs to groups
@@ -327,7 +335,7 @@ vismat <- function(mat, ped = NULL, type = "heatmap", ids = NULL, reorder = TRUE
       # Fallback to the first column if "Ind" is missing (unlikely for tidyped)
       id_col <- names(ped_dt)[1]
     }
-    mapping <- ped_dt[, .(id = as.character(get(id_col)), grp = get(grouping))]
+    mapping <- ped_dt[, .(id = as.character(get(id_col)), grp = get(by))]
 
     # Get group for each matrix row
     mat_ids <- rownames(mat)
@@ -339,7 +347,7 @@ vismat <- function(mat, ped = NULL, type = "heatmap", ids = NULL, reorder = TRUE
       warning("Some individuals in matrix not found in pedigree. They will be assigned to 'Unknown' group.")
     }
     
-    # Extract groups (may contain NA if grouping column has NA values)
+    # Extract groups (may contain NA if by column has NA values)
     mat_grps <- mapping[match_idx, grp]
     
     # Handle NA groups
@@ -347,7 +355,7 @@ vismat <- function(mat, ped = NULL, type = "heatmap", ids = NULL, reorder = TRUE
       n_na <- sum(is.na(mat_grps))
       
       # For Family grouping, exclude NA individuals (founders without family)
-      if (grouping == "Family") {
+      if (by == "Family") {
         na_idx <- which(is.na(mat_grps))
         na_ids <- mat_ids[na_idx]
         message(sprintf(
@@ -357,14 +365,14 @@ vismat <- function(mat, ped = NULL, type = "heatmap", ids = NULL, reorder = TRUE
           if (n_na > 5) sprintf(" (and %d more)", n_na - 5) else ""
         ))
         
-        # Remove NA individuals from matrix and grouping
+        # Remove NA individuals from matrix and by groups
         mat <- mat[-na_idx, -na_idx, drop = FALSE]
         mat_grps <- mat_grps[-na_idx]
         mat_ids <- mat_ids[-na_idx]
       } else {
-        # For other grouping columns, assign to 'Unknown' group
+        # For other by columns, assign to 'Unknown' group
         message(sprintf("Note: %d individual(s) have NA in '%s' column. Assigning to 'Unknown' group.", 
-                        n_na, grouping))
+                        n_na, by))
         mat_grps[is.na(mat_grps)] <- "Unknown"
       }
     }
@@ -383,7 +391,7 @@ vismat <- function(mat, ped = NULL, type = "heatmap", ids = NULL, reorder = TRUE
       warning("Aggregating an inverse relationship matrix. Mean values may not be biologically meaningful.")
     }
 
-    message(sprintf("Aggregating %d individuals into %d groups based on '%s'...", nrow(mat), n_grp, grouping))
+    message(sprintf("Aggregating %d individuals into %d groups based on '%s'...", nrow(mat), n_grp, by))
 
     # Optimized aggregation using matrix algebra instead of nested loops
     # This is O(n * n_grp) instead of O(n_grp^2 * avg_group_size^2)
@@ -456,7 +464,7 @@ vismat <- function(mat, ped = NULL, type = "heatmap", ids = NULL, reorder = TRUE
     # Note: User's reorder setting is preserved for grouped matrices
 
     # Set default titles for later use in heatmap
-    grouping_main <- sprintf("Grouped Relationship Heatmap (%s)", grouping)
+    grouping_main <- sprintf("Grouped Relationship Heatmap (%s)", by)
   } else {
     grouping_main <- NULL
   }
@@ -467,8 +475,8 @@ vismat <- function(mat, ped = NULL, type = "heatmap", ids = NULL, reorder = TRUE
     if (!"main" %in% names(dots)) {
       dots$main <- if(!is.null(grouping_main)) grouping_main else "Relationship Matrix Heatmap"
     }
-    if (!"xlab" %in% names(dots)) dots$xlab <- if(!is.null(grouping)) grouping else (if(reorder) "Clustered Individuals" else "Individuals")
-    if (!"ylab" %in% names(dots)) dots$ylab <- if(!is.null(grouping)) grouping else (if(reorder) "Clustered Individuals" else "Individuals")
+    if (!"xlab" %in% names(dots)) dots$xlab <- if(!is.null(by)) by else (if(reorder) "Clustered Individuals" else "Individuals")
+    if (!"ylab" %in% names(dots)) dots$ylab <- if(!is.null(by)) by else (if(reorder) "Clustered Individuals" else "Individuals")
     
     nature_genetics_palette <- grDevices::colorRampPalette(c(
       "#fff7ec", "#fee8c8", "#fdd49e", "#fdbb84", 

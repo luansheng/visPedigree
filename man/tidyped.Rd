@@ -12,6 +12,7 @@ tidyped(
   addgen = TRUE,
   addnum = TRUE,
   inbreed = FALSE,
+  selfing = FALSE,
   genmethod = "top",
   ...
 )
@@ -30,6 +31,8 @@ tidyped(
 \item{addnum}{A logical value indicating whether to generate a numeric pedigree. Default is TRUE, which adds \strong{IndNum}, \strong{SireNum}, and \strong{DamNum} columns to the output.}
 
 \item{inbreed}{A logical value indicating whether to calculate inbreeding coefficients. Default is FALSE. If TRUE, an \strong{f} column is added to the output. This uses the same optimized engine as \code{pedmat(..., method = "f")}.}
+
+\item{selfing}{A logical value indicating whether to allow the same individual to appear as both sire and dam. This is common in plant breeding (monoecious species) where the same plant can serve as both male and female parent. If TRUE, individuals appearing in both the Sire and Dam columns will be assigned Sex = "monoecious" instead of triggering an error. Default is FALSE.}
 
 \item{genmethod}{A character value specifying the generation assignment method: "\strong{top}" or "\strong{bottom}". "top" (top-aligned) assigns generations from parents to offspring, starting founders at Gen 1. "bottom" (bottom-aligned) assigns generations from offspring to parents, aligning terminal nodes at the bottom. Default is "top".}
 

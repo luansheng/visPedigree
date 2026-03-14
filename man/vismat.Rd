@@ -10,6 +10,7 @@ vismat(
   type = "heatmap",
   ids = NULL,
   reorder = TRUE,
+  by = NULL,
   grouping = NULL,
   labelcex = NULL,
   ...
@@ -29,7 +30,7 @@ coefficients.}
 
 \item{ped}{Optional. A tidied pedigree object (\code{tidyped}), used for 
 extracting labels or grouping information. Required when using the 
-\code{grouping} parameter. If \code{mat} is a \code{pedmat} object, 
+\code{by} parameter. If \code{mat} is a \code{pedmat} object, 
 the pedigree can be automatically extracted from its attributes.}
 
 \item{type}{Character, type of visualization. Supported options:
@@ -54,7 +55,7 @@ Automatically skipped for large matrices (N > 2000) to improve performance.
 Full-sibs have nearly identical relationship profiles with the population,
 so they cluster tightly together.}
 
-\item{grouping}{Optional. Column name in \code{ped} to group by (e.g., 
+\item{by}{Optional. Column name in \code{ped} to group by (e.g., 
 \code{"Family"}, \code{"Gen"}, \code{"Year"}). When grouping is enabled:
 \itemize{
   \item Individual-level matrix is aggregated to group-level matrix 
@@ -63,6 +64,8 @@ so they cluster tightly together.}
   \item For other grouping columns, NA values are assigned to \code{"Unknown"} group
 }
 This is useful for analyzing the structure of large populations.}
+
+\item{grouping}{\code{[Deprecated]} Use \code{by} instead.}
 
 \item{labelcex}{Numeric. Manual control for font size of individual labels. 
 If \code{NULL} (default), uses dynamic font size that adjusts automatically 
@@ -188,11 +191,11 @@ vismat(A, type = "histogram", nint = 30)
 # ============================================================
 
 # Group by generation
-vismat(A, ped = ped, grouping = "Gen", 
+vismat(A, ped = ped, by = "Gen", 
        main = "Mean Relationship Between Generations")
 
 # Group by family (if pedigree has Family column)
-# vismat(A, ped = ped, grouping = "Family")
+# vismat(A, ped = ped, by = "Family")
 
 # ============================================================
 # Different Types of Relationship Matrices

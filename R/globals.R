@@ -112,4 +112,4 @@ if (getRversion() >= "2.15.1") {
   )
 }
 
-utils::globalVariables(c('i.SireNum', 'i.DamNum', 'i.Sire', 'i.Dam', 'i.is_parent', 'sort_key', 'n_compressed', 'Family', 'grp', 'NewGen', 'Limit'))
+utils::globalVariables(c('i.SireNum', 'i.DamNum', 'i.Sire', 'i.Dam', 'i.is_parent', 'sort_key', 'n_compressed', 'Family', 'grp', 'NewGen', 'Limit', 'CohortLabel', 'DeltaF_Ind', 'ECG', 'monoecious_nums', 'role'))
