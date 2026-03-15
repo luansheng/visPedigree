@@ -3,9 +3,7 @@
 Rapidly restores the `tidyped` class to a `data.table` or `data.frame`
 that was previously processed by
 [`tidyped()`](https://luansheng.github.io/visPedigree/reference/tidyped.md)
-but lost its class attributes due to data manipulation (e.g.,
-[`merge()`](https://rdrr.io/r/base/merge.html),
-[`rbind()`](https://rdrr.io/r/base/cbind.html), or dplyr verbs).
+but lost its class attributes due to data manipulation.
 
 ## Usage
 
@@ -31,15 +29,28 @@ This is a lightweight operation that only checks for the required
 columns and re-attaches the class—it does **not** re-run the full
 pedigree sorting, generation inference, or loop detection.
 
-Many common R operations silently strip custom S3 class attributes:
+This helper is intended for objects that still contain the core pedigree
+columns and numeric indices, but no longer inherit from `tidyped`. A
+common reproducible case is
+[`rbind()`](https://rdrr.io/r/base/cbind.html) on two `tidyped`
+fragments, which typically returns a plain `data.table`. Converting a
+`tidyped` object to a plain `data.frame` and then subsetting it also
+drops the class.
 
-- `merge(tped, extra)` — returns plain `data.table`
+Some operations, such as [`merge()`](https://rdrr.io/r/base/merge.html)
+or certain dplyr workflows, may or may not preserve the `tidyped` class
+depending on the versions of data.table, dplyr, and the exact method
+dispatch path used in the current R session. Therefore, `as_tidyped()`
+should be viewed as a safe recovery helper rather than something only
+needed after one specific verb.
 
-- `rbind(tped1, tped2)` — returns plain `data.table`
+Typical class-loss scenarios include:
 
-- `dplyr::filter(tped, ...)` — returns `tbl_df`
+- `rbind(tped1, tped2)` — often returns plain `data.table`
 
-- `subset(tped, ...)` — returns `data.frame`
+- `as.data.frame(tped)[rows, ]` — returns plain `data.frame`
+
+- manual class removal or serialization / import workflows
 
 After such operations, downstream analysis functions (e.g.,
 [`pedstats`](https://luansheng.github.io/visPedigree/reference/pedstats.md),
@@ -61,16 +72,27 @@ class(tp)
 #> [1] "tidyped"    "data.table" "data.frame"
 # [1] "tidyped"    "data.table" "data.frame"
 
-# Simulate class loss via merge
-extra <- data.table::data.table(Ind = tp$Ind[1:5], Note = "example")
-tp2 <- merge(tp, extra, by = "Ind", all.x = TRUE)
+# Simulate class loss via rbind()
+tp2 <- rbind(tp[1:5], tp[6:10])
 class(tp2)
-#> [1] "tidyped"    "data.table" "data.frame"
+#> [1] "data.table" "data.frame"
 # [1] "data.table" "data.frame"
 
 # Restore the class
 tp3 <- as_tidyped(tp2)
 class(tp3)
+#> [1] "tidyped"    "data.table" "data.frame"
+# [1] "tidyped"    "data.table" "data.frame"
+
+# It can also restore from a plain data.frame if core columns are intact
+tp_df <- as.data.frame(tp)
+tp4 <- tp_df[tp_df$Gen > 1, ]
+class(tp4)
+#> [1] "data.frame"
+# [1] "data.frame"
+
+tp5 <- as_tidyped(tp4)
+class(tp5)
 #> [1] "tidyped"    "data.table" "data.frame"
 # [1] "tidyped"    "data.table" "data.frame"
 ```

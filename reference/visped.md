@@ -247,7 +247,7 @@ visped(simple_ped_tidy,
        symbolsize=5.5, 
        pagewidth = 100, 
        file = tempfile(fileext = ".pdf"))
-#> Pedigree saved to: /tmp/Rtmp5Eib3U/file1caa2a923ce5.pdf
+#> Pedigree saved to: /tmp/RtmpSqqbMR/file1ceb7ea0ddde.pdf
 #> Label cex: 0.25. Symbol size: 5.5. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 
 
@@ -277,7 +277,7 @@ visped(big_ped_tidy,
        symbolsize=5.5, 
        file = tempfile(fileext = ".pdf"))
 #> Note: Removed 351 isolated individuals (no parents, no progeny) from the plot.
-#> Pedigree saved to: /tmp/Rtmp5Eib3U/file1caa424cc41e.pdf
+#> Pedigree saved to: /tmp/RtmpSqqbMR/file1ceb45d49f9e.pdf
 #> Label cex: 0.08. Symbol size: 5.5. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 
 
@@ -287,7 +287,7 @@ visped(big_ped_tidy,
        outline = TRUE, 
        file = tempfile(fileext = ".pdf"))
 #> Note: Removed 351 isolated individuals (no parents, no progeny) from the plot.
-#> Pedigree saved to: /tmp/Rtmp5Eib3U/file1caa1f3b6e35.pdf
+#> Pedigree saved to: /tmp/RtmpSqqbMR/file1ceb56652f01.pdf
 
 # }
 ```
