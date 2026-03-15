@@ -18,8 +18,7 @@ A \code{tidyped} object.
 \description{
 Rapidly restores the \code{tidyped} class to a \code{data.table} or
 \code{data.frame} that was previously processed by \code{\link{tidyped}()}
-but lost its class attributes due to data manipulation (e.g.,
-\code{merge()}, \code{rbind()}, or dplyr verbs).
+but lost its class attributes due to data manipulation.
 }
 \details{
 This is a lightweight operation that only checks for the required columns
@@ -27,12 +26,26 @@ and re-attaches the class---it does \strong{not} re-run the full pedigree
 sorting, generation inference, or loop detection.
 
 
-Many common R operations silently strip custom S3 class attributes:
+This helper is intended for objects that still contain the core pedigree
+columns and numeric indices, but no longer inherit from \code{tidyped}.
+A common reproducible case is \code{rbind()} on two \code{tidyped}
+fragments, which typically returns a plain \code{data.table}. Converting a
+\code{tidyped} object to a plain \code{data.frame} and then subsetting it
+also drops the class.
+
+Some operations, such as \code{merge()} or certain dplyr workflows, may or
+may not preserve the \code{tidyped} class depending on the versions of
+\pkg{data.table}, \pkg{dplyr}, and the exact method dispatch path used in
+the current R session. Therefore, \code{as_tidyped()} should be viewed as a
+safe recovery helper rather than something only needed after one specific
+verb.
+
+
+Typical class-loss scenarios include:
 \itemize{
-  \item \code{merge(tped, extra)} --- returns plain \code{data.table}
-  \item \code{rbind(tped1, tped2)} --- returns plain \code{data.table}
-  \item \code{dplyr::filter(tped, ...)} --- returns \code{tbl_df}
-  \item \code{subset(tped, ...)} --- returns \code{data.frame}
+  \item \code{rbind(tped1, tped2)} --- often returns plain \code{data.table}
+  \item \code{as.data.frame(tped)[rows, ]} --- returns plain \code{data.frame}
+  \item manual class removal or serialization / import workflows
 }
 After such operations, downstream analysis functions (e.g.,
 \code{\link{pedstats}}, \code{\link{pedne}}) will either error or
@@ -45,15 +58,24 @@ tp <- tidyped(simple_ped)
 class(tp)
 # [1] "tidyped"    "data.table" "data.frame"
 
-# Simulate class loss via merge
-extra <- data.table::data.table(Ind = tp$Ind[1:5], Note = "example")
-tp2 <- merge(tp, extra, by = "Ind", all.x = TRUE)
+# Simulate class loss via rbind()
+tp2 <- rbind(tp[1:5], tp[6:10])
 class(tp2)
 # [1] "data.table" "data.frame"
 
 # Restore the class
 tp3 <- as_tidyped(tp2)
 class(tp3)
+# [1] "tidyped"    "data.table" "data.frame"
+
+# It can also restore from a plain data.frame if core columns are intact
+tp_df <- as.data.frame(tp)
+tp4 <- tp_df[tp_df$Gen > 1, ]
+class(tp4)
+# [1] "data.frame"
+
+tp5 <- as_tidyped(tp4)
+class(tp5)
 # [1] "tidyped"    "data.table" "data.frame"
 
 }
