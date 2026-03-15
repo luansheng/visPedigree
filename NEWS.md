@@ -1,8 +1,9 @@
 # Changes in version 1.4.0 released on 15 Mar 2026
 ## New features
-1. **Safer `tidyped` object workflows**: Added `is_tidyped()`, `pedmeta()`, `has_inbreeding()`, and `has_candidates()` to make class checks and metadata inspection explicit and user-facing.
-2. **Fast candidate tracing from existing `tidyped` objects**: `tidyped()` now uses a fast path when the input is already a valid `tidyped` object and `cand` is supplied, avoiding repeated global validation and preprocessing.
-3. **Workflow coverage and developer documentation**: Added a new workflow vignette, a `tidyped` structure and extension vignette, and focused regression tests covering safe subsetting, `:=` by-reference behavior, and split workflow semantics.
+1. **`tidyped` class redesign and optimization**: Refined the internal `tidyped` class architecture around a clearer metadata contract and safer S3/data.table interaction model, making the object more robust for repeated downstream analysis and extension.
+2. **Safer `tidyped` object workflows**: Added `is_tidyped()`, `pedmeta()`, `has_inbreeding()`, and `has_candidates()` to make class checks and metadata inspection explicit and user-facing.
+3. **Fast candidate tracing from existing `tidyped` objects**: `tidyped()` now uses a fast path when the input is already a valid `tidyped` object and `cand` is supplied, avoiding repeated global validation and preprocessing.
+4. **Workflow coverage and developer documentation**: Added a new workflow vignette, a `tidyped` structure and extension vignette, and focused regression tests covering safe subsetting, `:=` by-reference behavior, and split workflow semantics.
 
 ## Bug fixes
 1. **Stable by-reference mutation for `tidyped`**: Replaced class and metadata attachment paths with `data.table::setattr()` so subsequent `:=` operations keep true by-reference behavior instead of silently writing into shallow copies.
