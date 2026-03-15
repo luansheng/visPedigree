@@ -16,7 +16,7 @@
 #' @export
 #' @import data.table
 inbreed <- function(ped, ...) {
-  ped <- ensure_tidyped(ped)
+  ped <- ensure_complete_tidyped(ped, "inbreed()")
 
   meta <- attr(ped, "ped_meta")
   ped_work <- copy(ped)

@@ -1,3 +1,7 @@
+# Changes in version 1.4.1 released on 15 Mar 2026
+## Bug fixes
+1. **Fail-fast incomplete pedigree analysis**: `inbreed()` and other completeness-sensitive analysis functions now error on row-truncated subsets with missing parent records. This prevents incorrect results (e.g., zero inbreeding) caused by calculating on partial ancestry data.
+
 # Changes in version 1.4.0 released on 15 Mar 2026
 ## New features
 1. **`tidyped` class redesign and optimization**: Refined the internal `tidyped` class architecture around a clearer metadata contract and safer S3/data.table interaction model, making the object more robust for repeated downstream analysis and extension.

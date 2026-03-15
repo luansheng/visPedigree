@@ -304,7 +304,9 @@ pedmat <- function(ped, method = "A", sparse = TRUE, invert_method = "auto",
   }
 
   # 1. Standardize pedigree
-  if (!is_tidyped(ped)) {
+  if (is_tidyped(ped) || all(c("Ind", "Sire", "Dam", "Sex", "Gen", "IndNum", "SireNum", "DamNum") %in% names(ped))) {
+    ped <- ensure_complete_tidyped(ped, sprintf("pedmat(method = \"%s\")", method))
+  } else if (!is_tidyped(ped)) {
     ped <- tidyped(ped, addnum = TRUE)
   }
   

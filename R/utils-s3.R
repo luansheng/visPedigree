@@ -66,6 +66,41 @@ new_tidyped <- function(x) {
   x[]
 }
 
+#' Check whether all referenced parents are present
+#'
+#' @param x A pedigree-like object.
+#' @return Logical scalar.
+#' @keywords internal
+is_complete_pedigree <- function(x) {
+  if (!is.data.frame(x)) return(FALSE)
+
+  core_cols <- c("Ind", "Sire", "Dam")
+  if (!all(core_cols %in% names(x))) return(FALSE)
+
+  sires_ok <- is.na(x$Sire) | x$Sire %in% x$Ind
+  dams_ok  <- is.na(x$Dam)  | x$Dam %in% x$Ind
+
+  all(sires_ok) && all(dams_ok)
+}
+
+#' Error on row-truncated pedigree subsets
+#'
+#' @param ped A pedigree-like object.
+#' @param fun Character scalar. Calling function name for the error message.
+#' @return The input object, invisibly.
+#' @keywords internal
+require_complete_pedigree <- function(ped, fun) {
+  if (is_complete_pedigree(ped)) return(invisible(ped))
+
+  stop(
+    fun, " requires a structurally complete pedigree. ",
+    "This input appears to be a row-truncated subset with missing parent records.\n",
+    "Compute on the full pedigree first, or extract a valid sub-pedigree with ",
+    "`tidyped(tp, cand = ids, trace = \"up\")`.",
+    call. = FALSE
+  )
+}
+
 #' Internal helper to ensure ped is a tidyped object
 #'
 #' If the object has lost its \code{tidyped} class (e.g., after \code{merge()},
@@ -109,6 +144,54 @@ ensure_tidyped <- function(ped) {
   }
 
   # Structure is intact, only the class label was dropped
+  message(
+    "Note: 'ped' lost its tidyped class ",
+    "(common after merge/rbind/dplyr). Restoring automatically."
+  )
+  new_tidyped(ped)
+}
+
+#' Internal helper to ensure ped is a complete tidyped object
+#'
+#' Like \\code{ensure_tidyped()}, but also rejects row-truncated pedigree
+#' subsets whose referenced parents are no longer present.
+#'
+#' @param ped An object expected to be a complete tidyped pedigree.
+#' @param fun Character scalar. Calling function name for the error message.
+#' @return A valid, structurally complete tidyped object.
+#' @keywords internal
+ensure_complete_tidyped <- function(ped, fun) {
+  if (is_tidyped(ped)) {
+    require_complete_pedigree(ped, fun)
+    return(ped)
+  }
+
+  if (!is.data.frame(ped)) {
+    stop("'ped' must be a tidyped object. Run `tp <- tidyped(ped)` first.",
+         call. = FALSE)
+  }
+
+  core <- c("Ind", "Sire", "Dam", "Sex", "Gen", "IndNum", "SireNum", "DamNum")
+  missing <- setdiff(core, names(ped))
+
+  if (length(missing) > 0) {
+    stop("'ped' must be a tidyped object. Run `tp <- tidyped(ped)` first.",
+         call. = FALSE)
+  }
+
+  if (!inherits(ped, "data.table")) {
+    ped <- data.table::as.data.table(ped)
+  }
+
+  require_complete_pedigree(ped, fun)
+
+  if (anyDuplicated(ped$IndNum) > 0L ||
+      !identical(ped$IndNum, seq_len(nrow(ped)))) {
+    ped[, IndNum := .I]
+    ped[, SireNum := match(Sire, Ind, nomatch = 0L)]
+    ped[, DamNum  := match(Dam, Ind, nomatch = 0L)]
+  }
+
   message(
     "Note: 'ped' lost its tidyped class ",
     "(common after merge/rbind/dplyr). Restoring automatically."
@@ -333,10 +416,7 @@ validate_tidyped <- function(x) {
   if (!all(core_cols %in% names(result))) return(result)
 
   # Check pedigree completeness: all non-NA parents must still be in Ind
-  sires_ok <- is.na(result$Sire) | result$Sire %in% result$Ind
-  dams_ok  <- is.na(result$Dam)  | result$Dam %in% result$Ind
-
-  if (all(sires_ok) && all(dams_ok)) {
+  if (is_complete_pedigree(result)) {
     # Pedigree is still complete -> rebuild IndNum and restore class.
     # Use data.table::set() to avoid recursive [.tidyped dispatch.
     if ("IndNum" %in% names(result)) {

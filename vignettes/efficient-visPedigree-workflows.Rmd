@@ -121,6 +121,12 @@ sub_dt
 This behavior prevents invalid integer pedigree indices from silently reaching
 C++ code.
 
+Completeness-sensitive analyses now fail fast on such truncated subsets:
+
+```{r incomplete-subset-error, error = TRUE}
+inbreed(sub_dt)
+```
+
 ### 4.3 Use explicit tracing when you need a valid sub-pedigree
 
 If the goal is to keep a structurally valid pedigree around focal individuals,
@@ -131,6 +137,13 @@ valid_sub_tp <- tidyped(tp_year, cand = "D", trace = "up")
 
 class(valid_sub_tp)
 valid_sub_tp[, .(Ind, Sire, Dam, Cand)]
+```
+
+Then compute on the valid sub-pedigree and, if needed, filter the final result
+back to the focal individuals:
+
+```{r explicit-analysis}
+inbreed(valid_sub_tp)[Ind == "D", .(Ind, f)]
 ```
 
 ## 5. `splitped()` versus `pedsubpop()`

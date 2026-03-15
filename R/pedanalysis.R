@@ -74,7 +74,7 @@
 pedgenint <- function(ped, timevar = NULL, unit = c("year", "month", "day", "hour"),
                       format = NULL, cycle = NULL, by = NULL) {
   # Input validation
-  ped <- ensure_tidyped(ped)
+  ped <- ensure_complete_tidyped(ped, "pedgenint()")
   unit <- match.arg(unit)
   
   # Auto-detect timevar
@@ -446,7 +446,7 @@ pedsubpop <- function(ped, by = NULL) {
 #' 
 #' @export
 pedrel <- function(ped, by = "Gen", reference = NULL, compact = FALSE) {
-  ped <- ensure_tidyped(ped)
+  ped <- ensure_complete_tidyped(ped, "pedrel()")
   if (!by %in% names(ped)) stop(sprintf("Column '%s' not found.", by))
   
   groups <- unique(ped[[by]])
@@ -597,7 +597,7 @@ pedrel <- function(ped, by = "Gen", reference = NULL, compact = FALSE) {
 #'
 #' @export
 pedecg <- function(ped) {
-  ped <- ensure_tidyped(ped)
+  ped <- ensure_complete_tidyped(ped, "pedecg()")
   
   n <- nrow(ped)
   ecg <- numeric(n)
@@ -746,7 +746,11 @@ pedecg <- function(ped) {
 #'
 #' @export
 pedstats <- function(ped, timevar = NULL, unit = "year", cycle = NULL, ecg = TRUE, genint = TRUE, ...) {
-  ped <- ensure_tidyped(ped)
+  ped <- if (isTRUE(ecg) || isTRUE(genint)) {
+    ensure_complete_tidyped(ped, "pedstats()")
+  } else {
+    ensure_tidyped(ped)
+  }
   
   summ <- data.table(
     N = nrow(ped),
@@ -901,7 +905,11 @@ pedne <- function(ped, method = c("coancestry", "inbreeding", "demographic"),
                   by = NULL, reference = NULL, nsamples = 1000, ncores = 1,
                   seed = NULL) {
   
-  ped <- ensure_tidyped(ped)
+  ped <- if (match.arg(method) %in% c("coancestry", "inbreeding")) {
+    ensure_complete_tidyped(ped, sprintf("pedne(method = \"%s\")", match.arg(method)))
+  } else {
+    ensure_tidyped(ped)
+  }
   method <- match.arg(method)
   
   # Protect the original data from being modified by reference
@@ -1270,7 +1278,7 @@ fill_phantoms <- function(ped) {
 #'
 #' @export
 pedcontrib <- function(ped, reference = NULL, mode = c("both", "founder", "ancestor"), top = 20) {
-  ped <- ensure_tidyped(ped)
+  ped <- ensure_complete_tidyped(ped, "pedcontrib()")
   
   # Inject phantom parents to conserve genetic contributions accurately
   ped <- fill_phantoms(ped)
@@ -1444,7 +1452,7 @@ pedcontrib <- function(ped, reference = NULL, mode = c("both", "founder", "ances
 #' 
 #' @export
 pedancestry <- function(ped, foundervar, target_labels = NULL) {
-  ped <- ensure_tidyped(ped)
+  ped <- ensure_complete_tidyped(ped, "pedancestry()")
   if (!foundervar %in% names(ped)) stop(sprintf("Column '%s' not found.", foundervar))
   
   # Forward pass requires numbers
@@ -1582,6 +1590,7 @@ pedfclass <- function(ped,
   all_labels  <- c(labels, tail_label)
   
   if (!"f" %in% names(ped)) {
+    ped <- ensure_complete_tidyped(ped, "pedfclass()")
     message("Calculating inbreeding coefficients...")
     ped <- inbreed(ped)
   }
@@ -1646,7 +1655,7 @@ pedfclass <- function(ped,
 #' 
 #' @export
 pedpartial <- function(ped, ancestors = NULL, top = 20) {
-  ped <- ensure_tidyped(ped)
+  ped <- ensure_complete_tidyped(ped, "pedpartial()")
   
   # Need dii from inbreeding algorithm which requires integer indices
   if (!all(c("SireNum", "DamNum", "IndNum") %in% names(ped))) {
@@ -1800,7 +1809,7 @@ print.pedcontrib <- function(x, ...) {
 #' @export
 pediv <- function(ped, reference = NULL, top = 20, nsamples = 1000, ncores = 1,
                   seed = NULL) {
-  ped <- ensure_tidyped(ped)
+  ped <- ensure_complete_tidyped(ped, "pediv()")
 
   # ---- Founder and ancestor contributions ----
   message("Calculating founder and ancestor contributions...")

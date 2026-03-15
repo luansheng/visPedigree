@@ -87,3 +87,29 @@ test_that("splitped returns objects while pedsubpop returns summary table", {
   expect_false("subpop" %in% names(stats))
   expect_true(all(c("Group", "N", "N_Sire", "N_Dam", "N_Founder") %in% names(stats)))
 })
+
+test_that("completeness-sensitive analyses error on truncated subsets", {
+  tp <- tidyped(simple_ped)
+
+  expect_warning(
+    tp_sub <- tp[Gen > 2],
+    "Subsetting removed parent records"
+  )
+
+  expect_false(is_tidyped(tp_sub))
+
+  expect_error(
+    inbreed(tp_sub),
+    "structurally complete pedigree"
+  )
+
+  expect_error(
+    pedecg(tp_sub),
+    "structurally complete pedigree"
+  )
+
+  expect_error(
+    pedmat(tp_sub, method = "f"),
+    "structurally complete pedigree"
+  )
+})
