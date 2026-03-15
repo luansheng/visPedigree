@@ -12,6 +12,7 @@ reference:
   desc: Main tools for processing and visualizing animal pedigrees.
   contents:
   - tidyped
+  - as_tidyped
   - visped
   - splitped
 - title: Relationship Matrices
