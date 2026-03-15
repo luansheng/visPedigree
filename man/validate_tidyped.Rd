@@ -10,9 +10,11 @@ validate_tidyped(x)
 \item{x}{A tidyped object}
 }
 \value{
-The object if valid, otherwise an error
+The (possibly restored) object if valid, otherwise an error
 }
 \description{
-Internal validator for tidyped class
+Validates a tidyped object. If the object has lost its class but retains the
+required columns, it is automatically restored via \code{ensure_tidyped()}.
+Fatal structural problems (e.g., missing core columns) raise an error.
 }
 \keyword{internal}

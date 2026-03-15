@@ -125,12 +125,10 @@ test_that("analysis functions work after class loss via rbind", {
     "Restoring automatically"
   )
   expect_s3_class(stats, "pedstats")
+  expect_true(is_tidyped(tp2))
 
-  # pedecg should auto-recover and work
-  expect_message(
-    ecg <- pedecg(tp2),
-    "Restoring automatically"
-  )
+  # pedecg should then work on the already-restored object
+  expect_silent(ecg <- pedecg(tp2))
   expect_true(is.data.table(ecg))
   expect_true("ECG" %in% names(ecg))
 })

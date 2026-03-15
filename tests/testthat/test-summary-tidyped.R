@@ -42,6 +42,5 @@ test_that("summary.tidyped validates input object", {
 
   bad_cols <- data.table(Ind = "A", Sire = NA_character_, Dam = NA_character_)
   class(bad_cols) <- c("tidyped", class(bad_cols))
-  attr(bad_cols, "tidyped") <- TRUE
   expect_error(summary(bad_cols), "missing required columns: Sex")
 })

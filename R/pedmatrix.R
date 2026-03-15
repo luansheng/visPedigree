@@ -224,7 +224,7 @@ pedmat <- function(ped, method = "A", sparse = TRUE, invert_method = "auto",
   }
   
   # Store original pedigree N for call_info
-  n_original <- if (inherits(ped, "tidyped")) nrow(ped) else {
+  n_original <- if (is_tidyped(ped)) nrow(ped) else {
     # Check if it's a data.frame/table before calling nrow
     if (is.data.frame(ped)) nrow(ped) else NA_integer_
   }
@@ -232,7 +232,7 @@ pedmat <- function(ped, method = "A", sparse = TRUE, invert_method = "auto",
   # Handle compact mode
   if (compact) {
     # Store original pedigree for metadata
-    ped_original <- if (inherits(ped, "tidyped")) ped else tidyped(ped, addnum = TRUE)
+    ped_original <- if (is_tidyped(ped)) ped else tidyped(ped, addnum = TRUE)
     n_original <- nrow(ped_original)
 
     # Compact the pedigree
@@ -304,7 +304,7 @@ pedmat <- function(ped, method = "A", sparse = TRUE, invert_method = "auto",
   }
 
   # 1. Standardize pedigree
-  if (!inherits(ped, "tidyped")) {
+  if (!is_tidyped(ped)) {
     ped <- tidyped(ped, addnum = TRUE)
   }
   
@@ -517,7 +517,7 @@ pedmat <- function(ped, method = "A", sparse = TRUE, invert_method = "auto",
 #' @keywords internal
 compact_ped_for_matrix <- function(ped) {
   # Ensure tidyped format
-  if (!inherits(ped, "tidyped")) {
+  if (!is_tidyped(ped)) {
     ped <- tidyped(ped, addnum = TRUE)
   }
   

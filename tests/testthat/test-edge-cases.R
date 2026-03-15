@@ -116,7 +116,7 @@ test_that("sex conflict detection works", {
   res <- tidyped(bad_ped, selfing = TRUE)
   expect_s3_class(res, "tidyped")
   expect_equal(res[Ind == "A", Sex], "monoecious")
-  expect_true(isTRUE(attr(res, "selfing")))
+  expect_true(isTRUE(attr(res, "ped_meta")$selfing))
 })
 
 test_that("sex annotation conflict detection works", {

@@ -18,7 +18,7 @@
 inbreed <- function(ped, ...) {
   ped <- ensure_tidyped(ped)
 
-  # Ensure sorted by IndNum for the Trace algorithm, then restore original order
+  meta <- attr(ped, "ped_meta")
   ped_work <- copy(ped)
   ped_work[, .orig_order_visped := seq_len(.N)]
   setorder(ped_work, IndNum)
@@ -30,5 +30,9 @@ inbreed <- function(ped, ...) {
   setorder(ped_work, .orig_order_visped)
   ped_work[, .orig_order_visped := NULL]
   
-  return(new_tidyped(ped_work))
+  # Propagate ped_meta from original object
+  result <- new_tidyped(ped_work)
+  if (!is.null(meta)) data.table::setattr(result, "ped_meta", meta)
+  
+  return(result)
 }

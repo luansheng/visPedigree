@@ -236,7 +236,7 @@ vismat <- function(mat, ped = NULL, type = "heatmap", ids = NULL, reorder = TRUE
   }
   
   # 0b. If input is a tidyped object, calculate A first
-  if (inherits(mat, "tidyped")) {
+  if (is_tidyped(mat)) {
     ped <- mat
     res <- pedmat(ped, method = "A")
     # Now res is a pure matrix with pedmat class

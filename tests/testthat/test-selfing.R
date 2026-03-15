@@ -39,8 +39,8 @@ test_that("selfing = TRUE allows same individual as both Sire and Dam", {
   
   expect_s3_class(res, "tidyped")
   expect_equal(res[Ind == "A", Sex], "monoecious")
-  expect_true(isTRUE(attr(res, "selfing")))
-  expect_equal(attr(res, "bisexual_parents"), "A")
+  expect_true(isTRUE(attr(res, "ped_meta")$selfing))
+  expect_equal(attr(res, "ped_meta")$bisexual_parents, "A")
 })
 
 test_that("selfing with multiple monoecious individuals", {
@@ -58,7 +58,7 @@ test_that("selfing with multiple monoecious individuals", {
   
   expect_equal(res[Ind == "P1", Sex], "monoecious")
   expect_equal(res[Ind == "P2", Sex], "monoecious")
-  expect_equal(sort(attr(res, "bisexual_parents")), c("P1", "P2"))
+  expect_equal(sort(attr(res, "ped_meta")$bisexual_parents), c("P1", "P2"))
 })
 
 test_that("selfing: non-monoecious individuals get normal sex inference", {
@@ -225,7 +225,7 @@ test_that("selfing: splitped propagates selfing attribute", {
   )
   
   res <- suppressMessages(tidyped(ped, selfing = TRUE))
-  expect_true(isTRUE(attr(res, "selfing")))
+  expect_true(isTRUE(attr(res, "ped_meta")$selfing))
   
   # splitped should propagate selfing
   groups <- splitped(res)

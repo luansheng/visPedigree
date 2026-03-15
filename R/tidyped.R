@@ -100,6 +100,69 @@ tidyped <- function(ped,
     tracegen <- as.integer(tracegen)
   }
 
+  # ---------- B2 Fast Path ----------
+  # When input is already a tidyped and cand is requested, skip the full
+  # validation / cycle-detection / sex-inference pipeline.  The existing
+  # object has already passed all of those checks.
+  if (is_tidyped(ped) && !is.null(cand)) {
+    ped_dt <- data.table::copy(ped)
+    meta   <- attr(ped, "ped_meta")
+    bisexual_parents <- if (!is.null(meta)) meta$bisexual_parents else character(0)
+    selfing_val      <- if (!is.null(meta)) isTRUE(meta$selfing) else selfing
+    genmethod_val    <- if (!is.null(meta) && !is.null(meta$genmethod)) meta$genmethod else genmethod
+
+    # Strip class so internal := ops don't hit [.tidyped
+    data.table::setattr(ped_dt, "class", setdiff(class(ped_dt), "tidyped"))
+
+    graph_res <- build_ped_graph(ped_dt)
+    g <- graph_res$g
+    ped_dt <- trace_ped_candidates(g, ped_dt, cand, trace, tracegen)
+
+    # Rebuild graph for the subset
+    graph_res <- build_ped_graph(ped_dt)
+    g <- graph_res$g
+    topo_order <- as.integer(topo_sort(g))
+
+    # Re-derive Family / FamilySize for the subset
+    ped_dt[, Family := ifelse(
+      !is.na(Sire) & !is.na(Dam), paste0(Sire, "x", Dam), NA_character_
+    )]
+    ped_dt[, FamilySize := .N, by = Family]
+    ped_dt[is.na(Family), FamilySize := 1L]
+
+    if (addgen) {
+      ped_dt <- assign_ped_generations(g, ped_dt, topo_order, genmethod_val)
+    }
+
+    # Sort
+    if (addgen) {
+      setorder(ped_dt, Gen, Ind)
+    } else {
+      sorted_inds <- V(g)$name[topo_order]
+      ped_dt <- ped_dt[match(sorted_inds, Ind)]
+    }
+
+    # Numeric IDs
+    if (addnum) {
+      ped_dt[, IndNum  := .I]
+      ped_dt[, SireNum := match(Sire, Ind, nomatch = 0L)]
+      ped_dt[, DamNum  := match(Dam,  Ind, nomatch = 0L)]
+    }
+
+    ped_dt[, Cand := Ind %in% cand]
+
+    ped_dt <- new_tidyped(ped_dt)
+    data.table::setattr(ped_dt, "ped_meta", build_ped_meta(
+      selfing          = selfing_val,
+      bisexual_parents = bisexual_parents,
+      genmethod        = genmethod_val
+    ))
+
+    if (inbreed) ped_dt <- inbreed(ped_dt, ...)
+    return(ped_dt)
+  }
+  # ---------- End Fast Path ----------
+
   # 2. Data Preparation
   res_prep <- validate_and_prepare_ped(ped, selfing = selfing)
   ped_dt <- res_prep$ped_dt
@@ -253,8 +316,11 @@ tidyped <- function(ped,
 
   # 9. Final S3 and Inbreeding
   ped_dt <- new_tidyped(ped_dt)
-  attr(ped_dt, "bisexual_parents") <- bisexual_parents
-  attr(ped_dt, "selfing") <- selfing
+  data.table::setattr(ped_dt, "ped_meta", build_ped_meta(
+    selfing          = selfing,
+    bisexual_parents = bisexual_parents,
+    genmethod        = genmethod
+  ))
   
   if (inbreed) {
     ped_dt <- inbreed(ped_dt, ...)

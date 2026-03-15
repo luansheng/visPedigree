@@ -125,7 +125,7 @@ visped <- function(
   ...
 ) {
   # Automatically convert raw data to tidyped object if needed
-  if (!inherits(ped, "tidyped") || !"Gen" %in% colnames(ped)) {
+  if (!is_tidyped(ped) || !"Gen" %in% colnames(ped)) {
     # If not a tidyped object, or if it is but lacks Gen/Num columns (e.g. from older creation),
     # process it with tidyped to ensure calculation and class structure.
     # Note: tidyped() handles validation of raw columns.

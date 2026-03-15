@@ -59,7 +59,8 @@ get_highlight_ids <- function(ped, highlight, trace) {
     
     if (!isFALSE(trace) && length(focal_ids) > 0) {
       trace_dir <- if (isTRUE(trace)) "all" else trace
-      selfing_val <- isTRUE(attr(ped, "selfing"))
+      meta <- attr(ped, "ped_meta")
+      selfing_val <- if (!is.null(meta)) isTRUE(meta$selfing) else FALSE
       relatives_ped <- suppressWarnings(tidyped(ped, cand = focal_ids, trace = trace_dir, selfing = selfing_val))
       relative_ids <- setdiff(unique(relatives_ped$Ind), focal_ids)
       
