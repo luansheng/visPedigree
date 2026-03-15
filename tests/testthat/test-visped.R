@@ -84,11 +84,53 @@ test_that("visped parameter 'showf' displays inbreeding coefficients", {
       expect_true(any(grepl("\\[", labels)))
   }
   
-  # Test warning when f is missing
+  # Test automatic calculation when f is missing
   tidy_no_f <- copy(tidy_f)
   tidy_no_f[, f := NULL]
-  expect_warning(visped(tidy_no_f, showf = TRUE, showgraph = FALSE, file = tempfile()), 
-                 "Inbreeding coefficients \\('f' column\\) not found")
+
+  expect_message(
+    res_auto <- visped(
+      tidy_no_f,
+      showf = TRUE,
+      showgraph = FALSE,
+      file = tempfile()
+    ),
+    "Calculated inbreeding coefficients automatically"
+  )
+
+  labels_auto <- igraph::V(res_auto$g)$label
+  expect_true(any(grepl("\\[", labels_auto)))
+})
+
+test_that("visped parameter 'showf' warns on incomplete pedigrees", {
+  tp_full <- tidyped(simple_ped)
+  tp_bad <- suppressWarnings(tp_full[Gen > 2])
+
+  expect_false(is_tidyped(tp_bad))
+  expect_false("f" %in% names(tp_bad))
+
+  warn_msgs <- character(0)
+  res_bad <- withCallingHandlers(
+    visped(
+      tp_bad,
+      showf = TRUE,
+      showgraph = FALSE,
+      file = tempfile()
+    ),
+    warning = function(w) {
+      warn_msgs <<- c(warn_msgs, conditionMessage(w))
+      invokeRestart("muffleWarning")
+    }
+  )
+
+  expect_true(any(grepl(
+    "cannot be computed automatically because the pedigree is structurally incomplete",
+    warn_msgs,
+    fixed = TRUE
+  )))
+
+  labels_bad <- igraph::V(res_bad$g)$label
+  expect_false(any(grepl("\\[", labels_bad)))
 })
 
 test_that("visped parameter 'highlight' works with vector", {

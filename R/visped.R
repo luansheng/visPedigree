@@ -26,7 +26,7 @@
 #' }
 #' For example: \code{c("A", "B")} or \code{list(ids = c("A", "B"), frame.color = "#9c27b0")}. The function will check if the specified individuals exist in the pedigree and issue a warning for any missing IDs. The default value is NULL.
 #' @param trace A logical value or a character string. If TRUE, all ancestors and descendants of the individuals specified in \code{highlight} will be highlighted. If a character string, it specifies the tracing direction: "\strong{up}" (ancestors), "\strong{down}" (descendants), or "\strong{all}" (union of ancestors and descendants). This is useful for focusing on specific families within a large pedigree. The default value is FALSE.
-#' @param showf A logical value indicating whether inbreeding coefficients will be shown in the graph. If \code{showf = TRUE} and the column \strong{f} exists in the pedigree, the inbreeding coefficient will be appended to the individual label, e.g., "ID (0.05)". The default value is FALSE.
+#' @param showf A logical value indicating whether inbreeding coefficients will be shown in the graph. If \code{showf = TRUE} and the column \strong{f} is missing, \code{visped()} will try to compute it automatically with \code{\link{inbreed}} on a structurally complete pedigree. If automatic computation is not possible, a warning is issued and labels are drawn without \strong{f}. The default value is FALSE.
 #' @param pagewidth A numeric value specifying the width of the PDF file in inches. This controls the horizontal scaling of the layout. The default value is 200.
 #' @param symbolsize A numeric value specifying the scaling factor for node size relative to the label size. Values greater than 1 increase the node size (adding padding around the label), while values less than 1 decrease it. This is useful for fine-tuning the whitespace and legibility of dense graphs. The default value is 1.
 #' @param maxiter An integer specifying the maximum number of iterations for the Sugiyama layout algorithm to minimize edge crossings. Higher values (e.g., 2000 or 5000) may result in fewer crossed lines for complex pedigrees but will increase computation time. The default value is 1000.
@@ -63,6 +63,12 @@
 #' visped(simple_ped_tidy_inbreed,
 #'        showf = TRUE, 
 #'        cex=0.25, 
+#'        symbolsize=5.5)
+#'
+#' # visped() will automatically compute inbreeding coefficients if 'f' is missing
+#' visped(simple_ped_tidy,
+#'        showf = TRUE,
+#'        cex=0.25,
 #'        symbolsize=5.5)
 #'
 #' # Adjusting page width and symbol size for better layout
@@ -124,15 +130,17 @@ visped <- function(
   maxiter = 1000,
   ...
 ) {
-  # Automatically convert raw data to tidyped object if needed
-  if (!is_tidyped(ped) || !"Gen" %in% colnames(ped)) {
-    # If not a tidyped object, or if it is but lacks Gen/Num columns (e.g. from older creation),
-    # process it with tidyped to ensure calculation and class structure.
-    # Note: tidyped() handles validation of raw columns.
+  # Automatically convert raw data to tidyped object if needed.
+  # If the object already looks like a tidyped pedigree but only lost its class,
+  # restore/validate it instead of rebuilding from raw input.
+  tidyped_core <- c("Ind", "Sire", "Dam", "Sex", "Gen", "IndNum", "SireNum", "DamNum")
+  looks_tidyped <- is.data.frame(ped) && all(tidyped_core %in% colnames(ped))
+
+  if (!is_tidyped(ped) && !looks_tidyped) {
     ped <- tidyped(ped, addgen = TRUE, addnum = TRUE)
   }
 
-  validate_tidyped(ped)
+  ped <- validate_tidyped(ped)
 
   if (!isTRUE(compact) && !isFALSE(compact)) {
     stop("'compact' must be TRUE or FALSE.")
@@ -231,11 +239,22 @@ visped <- function(
     if (is.list(highlight) && length(highlight[["ids"]]) == 0) highlight <- NULL
   }
 
-  if (showf && !"f" %in% colnames(ped)) {
-    warning(
-      "Inbreeding coefficients ('f' column) not found in pedigree. Please run tidyped(..., inbreed = TRUE) to calculate them."
-    )
-    showf <- FALSE
+  if (showf && !has_inbreeding(ped)) {
+    if (is_complete_pedigree(ped)) {
+      ped <- inbreed(ped)
+      message(
+        "Note: 'showf = TRUE' requested but 'f' column was missing. ",
+        "Calculated inbreeding coefficients automatically."
+      )
+    } else {
+      warning(
+        "Inbreeding coefficients ('f' column) not found and cannot be ",
+        "computed automatically because the pedigree is structurally incomplete. ",
+        "Run tidyped(..., inbreed = TRUE) on a complete pedigree first, ",
+        "or extract a valid sub-pedigree with tidyped(tp, cand = ids, trace = \"up\")."
+      )
+      showf <- FALSE
+    }
   }
 
   # Prepare graph data

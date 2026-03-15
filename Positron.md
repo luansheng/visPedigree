@@ -17,9 +17,8 @@ This document outlines the coding standards, naming conventions, and design prin
     *   ❌ `ped_stats()`
     *   ❌ `calculatePedigree()`
 *   **Exemptions**: R-idiomatic predicates and coercers (`is_*`, `as_*`, `has_*`) are allowed with underscores, because the R community expects this pattern. Current exemptions: `is_tidyped()`, `as_tidyped()`, `has_inbreeding()`, `has_candidates()`.
-*   **Known legacy deviations**: `query_relationship()`, `expand_pedmat()`, `summary_pedmat()` use underscores for readability. These should not be expanded; new helpers should follow the no-underscore rule.
-
-### 1.2 Internal Functions (Private)
+*   **Known legacy deviations**: `query_relationship()`, `expand_pedmat()`, `summary_pedmat()` use underscores for readability and backward compatibility. These are considered "grandfathered" and should not be used as templates for new functions. New analytical helpers must follow the no-underscore rule (e.g., `pedstats`, `pedrel`).
+*   **Rule of Thumb**: If you are unsure, avoid underscores. Only use them for the `is`/`as`/`has` patterns.
 *   **Style**: Snake case (`noun_verb` or `verb_noun`) is allowed to distinguish them from exported API.
 *   **Examples**: `validate_and_prepare_ped`, `check_ped_loops`.
 
