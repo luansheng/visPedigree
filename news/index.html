@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">visPedigree</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,6 +38,19 @@
       <small>Source: <a href="https://github.com/luansheng/visPedigree/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.3.5" id="changes-in-version-135-released-on-14-mar-2026">Changes in version 1.3.5 released on 14 Mar 2026<a class="anchor" aria-label="anchor" href="#changes-in-version-135-released-on-14-mar-2026"></a></h2>
+<div class="section level3">
+<h3 id="new-features-1-3-5">New features<a class="anchor" aria-label="anchor" href="#new-features-1-3-5"></a></h3>
+<ol style="list-style-type: decimal"><li>
+<strong>S3 Class Protection</strong>: Added <code><a href="../reference/as_tidyped.html">as_tidyped()</a></code> and an internal <code><a href="../reference/ensure_tidyped.html">ensure_tidyped()</a></code> mechanism to robustly handle the “silent class loss” bug. Standard R operations like <code><a href="https://rdrr.io/r/base/merge.html" class="external-link">merge()</a></code>, <code><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind()</a></code>, and <code>dplyr</code> verbs often strip custom S3 classes from <code>data.table</code> objects. Major analysis functions now automatically detect if the <code>tidyped</code> class is missing and restore it if the underlying data structure is intact, providing an informational message to the user instead of erroring.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="bug-fixes-1-3-5">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-1-3-5"></a></h3>
+<ol style="list-style-type: decimal"><li>
+<strong>Robust Analysis Entry</strong>: Updated all 11 core analysis functions (including <code><a href="../reference/pedstats.html">pedstats()</a></code>, <code><a href="../reference/pedne.html">pedne()</a></code>, <code><a href="../reference/pediv.html">pediv()</a></code>, <code><a href="../reference/pedrel.html">pedrel()</a></code>, etc.) to use the new auto-recovery logic. This ensures that analysis remains user-friendly and reliable even after manual data manipulation by the user.</li>
+</ol></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.3.4" id="changes-in-version-134-released-on-14-mar-2026">Changes in version 1.3.4 released on 14 Mar 2026<a class="anchor" aria-label="anchor" href="#changes-in-version-134-released-on-14-mar-2026"></a></h2>
 <div class="section level3">

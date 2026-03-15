@@ -6,6 +6,8 @@ Main tools for processing and visualizing animal pedigrees.
 
 - [`tidyped()`](https://luansheng.github.io/visPedigree/reference/tidyped.md)
   : Tidy and prepare a pedigree using graph theory
+- [`as_tidyped()`](https://luansheng.github.io/visPedigree/reference/as_tidyped.md)
+  : Restore the tidyped class to a manipulated pedigree
 - [`visped()`](https://luansheng.github.io/visPedigree/reference/visped.md)
   : Visualize a tidy pedigree
 - [`splitped()`](https://luansheng.github.io/visPedigree/reference/splitped.md)

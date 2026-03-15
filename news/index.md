@@ -1,5 +1,34 @@
 # Changelog
 
+## Changes in version 1.3.5 released on 14 Mar 2026
+
+### New features
+
+1.  **S3 Class Protection**: Added
+    [`as_tidyped()`](https://luansheng.github.io/visPedigree/reference/as_tidyped.md)
+    and an internal
+    [`ensure_tidyped()`](https://luansheng.github.io/visPedigree/reference/ensure_tidyped.md)
+    mechanism to robustly handle the “silent class loss” bug. Standard R
+    operations like [`merge()`](https://rdrr.io/r/base/merge.html),
+    [`rbind()`](https://rdrr.io/r/base/cbind.html), and `dplyr` verbs
+    often strip custom S3 classes from `data.table` objects. Major
+    analysis functions now automatically detect if the `tidyped` class
+    is missing and restore it if the underlying data structure is
+    intact, providing an informational message to the user instead of
+    erroring.
+
+### Bug fixes
+
+1.  **Robust Analysis Entry**: Updated all 11 core analysis functions
+    (including
+    [`pedstats()`](https://luansheng.github.io/visPedigree/reference/pedstats.md),
+    [`pedne()`](https://luansheng.github.io/visPedigree/reference/pedne.md),
+    [`pediv()`](https://luansheng.github.io/visPedigree/reference/pediv.md),
+    [`pedrel()`](https://luansheng.github.io/visPedigree/reference/pedrel.md),
+    etc.) to use the new auto-recovery logic. This ensures that analysis
+    remains user-friendly and reliable even after manual data
+    manipulation by the user.
+
 ## Changes in version 1.3.4 released on 14 Mar 2026
 
 ### Bug fixes
