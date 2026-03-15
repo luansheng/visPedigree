@@ -13,6 +13,9 @@ reference:
   contents:
   - tidyped
   - as_tidyped
+  - is_tidyped
+  - has_inbreeding
+  - has_candidates
   - visped
   - splitped
 - title: Relationship Matrices
@@ -33,8 +36,23 @@ reference:
 - title: S3 Methods
   desc: Generic methods for 'tidyped' and 'pedmat' objects.
   contents:
+  - "[.tidyped"
   - starts_with("plot.")
   - starts_with("summary.")
   - starts_with("print.")
   - summary_pedmat
 
+
+articles:
+- title: Standard Workflows
+  navbar: ~
+  contents:
+  - tidy-pedigree
+  - efficient-visPedigree-workflows
+  - draw-pedigree
+  - pedigree-analysis
+  - relationship-matrix
+- title: Developer Documentation
+  navbar: ~
+  contents:
+  - tidyped-structure

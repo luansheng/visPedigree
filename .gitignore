@@ -22,6 +22,7 @@ Meta/
 # 网站生成目录 (如果是 pkgdown 自动发布到 gh-pages 分支，主分支通常忽略 docs/)
 # 如果您手动维护 docs/ 并在 GitHub Pages 使用 /docs 目录，则保留这行注释
 docs/
+pkgdown/
 
 # 数据包管理
 packrat/

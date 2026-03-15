@@ -2,7 +2,7 @@
 title: "4. Pedigree Analysis and Population Genetics"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Pedigree Analysis and Population Genetics}
+  %\VignetteIndexEntry{4. Pedigree Analysis and Population Genetics}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

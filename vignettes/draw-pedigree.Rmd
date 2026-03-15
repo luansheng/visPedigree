@@ -1,10 +1,10 @@
 ---
-title: "2. How to draw a pedigree"
+title: "3. How to draw a pedigree"
 author: "Sheng Luan"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{2. How to draw a pedigree}
+  %\VignetteIndexEntry{3. How to draw a pedigree}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

@@ -1,0 +1,253 @@
+---
+title: "6. tidyped Class Structure and Extension Notes"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{6. tidyped Class Structure and Extension Notes}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+This document describes the current structural contract of the `tidyped` class.
+It is intended for future maintenance and extension work inside `visPedigree`.
+
+## 1. Class identity
+
+`tidyped` is an S3 class layered on top of `data.table`.
+
+Expected class vector:
+
+```r
+c("tidyped", "data.table", "data.frame")
+```
+
+The class should be created through `new_tidyped()` and checked with
+`is_tidyped()`.
+
+## 2. Core design goals
+
+`tidyped` is designed to be:
+
+1. fast for large pedigrees,
+2. compatible with `data.table` workflows,
+3. safe for downstream C++ code that depends on integer pedigree indices,
+4. explicit about when a subset is no longer a valid pedigree.
+
+## 3. Structural layers
+
+### 3.1 Data layer
+
+The object body is a `data.table`. All ordinary columns live here.
+
+### 3.2 Class layer
+
+The S3 class adds:
+
+- printing and summary methods,
+- validation / auto-restoration helpers,
+- safe subsetting via `[.tidyped`.
+
+### 3.3 Metadata layer
+
+Pedigree-level metadata is stored in a single attribute:
+
+```r
+attr(x, "ped_meta")
+```
+
+This metadata is built by `build_ped_meta()` and accessed by `pedmeta()`.
+
+Current fields:
+
+- `selfing`: logical
+- `bisexual_parents`: character vector
+- `genmethod`: one of `"top"` or `"bottom"`
+
+## 4. Column contract
+
+### 4.1 Required structural columns
+
+These columns define the minimal structural contract for a valid `tidyped`:
+
+- `Ind`
+- `Sire`
+- `Dam`
+- `Sex`
+
+These are required by `validate_tidyped()`.
+
+### 4.2 Common computed columns
+
+Frequently present columns include:
+
+- `Gen`
+- `IndNum`
+- `SireNum`
+- `DamNum`
+- `Family`
+- `FamilySize`
+- `Cand`
+- `f`
+
+Not every `tidyped` must contain all of them, but downstream functions may
+require specific subsets.
+
+### 4.3 Integer pedigree columns
+
+The integer pedigree columns are especially important:
+
+- `IndNum`: row-wise individual index
+- `SireNum`: integer index of sire, `0L` for missing sire
+- `DamNum`: integer index of dam, `0L` for missing dam
+
+Many heavy computations in C++ assume these columns are aligned with the
+current row order. If row subsets change pedigree membership, these indices must
+be rebuilt before the result can remain a `tidyped`.
+
+## 5. Invariants
+
+The following invariants should hold for a structurally valid `tidyped`:
+
+1. `Ind` is unique.
+2. `Sire` and `Dam` are either `NA` or present in `Ind`.
+3. The pedigree is acyclic.
+4. If integer columns exist, they are aligned with the current row order.
+5. `ped_meta` is the only pedigree-level metadata container.
+
+## 6. Constructor and validators
+
+### 6.1 `tidyped()`
+
+`tidyped()` is the public constructor and full preparation pipeline.
+
+Standard path:
+
+1. validate raw input,
+2. normalize IDs,
+3. add missing founders,
+4. build graph,
+5. check loops,
+6. trace candidates if requested,
+7. assign generations,
+8. infer sex,
+9. sort and build integer indices,
+10. attach class and metadata.
+
+### 6.2 Fast path
+
+When the input is already a `tidyped` and `cand` is supplied, `tidyped()` now
+uses a fast path:
+
+- skip raw-data validation,
+- skip loop detection,
+- skip sex inference,
+- rebuild only the subset-specific structures.
+
+This is the preferred workflow for repeated local tracing from a previously
+validated master pedigree.
+
+### 6.3 `new_tidyped()`
+
+`new_tidyped()` is the internal class constructor. It should only be used when
+the caller already knows the object body is structurally valid.
+
+### 6.4 `ensure_tidyped()` and `validate_tidyped()`
+
+- `ensure_tidyped()` restores class when structure is still recoverable.
+- `validate_tidyped()` checks that a tidyped object is usable and delegates to
+  `ensure_tidyped()` for class recovery.
+
+## 7. Safe subsetting contract
+
+`[.tidyped` is the key protection layer.
+
+Behavior:
+
+1. `:=` operations are passed through safely and preserve class.
+2. Column-only selections that remove pedigree structure return plain results.
+3. Row subsets are checked for pedigree completeness.
+4. If all retained parents are still present, the result remains `tidyped` and
+   integer pedigree columns are rebuilt.
+5. If parent records are missing, the result is downgraded to plain
+   `data.table` with a warning.
+
+This downgrade behavior is deliberate. It prevents stale `IndNum` / `SireNum` /
+`DamNum` values from silently reaching C++ routines.
+
+## 8. Recommended extension rules
+
+When extending the class, follow these rules.
+
+### 8.1 Do not add new pedigree-level attributes casually
+
+Prefer adding fields to `ped_meta` instead of scattering new standalone
+attributes.
+
+### 8.2 Keep computed state derivable
+
+If a column can be rebuilt from pedigree structure, prefer derivation over
+storing opaque cached state.
+
+### 8.3 Preserve `data.table` semantics
+
+Use `:=`, `set()`, and `setattr()` carefully. Avoid patterns that trigger full
+copies unless unavoidable.
+
+### 8.4 Respect downgrade semantics
+
+Any future method that subsets rows must preserve the current rule:
+
+- valid complete subset -> may remain `tidyped`
+- incomplete subset -> plain `data.table`
+
+### 8.5 Keep C++ assumptions explicit
+
+Any feature using `IndNum`, `SireNum`, or `DamNum` should document whether it
+requires:
+
+- topologically ordered rows,
+- dense consecutive indices,
+- `0L` encoding for missing parents.
+
+## 9. User-facing inspection helpers
+
+Current helpers:
+
+- `is_tidyped(x)`
+- `pedmeta(x)`
+- `has_inbreeding(x)`
+- `has_candidates(x)`
+
+Future extensions should prefer helper functions over direct scattered attribute
+access in user-facing code.
+
+## 10. Practical maintenance checklist
+
+Before merging a structural change to `tidyped`, check:
+
+1. Does class identity remain `c("tidyped", "data.table", "data.frame")`?
+2. Are `ped_meta` fields preserved correctly?
+3. Does `[.tidyped` still handle `:=` without copy issues?
+4. Do incomplete row subsets still downgrade with warning?
+5. Are integer pedigree columns rebuilt whenever a subset remains valid?
+6. Does `tidyped(tp_master, cand = ...)` still match the full path result?
+7. Do package tests and vignettes still build cleanly?
+
+## 11. Recommended user workflow
+
+For large pedigrees, the intended usage pattern is:
+
+```r
+# build one validated master pedigree
+tp_master <- tidyped(raw_ped)
+
+# reuse it many times
+tp_local <- tidyped(tp_master, cand = ids, trace = "up", tracegen = 3)
+
+# modify analysis columns in place
+tp_master[, phenotype := pheno]
+
+# split only when disconnected components matter
+parts <- splitped(tp_master)
+```
+
+This keeps workflows explicit, fast, and safe.

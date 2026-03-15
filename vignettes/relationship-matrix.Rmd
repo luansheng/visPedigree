@@ -1,10 +1,10 @@
 ---
-title: "3. Calculation and visualization of relationship matrix"
+title: "5. Calculation and visualization of relationship matrix"
 author: "Sheng Luan"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{3. Calculation and visualization of relationship matrix}
+  %\VignetteIndexEntry{5. Calculation and visualization of relationship matrix}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

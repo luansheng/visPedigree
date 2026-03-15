@@ -3,7 +3,7 @@
 `visPedigree` is a comprehensive toolkit for the standardization, statistical analysis, and fast visualization of animal and plant pedigrees. It robustly handles complex mating systems, such as selfing and monoecious reproduction. Using optimized C++ algorithms, the `data.table` framework, and `igraph`, it supports pedigree analysis, relationship matrix calculation, and scalable graph and matrix displays for large pedigrees.
 
 <p align="center">
-  <img src="man/figures/ped_example.png" width="800">
+  <img src="man/figures/ped_example.png" width="800" alt="Example pedigree visualization produced by visPedigree">
 </p>
 
 ## Key Features
@@ -28,6 +28,22 @@ install.packages("visPedigree")
 # install.packages("devtools")
 devtools::install_github("luansheng/visPedigree", build_vignettes = TRUE)
 ```
+
+## Documentation
+
+### Standard workflows
+
+Recommended reading order:
+
+1. [How to tidy a pedigree](vignettes/tidy-pedigree.Rmd)
+2. [Efficient visPedigree Workflows](vignettes/efficient-visPedigree-workflows.Rmd)
+3. [How to draw a pedigree](vignettes/draw-pedigree.Rmd)
+4. [Pedigree Analysis and Population Genetics](vignettes/pedigree-analysis.Rmd)
+5. [Relationship Matrix](vignettes/relationship-matrix.Rmd)
+
+### Developer documentation
+
+6. [tidyped Class Structure and Extension Notes](vignettes/tidyped-structure.Rmd)
 
 ## Quick Start
 
@@ -56,7 +72,7 @@ simple_ped |>
   tidyped(inbreed = TRUE) |>
   visped(highlight = "J5X804", trace = "up", showf = TRUE, compact = TRUE)
 
-# Example 4: Pedigree Analysis (v1.3.4+)
+# Example 4: Pedigree Analysis (v1.4.0+)
 # Summarize pedigree structure
 tp <- tidyped(big_family_size_ped)
 tp |>
@@ -76,4 +92,4 @@ summary(split_list[[1]])
 
 ## Citation
 
-Luan Sheng (2026). visPedigree: Tidying, Analysis, and Fast Visualization of Animal and Plant Pedigrees. R package version 1.3.4, https://github.com/luansheng/visPedigree.
+Luan Sheng (2026). visPedigree: Tidying, Analysis, and Fast Visualization of Animal and Plant Pedigrees. R package version 1.4.0, https://github.com/luansheng/visPedigree.

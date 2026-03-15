@@ -1,0 +1,204 @@
+---
+title: "2. Efficient visPedigree Workflows"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{2. Efficient visPedigree Workflows}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 6.5,
+  fig.height = 6,
+  dpi = 96,
+  out.width = "100%"
+)
+```
+
+This vignette summarizes efficient day-to-day workflows for `visPedigree`
+after the `tidyped` architecture updates. The goal is simple:
+
+1. tidy once,
+2. reuse the resulting `tidyped` object many times,
+3. subset safely,
+4. trace candidates explicitly when pedigree completeness matters.
+
+For basic tidying, see `tidy-pedigree`. For downstream statistics, see
+`pedigree-analysis`.
+
+## 1. Load packages and example data
+
+```{r setup}
+library(visPedigree)
+library(data.table)
+
+data(simple_ped, package = "visPedigree")
+```
+
+## 2. Tidy once, reuse many times
+
+The most efficient workflow is to create a master `tidyped` object once and
+reuse it for plotting, tracing, inbreeding, and matrix calculations.
+
+```{r tidy-once}
+tp_master <- tidyped(simple_ped)
+
+class(tp_master)
+is_tidyped(tp_master)
+pedmeta(tp_master)
+```
+
+This avoids repeated validation, founder insertion, loop checking, generation
+assignment, and integer re-indexing.
+
+## 3. Fast repeated tracing from an existing `tidyped`
+
+When the input is already a `tidyped` object and `cand` is supplied,
+`tidyped()` now uses a fast path. It skips the expensive global preprocessing
+steps and directly traces the requested candidates.
+
+```{r fast-trace}
+tp_up <- tidyped(tp_master, cand = "J5X804", trace = "up", tracegen = 2)
+tp_down <- tidyped(tp_master, cand = "J0Z990", trace = "down")
+
+has_candidates(tp_up)
+tp_up[, .(Ind, Sire, Dam, Cand)]
+```
+
+Recommended pattern:
+
+```{r fast-trace-pattern, eval = FALSE}
+# expensive once
+# tp_master <- tidyped(raw_ped)
+
+# cheap many times
+# tp_a <- tidyped(tp_master, cand = ids_a, trace = "up")
+# tp_b <- tidyped(tp_master, cand = ids_b, trace = "all", tracegen = 3)
+# tp_c <- tidyped(tp_master, cand = ids_c, trace = "down")
+```
+
+## 4. Safe `data.table` usage on `tidyped`
+
+A `tidyped` object is also a `data.table`, so by-reference workflows remain
+available.
+
+### 4.1 Adding new columns is safe
+
+```{r dt-modify}
+tp_work <- copy(tp_master)
+tp_work[, phenotype := seq_len(.N)]
+
+class(tp_work)
+head(tp_work[, .(Ind, phenotype)])
+```
+
+The `tidyped` class is preserved after `:=` operations.
+
+### 4.2 Incomplete row subsetting now degrades safely
+
+If row filtering removes required parents, the result is no longer a complete
+pedigree. In that case the object is downgraded to a plain `data.table` with a
+warning.
+
+```{r incomplete-subset}
+ped_year <- data.table(
+  Ind = c("A", "B", "C", "D"),
+  Sire = c(NA, NA, "A", "C"),
+  Dam = c(NA, NA, "B", "B"),
+  Year = c(2000, 2000, 2005, 2006)
+)
+
+tp_year <- tidyped(ped_year)
+sub_dt <- tp_year[Year > 2005]
+
+class(sub_dt)
+sub_dt
+```
+
+This behavior prevents invalid integer pedigree indices from silently reaching
+C++ code.
+
+### 4.3 Use explicit tracing when you need a valid sub-pedigree
+
+If the goal is to keep a structurally valid pedigree around focal individuals,
+use candidate tracing instead of ad hoc row filtering.
+
+```{r explicit-tracing}
+valid_sub_tp <- tidyped(tp_year, cand = "D", trace = "up")
+
+class(valid_sub_tp)
+valid_sub_tp[, .(Ind, Sire, Dam, Cand)]
+```
+
+## 5. `splitped()` versus `pedsubpop()`
+
+These two functions serve different purposes.
+
+- `splitped()` returns the actual split pedigree objects.
+- `pedsubpop()` returns a summary table.
+
+```{r split-vs-summary}
+sub_tps <- splitped(tp_master)
+length(sub_tps)
+class(sub_tps[[1]])
+
+pedsubpop(tp_master)
+```
+
+Use `splitped()` when you need downstream analysis on each component. Use
+`pedsubpop()` when you only need the component summary.
+
+## 6. Use accessors instead of manual attribute checks
+
+The updated accessors are the preferred way to inspect object state.
+
+```{r accessors}
+tp_f <- inbreed(tp_master)
+
+is_tidyped(tp_f)
+has_inbreeding(tp_f)
+has_candidates(tp_f)
+pedmeta(tp_f)
+```
+
+This is preferable to hand-written checks such as `"f" %in% names(tp)` or
+manual attribute access scattered throughout user code.
+
+## 7. Recommended high-efficiency workflow
+
+A practical pattern for large pedigrees is:
+
+```{r best-practice, eval = FALSE}
+# 1. build one validated master object
+# tp_master <- tidyped(raw_ped)
+
+# 2. add analysis-specific columns in place
+# tp_master[, phenotype := pheno_vector]
+# tp_master[, cohort := year_vector]
+
+# 3. extract valid candidate sub-pedigrees explicitly
+# tp_sel <- tidyped(tp_master, cand = selected_ids, trace = "up", tracegen = 3)
+
+# 4. run downstream analysis on either the full master or traced sub-pedigree
+# pedstats(tp_master)
+# pedmat(tp_sel)
+# inbreed(tp_sel)
+# visped(tp_sel)
+
+# 5. split only when disconnected components really matter
+# comps <- splitped(tp_master)
+```
+
+## 8. Practical rules of thumb
+
+1. Call `tidyped()` on raw pedigree data once.
+2. Reuse the resulting `tidyped` object as the master pedigree.
+3. Use `tidyped(tp_master, cand = ...)` for valid local extraction.
+4. Use ordinary row filtering only when a plain `data.table` result is acceptable.
+5. Use `splitped()` for actual component objects and `pedsubpop()` for summaries.
+6. Use `pedmeta()`, `is_tidyped()`, `has_inbreeding()`, and `has_candidates()` to inspect object state.
+
+These rules keep workflows fast, explicit, and structurally safe.
