@@ -309,18 +309,18 @@ attr(A_compact, "compact_stats")
 #> 2:      founder          9         9         0
 #> 
 #> $family_size_dist
-#>    size_category n_families n_individuals_total n_individuals_removed
-#>           <fctr>      <int>               <int>                 <num>
-#> 1:             1          5                   6                     1
+#>    SizeCategory n_families n_individuals_total n_individuals_removed
+#>          <fctr>      <int>               <int>                 <num>
+#> 1:            1          5                   6                     1
 #> 
 attr(A_compact, "family_summary")
-#>    FamilyID FamilyLabel   Sire    Dam SireNum DamNum FamilySize n_compressed
-#>      <char>      <char> <char> <char>   <int>  <int>      <int>        <int>
-#> 1:    F0001         AxB      A      B       1      2          1            0
-#> 2:    F0002         NxO      N      O       7      8          1            0
-#> 3:    F0003        J2xC     J2      C       6     10          1            0
-#> 4:    F0004        QxJ1      Q     J1      14      5          1            0
-#> 5:    F0005         NxX      N      X       7     25          2            1
+#>    FamilyID FamilyLabel   Sire    Dam SireNum DamNum FamilySize NCompressed
+#>      <char>      <char> <char> <char>   <int>  <int>      <int>       <int>
+#> 1:    F0001         AxB      A      B       1      2          1           0
+#> 2:    F0002         NxO      N      O       7      8          1           0
+#> 3:    F0003        J2xC     J2      C       6     10          1           0
+#> 4:    F0004        QxJ1      Q     J1      14      5          1           0
+#> 5:    F0005         NxX      N      X       7     25          2           1
 #>    RepInd RepIndNum   Gen
 #>    <char>     <int> <int>
 #> 1:      D        11     2

@@ -33,3 +33,17 @@ engine used by both `tidyped(..., inbreed = TRUE)` and
 `pedmat(..., method = "f")`, ensuring consistent results across the
 package. It is significantly faster than standard R implementations for
 large pedigrees.
+
+## Examples
+
+``` r
+library(visPedigree)
+data(simple_ped)
+ped <- tidyped(simple_ped)
+ped_f <- inbreed(ped)
+ped_f[f > 0, .(Ind, Sire, Dam, f)]
+#> Tidy Pedigree Object
+#>       Ind   Sire    Dam          f
+#>    <char> <char> <char>      <num>
+#> 1: J5X804 J4Y326 J4E185 0.00390625
+```

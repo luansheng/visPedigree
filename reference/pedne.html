@@ -105,10 +105,10 @@ Default is <code>NULL</code> (no fixed seed).</p></dd>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>The effective population size can be calculated using one of three methods:</p>
-<ul><li><p><strong>"coancestry"</strong> (Default): Based on the rate of coancestry ($f_ij$) between
-  pairs of individuals. In this context, $f_ij$ is the probability that two alleles
+<ul><li><p><strong>"coancestry"</strong> (Default): Based on the rate of coancestry (\(f_{ij}\)) between
+  pairs of individuals. In this context, \(f_{ij}\) is the probability that two alleles
   randomly sampled from individuals $i$ and $j$ are identical by descent, which is equivalent
-  to half the additive genetic relationship ($f_ij = a_ij / 2$).
+  to half the additive genetic relationship (\(f_{ij} = a_{ij} / 2\)).
   This method is generally more robust as it accounts for full genetic drift and
   bottlenecks (Cervantes et al., 2011).
   $$\Delta c_{ij} = 1 - (1 - c_{ij})^{1/(\frac{ECG_i + ECG_j}{2})}$$

@@ -1,9 +1,9 @@
-# Calculate Average Additive Genetic Relationship (\$a_ij\$)
+# Calculate Average Additive Genetic Relationship (\\a\_{ij}\\)
 
 Computes the average pairwise additive genetic relationship coefficients
-(\$a_ij\$) within cohorts or groups. The relationship \$a_ij\$ is
-defined as twice the coancestry coefficient (\$f_ij\$), representing the
-expected proportion of genes shared by descent (e.g., 0.5 for full
+(\\a\_{ij}\\) within cohorts or groups. The relationship \\a\_{ij}\\ is
+defined as twice the coancestry coefficient (\\f\_{ij}\\), representing
+the expected proportion of genes shared by descent (e.g., 0.5 for full
 siblings).
 
 ## Usage
@@ -49,8 +49,8 @@ A `data.table` with columns:
   reference).
 
 - `MeanRel`: Average of off-diagonal elements in the Additive
-  Relationship (A) matrix for this group (\$a_ij = 2f_ij\$). Returns NA
-  if the group has fewer than 2 individuals.
+  Relationship (A) matrix for this group (\\a\_{ij} = 2f\_{ij}\\).
+  Returns NA if the group has fewer than 2 individuals.
 
 ## Examples
 

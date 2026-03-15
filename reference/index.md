@@ -51,7 +51,7 @@ Functions for genealogical and genetic computations.
 - [`pedpartial()`](https://luansheng.github.io/visPedigree/reference/pedpartial.md)
   : Calculate Partial Inbreeding
 - [`pedrel()`](https://luansheng.github.io/visPedigree/reference/pedrel.md)
-  : Calculate Average Additive Genetic Relationship (\$a_ij\$)
+  : Calculate Average Additive Genetic Relationship (\\a\_{ij}\\)
 - [`pedstats()`](https://luansheng.github.io/visPedigree/reference/pedstats.md)
   : Pedigree Statistics
 - [`pedsubpop()`](https://luansheng.github.io/visPedigree/reference/pedsubpop.md)

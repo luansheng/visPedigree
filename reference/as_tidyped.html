@@ -87,7 +87,6 @@ may not preserve the <code>tidyped</code> class depending on the versions of
 the current R session. Therefore, <code>as_tidyped()</code> should be viewed as a
 safe recovery helper rather than something only needed after one specific
 verb.</p>
-
 <p>Typical class-loss scenarios include:</p><ul><li><p><code>rbind(tped1, tped2)</code> — often returns plain <code>data.table</code></p></li>
 <li><p><code>as.data.frame(tped)[rows, ]</code> — returns plain <code>data.frame</code></p></li>
 <li><p>manual class removal or serialization / import workflows</p></li>

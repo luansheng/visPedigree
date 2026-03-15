@@ -74,17 +74,17 @@ A `data.table` with columns:
 The effective population size can be calculated using one of three
 methods:
 
-- **"coancestry"** (Default): Based on the rate of coancestry (\$f_ij\$)
-  between pairs of individuals. In this context, \$f_ij\$ is the
-  probability that two alleles randomly sampled from individuals \$i\$
-  and \$j\$ are identical by descent, which is equivalent to half the
-  additive genetic relationship (\$f_ij = a_ij / 2\$). This method is
-  generally more robust as it accounts for full genetic drift and
-  bottlenecks (Cervantes et al., 2011). \$\$\Delta c\_{ij} = 1 - (1 -
-  c\_{ij})^{1/(\frac{ECG_i + ECG_j}{2})}\$\$ \$\$N_e = \frac{1}{2
-  \overline{\Delta c}}\$\$ To handle large populations, this method
-  samples `nsamples` individuals per cohort and computes the mean rate
-  of coancestry among them.
+- **"coancestry"** (Default): Based on the rate of coancestry
+  (\\f\_{ij}\\) between pairs of individuals. In this context,
+  \\f\_{ij}\\ is the probability that two alleles randomly sampled from
+  individuals \$i\$ and \$j\$ are identical by descent, which is
+  equivalent to half the additive genetic relationship (\\f\_{ij} =
+  a\_{ij} / 2\\). This method is generally more robust as it accounts
+  for full genetic drift and bottlenecks (Cervantes et al., 2011).
+  \$\$\Delta c\_{ij} = 1 - (1 - c\_{ij})^{1/(\frac{ECG_i +
+  ECG_j}{2})}\$\$ \$\$N_e = \frac{1}{2 \overline{\Delta c}}\$\$ To
+  handle large populations, this method samples `nsamples` individuals
+  per cohort and computes the mean rate of coancestry among them.
 
 - **"inbreeding"**: Based on the individual rate of inbreeding (\$F_i\$)
   (Gutiérrez et al., 2008, 2009). \$\$\Delta F_i = 1 - (1 -
