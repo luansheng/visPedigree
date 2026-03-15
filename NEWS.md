@@ -1,3 +1,17 @@
+# Changes in version 1.4.0 released on 15 Mar 2026
+## New features
+1. **Safer `tidyped` object workflows**: Added `is_tidyped()`, `pedmeta()`, `has_inbreeding()`, and `has_candidates()` to make class checks and metadata inspection explicit and user-facing.
+2. **Fast candidate tracing from existing `tidyped` objects**: `tidyped()` now uses a fast path when the input is already a valid `tidyped` object and `cand` is supplied, avoiding repeated global validation and preprocessing.
+3. **Workflow coverage and developer documentation**: Added a new workflow vignette, a `tidyped` structure and extension vignette, and focused regression tests covering safe subsetting, `:=` by-reference behavior, and split workflow semantics.
+
+## Bug fixes
+1. **Stable by-reference mutation for `tidyped`**: Replaced class and metadata attachment paths with `data.table::setattr()` so subsequent `:=` operations keep true by-reference behavior instead of silently writing into shallow copies.
+2. **Safe row subsetting**: Added `[.tidyped` interception so incomplete subsets degrade to plain `data.table` objects with a warning, while complete subsets preserve `tidyped` structure and rebuild pedigree indices correctly.
+3. **More robust class recovery**: Core analysis entry points now cooperate with `ensure_tidyped()` / `validate_tidyped()` to recover valid `tidyped` objects after common class-dropping operations.
+
+## Documentation
+1. **Pkgdown article navigation**: Reorganized vignette order, restored `draw-pedigree` to the recommended reading sequence, and exposed `tidyped` developer notes through a dedicated pkgdown developer-documentation entry.
+
 # Changes in version 1.3.5 released on 14 Mar 2026
 ## New features
 1. **S3 Class Protection**: Added `as_tidyped()` and an internal `ensure_tidyped()` mechanism to robustly handle the "silent class loss" bug. Standard R operations like `merge()`, `rbind()`, and `dplyr` verbs often strip custom S3 classes from `data.table` objects. Major analysis functions now automatically detect if the `tidyped` class is missing and restore it if the underlying data structure is intact, providing an informational message to the user instead of erroring.
