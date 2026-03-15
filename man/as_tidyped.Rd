@@ -40,7 +40,6 @@ the current R session. Therefore, \code{as_tidyped()} should be viewed as a
 safe recovery helper rather than something only needed after one specific
 verb.
 
-
 Typical class-loss scenarios include:
 \itemize{
   \item \code{rbind(tped1, tped2)} --- often returns plain \code{data.table}

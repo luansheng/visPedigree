@@ -1,4 +1,5 @@
 #' @importFrom Rcpp sourceCpp
+#' @importFrom stats as.formula sd
 #' @useDynLib visPedigree, .registration = TRUE
 if (getRversion() >= "2.15.1") {
   utils::globalVariables(
@@ -94,8 +95,8 @@ if (getRversion() >= "2.15.1") {
       "RepIndNum",
       "IsRepresentative",
       "IsCompacted",
-      "is_parent",
-      "size_category",
+      "IsParent",
+      "SizeCategory",
       "i.Ind",
       "i.IndNum",
       "FamilyLabel",
@@ -112,4 +113,5 @@ if (getRversion() >= "2.15.1") {
   )
 }
 
-utils::globalVariables(c('i.SireNum', 'i.DamNum', 'i.Sire', 'i.Dam', 'i.is_parent', 'sort_key', 'n_compressed', 'Family', 'grp', 'NewGen', 'Limit', 'CohortLabel', 'DeltaF_Ind', 'ECG', 'monoecious_nums', 'role'))
+utils::globalVariables(c('i.SireNum', 'i.DamNum', 'i.Sire', 'i.Dam', 'i.IsParent', 'sort_key', 'NCompressed', 'Family', 'grp', 'NewGen', 'Limit', 'CohortLabel', 'DeltaF_Ind', 'ECG', 'monoecious_nums', 'role',
+  '.orig_order_visped', 'Cohort', 'Contrib', 'Count', 'CumContrib', 'DeltaF', 'FClass', 'GenEquiv', 'Group', 'Interval', 'Mean', 'Ne', 'Pathway', 'Percentage', 'Rank', 'Time', 'child', 'child_label', 'family_id', 'from_label', 'i.label', 'rep_dam', 'rep_sire'))

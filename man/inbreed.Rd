@@ -20,3 +20,10 @@ A \code{tidyped} object with an additional column \strong{f}.
 \details{
 This function takes a pedigree tidied by the \code{\link{tidyped}} function and calculates the inbreeding coefficients using optimized C++ code based on the Meuwissen & Luo (1992) algorithm. It is the core engine used by both \code{tidyped(..., inbreed = TRUE)} and \code{pedmat(..., method = "f")}, ensuring consistent results across the package. It is significantly faster than standard R implementations for large pedigrees.
 }
+\examples{
+library(visPedigree)
+data(simple_ped)
+ped <- tidyped(simple_ped)
+ped_f <- inbreed(ped)
+ped_f[f > 0, .(Ind, Sire, Dam, f)]
+}

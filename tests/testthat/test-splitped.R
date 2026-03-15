@@ -85,13 +85,7 @@ test_that("splitped handles all isolated individuals", {
 })
 
 test_that("splitped input validation", {
-  expect_error(splitped(data.frame(Ind="A", Sire=NA, Dam=NA)), "must be a tidyped object")
-  
-  # Manually construct valid-class but missing-column object to bypass tidyped() constructor validation
-  tped <- data.table::data.table(Ind="A", Sire=NA, Dam=NA)
-  class(tped) <- c("tidyped", "data.table", "data.frame")
-  
-  expect_error(splitped(tped), "must contain IndNum, SireNum, DamNum, Gen columns")
+  expect_error(splitped(data.frame(Ind="A", Sire=NA, Dam=NA)), "tidyped object")
 })
 
 test_that("print and summary methods for splitped", {

@@ -2,7 +2,7 @@
 % Please edit documentation in R/pedanalysis.R
 \name{pedrel}
 \alias{pedrel}
-\title{Calculate Average Additive Genetic Relationship ($a_{ij}$)}
+\title{Calculate Average Additive Genetic Relationship (\eqn{a_{ij}})}
 \usage{
 pedrel(ped, by = "Gen", reference = NULL, compact = FALSE)
 }
@@ -25,13 +25,13 @@ A \code{data.table} with columns:
   \item \code{NTotal}: Total number of individuals in the group.
   \item \code{NUsed}: Number of individuals used in calculation (could be subset by reference).
   \item \code{MeanRel}: Average of off-diagonal elements in the Additive Relationship (A) matrix 
-    for this group ($a_{ij} = 2f_{ij}$). Returns NA if the group has fewer than 2 individuals.
+    for this group (\eqn{a_{ij} = 2f_{ij}}). Returns NA if the group has fewer than 2 individuals.
 }
 }
 \description{
-Computes the average pairwise additive genetic relationship coefficients ($a_{ij}$) 
-within cohorts or groups. The relationship $a_{ij}$ is defined as twice the 
-coancestry coefficient ($f_{ij}$), representing the expected proportion of 
+Computes the average pairwise additive genetic relationship coefficients (\eqn{a_{ij}}) 
+within cohorts or groups. The relationship \eqn{a_{ij}} is defined as twice the 
+coancestry coefficient (\eqn{f_{ij}}), representing the expected proportion of 
 genes shared by descent (e.g., 0.5 for full siblings).
 }
 \examples{

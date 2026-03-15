@@ -50,10 +50,10 @@ coancestry, the rate of inbreeding, or demographic parent numbers.
 The effective population size can be calculated using one of three methods:
 
 \itemize{
-  \item \strong{"coancestry"} (Default): Based on the rate of coancestry ($f_{ij}$) between 
-  pairs of individuals. In this context, $f_{ij}$ is the probability that two alleles 
+  \item \strong{"coancestry"} (Default): Based on the rate of coancestry (\eqn{f_{ij}}) between 
+  pairs of individuals. In this context, \eqn{f_{ij}} is the probability that two alleles 
   randomly sampled from individuals $i$ and $j$ are identical by descent, which is equivalent 
-  to half the additive genetic relationship ($f_{ij} = a_{ij} / 2$). 
+  to half the additive genetic relationship (\eqn{f_{ij} = a_{ij} / 2}). 
   This method is generally more robust as it accounts for full genetic drift and 
   bottlenecks (Cervantes et al., 2011).
   \deqn{\Delta c_{ij} = 1 - (1 - c_{ij})^{1/(\frac{ECG_i + ECG_j}{2})}}

@@ -396,14 +396,14 @@ pedsubpop <- function(ped, by = NULL) {
     setnames(res_list[[1]], by, "Group")
   }
   
-  data.table::rbindlist(res_list)
+  data.table::rbindlist(res_list)[]
 }
 
-#' Calculate Average Additive Genetic Relationship ($a_{ij}$)
+#' Calculate Average Additive Genetic Relationship (\eqn{a_{ij}})
 #'
-#' Computes the average pairwise additive genetic relationship coefficients ($a_{ij}$) 
-#' within cohorts or groups. The relationship $a_{ij}$ is defined as twice the 
-#' coancestry coefficient ($f_{ij}$), representing the expected proportion of 
+#' Computes the average pairwise additive genetic relationship coefficients (\eqn{a_{ij}}) 
+#' within cohorts or groups. The relationship \eqn{a_{ij}} is defined as twice the 
+#' coancestry coefficient (\eqn{f_{ij}}), representing the expected proportion of 
 #' genes shared by descent (e.g., 0.5 for full siblings).
 #'
 #' @param ped A \code{tidyped} object.
@@ -420,7 +420,7 @@ pedsubpop <- function(ped, by = NULL) {
 #'   \item \code{NTotal}: Total number of individuals in the group.
 #'   \item \code{NUsed}: Number of individuals used in calculation (could be subset by reference).
 #'   \item \code{MeanRel}: Average of off-diagonal elements in the Additive Relationship (A) matrix 
-#'     for this group ($a_{ij} = 2f_{ij}$). Returns NA if the group has fewer than 2 individuals.
+#'     for this group (\eqn{a_{ij} = 2f_{ij}}). Returns NA if the group has fewer than 2 individuals.
 #' }
 #' 
 #' @examples
@@ -655,7 +655,7 @@ pedecg <- function(ped) {
     MaxGen = max_gen_val
   )
 
-  return(res)
+  return(res[])
 }
 
 #' Pedigree Statistics
@@ -849,10 +849,10 @@ print.pedstats <- function(x, ...) {
 #' The effective population size can be calculated using one of three methods:
 #' 
 #' \itemize{
-#'   \item \strong{"coancestry"} (Default): Based on the rate of coancestry ($f_{ij}$) between 
-#'   pairs of individuals. In this context, $f_{ij}$ is the probability that two alleles 
+#'   \item \strong{"coancestry"} (Default): Based on the rate of coancestry (\eqn{f_{ij}}) between 
+#'   pairs of individuals. In this context, \eqn{f_{ij}} is the probability that two alleles 
 #'   randomly sampled from individuals $i$ and $j$ are identical by descent, which is equivalent 
-#'   to half the additive genetic relationship ($f_{ij} = a_{ij} / 2$). 
+#'   to half the additive genetic relationship (\eqn{f_{ij} = a_{ij} / 2}). 
 #'   This method is generally more robust as it accounts for full genetic drift and 
 #'   bottlenecks (Cervantes et al., 2011).
 #'   \deqn{\Delta c_{ij} = 1 - (1 - c_{ij})^{1/(\frac{ECG_i + ECG_j}{2})}}
@@ -1149,7 +1149,7 @@ calc_ne_coancestry <- function(ped_subset, ped_full, by, nsamples,
   }
 
   result <- rbindlist(results_list)
-  return(result)
+  return(result[])
 }
 
 # Legacy wrapper/stub for documentation or compatibility if needed
@@ -1629,7 +1629,7 @@ pedfclass <- function(ped,
 #'
 #' @references
 #' Lacey, R. C. (1996). A formula for determining the partial inbreeding coefficient, 
-#' $F_{ij}$. Journal of Heredity, 87(4), 337-339.
+#' \eqn{F_{ij}}. Journal of Heredity, 87(4), 337-339.
 #' 
 #' Meuwissen, T. H., & Luo, Z. (1992). Computing inbreeding coefficients in 
 #' large populations. Genetics Selection Evolution, 24(4), 305-313.

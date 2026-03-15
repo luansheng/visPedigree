@@ -38,14 +38,26 @@ ensure_tidyped <- function(ped) {
          call. = FALSE)
   }
 
+  if (!inherits(ped, "data.table")) {
+    ped <- data.table::as.data.table(ped)
+  }
+
+  # Validate that IndNum indices are still consistent with Ind/Sire/Dam.
+  # After rbind() or row subsetting, IndNum may be duplicated or no longer
+  # match the row position, which would cause silent errors in Rcpp routines.
+  if (anyDuplicated(ped$IndNum) > 0L ||
+      !identical(ped$IndNum, seq_len(nrow(ped)))) {
+    # Rebuild numeric indices from current row order
+    ped[, IndNum := .I]
+    ped[, SireNum := match(Sire, Ind, nomatch = 0L)]
+    ped[, DamNum  := match(Dam, Ind, nomatch = 0L)]
+  }
+
   # Structure is intact, only the class label was dropped
   message(
     "Note: 'ped' lost its tidyped class ",
     "(common after merge/rbind/dplyr). Restoring automatically."
   )
-  if (!inherits(ped, "data.table")) {
-    ped <- data.table::as.data.table(ped)
-  }
   new_tidyped(ped)
 }
 
@@ -142,6 +154,14 @@ as_tidyped <- function(x) {
       ". Run `tidyped()` on raw data instead.",
       call. = FALSE
     )
+  }
+
+  # Rebuild numeric indices if they are inconsistent (e.g. after rbind/subset)
+  if (anyDuplicated(x$IndNum) > 0L ||
+      !identical(x$IndNum, seq_len(nrow(x)))) {
+    x[, IndNum := .I]
+    x[, SireNum := match(Sire, Ind, nomatch = 0L)]
+    x[, DamNum  := match(Dam, Ind, nomatch = 0L)]
   }
 
   new_tidyped(x)

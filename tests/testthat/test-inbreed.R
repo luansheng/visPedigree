@@ -40,6 +40,6 @@ test_that("inbreed handles missing parents", {
 })
 
 test_that("inbreed validates input", {
-  # The error message from validate_tidyped is "Object must be of class 'tidyped'"
-  expect_error(inbreed(data.frame(Ind="A", Sire=NA, Dam=NA)), "Object must be of class 'tidyped'")
+  # ensure_tidyped errors on data.frame missing core columns
+  expect_error(inbreed(data.frame(Ind="A", Sire=NA, Dam=NA)), "tidyped object")
 })

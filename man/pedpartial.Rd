@@ -42,7 +42,7 @@ print(tail(pF))
 }
 \references{
 Lacey, R. C. (1996). A formula for determining the partial inbreeding coefficient, 
-$F_{ij}$. Journal of Heredity, 87(4), 337-339.
+\eqn{F_{ij}}. Journal of Heredity, 87(4), 337-339.
 
 Meuwissen, T. H., & Luo, Z. (1992). Computing inbreeding coefficients in 
 large populations. Genetics Selection Evolution, 24(4), 305-313.

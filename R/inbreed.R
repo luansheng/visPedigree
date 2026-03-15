@@ -7,15 +7,16 @@
 #' @param ped A \code{tidyped} object.
 #' @param ... Additional arguments (currently ignored).
 #' @return A \code{tidyped} object with an additional column \strong{f}.
+#' @examples
+#' library(visPedigree)
+#' data(simple_ped)
+#' ped <- tidyped(simple_ped)
+#' ped_f <- inbreed(ped)
+#' ped_f[f > 0, .(Ind, Sire, Dam, f)]
 #' @export
 #' @import data.table
 inbreed <- function(ped, ...) {
-  validate_tidyped(ped)
-
-  # Check for numeric pedigree columns
-  if (!all(c("IndNum", "SireNum", "DamNum") %in% names(ped))) {
-    ped <- tidyped(ped, addnum = TRUE)
-  }
+  ped <- ensure_tidyped(ped)
 
   # Ensure sorted by IndNum for the Trace algorithm, then restore original order
   ped_work <- copy(ped)

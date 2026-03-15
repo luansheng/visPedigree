@@ -543,7 +543,7 @@ compact_ped_for_matrix <- function(ped) {
   all_parents <- unique(c(all_sires, all_dams))
   
   # Mark who is a parent
-  ped_dt[, is_parent := Ind %in% all_parents]
+  ped_dt[, IsParent := Ind %in% all_parents]
   
   # Step 5: Identify full-sibling families (family_size >= 2)
   fullsib_families <- ped_dt[!is.na(family_key) & family_size >= 2]
@@ -582,7 +582,7 @@ compact_ped_for_matrix <- function(ped) {
   # Step 6: For each family, select representative from NON-PARENT members only
   # Parents are NEVER removed and NEVER represent others to avoid identity loss.
   
-  compactable_members <- fullsib_families[is_parent == FALSE]
+  compactable_members <- fullsib_families[IsParent == FALSE]
   
   if (nrow(compactable_members) == 0) {
     # No non-parent full-siblings to compact
@@ -651,7 +651,7 @@ compact_ped_for_matrix <- function(ped) {
       Dam = i.Dam,
       FamilyLabel = FamilyLabel,
       FamilySize = FamilySize,
-      is_parent = FALSE,
+      IsParent = FALSE,
       IsRepresentative = (i.Ind == RepInd),
       IsCompacted = TRUE)
   ]
@@ -670,7 +670,7 @@ compact_ped_for_matrix <- function(ped) {
     Dam = non_compacted$Dam,
     FamilyLabel = NA_character_,
     FamilySize = 1L,
-    is_parent = non_compacted$is_parent,
+    IsParent = non_compacted$IsParent,
     IsRepresentative = TRUE,
     IsCompacted = FALSE
   )
@@ -681,7 +681,7 @@ compact_ped_for_matrix <- function(ped) {
   # Step 9: Create compacted pedigree
   # Remove rule: Non-parent AND non-representative individuals
   # Keep rule: All parents + representatives
-  remove_ids <- compact_map[is_parent == FALSE & IsRepresentative == FALSE, OldIndNum]
+  remove_ids <- compact_map[IsParent == FALSE & IsRepresentative == FALSE, OldIndNum]
   ped_compact <- ped_dt[!(IndNum %in% remove_ids)]
   data.table::setorder(ped_compact, IndNum)
   
@@ -741,7 +741,7 @@ compact_ped_for_matrix <- function(ped) {
   }
   
   # Clean up extra columns added during compaction
-  extra_cols <- c("family_key", "family_label", "family_size", "is_parent")
+  extra_cols <- c("family_key", "family_label", "family_size", "IsParent")
   for (col in extra_cols) {
     if (col %in% names(ped_compact)) {
       ped_compact[, (col) := NULL]
@@ -753,7 +753,7 @@ compact_ped_for_matrix <- function(ped) {
   
   # Calculate family compression counts BEFORE tidyped (while we still have compact_map with removed individuals)
   family_compressed_counts <- compact_map[IsCompacted == TRUE, .(
-    n_compressed = sum(is_parent == FALSE & IsRepresentative == FALSE)
+    NCompressed = sum(IsParent == FALSE & IsRepresentative == FALSE)
   ), by = FamilyID]
   
   # CRITICAL: Use tidyped to ensure ped_compact is complete and properly numbered
@@ -792,7 +792,7 @@ compact_ped_for_matrix <- function(ped) {
       FamilyLabel = FamilyLabel,
       FamilySize = FamilySize,
       IsCompacted = IsCompacted,
-      is_parent = is_parent,
+      IsParent = IsParent,
       IsRepresentative = IsRepresentative)
   ]
   
@@ -803,7 +803,7 @@ compact_ped_for_matrix <- function(ped) {
     FamilyLabel = NA_character_,
     FamilySize = 1L,
     IsCompacted = FALSE,
-    is_parent = TRUE,  # Added by tidyped means they're parents
+    IsParent = TRUE,  # Added by tidyped means they're parents
     IsRepresentative = TRUE
   )]
   
@@ -827,7 +827,7 @@ compact_ped_for_matrix <- function(ped) {
       FamilyLabel,
       FamilySize,
       IsCompacted,
-      is_parent,
+      IsParent,
       IsRepresentative = FALSE  # Removed individuals are never representatives
     )]
     
@@ -881,7 +881,7 @@ compact_ped_for_matrix <- function(ped) {
   # Family size distribution
   family_size_breaks <- c(0, 2, 10, 50, 100, Inf)
   family_size_labels <- c("1", "2-10", "11-50", "51-100", "100+")
-  family_lookup[, size_category := cut(FamilySize, 
+  family_lookup[, SizeCategory := cut(FamilySize, 
                                         breaks = family_size_breaks,
                                         labels = family_size_labels,
                                         right = TRUE)]
@@ -890,7 +890,7 @@ compact_ped_for_matrix <- function(ped) {
     n_families = .N,
     n_individuals_total = sum(FamilySize),
     n_individuals_removed = sum(FamilySize - 1)
-  ), by = size_category]
+  ), by = SizeCategory]
   
   # Ensure result is not a tidyped object (just a data.table)
   class(family_size_dist) <- c("data.table", "data.frame")
@@ -914,14 +914,15 @@ compact_ped_for_matrix <- function(ped) {
   family_summary <- rep_num_mapping[family_summary, on = "RepInd"]
   setnames(family_summary, "NewRepIndNum", "RepIndNum")
   
-  # Add n_compressed column using pre-calculated counts (before tidyped)
+
+  # Add NCompressed column using pre-calculated counts (before tidyped)
   family_summary <- family_compressed_counts[family_summary, on = "FamilyID"]
-  family_summary[is.na(n_compressed), n_compressed := 0L]
+  family_summary[is.na(NCompressed), NCompressed := 0L]
   
   # Reorder columns for clarity
   data.table::setcolorder(family_summary, c("FamilyID", "FamilyLabel", "Sire", "Dam",
                                              "SireNum", "DamNum", "FamilySize", 
-                                             "n_compressed", "RepInd", "RepIndNum", "Gen"))
+                                             "NCompressed", "RepInd", "RepIndNum", "Gen"))
   data.table::setorder(family_summary, FamilyID)
   
   # Ensure result is not a tidyped object
