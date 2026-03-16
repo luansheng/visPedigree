@@ -52,20 +52,20 @@ devtools::install_github("luansheng/visPedigree", build_vignettes = TRUE)
 Recommended reading order:
 
 1.  [How to tidy a
-    pedigree](https://luansheng.github.io/visPedigree/vignettes/tidy-pedigree.Rmd)
+    pedigree](https://luansheng.github.io/visPedigree/articles/tidy-pedigree.html)
 2.  [Efficient visPedigree
-    Workflows](https://luansheng.github.io/visPedigree/vignettes/efficient-visPedigree-workflows.Rmd)
+    Workflows](https://luansheng.github.io/visPedigree/articles/efficient-visPedigree-workflows.html)
 3.  [How to draw a
-    pedigree](https://luansheng.github.io/visPedigree/vignettes/draw-pedigree.Rmd)
+    pedigree](https://luansheng.github.io/visPedigree/articles/draw-pedigree.html)
 4.  [Pedigree Analysis and Population
-    Genetics](https://luansheng.github.io/visPedigree/vignettes/pedigree-analysis.Rmd)
+    Genetics](https://luansheng.github.io/visPedigree/articles/pedigree-analysis.html)
 5.  [Relationship
-    Matrix](https://luansheng.github.io/visPedigree/vignettes/relationship-matrix.Rmd)
+    Matrix](https://luansheng.github.io/visPedigree/articles/relationship-matrix.html)
 
 ### Developer documentation
 
 6.  [tidyped Class Structure and Extension
-    Notes](https://luansheng.github.io/visPedigree/vignettes/tidyped-structure.Rmd)
+    Notes](https://luansheng.github.io/visPedigree/articles/tidyped-structure.html)
 
 ## Quick Start
 
