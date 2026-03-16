@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">visPedigree</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,10 +33,12 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/draw-pedigree.html">2. How to draw a pedigree</a></li>
+<li><a class="dropdown-item" href="../articles/tidy-pedigree.html">1. How to tidy a pedigree</a></li>
+    <li><a class="dropdown-item" href="../articles/efficient-visPedigree-workflows.html">2. Efficient visPedigree Workflows</a></li>
+    <li><a class="dropdown-item" href="../articles/draw-pedigree.html">3. How to draw a pedigree</a></li>
     <li><a class="dropdown-item" href="../articles/pedigree-analysis.html">4. Pedigree Analysis and Population Genetics</a></li>
-    <li><a class="dropdown-item" href="../articles/relationship-matrix.html">3. Calculation and visualization of relationship matrix</a></li>
-    <li><a class="dropdown-item" href="../articles/tidy-pedigree.html">1. How to tidy a pedigree</a></li>
+    <li><a class="dropdown-item" href="../articles/relationship-matrix.html">5. Calculation and visualization of relationship matrix</a></li>
+    <li><a class="dropdown-item" href="../articles/tidyped-structure.html">6. tidyped Class Structure and Extension Notes</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -226,6 +228,18 @@ approximation.</p>
 <span></span>
 <span><span class="va">genint_year</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pedgenint.html">pedgenint</a></span><span class="op">(</span><span class="va">tp_time</span>, timevar <span class="op">=</span> <span class="st">"Year"</span>, unit <span class="op">=</span> <span class="st">"year"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Numeric time column detected. Converting to Date (YYYY-07-01). For finer precision, convert to Date beforehand.</span></span>
+<span><span class="co">#&gt; Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.</span></span>
+<span><span class="co">#&gt; Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.</span></span>
+<span><span class="co">#&gt; Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.</span></span>
+<span><span class="co">#&gt; Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.</span></span>
+<span><span class="co">#&gt; Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.</span></span>
+<span><span class="co">#&gt; Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.</span></span>
+<span><span class="co">#&gt; Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.</span></span>
+<span><span class="co">#&gt; Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.</span></span>
+<span><span class="co">#&gt; Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.</span></span>
+<span><span class="co">#&gt; Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.</span></span>
+<span><span class="co">#&gt; Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.</span></span>
+<span><span class="co">#&gt; Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.</span></span>
 <span><span class="va">genint_year</span></span>
 <span><span class="co">#&gt;    Pathway      N     Mean         SD</span></span>
 <span><span class="co">#&gt;     &lt;char&gt;  &lt;int&gt;    &lt;num&gt;      &lt;num&gt;</span></span>
@@ -247,6 +261,18 @@ exceeds the target cycle.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">genint_cycle</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pedgenint.html">pedgenint</a></span><span class="op">(</span><span class="va">tp_time</span>, timevar <span class="op">=</span> <span class="st">"Year"</span>, unit <span class="op">=</span> <span class="st">"year"</span>, cycle <span class="op">=</span> <span class="fl">1.2</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Numeric time column detected. Converting to Date (YYYY-07-01). For finer precision, convert to Date beforehand.</span></span>
+<span><span class="co">#&gt; Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.</span></span>
+<span><span class="co">#&gt; Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.</span></span>
+<span><span class="co">#&gt; Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.</span></span>
+<span><span class="co">#&gt; Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.</span></span>
+<span><span class="co">#&gt; Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.</span></span>
+<span><span class="co">#&gt; Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.</span></span>
+<span><span class="co">#&gt; Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.</span></span>
+<span><span class="co">#&gt; Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.</span></span>
+<span><span class="co">#&gt; Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.</span></span>
+<span><span class="co">#&gt; Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.</span></span>
+<span><span class="co">#&gt; Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.</span></span>
+<span><span class="co">#&gt; Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.</span></span>
 <span></span>
 <span><span class="va">genint_cycle</span><span class="op">[</span><span class="va">Pathway</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SS"</span>, <span class="st">"SD"</span>, <span class="st">"DS"</span>, <span class="st">"DD"</span>, <span class="st">"Average"</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="co">#&gt;    Pathway      N     Mean         SD  GenEquiv</span></span>
@@ -323,9 +349,15 @@ reference population is defined as the most recent two generations in
 <span><span class="co">#&gt; Calculating founder and ancestor contributions...</span></span>
 <span><span class="co">#&gt; Calculating founder contributions...</span></span>
 <span><span class="co">#&gt; Calculating ancestor contributions (Boichard's iterative algorithm)...</span></span>
+<span><span class="co">#&gt; Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.</span></span>
+<span><span class="co">#&gt; Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.</span></span>
 <span><span class="co">#&gt; Calculating Ne (coancestry) and fg...</span></span>
 <span><span class="co">#&gt; Calculating Ne (inbreeding)...</span></span>
+<span><span class="co">#&gt; Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.</span></span>
+<span><span class="co">#&gt; Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.</span></span>
 <span><span class="co">#&gt; Calculating Ne (demographic)...</span></span>
+<span><span class="co">#&gt; Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.</span></span>
+<span><span class="co">#&gt; Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.</span></span>
 <span></span>
 <span><span class="va">div_res</span><span class="op">$</span><span class="va">summary</span></span>
 <span><span class="co">#&gt;     NRef NFounder       fe NAncestor       fa     fafe       fg  MeanCoan</span></span>
@@ -487,6 +519,16 @@ year.</p>
 <code class="sourceCode R"><span><span class="va">tp_small</span><span class="op">$</span><span class="va">BirthYear</span> <span class="op">&lt;-</span> <span class="fl">2010</span> <span class="op">+</span> <span class="va">tp_small</span><span class="op">$</span><span class="va">Gen</span></span>
 <span></span>
 <span><span class="va">rel_by_gen</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pedrel.html">pedrel</a></span><span class="op">(</span><span class="va">tp_small</span>, by <span class="op">=</span> <span class="st">"Gen"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.</span></span>
+<span><span class="co">#&gt; Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.</span></span>
+<span><span class="co">#&gt; Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.</span></span>
+<span><span class="co">#&gt; Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.</span></span>
+<span><span class="co">#&gt; Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.</span></span>
+<span><span class="co">#&gt; Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.</span></span>
+<span><span class="co">#&gt; Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.</span></span>
+<span><span class="co">#&gt; Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.</span></span>
+<span><span class="co">#&gt; Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.</span></span>
+<span><span class="co">#&gt; Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.</span></span>
 <span><span class="va">rel_by_gen</span></span>
 <span><span class="co">#&gt;      Gen NTotal NUsed   MeanRel</span></span>
 <span><span class="co">#&gt;    &lt;int&gt;  &lt;int&gt; &lt;int&gt;     &lt;num&gt;</span></span>
@@ -504,12 +546,22 @@ interest inside each group, such as candidate breeders.</p>
 <span><span class="fu"><a href="../reference/pedrel.html">pedrel</a></span><span class="op">(</span><span class="va">tp_small</span>, by <span class="op">=</span> <span class="st">"Gen"</span>, reference <span class="op">=</span> <span class="va">ref_ids</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Warning in FUN(X[[i]], ...): Group '1' has less than 2 individuals after</span></span>
 <span><span class="co">#&gt; applying 'reference', returning NA_real_.</span></span>
+<span><span class="co">#&gt; Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.</span></span>
+<span><span class="co">#&gt; Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.</span></span>
 <span><span class="co">#&gt; Warning in FUN(X[[i]], ...): Group '2' has less than 2 individuals after</span></span>
 <span><span class="co">#&gt; applying 'reference', returning NA_real_.</span></span>
+<span><span class="co">#&gt; Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.</span></span>
+<span><span class="co">#&gt; Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.</span></span>
 <span><span class="co">#&gt; Warning in FUN(X[[i]], ...): Group '3' has less than 2 individuals after</span></span>
 <span><span class="co">#&gt; applying 'reference', returning NA_real_.</span></span>
+<span><span class="co">#&gt; Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.</span></span>
+<span><span class="co">#&gt; Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.</span></span>
 <span><span class="co">#&gt; Warning in FUN(X[[i]], ...): Group '4' has less than 2 individuals after</span></span>
 <span><span class="co">#&gt; applying 'reference', returning NA_real_.</span></span>
+<span><span class="co">#&gt; Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.</span></span>
+<span><span class="co">#&gt; Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.</span></span>
+<span><span class="co">#&gt; Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.</span></span>
+<span><span class="co">#&gt; Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.</span></span>
 <span><span class="co">#&gt;      Gen NTotal NUsed   MeanRel</span></span>
 <span><span class="co">#&gt;    &lt;int&gt;  &lt;int&gt; &lt;int&gt;     &lt;num&gt;</span></span>
 <span><span class="co">#&gt; 1:     1      9     0        NA</span></span>
@@ -538,7 +590,6 @@ generation.</p>
 <span></span>
 <span><span class="va">f_trend</span> <span class="op">&lt;-</span> <span class="va">tp_inbred_f</span><span class="op">[</span>, <span class="fu">.</span><span class="op">(</span>MeanF <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">f</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>, by <span class="op">=</span> <span class="va">Gen</span><span class="op">]</span></span>
 <span><span class="va">f_trend</span></span>
-<span><span class="co">#&gt; Tidy Pedigree Object</span></span>
 <span><span class="co">#&gt;      Gen  MeanF</span></span>
 <span><span class="co">#&gt;    &lt;int&gt;  &lt;num&gt;</span></span>
 <span><span class="co">#&gt; 1:     1 0.0000</span></span>

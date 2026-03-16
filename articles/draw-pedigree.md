@@ -1,4 +1,4 @@
-# 2. How to draw a pedigree
+# 3. How to draw a pedigree
 
 1.  [Drawing the pedigree graph](#id_1)  
     1.1 [A simple pedigree graph](#id_1-1)  
@@ -49,7 +49,7 @@ tidy_small_ped <-
   tidyped(ped = small_ped,
           cand = c("Y", "Z1", "Z2"))
 visped(tidy_small_ped, compact = TRUE, file = tempfile(fileext = ".pdf"))
-#> Pedigree saved to: /tmp/RtmpjSEajb/file204c493e6c08.pdf
+#> Pedigree saved to: /tmp/Rtmp8bfgwr/file205f1fdb385c.pdf
 #> Label cex: 0.65. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 ```
 
@@ -210,7 +210,7 @@ visped(
   showgraph = TRUE,
   file = tempfile(fileext = ".pdf")
 )
-#> Pedigree saved to: /tmp/RtmpjSEajb/file204c4863f23c.pdf
+#> Pedigree saved to: /tmp/Rtmp8bfgwr/file205f5728b6a5.pdf
 #> Label cex: 0.08. Symbol size: 5.5. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 ```
 
@@ -241,7 +241,7 @@ visped(
   showgraph = FALSE,
   file = tempfile(fileext = ".pdf")
 )
-#> Pedigree saved to: /tmp/RtmpjSEajb/file204c39fad057.pdf
+#> Pedigree saved to: /tmp/Rtmp8bfgwr/file205fe7bda3b.pdf
 #> Label cex: 0.83. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 ```
 
@@ -333,6 +333,8 @@ sire_dam_label <- unique(c(sire_label, dam_label))
 sire_dam_label <- sire_dam_label[!is.na(sire_dam_label)]
 sire_dam_ped <-
   cand_2007_G8_tidy_ped_ancestor_2[Ind %in% sire_dam_label]
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
 sire_dam_ped <-
   sire_dam_ped[, FamilyID := paste(Sire, Dam, sep = "")]
 family_size <- sire_dam_ped[, .N, by = c("FamilyID")]

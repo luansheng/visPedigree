@@ -196,6 +196,18 @@ ps$ecg
 tp2 <- tidyped(big_family_size_ped)
 ps2 <- pedstats(tp2, timevar = "Year")
 #> Numeric time column detected. Converting to Date (YYYY-07-01). For finer precision, convert to Date beforehand.
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
 ps2$summary
 #>         N NSire  NDam NFounder MaxGen
 #>     <int> <int> <int>    <int>  <int>

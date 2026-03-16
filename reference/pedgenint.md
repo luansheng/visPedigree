@@ -107,6 +107,18 @@ more precise results, convert to `Date` before calling this function.
 tped <- tidyped(big_family_size_ped)
 gi <- pedgenint(tped, timevar = "Year")
 #> Numeric time column detected. Converting to Date (YYYY-07-01). For finer precision, convert to Date beforehand.
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
 gi
 #>    Pathway      N     Mean         SD
 #>     <char>  <int>    <num>      <num>
@@ -121,6 +133,18 @@ gi
 # ---- Generation equivalents with cycle ----
 gi2 <- pedgenint(tped, timevar = "Year", cycle = 2)
 #> Numeric time column detected. Converting to Date (YYYY-07-01). For finer precision, convert to Date beforehand.
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
 gi2
 #>    Pathway      N     Mean         SD  GenEquiv
 #>     <char>  <int>    <num>      <num>     <num>

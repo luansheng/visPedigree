@@ -5,12 +5,12 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>2. How to draw a pedigree • visPedigree</title>
+<title>3. How to draw a pedigree • visPedigree</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="2. How to draw a pedigree">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="3. How to draw a pedigree">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">visPedigree</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,10 +33,12 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/draw-pedigree.html">2. How to draw a pedigree</a></li>
+<li><a class="dropdown-item" href="../articles/tidy-pedigree.html">1. How to tidy a pedigree</a></li>
+    <li><a class="dropdown-item" href="../articles/efficient-visPedigree-workflows.html">2. Efficient visPedigree Workflows</a></li>
+    <li><a class="dropdown-item" href="../articles/draw-pedigree.html">3. How to draw a pedigree</a></li>
     <li><a class="dropdown-item" href="../articles/pedigree-analysis.html">4. Pedigree Analysis and Population Genetics</a></li>
-    <li><a class="dropdown-item" href="../articles/relationship-matrix.html">3. Calculation and visualization of relationship matrix</a></li>
-    <li><a class="dropdown-item" href="../articles/tidy-pedigree.html">1. How to tidy a pedigree</a></li>
+    <li><a class="dropdown-item" href="../articles/relationship-matrix.html">5. Calculation and visualization of relationship matrix</a></li>
+    <li><a class="dropdown-item" href="../articles/tidyped-structure.html">6. tidyped Class Structure and Extension Notes</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -58,10 +60,10 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.png" class="logo" alt=""><h1>2. How to draw a pedigree</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>3. How to draw a pedigree</h1>
                         <h4 data-toc-skip class="author">Sheng Luan</h4>
             
-            <h4 data-toc-skip class="date">2026-03-15</h4>
+            <h4 data-toc-skip class="date">2026-03-16</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/luansheng/visPedigree/blob/master/vignettes/draw-pedigree.Rmd" class="external-link"><code>vignettes/draw-pedigree.Rmd</code></a></small>
       <div class="d-none name"><code>draw-pedigree.Rmd</code></div>
@@ -119,7 +121,7 @@ in a PDF file.</p>
 <span>  <span class="fu"><a href="../reference/tidyped.html">tidyped</a></span><span class="op">(</span>ped <span class="op">=</span> <span class="va">small_ped</span>,</span>
 <span>          cand <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Y"</span>, <span class="st">"Z1"</span>, <span class="st">"Z2"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/visped.html">visped</a></span><span class="op">(</span><span class="va">tidy_small_ped</span>, compact <span class="op">=</span> <span class="cn">TRUE</span>, file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".pdf"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Pedigree saved to: /tmp/RtmpjSEajb/file204c493e6c08.pdf</span></span>
+<span><span class="co">#&gt; Pedigree saved to: /tmp/Rtmp8bfgwr/file205f1fdb385c.pdf</span></span>
 <span><span class="co">#&gt; Label cex: 0.65. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.</span></span></code></pre></div>
 <p><img src="draw-pedigree_files/figure-html/smallped-1.png" class="r-plt" alt="" width="100%"></p>
 <p>In the above graph, two shapes and three colors are used. Circles
@@ -252,7 +254,7 @@ significant overlapping due to the high density of individuals.</p>
 <span>  showgraph <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".pdf"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; Pedigree saved to: /tmp/RtmpjSEajb/file204c4863f23c.pdf</span></span>
+<span><span class="co">#&gt; Pedigree saved to: /tmp/Rtmp8bfgwr/file205f5728b6a5.pdf</span></span>
 <span><span class="co">#&gt; Label cex: 0.08. Symbol size: 5.5. Adjust 'cex' and 'symbolsize' if labels are too large or small.</span></span></code></pre></div>
 <p><img src="draw-pedigree_files/figure-html/reduceped1-1.png" class="r-plt" alt="" width="100%"></p>
 <p>You can open the generated PDF file to view the high-definition
@@ -280,7 +282,7 @@ used for drawing the pedigreed graph.</p>
 <span>  showgraph <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".pdf"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; Pedigree saved to: /tmp/RtmpjSEajb/file204c39fad057.pdf</span></span>
+<span><span class="co">#&gt; Pedigree saved to: /tmp/Rtmp8bfgwr/file205fe7bda3b.pdf</span></span>
 <span><span class="co">#&gt; Label cex: 0.83. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.</span></span></code></pre></div>
 <p>You can open the generated PDF file to view the high-definition
 pedigree vectorgraph. The labels align better with the shapes compared
@@ -367,6 +369,8 @@ and grandparents).</p>
 <span><span class="va">sire_dam_label</span> <span class="op">&lt;-</span> <span class="va">sire_dam_label</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">sire_dam_label</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="va">sire_dam_ped</span> <span class="op">&lt;-</span></span>
 <span>  <span class="va">cand_2007_G8_tidy_ped_ancestor_2</span><span class="op">[</span><span class="va">Ind</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">sire_dam_label</span><span class="op">]</span></span>
+<span><span class="co">#&gt; Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.</span></span>
+<span><span class="co">#&gt; Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.</span></span>
 <span><span class="va">sire_dam_ped</span> <span class="op">&lt;-</span></span>
 <span>  <span class="va">sire_dam_ped</span><span class="op">[</span>, <span class="va">FamilyID</span> <span class="op">:=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">Sire</span>, <span class="va">Dam</span>, sep <span class="op">=</span> <span class="st">""</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="va">family_size</span> <span class="op">&lt;-</span> <span class="va">sire_dam_ped</span><span class="op">[</span>, <span class="va">.N</span>, by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"FamilyID"</span><span class="op">)</span><span class="op">]</span></span>

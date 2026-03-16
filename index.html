@@ -23,7 +23,7 @@
 
     <a class="navbar-brand me-2" href="index.html">visPedigree</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,10 +36,12 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="articles/draw-pedigree.html">2. How to draw a pedigree</a></li>
+<li><a class="dropdown-item" href="articles/tidy-pedigree.html">1. How to tidy a pedigree</a></li>
+    <li><a class="dropdown-item" href="articles/efficient-visPedigree-workflows.html">2. Efficient visPedigree Workflows</a></li>
+    <li><a class="dropdown-item" href="articles/draw-pedigree.html">3. How to draw a pedigree</a></li>
     <li><a class="dropdown-item" href="articles/pedigree-analysis.html">4. Pedigree Analysis and Population Genetics</a></li>
-    <li><a class="dropdown-item" href="articles/relationship-matrix.html">3. Calculation and visualization of relationship matrix</a></li>
-    <li><a class="dropdown-item" href="articles/tidy-pedigree.html">1. How to tidy a pedigree</a></li>
+    <li><a class="dropdown-item" href="articles/relationship-matrix.html">5. Calculation and visualization of relationship matrix</a></li>
+    <li><a class="dropdown-item" href="articles/tidyped-structure.html">6. tidyped Class Structure and Extension Notes</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
@@ -63,7 +65,7 @@
 </div>
 <p><code>visPedigree</code> is a comprehensive toolkit for the standardization, statistical analysis, and fast visualization of animal and plant pedigrees. It robustly handles complex mating systems, such as selfing and monoecious reproduction. Using optimized C++ algorithms, the <code>data.table</code> framework, and <code>igraph</code>, it supports pedigree analysis, relationship matrix calculation, and scalable graph and matrix displays for large pedigrees.</p>
 <p align="center">
-<img src="reference/figures/ped_example.png" width="800"></p>
+<img src="reference/figures/ped_example.png" width="800" alt="Example pedigree visualization produced by visPedigree"></p>
 <div class="section level2">
 <h2 id="key-features">Key Features<a class="anchor" aria-label="anchor" href="#key-features"></a>
 </h2>
@@ -98,6 +100,29 @@
 </div>
 </div>
 <div class="section level2">
+<h2 id="documentation">Documentation<a class="anchor" aria-label="anchor" href="#documentation"></a>
+</h2>
+<div class="section level3">
+<h3 id="standard-workflows">Standard workflows<a class="anchor" aria-label="anchor" href="#standard-workflows"></a>
+</h3>
+<p>Recommended reading order:</p>
+<ol style="list-style-type: decimal">
+<li><a href="vignettes/tidy-pedigree.Rmd">How to tidy a pedigree</a></li>
+<li><a href="vignettes/efficient-visPedigree-workflows.Rmd">Efficient visPedigree Workflows</a></li>
+<li><a href="vignettes/draw-pedigree.Rmd">How to draw a pedigree</a></li>
+<li><a href="vignettes/pedigree-analysis.Rmd">Pedigree Analysis and Population Genetics</a></li>
+<li><a href="vignettes/relationship-matrix.Rmd">Relationship Matrix</a></li>
+</ol>
+</div>
+<div class="section level3">
+<h3 id="developer-documentation">Developer documentation<a class="anchor" aria-label="anchor" href="#developer-documentation"></a>
+</h3>
+<ol start="6" style="list-style-type: decimal">
+<li><a href="vignettes/tidyped-structure.Rmd">tidyped Class Structure and Extension Notes</a></li>
+</ol>
+</div>
+</div>
+<div class="section level2">
 <h2 id="quick-start">Quick Start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
 </h2>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
@@ -125,7 +150,7 @@
 <span>  <span class="fu"><a href="reference/tidyped.html">tidyped</a></span><span class="op">(</span>inbreed <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="reference/visped.html">visped</a></span><span class="op">(</span>highlight <span class="op">=</span> <span class="st">"J5X804"</span>, trace <span class="op">=</span> <span class="st">"up"</span>, showf <span class="op">=</span> <span class="cn">TRUE</span>, compact <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Example 4: Pedigree Analysis (v1.3.4+)</span></span>
+<span><span class="co"># Example 4: Pedigree Analysis (v1.4.0+)</span></span>
 <span><span class="co"># Summarize pedigree structure</span></span>
 <span><span class="va">tp</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/tidyped.html">tidyped</a></span><span class="op">(</span><span class="va">big_family_size_ped</span><span class="op">)</span></span>
 <span><span class="va">tp</span> <span class="op">|&gt;</span></span>
@@ -145,7 +170,7 @@
 <div class="section level2">
 <h2 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a>
 </h2>
-<p>Luan Sheng (2026). visPedigree: Tidying, Analysis, and Fast Visualization of Animal and Plant Pedigrees. R package version 1.3.4, <a href="https://github.com/luansheng/visPedigree" class="external-link uri">https://github.com/luansheng/visPedigree</a>.</p>
+<p>Luan Sheng (2026). visPedigree: Tidying, Analysis, and Fast Visualization of Animal and Plant Pedigrees. R package version 1.4.0, <a href="https://github.com/luansheng/visPedigree" class="external-link uri">https://github.com/luansheng/visPedigree</a>.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">

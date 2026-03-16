@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">visPedigree</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -18,10 +18,12 @@
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/draw-pedigree.html">2. How to draw a pedigree</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/tidy-pedigree.html">1. How to tidy a pedigree</a></li>
+    <li><a class="dropdown-item" href="../articles/efficient-visPedigree-workflows.html">2. Efficient visPedigree Workflows</a></li>
+    <li><a class="dropdown-item" href="../articles/draw-pedigree.html">3. How to draw a pedigree</a></li>
     <li><a class="dropdown-item" href="../articles/pedigree-analysis.html">4. Pedigree Analysis and Population Genetics</a></li>
-    <li><a class="dropdown-item" href="../articles/relationship-matrix.html">3. Calculation and visualization of relationship matrix</a></li>
-    <li><a class="dropdown-item" href="../articles/tidy-pedigree.html">1. How to tidy a pedigree</a></li>
+    <li><a class="dropdown-item" href="../articles/relationship-matrix.html">5. Calculation and visualization of relationship matrix</a></li>
+    <li><a class="dropdown-item" href="../articles/tidyped-structure.html">6. tidyped Class Structure and Extension Notes</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -104,7 +106,7 @@
 
 
 <dt id="arg-showf">showf<a class="anchor" aria-label="anchor" href="#arg-showf"></a></dt>
-<dd><p>A logical value indicating whether inbreeding coefficients will be shown in the graph. If <code>showf = TRUE</code> and the column <strong>f</strong> exists in the pedigree, the inbreeding coefficient will be appended to the individual label, e.g., "ID (0.05)". The default value is FALSE.</p></dd>
+<dd><p>A logical value indicating whether inbreeding coefficients will be shown in the graph. If <code>showf = TRUE</code> and the column <strong>f</strong> is missing, <code>visped()</code> will try to compute it automatically with <code><a href="inbreed.html">inbreed</a></code> on a structurally complete pedigree. If automatic computation is not possible, a warning is issued and labels are drawn without <strong>f</strong>. The default value is FALSE.</p></dd>
 
 
 <dt id="arg-pagewidth">pagewidth<a class="anchor" aria-label="anchor" href="#arg-pagewidth"></a></dt>
@@ -189,7 +191,7 @@
 <span class="r-in"><span>       symbolsize<span class="op">=</span><span class="fl">5.5</span>, </span></span>
 <span class="r-in"><span>       pagewidth <span class="op">=</span> <span class="fl">100</span>, </span></span>
 <span class="r-in"><span>       file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".pdf"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Pedigree saved to: /tmp/RtmpL1sU8r/file1cb7412b6cd5.pdf</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Pedigree saved to: /tmp/Rtmp10m8Vf/file1c722b36ef0e.pdf</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Label cex: 0.25. Symbol size: 5.5. Adjust 'cex' and 'symbolsize' if labels are too large or small.</span>
 <span class="r-plt img"><img src="visped-4.png" alt="" width="1800" height="1800"></span>
 <span class="r-in"><span></span></span>
@@ -219,7 +221,7 @@
 <span class="r-in"><span>       symbolsize<span class="op">=</span><span class="fl">5.5</span>, </span></span>
 <span class="r-in"><span>       file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".pdf"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Note: Removed 351 isolated individuals (no parents, no progeny) from the plot.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Pedigree saved to: /tmp/RtmpL1sU8r/file1cb725d82249.pdf</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Pedigree saved to: /tmp/Rtmp10m8Vf/file1c724f15abc3.pdf</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Label cex: 0.08. Symbol size: 5.5. Adjust 'cex' and 'symbolsize' if labels are too large or small.</span>
 <span class="r-plt img"><img src="visped-6.png" alt="" width="1800" height="1800"></span>
 <span class="r-in"><span></span></span>
@@ -229,7 +231,7 @@
 <span class="r-in"><span>       outline <span class="op">=</span> <span class="cn">TRUE</span>, </span></span>
 <span class="r-in"><span>       file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".pdf"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Note: Removed 351 isolated individuals (no parents, no progeny) from the plot.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Pedigree saved to: /tmp/RtmpL1sU8r/file1cb74afe55c9.pdf</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Pedigree saved to: /tmp/Rtmp10m8Vf/file1c7226647934.pdf</span>
 <span class="r-plt img"><img src="visped-7.png" alt="" width="1800" height="1800"></span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>

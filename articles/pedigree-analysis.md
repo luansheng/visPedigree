@@ -141,6 +141,18 @@ tp_time <- tidyped(big_family_size_ped)
 
 genint_year <- pedgenint(tp_time, timevar = "Year", unit = "year")
 #> Numeric time column detected. Converting to Date (YYYY-07-01). For finer precision, convert to Date beforehand.
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
 genint_year
 #>    Pathway      N     Mean         SD
 #>     <char>  <int>    <num>      <num>
@@ -164,6 +176,18 @@ exceeds the target cycle.
 ``` r
 genint_cycle <- pedgenint(tp_time, timevar = "Year", unit = "year", cycle = 1.2)
 #> Numeric time column detected. Converting to Date (YYYY-07-01). For finer precision, convert to Date beforehand.
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
 
 genint_cycle[Pathway %in% c("SS", "SD", "DS", "DD", "Average")]
 #>    Pathway      N     Mean         SD  GenEquiv
@@ -240,9 +264,15 @@ div_res <- pediv(tp_deep, reference = ref_pop, top = 10, seed = 42L)
 #> Calculating founder and ancestor contributions...
 #> Calculating founder contributions...
 #> Calculating ancestor contributions (Boichard's iterative algorithm)...
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
 #> Calculating Ne (coancestry) and fg...
 #> Calculating Ne (inbreeding)...
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
 #> Calculating Ne (demographic)...
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
 
 div_res$summary
 #>     NRef NFounder       fe NAncestor       fa     fafe       fg  MeanCoan
@@ -368,6 +398,16 @@ This summary is useful for tracking relatedness by generation or year.
 tp_small$BirthYear <- 2010 + tp_small$Gen
 
 rel_by_gen <- pedrel(tp_small, by = "Gen")
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
 rel_by_gen
 #>      Gen NTotal NUsed   MeanRel
 #>    <int>  <int> <int>     <num>
@@ -388,12 +428,22 @@ ref_ids <- c("Z1", "Z2", "X", "Y")
 pedrel(tp_small, by = "Gen", reference = ref_ids)
 #> Warning in FUN(X[[i]], ...): Group '1' has less than 2 individuals after
 #> applying 'reference', returning NA_real_.
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
 #> Warning in FUN(X[[i]], ...): Group '2' has less than 2 individuals after
 #> applying 'reference', returning NA_real_.
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
 #> Warning in FUN(X[[i]], ...): Group '3' has less than 2 individuals after
 #> applying 'reference', returning NA_real_.
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
 #> Warning in FUN(X[[i]], ...): Group '4' has less than 2 individuals after
 #> applying 'reference', returning NA_real_.
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
 #>      Gen NTotal NUsed   MeanRel
 #>    <int>  <int> <int>     <num>
 #> 1:     1      9     0        NA
@@ -420,7 +470,6 @@ tp_inbred_f <- inbreed(tp_inbred)
 
 f_trend <- tp_inbred_f[, .(MeanF = mean(f, na.rm = TRUE)), by = Gen]
 f_trend
-#> Tidy Pedigree Object
 #>      Gen  MeanF
 #>    <int>  <num>
 #> 1:     1 0.0000

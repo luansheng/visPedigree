@@ -8,7 +8,8 @@ and monoecious reproduction. Using optimized C++ algorithms, the
 relationship matrix calculation, and scalable graph and matrix displays
 for large pedigrees.
 
-![](reference/figures/ped_example.png)
+![Example pedigree visualization produced by
+visPedigree](reference/figures/ped_example.png)
 
 ## Key Features
 
@@ -44,6 +45,28 @@ install.packages("visPedigree")
 devtools::install_github("luansheng/visPedigree", build_vignettes = TRUE)
 ```
 
+## Documentation
+
+### Standard workflows
+
+Recommended reading order:
+
+1.  [How to tidy a
+    pedigree](https://luansheng.github.io/visPedigree/vignettes/tidy-pedigree.Rmd)
+2.  [Efficient visPedigree
+    Workflows](https://luansheng.github.io/visPedigree/vignettes/efficient-visPedigree-workflows.Rmd)
+3.  [How to draw a
+    pedigree](https://luansheng.github.io/visPedigree/vignettes/draw-pedigree.Rmd)
+4.  [Pedigree Analysis and Population
+    Genetics](https://luansheng.github.io/visPedigree/vignettes/pedigree-analysis.Rmd)
+5.  [Relationship
+    Matrix](https://luansheng.github.io/visPedigree/vignettes/relationship-matrix.Rmd)
+
+### Developer documentation
+
+6.  [tidyped Class Structure and Extension
+    Notes](https://luansheng.github.io/visPedigree/vignettes/tidyped-structure.Rmd)
+
 ## Quick Start
 
 ``` r
@@ -71,7 +94,7 @@ simple_ped |>
   tidyped(inbreed = TRUE) |>
   visped(highlight = "J5X804", trace = "up", showf = TRUE, compact = TRUE)
 
-# Example 4: Pedigree Analysis (v1.3.4+)
+# Example 4: Pedigree Analysis (v1.4.0+)
 # Summarize pedigree structure
 tp <- tidyped(big_family_size_ped)
 tp |>
@@ -92,7 +115,7 @@ summary(split_list[[1]])
 ## Citation
 
 Luan Sheng (2026). visPedigree: Tidying, Analysis, and Fast
-Visualization of Animal and Plant Pedigrees. R package version 1.3.4,
+Visualization of Animal and Plant Pedigrees. R package version 1.4.0,
 <https://github.com/luansheng/visPedigree>.
 
 # Package index
@@ -105,6 +128,12 @@ Main tools for processing and visualizing animal pedigrees.
   : Tidy and prepare a pedigree using graph theory
 - [`as_tidyped()`](https://luansheng.github.io/visPedigree/reference/as_tidyped.md)
   : Restore the tidyped class to a manipulated pedigree
+- [`is_tidyped()`](https://luansheng.github.io/visPedigree/reference/is_tidyped.md)
+  : Test if an object is a tidyped
+- [`has_inbreeding()`](https://luansheng.github.io/visPedigree/reference/has_inbreeding.md)
+  : Check whether a tidyped object contains inbreeding coefficients
+- [`has_candidates()`](https://luansheng.github.io/visPedigree/reference/has_candidates.md)
+  : Check whether a tidyped object contains candidate flags
 - [`visped()`](https://luansheng.github.io/visPedigree/reference/visped.md)
   : Visualize a tidy pedigree
 - [`splitped()`](https://luansheng.github.io/visPedigree/reference/splitped.md)
@@ -143,6 +172,8 @@ Functions for genealogical and genetic computations.
   : Calculate Genetic Diversity Indicators
 - [`pedmat()`](https://luansheng.github.io/visPedigree/reference/pedmat.md)
   : Genetic Relationship Matrices and Inbreeding Coefficients
+- [`pedmeta()`](https://luansheng.github.io/visPedigree/reference/pedmeta.md)
+  : Access pedigree metadata from a tidyped object
 - [`pedne()`](https://luansheng.github.io/visPedigree/reference/pedne.md)
   : Calculate Effective Population Size
 - [`pedpartial()`](https://luansheng.github.io/visPedigree/reference/pedpartial.md)
@@ -179,6 +210,8 @@ Built-in pedigree examples for testing and demonstration.
 
 Generic methods for ‘tidyped’ and ‘pedmat’ objects.
 
+- [`` `[`( ``*`<tidyped>`*`)`](https://luansheng.github.io/visPedigree/reference/sub-.tidyped.md)
+  : Subset a tidyped object
 - [`plot(`*`<tidyped>`*`)`](https://luansheng.github.io/visPedigree/reference/plot.tidyped.md)
   : Plot a tidy pedigree
 - [`vispstat()`](https://luansheng.github.io/visPedigree/reference/vispstat.md)
@@ -201,13 +234,20 @@ Generic methods for ‘tidyped’ and ‘pedmat’ objects.
 
 # Articles
 
-### All vignettes
+### Standard Workflows
 
-- [2. How to draw a
+- [1. How to tidy a
+  pedigree](https://luansheng.github.io/visPedigree/articles/tidy-pedigree.md):
+- [2. Efficient visPedigree
+  Workflows](https://luansheng.github.io/visPedigree/articles/efficient-visPedigree-workflows.md):
+- [3. How to draw a
   pedigree](https://luansheng.github.io/visPedigree/articles/draw-pedigree.md):
 - [4. Pedigree Analysis and Population
   Genetics](https://luansheng.github.io/visPedigree/articles/pedigree-analysis.md):
-- [3. Calculation and visualization of relationship
+- [5. Calculation and visualization of relationship
   matrix](https://luansheng.github.io/visPedigree/articles/relationship-matrix.md):
-- [1. How to tidy a
-  pedigree](https://luansheng.github.io/visPedigree/articles/tidy-pedigree.md):
+
+### Developer Documentation
+
+- [6. tidyped Class Structure and Extension
+  Notes](https://luansheng.github.io/visPedigree/articles/tidyped-structure.md):

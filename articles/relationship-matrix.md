@@ -1,4 +1,4 @@
-# 3. Calculation and visualization of relationship matrix
+# 5. Calculation and visualization of relationship matrix
 
 1.  [Calculating Relationship Matrices with pedmat()](#id_1)  
     1.1 [Supported Methods](#id_1-1)  
@@ -356,6 +356,8 @@ representative individuals from each full-sib family.
 ``` r
 # Calculate compacted A matrix
 mat_compact <- pedmat(tped, method = "A", compact = TRUE)
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
 
 # The result is a 'pedmat' object containing the compacted matrix
 print(mat_compact)

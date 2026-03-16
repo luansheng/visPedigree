@@ -8,6 +8,12 @@ Main tools for processing and visualizing animal pedigrees.
   : Tidy and prepare a pedigree using graph theory
 - [`as_tidyped()`](https://luansheng.github.io/visPedigree/reference/as_tidyped.md)
   : Restore the tidyped class to a manipulated pedigree
+- [`is_tidyped()`](https://luansheng.github.io/visPedigree/reference/is_tidyped.md)
+  : Test if an object is a tidyped
+- [`has_inbreeding()`](https://luansheng.github.io/visPedigree/reference/has_inbreeding.md)
+  : Check whether a tidyped object contains inbreeding coefficients
+- [`has_candidates()`](https://luansheng.github.io/visPedigree/reference/has_candidates.md)
+  : Check whether a tidyped object contains candidate flags
 - [`visped()`](https://luansheng.github.io/visPedigree/reference/visped.md)
   : Visualize a tidy pedigree
 - [`splitped()`](https://luansheng.github.io/visPedigree/reference/splitped.md)
@@ -46,6 +52,8 @@ Functions for genealogical and genetic computations.
   : Calculate Genetic Diversity Indicators
 - [`pedmat()`](https://luansheng.github.io/visPedigree/reference/pedmat.md)
   : Genetic Relationship Matrices and Inbreeding Coefficients
+- [`pedmeta()`](https://luansheng.github.io/visPedigree/reference/pedmeta.md)
+  : Access pedigree metadata from a tidyped object
 - [`pedne()`](https://luansheng.github.io/visPedigree/reference/pedne.md)
   : Calculate Effective Population Size
 - [`pedpartial()`](https://luansheng.github.io/visPedigree/reference/pedpartial.md)
@@ -82,6 +90,8 @@ Built-in pedigree examples for testing and demonstration.
 
 Generic methods for ‘tidyped’ and ‘pedmat’ objects.
 
+- [`` `[`( ``*`<tidyped>`*`)`](https://luansheng.github.io/visPedigree/reference/sub-.tidyped.md)
+  : Subset a tidyped object
 - [`plot(`*`<tidyped>`*`)`](https://luansheng.github.io/visPedigree/reference/plot.tidyped.md)
   : Plot a tidy pedigree
 - [`vispstat()`](https://luansheng.github.io/visPedigree/reference/vispstat.md)

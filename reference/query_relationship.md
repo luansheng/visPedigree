@@ -63,6 +63,8 @@ coefficients.
 ``` r
 tped <- tidyped(small_ped)
 A <- pedmat(tped, method = "A", compact = TRUE)
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
 
 # Query specific pair
 query_relationship(A, "A", "B")

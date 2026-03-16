@@ -175,7 +175,8 @@ head(tidy_simple_ped)
 #> 5: J0C355   <NA>   <NA> female   <NA>          1     1      5       0      0
 #> 6: J0C450   <NA>   <NA> female   <NA>          1     1      6       0      0
 tail(tidy_simple_ped)
-#> Tidy Pedigree Object
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
 #>       Ind   Sire    Dam    Sex        Family FamilySize   Gen IndNum SireNum
 #>    <char> <char> <char> <char>        <char>      <int> <int>  <int>   <int>
 #> 1: J3X697 J2Z903   <NA> female          <NA>          1     4     54      52
@@ -281,7 +282,8 @@ ancestors/descendants are retained.
 tidy_simple_ped_J5X804_ancestors <-
   tidyped(ped = tidy_simple_ped_no_gen_num, cand = "J5X804")
   tail(tidy_simple_ped_J5X804_ancestors)
-#> Tidy Pedigree Object
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
 #>       Ind   Sire    Dam    Sex        Family FamilySize   Gen IndNum SireNum
 #>    <char> <char> <char> <char>        <char>      <int> <int>  <int>   <int>
 #> 1: J3X697 J2Z903   <NA> female          <NA>          1     4     45      43
@@ -347,7 +349,6 @@ tidy_simple_ped_J0Z990_offspring <-
   tidyped(ped = tidy_simple_ped_no_gen_num, cand = "J0Z990", trace = "down")
   print(tidy_simple_ped_J0Z990_offspring)
 #> Tidy Pedigree Object
-#> Index: <Sex>
 #>       Ind   Sire    Dam    Sex Family FamilySize   Gen IndNum SireNum DamNum
 #>    <char> <char> <char> <char> <char>      <int> <int>  <int>   <int>  <int>
 #> 1: J0Z990   <NA>   <NA>   male   <NA>          1     1      1       0      0
@@ -465,7 +466,8 @@ provides two methods for assigning generation numbers via the
 # Default behavior (Top-Down): J2Y434 is at Gen 3
 tidy_top <- tidyped(simple_ped, genmethod = "top")
 tidy_top[Ind == "J2Y434"]
-#> Tidy Pedigree Object
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
 #>       Ind   Sire    Dam    Sex        Family FamilySize   Gen IndNum SireNum
 #>    <char> <char> <char> <char>        <char>      <int> <int>  <int>   <int>
 #> 1: J2Y434 J1C802 J1H419 female J1C802xJ1H419          1     3     50      29
@@ -476,7 +478,8 @@ tidy_top[Ind == "J2Y434"]
 # Bottom-Up behavior: J2Y434 is at Gen 6
 tidy_bottom <- tidyped(simple_ped, genmethod = "bottom")
 tidy_bottom[Ind == "J2Y434"]
-#> Tidy Pedigree Object
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
 #>       Ind   Sire    Dam    Sex        Family FamilySize   Gen IndNum SireNum
 #>    <char> <char> <char> <char>        <char>      <int> <int>  <int>   <int>
 #> 1: J2Y434 J1C802 J1H419 female J1C802xJ1H419          1     6     58      53

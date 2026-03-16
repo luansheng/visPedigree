@@ -115,9 +115,12 @@ visped(
 - showf:
 
   A logical value indicating whether inbreeding coefficients will be
-  shown in the graph. If `showf = TRUE` and the column **f** exists in
-  the pedigree, the inbreeding coefficient will be appended to the
-  individual label, e.g., "ID (0.05)". The default value is FALSE.
+  shown in the graph. If `showf = TRUE` and the column **f** is missing,
+  `visped()` will try to compute it automatically with
+  [`inbreed`](https://luansheng.github.io/visPedigree/reference/inbreed.md)
+  on a structurally complete pedigree. If automatic computation is not
+  possible, a warning is issued and labels are drawn without **f**. The
+  default value is FALSE.
 
 - pagewidth:
 
@@ -247,7 +250,7 @@ visped(simple_ped_tidy,
        symbolsize=5.5, 
        pagewidth = 100, 
        file = tempfile(fileext = ".pdf"))
-#> Pedigree saved to: /tmp/RtmpL1sU8r/file1cb7412b6cd5.pdf
+#> Pedigree saved to: /tmp/Rtmp10m8Vf/file1c722b36ef0e.pdf
 #> Label cex: 0.25. Symbol size: 5.5. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 
 
@@ -277,7 +280,7 @@ visped(big_ped_tidy,
        symbolsize=5.5, 
        file = tempfile(fileext = ".pdf"))
 #> Note: Removed 351 isolated individuals (no parents, no progeny) from the plot.
-#> Pedigree saved to: /tmp/RtmpL1sU8r/file1cb725d82249.pdf
+#> Pedigree saved to: /tmp/Rtmp10m8Vf/file1c724f15abc3.pdf
 #> Label cex: 0.08. Symbol size: 5.5. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 
 
@@ -287,7 +290,7 @@ visped(big_ped_tidy,
        outline = TRUE, 
        file = tempfile(fileext = ".pdf"))
 #> Note: Removed 351 isolated individuals (no parents, no progeny) from the plot.
-#> Pedigree saved to: /tmp/RtmpL1sU8r/file1cb74afe55c9.pdf
+#> Pedigree saved to: /tmp/Rtmp10m8Vf/file1c7226647934.pdf
 
 # }
 ```

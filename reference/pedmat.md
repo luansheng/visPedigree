@@ -277,6 +277,8 @@ names(attributes(A))        # All available attributes
 
 # --- Compact Mode (for large full-sib families) ---
 A_compact <- pedmat(tped, method = "A", compact = TRUE)
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
 
 # Query relationships (works for any individual, including merged sibs)
 query_relationship(A_compact, "Z1", "Z2")  # Full-sibs Z1 and Z2

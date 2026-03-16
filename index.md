@@ -8,7 +8,8 @@ and monoecious reproduction. Using optimized C++ algorithms, the
 relationship matrix calculation, and scalable graph and matrix displays
 for large pedigrees.
 
-![](reference/figures/ped_example.png)
+![Example pedigree visualization produced by
+visPedigree](reference/figures/ped_example.png)
 
 ## Key Features
 
@@ -44,6 +45,28 @@ install.packages("visPedigree")
 devtools::install_github("luansheng/visPedigree", build_vignettes = TRUE)
 ```
 
+## Documentation
+
+### Standard workflows
+
+Recommended reading order:
+
+1.  [How to tidy a
+    pedigree](https://luansheng.github.io/visPedigree/vignettes/tidy-pedigree.Rmd)
+2.  [Efficient visPedigree
+    Workflows](https://luansheng.github.io/visPedigree/vignettes/efficient-visPedigree-workflows.Rmd)
+3.  [How to draw a
+    pedigree](https://luansheng.github.io/visPedigree/vignettes/draw-pedigree.Rmd)
+4.  [Pedigree Analysis and Population
+    Genetics](https://luansheng.github.io/visPedigree/vignettes/pedigree-analysis.Rmd)
+5.  [Relationship
+    Matrix](https://luansheng.github.io/visPedigree/vignettes/relationship-matrix.Rmd)
+
+### Developer documentation
+
+6.  [tidyped Class Structure and Extension
+    Notes](https://luansheng.github.io/visPedigree/vignettes/tidyped-structure.Rmd)
+
 ## Quick Start
 
 ``` r
@@ -71,7 +94,7 @@ simple_ped |>
   tidyped(inbreed = TRUE) |>
   visped(highlight = "J5X804", trace = "up", showf = TRUE, compact = TRUE)
 
-# Example 4: Pedigree Analysis (v1.3.4+)
+# Example 4: Pedigree Analysis (v1.4.0+)
 # Summarize pedigree structure
 tp <- tidyped(big_family_size_ped)
 tp |>
@@ -92,5 +115,5 @@ summary(split_list[[1]])
 ## Citation
 
 Luan Sheng (2026). visPedigree: Tidying, Analysis, and Fast
-Visualization of Animal and Plant Pedigrees. R package version 1.3.4,
+Visualization of Animal and Plant Pedigrees. R package version 1.4.0,
 <https://github.com/luansheng/visPedigree>.

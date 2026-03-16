@@ -11,7 +11,7 @@ Uses Rcpp with Meuwissen &amp;amp; Luo (1992) algorithm for efficient computatio
 
     <a class="navbar-brand me-2" href="../index.html">visPedigree</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -22,10 +22,12 @@ Uses Rcpp with Meuwissen &amp;amp; Luo (1992) algorithm for efficient computatio
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/draw-pedigree.html">2. How to draw a pedigree</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/tidy-pedigree.html">1. How to tidy a pedigree</a></li>
+    <li><a class="dropdown-item" href="../articles/efficient-visPedigree-workflows.html">2. Efficient visPedigree Workflows</a></li>
+    <li><a class="dropdown-item" href="../articles/draw-pedigree.html">3. How to draw a pedigree</a></li>
     <li><a class="dropdown-item" href="../articles/pedigree-analysis.html">4. Pedigree Analysis and Population Genetics</a></li>
-    <li><a class="dropdown-item" href="../articles/relationship-matrix.html">3. Calculation and visualization of relationship matrix</a></li>
-    <li><a class="dropdown-item" href="../articles/tidy-pedigree.html">1. How to tidy a pedigree</a></li>
+    <li><a class="dropdown-item" href="../articles/relationship-matrix.html">5. Calculation and visualization of relationship matrix</a></li>
+    <li><a class="dropdown-item" href="../articles/tidyped-structure.html">6. tidyped Class Structure and Extension Notes</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -249,6 +251,8 @@ Biometrics, 32(1), 69-83.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># --- Compact Mode (for large full-sib families) ---</span></span></span>
 <span class="r-in"><span><span class="va">A_compact</span> <span class="op">&lt;-</span> <span class="fu">pedmat</span><span class="op">(</span><span class="va">tped</span>, method <span class="op">=</span> <span class="st">"A"</span>, compact <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Subsetting removed parent records. Result is a plain data.table, not a tidyped.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Query relationships (works for any individual, including merged sibs)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="query_relationship.html">query_relationship</a></span><span class="op">(</span><span class="va">A_compact</span>, <span class="st">"Z1"</span>, <span class="st">"Z2"</span><span class="op">)</span>  <span class="co"># Full-sibs Z1 and Z2</span></span></span>

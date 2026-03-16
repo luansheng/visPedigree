@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">visPedigree</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,10 +33,12 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/draw-pedigree.html">2. How to draw a pedigree</a></li>
+<li><a class="dropdown-item" href="../articles/tidy-pedigree.html">1. How to tidy a pedigree</a></li>
+    <li><a class="dropdown-item" href="../articles/efficient-visPedigree-workflows.html">2. Efficient visPedigree Workflows</a></li>
+    <li><a class="dropdown-item" href="../articles/draw-pedigree.html">3. How to draw a pedigree</a></li>
     <li><a class="dropdown-item" href="../articles/pedigree-analysis.html">4. Pedigree Analysis and Population Genetics</a></li>
-    <li><a class="dropdown-item" href="../articles/relationship-matrix.html">3. Calculation and visualization of relationship matrix</a></li>
-    <li><a class="dropdown-item" href="../articles/tidy-pedigree.html">1. How to tidy a pedigree</a></li>
+    <li><a class="dropdown-item" href="../articles/relationship-matrix.html">5. Calculation and visualization of relationship matrix</a></li>
+    <li><a class="dropdown-item" href="../articles/tidyped-structure.html">6. tidyped Class Structure and Extension Notes</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -61,7 +63,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>1. How to tidy a pedigree</h1>
                         <h4 data-toc-skip class="author">Sheng Luan</h4>
             
-            <h4 data-toc-skip class="date">2026-03-15</h4>
+            <h4 data-toc-skip class="date">2026-03-16</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/luansheng/visPedigree/blob/master/vignettes/tidy-pedigree.Rmd" class="external-link"><code>vignettes/tidy-pedigree.Rmd</code></a></small>
       <div class="d-none name"><code>tidy-pedigree.Rmd</code></div>
@@ -232,7 +234,8 @@ offspring, and adds missing founders.</p>
 <span><span class="co">#&gt; 5: J0C355   &lt;NA&gt;   &lt;NA&gt; female   &lt;NA&gt;          1     1      5       0      0</span></span>
 <span><span class="co">#&gt; 6: J0C450   &lt;NA&gt;   &lt;NA&gt; female   &lt;NA&gt;          1     1      6       0      0</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="va">tidy_simple_ped</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Tidy Pedigree Object</span></span>
+<span><span class="co">#&gt; Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.</span></span>
+<span><span class="co">#&gt; Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.</span></span>
 <span><span class="co">#&gt;       Ind   Sire    Dam    Sex        Family FamilySize   Gen IndNum SireNum</span></span>
 <span><span class="co">#&gt;    &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;char&gt;        &lt;char&gt;      &lt;int&gt; &lt;int&gt;  &lt;int&gt;   &lt;int&gt;</span></span>
 <span><span class="co">#&gt; 1: J3X697 J2Z903   &lt;NA&gt; female          &lt;NA&gt;          1     4     54      52</span></span>
@@ -325,7 +328,8 @@ ancestors/descendants are retained.</p>
 <code class="sourceCode R"><span><span class="va">tidy_simple_ped_J5X804_ancestors</span> <span class="op">&lt;-</span></span>
 <span>  <span class="fu"><a href="../reference/tidyped.html">tidyped</a></span><span class="op">(</span>ped <span class="op">=</span> <span class="va">tidy_simple_ped_no_gen_num</span>, cand <span class="op">=</span> <span class="st">"J5X804"</span><span class="op">)</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="va">tidy_simple_ped_J5X804_ancestors</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Tidy Pedigree Object</span></span>
+<span><span class="co">#&gt; Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.</span></span>
+<span><span class="co">#&gt; Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.</span></span>
 <span><span class="co">#&gt;       Ind   Sire    Dam    Sex        Family FamilySize   Gen IndNum SireNum</span></span>
 <span><span class="co">#&gt;    &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;char&gt;        &lt;char&gt;      &lt;int&gt; &lt;int&gt;  &lt;int&gt;   &lt;int&gt;</span></span>
 <span><span class="co">#&gt; 1: J3X697 J2Z903   &lt;NA&gt; female          &lt;NA&gt;          1     4     45      43</span></span>
@@ -385,7 +389,6 @@ simultaneously.</li>
 <span>  <span class="fu"><a href="../reference/tidyped.html">tidyped</a></span><span class="op">(</span>ped <span class="op">=</span> <span class="va">tidy_simple_ped_no_gen_num</span>, cand <span class="op">=</span> <span class="st">"J0Z990"</span>, trace <span class="op">=</span> <span class="st">"down"</span><span class="op">)</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">tidy_simple_ped_J0Z990_offspring</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Tidy Pedigree Object</span></span>
-<span><span class="co">#&gt; Index: &lt;Sex&gt;</span></span>
 <span><span class="co">#&gt;       Ind   Sire    Dam    Sex Family FamilySize   Gen IndNum SireNum DamNum</span></span>
 <span><span class="co">#&gt;    &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;char&gt;      &lt;int&gt; &lt;int&gt;  &lt;int&gt;   &lt;int&gt;  &lt;int&gt;</span></span>
 <span><span class="co">#&gt; 1: J0Z990   &lt;NA&gt;   &lt;NA&gt;   male   &lt;NA&gt;          1     1      1       0      0</span></span>
@@ -501,7 +504,8 @@ exogenous parents in later years.</li>
 <code class="sourceCode R"><span><span class="co"># Default behavior (Top-Down): J2Y434 is at Gen 3</span></span>
 <span><span class="va">tidy_top</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tidyped.html">tidyped</a></span><span class="op">(</span><span class="va">simple_ped</span>, genmethod <span class="op">=</span> <span class="st">"top"</span><span class="op">)</span></span>
 <span><span class="va">tidy_top</span><span class="op">[</span><span class="va">Ind</span> <span class="op">==</span> <span class="st">"J2Y434"</span><span class="op">]</span></span>
-<span><span class="co">#&gt; Tidy Pedigree Object</span></span>
+<span><span class="co">#&gt; Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.</span></span>
+<span><span class="co">#&gt; Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.</span></span>
 <span><span class="co">#&gt;       Ind   Sire    Dam    Sex        Family FamilySize   Gen IndNum SireNum</span></span>
 <span><span class="co">#&gt;    &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;char&gt;        &lt;char&gt;      &lt;int&gt; &lt;int&gt;  &lt;int&gt;   &lt;int&gt;</span></span>
 <span><span class="co">#&gt; 1: J2Y434 J1C802 J1H419 female J1C802xJ1H419          1     3     50      29</span></span>
@@ -512,7 +516,8 @@ exogenous parents in later years.</li>
 <span><span class="co"># Bottom-Up behavior: J2Y434 is at Gen 6</span></span>
 <span><span class="va">tidy_bottom</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tidyped.html">tidyped</a></span><span class="op">(</span><span class="va">simple_ped</span>, genmethod <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span></span>
 <span><span class="va">tidy_bottom</span><span class="op">[</span><span class="va">Ind</span> <span class="op">==</span> <span class="st">"J2Y434"</span><span class="op">]</span></span>
-<span><span class="co">#&gt; Tidy Pedigree Object</span></span>
+<span><span class="co">#&gt; Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.</span></span>
+<span><span class="co">#&gt; Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.</span></span>
 <span><span class="co">#&gt;       Ind   Sire    Dam    Sex        Family FamilySize   Gen IndNum SireNum</span></span>
 <span><span class="co">#&gt;    &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;char&gt;        &lt;char&gt;      &lt;int&gt; &lt;int&gt;  &lt;int&gt;   &lt;int&gt;</span></span>
 <span><span class="co">#&gt; 1: J2Y434 J1C802 J1H419 female J1C802xJ1H419          1     6     58      53</span></span>

@@ -1,5 +1,68 @@
 # Changelog
 
+## Changes in version 1.4.1 released on 15 Mar 2026
+
+### Bug fixes
+
+1.  **Fail-fast incomplete pedigree analysis**:
+    [`inbreed()`](https://luansheng.github.io/visPedigree/reference/inbreed.md)
+    and other completeness-sensitive analysis functions now error on
+    row-truncated subsets with missing parent records. This prevents
+    incorrect results (e.g., zero inbreeding) caused by calculating on
+    partial ancestry data.
+
+## Changes in version 1.4.0 released on 15 Mar 2026
+
+### New features
+
+1.  **`tidyped` class redesign and optimization**: Refined the internal
+    `tidyped` class architecture around a clearer metadata contract and
+    safer S3/data.table interaction model, making the object more robust
+    for repeated downstream analysis and extension.
+2.  **Safer `tidyped` object workflows**: Added
+    [`is_tidyped()`](https://luansheng.github.io/visPedigree/reference/is_tidyped.md),
+    [`pedmeta()`](https://luansheng.github.io/visPedigree/reference/pedmeta.md),
+    [`has_inbreeding()`](https://luansheng.github.io/visPedigree/reference/has_inbreeding.md),
+    and
+    [`has_candidates()`](https://luansheng.github.io/visPedigree/reference/has_candidates.md)
+    to make class checks and metadata inspection explicit and
+    user-facing.
+3.  **Fast candidate tracing from existing `tidyped` objects**:
+    [`tidyped()`](https://luansheng.github.io/visPedigree/reference/tidyped.md)
+    now uses a fast path when the input is already a valid `tidyped`
+    object and `cand` is supplied, avoiding repeated global validation
+    and preprocessing.
+4.  **Workflow coverage and developer documentation**: Added a new
+    workflow vignette, a `tidyped` structure and extension vignette, and
+    focused regression tests covering safe subsetting, `:=` by-reference
+    behavior, and split workflow semantics.
+
+### Bug fixes
+
+1.  **Stable by-reference mutation for `tidyped`**: Replaced class and
+    metadata attachment paths with
+    [`data.table::setattr()`](https://rdrr.io/pkg/data.table/man/setattr.html)
+    so subsequent `:=` operations keep true by-reference behavior
+    instead of silently writing into shallow copies.
+2.  **Safe row subsetting**: Added `[.tidyped` interception so
+    incomplete subsets degrade to plain `data.table` objects with a
+    warning, while complete subsets preserve `tidyped` structure and
+    rebuild pedigree indices correctly.
+3.  **More robust class recovery**: Core analysis entry points now
+    cooperate with
+    [`ensure_tidyped()`](https://luansheng.github.io/visPedigree/reference/ensure_tidyped.md)
+    /
+    [`validate_tidyped()`](https://luansheng.github.io/visPedigree/reference/validate_tidyped.md)
+    to recover valid `tidyped` objects after common class-dropping
+    operations.
+
+### Documentation
+
+1.  **Pkgdown article navigation**: Reorganized vignette order, restored
+    `draw-pedigree` to the recommended reading sequence, and exposed
+    `tidyped` developer notes through a dedicated pkgdown
+    developer-documentation entry.
+
 ## Changes in version 1.3.5 released on 14 Mar 2026
 
 ### New features

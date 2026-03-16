@@ -121,6 +121,16 @@ Wright, S. (1931). Evolution in Mendelian populations. *Genetics*,
 tp_simple <- tidyped(simple_ped)
 tp_simple$BirthYear <- 2000 + tp_simple$Gen
 ne_coan <- suppressMessages(pedne(tp_simple, by = "BirthYear", seed = 42L))
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
 ne_coan
 #>    Cohort     N NSampled       DeltaC       Ne
 #>     <num> <int>    <int>        <num>    <num>
@@ -134,8 +144,9 @@ ne_coan
 # Inbreeding-based Ne using an inbred pedigree
 tp_inbred <- tidyped(inbred_ped)
 ne_inb <- suppressMessages(pedne(tp_inbred, method = "inbreeding", by = "Gen"))
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
 ne_inb
-#> Tidy Pedigree Object
 #>    Cohort     N  MeanF DeltaF MeanECG    Ne
 #>     <int> <int>  <num>  <num>   <num> <num>
 #> 1:      3     1 0.2500   0.25       2     2
@@ -145,7 +156,6 @@ ne_inb
 # Demographic Ne from the number of contributing sires and dams
 ne_demo <- suppressMessages(pedne(tp_simple, method = "demographic", by = "BirthYear"))
 ne_demo
-#> Tidy Pedigree Object
 #>    Cohort     N    Nm    Nf        Ne
 #>     <num> <int> <int> <int>     <num>
 #> 1:   2001    28     0     0        NA

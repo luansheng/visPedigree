@@ -42,7 +42,8 @@ data(simple_ped)
 ped <- tidyped(simple_ped)
 ped_f <- inbreed(ped)
 ped_f[f > 0, .(Ind, Sire, Dam, f)]
-#> Tidy Pedigree Object
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
 #>       Ind   Sire    Dam          f
 #>    <char> <char> <char>      <num>
 #> 1: J5X804 J4Y326 J4E185 0.00390625

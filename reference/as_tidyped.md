@@ -92,6 +92,8 @@ class(tp4)
 # [1] "data.frame"
 
 tp5 <- as_tidyped(tp4)
+#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
+#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
 class(tp5)
 #> [1] "tidyped"    "data.table" "data.frame"
 # [1] "tidyped"    "data.table" "data.frame"

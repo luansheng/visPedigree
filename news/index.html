@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">visPedigree</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -18,10 +18,12 @@
       <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/draw-pedigree.html">2. How to draw a pedigree</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/tidy-pedigree.html">1. How to tidy a pedigree</a></li>
+    <li><a class="dropdown-item" href="../articles/efficient-visPedigree-workflows.html">2. Efficient visPedigree Workflows</a></li>
+    <li><a class="dropdown-item" href="../articles/draw-pedigree.html">3. How to draw a pedigree</a></li>
     <li><a class="dropdown-item" href="../articles/pedigree-analysis.html">4. Pedigree Analysis and Population Genetics</a></li>
-    <li><a class="dropdown-item" href="../articles/relationship-matrix.html">3. Calculation and visualization of relationship matrix</a></li>
-    <li><a class="dropdown-item" href="../articles/tidy-pedigree.html">1. How to tidy a pedigree</a></li>
+    <li><a class="dropdown-item" href="../articles/relationship-matrix.html">5. Calculation and visualization of relationship matrix</a></li>
+    <li><a class="dropdown-item" href="../articles/tidyped-structure.html">6. tidyped Class Structure and Extension Notes</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -38,6 +40,42 @@
       <small>Source: <a href="https://github.com/luansheng/visPedigree/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.4.1" id="changes-in-version-141-released-on-15-mar-2026">Changes in version 1.4.1 released on 15 Mar 2026<a class="anchor" aria-label="anchor" href="#changes-in-version-141-released-on-15-mar-2026"></a></h2>
+<div class="section level3">
+<h3 id="bug-fixes-1-4-1">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-1-4-1"></a></h3>
+<ol style="list-style-type: decimal"><li>
+<strong>Fail-fast incomplete pedigree analysis</strong>: <code><a href="../reference/inbreed.html">inbreed()</a></code> and other completeness-sensitive analysis functions now error on row-truncated subsets with missing parent records. This prevents incorrect results (e.g., zero inbreeding) caused by calculating on partial ancestry data.</li>
+</ol></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.4.0" id="changes-in-version-140-released-on-15-mar-2026">Changes in version 1.4.0 released on 15 Mar 2026<a class="anchor" aria-label="anchor" href="#changes-in-version-140-released-on-15-mar-2026"></a></h2>
+<div class="section level3">
+<h3 id="new-features-1-4-0">New features<a class="anchor" aria-label="anchor" href="#new-features-1-4-0"></a></h3>
+<ol style="list-style-type: decimal"><li>
+<strong><code>tidyped</code> class redesign and optimization</strong>: Refined the internal <code>tidyped</code> class architecture around a clearer metadata contract and safer S3/data.table interaction model, making the object more robust for repeated downstream analysis and extension.</li>
+<li>
+<strong>Safer <code>tidyped</code> object workflows</strong>: Added <code><a href="../reference/is_tidyped.html">is_tidyped()</a></code>, <code><a href="../reference/pedmeta.html">pedmeta()</a></code>, <code><a href="../reference/has_inbreeding.html">has_inbreeding()</a></code>, and <code><a href="../reference/has_candidates.html">has_candidates()</a></code> to make class checks and metadata inspection explicit and user-facing.</li>
+<li>
+<strong>Fast candidate tracing from existing <code>tidyped</code> objects</strong>: <code><a href="../reference/tidyped.html">tidyped()</a></code> now uses a fast path when the input is already a valid <code>tidyped</code> object and <code>cand</code> is supplied, avoiding repeated global validation and preprocessing.</li>
+<li>
+<strong>Workflow coverage and developer documentation</strong>: Added a new workflow vignette, a <code>tidyped</code> structure and extension vignette, and focused regression tests covering safe subsetting, <code>:=</code> by-reference behavior, and split workflow semantics.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="bug-fixes-1-4-0">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-1-4-0"></a></h3>
+<ol style="list-style-type: decimal"><li>
+<strong>Stable by-reference mutation for <code>tidyped</code></strong>: Replaced class and metadata attachment paths with <code><a href="https://rdrr.io/pkg/data.table/man/setattr.html" class="external-link">data.table::setattr()</a></code> so subsequent <code>:=</code> operations keep true by-reference behavior instead of silently writing into shallow copies.</li>
+<li>
+<strong>Safe row subsetting</strong>: Added <code>[.tidyped</code> interception so incomplete subsets degrade to plain <code>data.table</code> objects with a warning, while complete subsets preserve <code>tidyped</code> structure and rebuild pedigree indices correctly.</li>
+<li>
+<strong>More robust class recovery</strong>: Core analysis entry points now cooperate with <code><a href="../reference/ensure_tidyped.html">ensure_tidyped()</a></code> / <code><a href="../reference/validate_tidyped.html">validate_tidyped()</a></code> to recover valid <code>tidyped</code> objects after common class-dropping operations.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="documentation-1-4-0">Documentation<a class="anchor" aria-label="anchor" href="#documentation-1-4-0"></a></h3>
+<ol style="list-style-type: decimal"><li>
+<strong>Pkgdown article navigation</strong>: Reorganized vignette order, restored <code>draw-pedigree</code> to the recommended reading sequence, and exposed <code>tidyped</code> developer notes through a dedicated pkgdown developer-documentation entry.</li>
+</ol></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.3.5" id="changes-in-version-135-released-on-14-mar-2026">Changes in version 1.3.5 released on 14 Mar 2026<a class="anchor" aria-label="anchor" href="#changes-in-version-135-released-on-14-mar-2026"></a></h2>
 <div class="section level3">

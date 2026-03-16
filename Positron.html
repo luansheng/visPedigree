@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="index.html">visPedigree</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.3.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -18,10 +18,12 @@
       <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="articles/draw-pedigree.html">2. How to draw a pedigree</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="articles/tidy-pedigree.html">1. How to tidy a pedigree</a></li>
+    <li><a class="dropdown-item" href="articles/efficient-visPedigree-workflows.html">2. Efficient visPedigree Workflows</a></li>
+    <li><a class="dropdown-item" href="articles/draw-pedigree.html">3. How to draw a pedigree</a></li>
     <li><a class="dropdown-item" href="articles/pedigree-analysis.html">4. Pedigree Analysis and Population Genetics</a></li>
-    <li><a class="dropdown-item" href="articles/relationship-matrix.html">3. Calculation and visualization of relationship matrix</a></li>
-    <li><a class="dropdown-item" href="articles/tidy-pedigree.html">1. How to tidy a pedigree</a></li>
+    <li><a class="dropdown-item" href="articles/relationship-matrix.html">5. Calculation and visualization of relationship matrix</a></li>
+    <li><a class="dropdown-item" href="articles/tidyped-structure.html">6. tidyped Class Structure and Extension Notes</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -69,10 +71,13 @@
 <li>❌ <code>calculatePedigree()</code>
 </li>
 </ul></li>
-</ul></div>
-<div class="section level3">
-<h3 id="id_12-internal-functions-private">1.2 Internal Functions (Private)<a class="anchor" aria-label="anchor" href="#id_12-internal-functions-private"></a></h3>
-<ul><li>
+<li>
+<strong>Exemptions</strong>: R-idiomatic predicates and coercers (<code>is_*</code>, <code>as_*</code>, <code>has_*</code>) are allowed with underscores, because the R community expects this pattern. Current exemptions: <code><a href="reference/is_tidyped.html">is_tidyped()</a></code>, <code><a href="reference/as_tidyped.html">as_tidyped()</a></code>, <code><a href="reference/has_inbreeding.html">has_inbreeding()</a></code>, <code><a href="reference/has_candidates.html">has_candidates()</a></code>.</li>
+<li>
+<strong>Known legacy deviations</strong>: <code><a href="reference/query_relationship.html">query_relationship()</a></code>, <code><a href="reference/expand_pedmat.html">expand_pedmat()</a></code>, <code><a href="reference/summary_pedmat.html">summary_pedmat()</a></code> use underscores for readability and backward compatibility. These are considered “grandfathered” and should not be used as templates for new functions. New analytical helpers must follow the no-underscore rule (e.g., <code>pedstats</code>, <code>pedrel</code>).</li>
+<li>
+<strong>Rule of Thumb</strong>: If you are unsure, avoid underscores. Only use them for the <code>is</code>/<code>as</code>/<code>has</code> patterns.</li>
+<li>
 <strong>Style</strong>: Snake case (<code>noun_verb</code> or <code>verb_noun</code>) is allowed to distinguish them from exported API.</li>
 <li>
 <strong>Examples</strong>: <code>validate_and_prepare_ped</code>, <code>check_ped_loops</code>.</li>
@@ -122,6 +127,158 @@
 <li>
 <strong><code>data.table</code> Return Visibility</strong>: Any function that returns a <code>data.table</code> object <strong>must</strong> use <code>return(x[])</code> (with trailing <code>[]</code>) instead of <code>return(x)</code>. The empty <code>[]</code> clears the invisible flag set by <code>:=</code> and <code>set*()</code> operations, ensuring the object auto-prints correctly in console and knitr.</li>
 </ul></div>
+<div class="section level2">
+<h2 id="id_3-anti-bloat-governance-checklist">3. Anti-Bloat Governance Checklist<a class="anchor" aria-label="anchor" href="#id_3-anti-bloat-governance-checklist"></a></h2>
+<p>The package is allowed to grow in lines of code, but it must not grow in uncontrolled complexity. The goal is to keep <code>visPedigree</code> extensible without turning it into a fragile, exception-driven codebase.</p>
+<p>Before merging any non-trivial change, contributors should check the following:</p>
+<div class="section level3">
+<h3 id="id_31-public-api-gate">3.1 Public API Gate<a class="anchor" aria-label="anchor" href="#id_31-public-api-gate"></a></h3>
+<ul><li>Do <strong>not</strong> add a new exported function unless an existing exported function cannot reasonably absorb the feature.</li>
+<li>Prefer extending an existing object-centric workflow over creating a parallel entry point.</li>
+<li>Every new exported argument should have a clear long-term meaning, not just solve one temporary edge case.</li>
+<li>New exported helpers must justify their maintenance cost in documentation, tests, and examples.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="id_32-delete-or-consolidate-rule">3.2 Delete-or-Consolidate Rule<a class="anchor" aria-label="anchor" href="#id_32-delete-or-consolidate-rule"></a></h3>
+<ul><li>Every new helper should trigger a quick search for older helpers that can now be removed or merged.</li>
+<li>If the same validation or preprocessing logic appears twice, centralize it.</li>
+<li>AI-generated code should not merely wrap old logic in a new layer; it should simplify the system where possible.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="id_33-prefer-explicit-failure-over-silent-recovery">3.3 Prefer Explicit Failure Over Silent Recovery<a class="anchor" aria-label="anchor" href="#id_33-prefer-explicit-failure-over-silent-recovery"></a></h3>
+<ul><li>When pedigree structure is invalid for an analysis, prefer a clear error over an implicit repair that may change scientific meaning.</li>
+<li>Auto-recovery is acceptable only when the underlying semantics are preserved (for example, restoring a dropped class when the pedigree structure is still intact).</li>
+<li>Never silently compute pedigree-derived quantities on row-truncated ancestry.</li>
+</ul></div>
+</div>
+<div class="section level2">
+<h2 id="id_4-architectural-boundaries">4. Architectural Boundaries<a class="anchor" aria-label="anchor" href="#id_4-architectural-boundaries"></a></h2>
+<div class="section level3">
+<h3 id="id_41-core-tidyped-invariants">4.1 Core <code>tidyped</code> Invariants<a class="anchor" aria-label="anchor" href="#id_41-core-tidyped-invariants"></a></h3>
+<p>The following rules define the package’s most important internal contract:</p>
+<ul><li>Core pedigree columns must remain semantically stable: <code>Ind</code>, <code>Sire</code>, <code>Dam</code>, <code>Sex</code>, <code>Gen</code>, <code>IndNum</code>, <code>SireNum</code>, <code>DamNum</code>.</li>
+<li>
+<code>IndNum</code> must correspond to row order when algorithms assume 1..N integer indexing.</li>
+<li>
+<code>SireNum</code> and <code>DamNum</code> must either be 0 / missing-parent encodings or valid row-index references into <code>IndNum</code>.</li>
+<li>A <strong>complete pedigree</strong> means every non-missing <code>Sire</code> and <code>Dam</code> identifier is present in <code>Ind</code>.</li>
+<li>Row-truncated subsets are not valid <code>tidyped</code> pedigrees for completeness-sensitive analyses.</li>
+<li>Pedigree metadata must be stored consistently in <code>attr(x, "ped_meta")</code>.</li>
+<li>
+<code>ped_meta</code> is a named list with three fixed fields:
+<ul><li>
+<code>selfing</code> (logical): whether selfing/monoecious mode was used.</li>
+<li>
+<code>bisexual_parents</code> (character vector): IDs appearing as both sire and dam.</li>
+<li>
+<code>genmethod</code> (character): generation assignment method (<code>"top"</code> or <code>"bottom"</code>).</li>
+</ul></li>
+<li>All <code>tidyped</code> objects must be created through <code><a href="reference/new_tidyped.html">new_tidyped()</a></code>, which attaches the class via <code>setattr</code> (no copy) and clears data.table’s invisible flag via <code>x[]</code>.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="id_411-tidyped-subsetting-contract">4.1.1 <code>[.tidyped</code> Subsetting Contract<a class="anchor" aria-label="anchor" href="#id_411-tidyped-subsetting-contract"></a></h3>
+<p>The <code>[.tidyped</code> method is the primary guardian of structural integrity:</p>
+<ul><li>
+<strong>Complete subset</strong> (all referenced parents still present): class is preserved, <code>IndNum</code>/<code>SireNum</code>/<code>DamNum</code> are rebuilt in-place, metadata is retained.</li>
+<li>
+<strong>Incomplete subset</strong> (parent records removed): result is degraded to plain <code>data.table</code> with a warning. The user is guided to use <code>tidyped(tp, cand = ids, trace = "up")</code>.</li>
+<li>
+<strong><code>:=</code> operations</strong>: modify by reference, class and metadata are preserved via <code>setattr</code>.</li>
+<li>
+<strong>Column-only selections</strong> (core columns missing): returned as plain <code>data.table</code> without warning.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="id_42-function-classes-by-structural-requirement">4.2 Function Classes by Structural Requirement<a class="anchor" aria-label="anchor" href="#id_42-function-classes-by-structural-requirement"></a></h3>
+<p>All exported analysis functions should mentally fall into one of these groups:</p>
+<ol style="list-style-type: decimal"><li><p><strong>Complete-pedigree required</strong> — guarded by <code>ensure_complete_tidyped()</code>.<br>
+Examples: <code><a href="reference/inbreed.html">inbreed()</a></code>, <code><a href="reference/pedecg.html">pedecg()</a></code>, <code><a href="reference/pedrel.html">pedrel()</a></code>, <code><a href="reference/pedgenint.html">pedgenint()</a></code>, <code><a href="reference/pedcontrib.html">pedcontrib()</a></code>, <code><a href="reference/pedancestry.html">pedancestry()</a></code>, <code><a href="reference/pedpartial.html">pedpartial()</a></code>, <code><a href="reference/pediv.html">pediv()</a></code>, <code><a href="reference/pedmat.html">pedmat()</a></code>.</p></li>
+<li><p><strong>Structure-light summaries</strong> — guarded by <code><a href="reference/ensure_tidyped.html">ensure_tidyped()</a></code>.<br>
+Examples: <code><a href="reference/pedsubpop.html">pedsubpop()</a></code>, <code><a href="reference/splitped.html">splitped()</a></code>, <code>pedne(method="demographic")</code>.</p></li>
+<li><p><strong>Post-computation summaries on existing results</strong> — guarded by <code><a href="reference/ensure_tidyped.html">ensure_tidyped()</a></code>, with conditional escalation to <code>ensure_complete_tidyped()</code> only when new pedigree recursion is needed.<br>
+Examples: <code><a href="reference/pedfclass.html">pedfclass()</a></code> (Class 2 when <code>f</code> column already exists; Class 1 when it must compute <code>f</code>).</p></li>
+<li><p><strong>Conditional — parameter-dependent</strong> — guard level depends on which code path the user selects.<br>
+Examples: <code>pedstats(ecg=TRUE)</code> requires Class 1; <code>pedstats(ecg=FALSE, genint=FALSE)</code> only needs Class 2. <code>pedne(method="coancestry")</code> requires Class 1; <code>pedne(method="demographic")</code> only needs Class 2.</p></li>
+<li><p><strong>Visualization</strong> — guarded by <code><a href="reference/validate_tidyped.html">validate_tidyped()</a></code> (auto-recovery without completeness requirement).<br>
+Examples: <code><a href="reference/visped.html">visped()</a></code>, <code><a href="reference/vismat.html">vismat()</a></code>, <code><a href="reference/vispstat.html">vispstat()</a></code>.</p></li>
+</ol><p>Any new function should explicitly choose one class above before implementation.</p>
+</div>
+<div class="section level3">
+<h3 id="id_43-layering-rules">4.3 Layering Rules<a class="anchor" aria-label="anchor" href="#id_43-layering-rules"></a></h3>
+<p>Use this layering model consistently:</p>
+<ul><li>
+<strong>User layer</strong>: exported functions, user-facing errors, stable API.</li>
+<li>
+<strong>Workflow layer</strong>: orchestration helpers that sequence validation, preprocessing, and aggregation.</li>
+<li>
+<strong>Computation layer</strong>: pure pedigree/statistical logic.</li>
+<li>
+<strong>Infrastructure layer</strong>: S3 methods, validators, metadata accessors, class restoration, C++ bridges.</li>
+</ul><p>Cross-layer leakage should be minimized. In particular, exported analysis functions should not each reinvent class restoration, completeness checks, or index rebuilding.</p>
+</div>
+</div>
+<div class="section level2">
+<h2 id="id_5-file-and-function-size-heuristics">5. File and Function Size Heuristics<a class="anchor" aria-label="anchor" href="#id_5-file-and-function-size-heuristics"></a></h2>
+<p>These are not rigid limits, but they are review triggers:</p>
+<ul><li>Exported function larger than ~120 lines: consider splitting workflow and computation.</li>
+<li>Internal function larger than ~80 lines: consider extracting helpers.</li>
+<li>File larger than ~800-1000 lines: review whether it contains multiple domains and should be split.</li>
+<li>More than 2 repeated code blocks with the same shape: refactor to a helper.</li>
+<li>More than 3 nested control levels: simplify.</li>
+</ul><p>Large files are acceptable only when they still have a single coherent responsibility.</p>
+<div class="section level3">
+<h3 id="id_51-current-status-v141">5.1 Current Status (v1.4.1)<a class="anchor" aria-label="anchor" href="#id_51-current-status-v141"></a></h3>
+<p>Known files exceeding the threshold — pending refactoring:</p>
+<ul><li>
+<code>R/pedanalysis.R</code> (~1940 lines): contains 12+ functions spanning generation intervals, ECG, Ne, founder/ancestor contributions, inbreeding classification, partial inbreeding, and diversity analysis. Candidate split: by analytical domain (depth, diversity, inbreeding).</li>
+<li>
+<code>R/pedmatrix.R</code> (~1460 lines): contains <code><a href="reference/pedmat.html">pedmat()</a></code> core, compact mode, <code><a href="reference/query_relationship.html">query_relationship()</a></code>, <code><a href="reference/expand_pedmat.html">expand_pedmat()</a></code>, and all pedmat S3 methods. Candidate split: core vs. compact vs. S3 methods.</li>
+</ul></div>
+</div>
+<div class="section level2">
+<h2 id="id_6-testing-rules-that-protect-architecture">6. Testing Rules That Protect Architecture<a class="anchor" aria-label="anchor" href="#id_6-testing-rules-that-protect-architecture"></a></h2>
+<p>Tests should protect not only numeric outputs, but also package design constraints.</p>
+<p>Every important feature should consider coverage in at least one of these categories:</p>
+<ul><li>
+<strong>Invariant tests</strong>: class retention, metadata retention, index integrity, complete-pedigree rules.</li>
+<li>
+<strong>Regression tests</strong>: previously fixed bugs must stay fixed.</li>
+<li>
+<strong>Failure-path tests</strong>: invalid inputs should fail clearly and for the right reason.</li>
+<li>
+<strong>Round-trip tests</strong>: object survives common workflows such as subsetting, merging, tracing, and plotting.</li>
+</ul><p>For pedigree analysis, tests that lock down structural semantics are often more valuable than adding yet another numeric snapshot.</p>
+</div>
+<div class="section level2">
+<h2 id="id_7-ai-assisted-development-rules">7. AI-Assisted Development Rules<a class="anchor" aria-label="anchor" href="#id_7-ai-assisted-development-rules"></a></h2>
+<p>AI contributors are useful for implementation speed, but they have a natural tendency to add wrappers, exceptions, and duplicate helpers. To prevent architectural drift:</p>
+<ul><li>Do not ask AI only to “make it work”; ask it to preserve invariants and minimize new surface area.</li>
+<li>Prefer AI changes that simplify existing logic over changes that add compatibility layers.</li>
+<li>Require AI to explain whether a change introduces a new concept, a new API, or only an internal consolidation.</li>
+<li>If AI proposes a new helper, review whether an existing helper should be replaced.</li>
+<li>If AI proposes silent fallback behavior, review whether fail-fast is scientifically safer.</li>
+</ul></div>
+<div class="section level2">
+<h2 id="id_8-refactoring-triggers">8. Refactoring Triggers<a class="anchor" aria-label="anchor" href="#id_8-refactoring-triggers"></a></h2>
+<p>Schedule refactoring when one or more of the following happens:</p>
+<ul><li>The same bug pattern appears in multiple functions.</li>
+<li>A new feature requires touching many unrelated files.</li>
+<li>A single file begins to mix validation, orchestration, computation, and printing.</li>
+<li>New contributors cannot easily tell which helper they should call.</li>
+<li>You feel reluctant to modify a function because breakage risk is unclear.</li>
+</ul><p>Refactoring should be treated as routine maintenance, not as an admission of failure.</p>
+</div>
+<div class="section level2">
+<h2 id="id_9-lightweight-review-checklist-for-each-pr-or-commit">9. Lightweight Review Checklist for Each PR or Commit<a class="anchor" aria-label="anchor" href="#id_9-lightweight-review-checklist-for-each-pr-or-commit"></a></h2>
+<p>Before merging, ask:</p>
+<ol style="list-style-type: decimal"><li>Did this change add any new exported API? If yes, was that really necessary?</li>
+<li>Did this change centralize logic, or duplicate it?</li>
+<li>Did this change preserve <code>tidyped</code> invariants?</li>
+<li>Did this change make scientific failure modes clearer?</li>
+<li>Did this change add or update regression tests?</li>
+<li>Could any old code now be deleted?</li>
+<li>Is the package simpler, or only more capable?</li>
+</ol><p>If capability increased but simplicity decreased, review again before merging.</p>
+</div>
 </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
