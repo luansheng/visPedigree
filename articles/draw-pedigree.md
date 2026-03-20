@@ -49,7 +49,7 @@ tidy_small_ped <-
   tidyped(ped = small_ped,
           cand = c("Y", "Z1", "Z2"))
 visped(tidy_small_ped, compact = TRUE, file = tempfile(fileext = ".pdf"))
-#> Pedigree saved to: /tmp/Rtmp83sTlm/file20d22d0059f4.pdf
+#> Pedigree saved to: /tmp/Rtmpr2WxQc/file2110d006870.pdf
 #> Label cex: 0.65. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 ```
 
@@ -210,7 +210,7 @@ visped(
   showgraph = TRUE,
   file = tempfile(fileext = ".pdf")
 )
-#> Pedigree saved to: /tmp/Rtmp83sTlm/file20d272cdf715.pdf
+#> Pedigree saved to: /tmp/Rtmpr2WxQc/file2110380d2531.pdf
 #> Label cex: 0.08. Symbol size: 5.5. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 ```
 
@@ -241,7 +241,7 @@ visped(
   showgraph = FALSE,
   file = tempfile(fileext = ".pdf")
 )
-#> Pedigree saved to: /tmp/Rtmp83sTlm/file20d268ab8130.pdf
+#> Pedigree saved to: /tmp/Rtmpr2WxQc/file211060db4fd8.pdf
 #> Label cex: 0.83. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 ```
 

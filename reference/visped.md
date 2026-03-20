@@ -242,6 +242,16 @@ visped(simple_ped_tidy_inbreed,
 #> Tip: Use 'file' to save as a legible vector PDF.
 #> Note: Inbreeding coefficients of 0 are not shown in the graph.
 
+# visped() will automatically compute inbreeding coefficients if 'f' is missing
+visped(simple_ped_tidy,
+       showf = TRUE,
+       cex=0.25,
+       symbolsize=5.5)
+#> Note: 'showf = TRUE' requested but 'f' column was missing. Calculated inbreeding coefficients automatically.
+#> Label cex: 0.25. Symbol size: 5.5. Adjust 'cex' and 'symbolsize' if labels are too large or small.
+#> Tip: Use 'file' to save as a legible vector PDF.
+#> Note: Inbreeding coefficients of 0 are not shown in the graph.
+
 # Adjusting page width and symbol size for better layout
 # Increase pagewidth to spread nodes horizontally in the pdf file
 # Increase symbolsize for more padding around individual labels
@@ -250,7 +260,7 @@ visped(simple_ped_tidy,
        symbolsize=5.5, 
        pagewidth = 100, 
        file = tempfile(fileext = ".pdf"))
-#> Pedigree saved to: /tmp/RtmpRp0om6/file1ccf6260dcd1.pdf
+#> Pedigree saved to: /tmp/Rtmp9gYtEF/file1cff29ef7e5e.pdf
 #> Label cex: 0.25. Symbol size: 5.5. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 
 
@@ -280,7 +290,7 @@ visped(big_ped_tidy,
        symbolsize=5.5, 
        file = tempfile(fileext = ".pdf"))
 #> Note: Removed 351 isolated individuals (no parents, no progeny) from the plot.
-#> Pedigree saved to: /tmp/RtmpRp0om6/file1ccf5f21c2b3.pdf
+#> Pedigree saved to: /tmp/Rtmp9gYtEF/file1cff59045131.pdf
 #> Label cex: 0.08. Symbol size: 5.5. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 
 
@@ -290,7 +300,7 @@ visped(big_ped_tidy,
        outline = TRUE, 
        file = tempfile(fileext = ".pdf"))
 #> Note: Removed 351 isolated individuals (no parents, no progeny) from the plot.
-#> Pedigree saved to: /tmp/RtmpRp0om6/file1ccf20f7a152.pdf
+#> Pedigree saved to: /tmp/Rtmp9gYtEF/file1cff1fd62edd.pdf
 
 # }
 ```

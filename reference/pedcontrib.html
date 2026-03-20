@@ -92,7 +92,13 @@ If NULL, uses all individuals in the most recent generation.</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A list with class <code>pedcontrib</code> containing:</p><ul><li><p><code>founders</code>: A <code>data.table</code> of founder contributions (if mode includes "founder", or "both").</p></li>
 <li><p><code>ancestors</code>: A <code>data.table</code> of ancestor contributions (if mode includes "ancestor", or "both").</p></li>
-<li><p><code>summary</code>: A <code>list</code> of summary statistics including the effective number of founders ($f_e$) and ancestors ($f_a$).</p></li>
+<li><p><code>summary</code>: A <code>list</code> of summary statistics including:</p><ul><li><p><code>f_e</code>: Classical effective number of founders (\(q=2\), Lacy 1989).</p></li>
+<li><p><code>f_e_H</code>: Information-theoretic effective number of founders
+        (\(q=1\), Shannon entropy): \(f_e^{(H)} = \exp(-\sum p_i \ln p_i)\).</p></li>
+<li><p><code>f_a</code>: Classical effective number of ancestors (\(q=2\), Boichard 1997).</p></li>
+<li><p><code>f_a_H</code>: Information-theoretic effective number of ancestors
+        (\(q=1\)): \(f_a^{(H)} = \exp(-\sum q_k \ln q_k)\).</p></li>
+</ul></li>
 </ul><p>Each contribution table contains:</p><ul><li><p><code>Ind</code>: Individual ID.</p></li>
 <li><p><code>Contrib</code>: Contribution to the reference population (0-1).</p></li>
 <li><p><code>CumContrib</code>: Cumulative contribution.</p></li>
@@ -128,14 +134,14 @@ Evolution, 29(1), 5-23.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Calculating founder contributions...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Calculating ancestor contributions (Boichard's iterative algorithm)...</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Print results including f_e and f_a</span></span></span>
+<span class="r-in"><span><span class="co"># Print results including f_e, f_e(H), f_a, and f_a(H)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">contrib</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Founder and Ancestor Contributions</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ===================================</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Reference population size: 4</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Founders: 9 (reported top 9)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Effective number of founders (f_e): 6.59</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   f_e(H) = 7.672  |  f_e = 6.585</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Top 10 Founder Contributions:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       Ind  Contrib CumContrib  Rank</span>
@@ -151,7 +157,7 @@ Evolution, 29(1), 5-23.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 9:      O 0.031250   1.000000     9</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Ancestors: 3 (reported top 3)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Effective number of ancestors (f_a): 2.67</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   f_a(H) = 2.828  |  f_a = 2.667</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Top 10 Ancestor Contributions:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       Ind Contrib CumContrib  Rank</span>
@@ -159,6 +165,20 @@ Evolution, 29(1), 5-23.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1:      X    0.50       0.50     1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2:      N    0.25       0.75     2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3:      Y    0.25       1.00     3</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Access Shannon-entropy effective numbers directly</span></span></span>
+<span class="r-in"><span><span class="va">contrib</span><span class="op">$</span><span class="va">summary</span><span class="op">$</span><span class="va">f_e_H</span>   <span class="co"># Information-theoretic effective founders (q=1)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 7.671504</span>
+<span class="r-in"><span><span class="va">contrib</span><span class="op">$</span><span class="va">summary</span><span class="op">$</span><span class="va">f_e</span>     <span class="co"># Classical effective founders (q=2)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 6.585209</span>
+<span class="r-in"><span><span class="va">contrib</span><span class="op">$</span><span class="va">summary</span><span class="op">$</span><span class="va">f_a_H</span>   <span class="co"># Information-theoretic effective ancestors (q=1)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2.828427</span>
+<span class="r-in"><span><span class="va">contrib</span><span class="op">$</span><span class="va">summary</span><span class="op">$</span><span class="va">f_a</span>     <span class="co"># Classical effective ancestors (q=2)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2.666667</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Diversity ratio rho &gt; 1 indicates long-tail founder value</span></span></span>
+<span class="r-in"><span><span class="va">contrib</span><span class="op">$</span><span class="va">summary</span><span class="op">$</span><span class="va">f_e_H</span> <span class="op">/</span> <span class="va">contrib</span><span class="op">$</span><span class="va">summary</span><span class="op">$</span><span class="va">f_e</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.16496</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

@@ -57,8 +57,10 @@ pediv(
 A list with class `pediv` containing:
 
 - `summary`: A single-row `data.table` with columns `NRef`, `NFounder`,
-  `fe`, `NAncestor`, `fa`, `fafe`, `fg`, `MeanCoan`, `NSampledCoan`,
-  `NeCoancestry`, `NeInbreeding`, `NeDemographic`.
+  `feH`, `fe`, `NAncestor`, `faH`, `fa`, `fafe`, `fg`, `MeanCoan`,
+  `NSampledCoan`, `NeCoancestry`, `NeInbreeding`, `NeDemographic`. Here
+  `feH` and `faH` are the Shannon-entropy (\\q=1\\) effective numbers of
+  founders and ancestors, respectively.
 
 - `founders`: A `data.table` of top founder contributions.
 
@@ -115,8 +117,8 @@ print(div)
 #> Reference population size : 4
 #> 
 #> -- Founder / Ancestor Contributions --
-#> Founders  (total) : 9    fe = 6.585
-#> Ancestors (total) : 3    fa = 2.667
+#> Founders  (total) : 9    fe(H) = 7.672    fe = 6.585
+#> Ancestors (total) : 3    fa(H) = 2.828    fa = 2.667
 #> fa/fe ratio       : 0.4049
 #> Founder genomes   : fg = 2.075  (MeanCoan = 0.240967, NSampled = 4)
 #> Hierarchy: fg <= fa <= fe <= NFounder  =  2.07 <= 2.667 <= 6.585 <= 9
@@ -141,5 +143,16 @@ print(div)
 #> 1:      X    0.50       0.50     1
 #> 2:      N    0.25       0.75     2
 #> 3:      Y    0.25       1.00     3
+
+# Access Shannon effective numbers from summary
+div$summary$feH   # Shannon effective founders (q=1)
+#> [1] 7.671504
+div$summary$faH   # Shannon effective ancestors (q=1)
+#> [1] 2.828427
+
+# Founder diversity profile: NFounder >= feH >= fe
+with(div$summary, c(NFounder = NFounder, feH = feH, fe = fe))
+#> NFounder      feH       fe 
+#> 9.000000 7.671504 6.585209 
 # }
 ```

@@ -360,12 +360,12 @@ reference population is defined as the most recent two generations in
 <span><span class="co">#&gt; Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.</span></span>
 <span></span>
 <span><span class="va">div_res</span><span class="op">$</span><span class="va">summary</span></span>
-<span><span class="co">#&gt;     NRef NFounder       fe NAncestor       fa     fafe       fg  MeanCoan</span></span>
-<span><span class="co">#&gt;    &lt;int&gt;    &lt;int&gt;    &lt;num&gt;     &lt;int&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;     &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:  3471      157 64.73344        94 44.12033 0.681569 19.17965 0.0260693</span></span>
-<span><span class="co">#&gt;    NSampledCoan NeCoancestry NeInbreeding NeDemographic</span></span>
-<span><span class="co">#&gt;           &lt;int&gt;        &lt;num&gt;        &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:         1000     124.5124     98.00425      374.2021</span></span>
+<span><span class="co">#&gt;     NRef NFounder     feH       fe NAncestor     faH       fa     fafe       fg</span></span>
+<span><span class="co">#&gt;    &lt;int&gt;    &lt;int&gt;   &lt;num&gt;    &lt;num&gt;     &lt;int&gt;   &lt;num&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:  3471      157 92.0943 64.73344        94 60.1444 44.12033 0.681569 19.17965</span></span>
+<span><span class="co">#&gt;     MeanCoan NSampledCoan NeCoancestry NeInbreeding NeDemographic</span></span>
+<span><span class="co">#&gt;        &lt;num&gt;        &lt;int&gt;        &lt;num&gt;        &lt;num&gt;         &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: 0.0260693         1000     124.5124     98.00425      374.2021</span></span>
 <span><span class="va">div_res</span><span class="op">$</span><span class="va">ancestors</span></span>
 <span><span class="co">#&gt;          Ind    Contrib CumContrib  Rank</span></span>
 <span><span class="co">#&gt;       &lt;char&gt;      &lt;num&gt;      &lt;num&gt; &lt;int&gt;</span></span>
@@ -450,6 +450,80 @@ drift</strong>. In practice, <code>fg</code> is often the most
 conservative diversity indicator.</p>
 </div>
 </div>
+<div class="section level3">
+<h3 id="shannon-entropy-effective-numbers-feh-and-fah">6.2 Shannon-entropy effective numbers: <code>feH</code> and
+<code>faH</code><a class="anchor" aria-label="anchor" href="#shannon-entropy-effective-numbers-feh-and-fah"></a>
+</h3>
+<p>The classical <code>fe</code> and <code>fa</code> are based on
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>∑</mo><msubsup><mi>p</mi><mi>i</mi><mn>2</mn></msubsup></mrow><annotation encoding="application/x-tex">\sum p_i^2</annotation></semantics></math>
+(Hill number order
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">q = 2</annotation></semantics></math>),
+which is disproportionately influenced by a few large contributions.
+<code>visPedigree</code> also reports the information-theoretic
+counterpart at order
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">q = 1</annotation></semantics></math>,
+derived from Shannon entropy:</p>
+<p><span class="math display">$$
+f_e^{(H)} = \exp\!\Bigl(-\sum_{i=1}^{f} p_i \ln p_i\Bigr), \qquad
+f_a^{(H)} = \exp\!\Bigl(-\sum_{j=1}^{a} q_j \ln q_j\Bigr)
+$$</span></p>
+<p>These are the exponentials of Shannon entropy, which give a diversity
+measure that counts all contributors — including rare ones — more
+equitably than the classical
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">q = 2</annotation></semantics></math>
+metric. They appear in the <code><a href="../reference/pediv.html">pediv()</a></code> summary as
+<code>feH</code> and <code>faH</code>, and in the
+<code><a href="../reference/pedcontrib.html">pedcontrib()</a></code> summary as <code>f_e_H</code> and
+<code>f_a_H</code>.</p>
+<p>The three diversity orders satisfy a monotone ordering:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>N</mi><mi>f</mi></msub><mo>≥</mo><msubsup><mi>f</mi><mi>e</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>H</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>≥</mo><msub><mi>f</mi><mi>e</mi></msub><mo>,</mo><mspace width="2.0em"></mspace><mi>K</mi><mo>≥</mo><msubsup><mi>f</mi><mi>a</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>H</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>≥</mo><msub><mi>f</mi><mi>a</mi></msub></mrow><annotation encoding="application/x-tex">
+N_f \ge f_e^{(H)} \ge f_e, \qquad K \ge f_a^{(H)} \ge f_a
+</annotation></semantics></math></p>
+<p>where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>N</mi><mi>f</mi></msub><annotation encoding="application/x-tex">N_f</annotation></semantics></math>
+is the total number of founders and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>
+is the number of ancestors considered. When
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>f</mi><mi>e</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>H</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mi>/</mi><msub><mi>f</mi><mi>e</mi></msub></mrow><annotation encoding="application/x-tex">f_e^{(H)} / f_e</annotation></semantics></math>
+is much larger than 1, many minor founders still carry genetic material
+into the reference population but are invisible to the classical
+metric.</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Shannon metrics are included in pediv() output</span></span>
+<span><span class="va">div_res</span><span class="op">$</span><span class="va">summary</span><span class="op">[</span>, <span class="fu">.</span><span class="op">(</span><span class="va">NFounder</span>, <span class="va">feH</span>, <span class="va">fe</span>, <span class="va">NAncestor</span>, <span class="va">faH</span>, <span class="va">fa</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">#&gt;    NFounder     feH       fe NAncestor     faH       fa</span></span>
+<span><span class="co">#&gt;       &lt;int&gt;   &lt;num&gt;    &lt;num&gt;     &lt;int&gt;   &lt;num&gt;    &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:      157 92.0943 64.73344        94 60.1444 44.12033</span></span>
+<span></span>
+<span><span class="co"># The ratio feH/fe reveals long-tail founder diversity</span></span>
+<span><span class="va">div_res</span><span class="op">$</span><span class="va">summary</span><span class="op">[</span>, <span class="fu">.</span><span class="op">(</span>rho_founder <span class="op">=</span> <span class="va">feH</span> <span class="op">/</span> <span class="va">fe</span>, rho_ancestor <span class="op">=</span> <span class="va">faH</span> <span class="op">/</span> <span class="va">fa</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">#&gt;    rho_founder rho_ancestor</span></span>
+<span><span class="co">#&gt;          &lt;num&gt;        &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:     1.42267      1.36319</span></span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># pedcontrib() provides the same metrics via its summary</span></span>
+<span><span class="va">contrib_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pedcontrib.html">pedcontrib</a></span><span class="op">(</span><span class="va">tp_deep</span>, reference <span class="op">=</span> <span class="va">ref_pop</span>, mode <span class="op">=</span> <span class="st">"both"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Calculating founder contributions...</span></span>
+<span><span class="co">#&gt; Calculating ancestor contributions (Boichard's iterative algorithm)...</span></span>
+<span><span class="va">contrib_res</span><span class="op">$</span><span class="va">summary</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"n_founder"</span>, <span class="st">"f_e_H"</span>, <span class="st">"f_e"</span>, <span class="st">"n_ancestor"</span>, <span class="st">"f_a_H"</span>, <span class="st">"f_a"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">#&gt; $n_founder</span></span>
+<span><span class="co">#&gt; [1] 157</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $f_e_H</span></span>
+<span><span class="co">#&gt; [1] 92.0943</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $f_e</span></span>
+<span><span class="co">#&gt; [1] 64.73344</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $n_ancestor</span></span>
+<span><span class="co">#&gt; [1] 94</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $f_a_H</span></span>
+<span><span class="co">#&gt; [1] 60.1444</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $f_a</span></span>
+<span><span class="co">#&gt; [1] 44.12033</span></span></code></pre></div>
+</div>
 </div>
 <div class="section level2">
 <h2 id="effective-population-size-with-pedne-and-pediv">7. Effective Population Size with <code>pedne()</code> and
@@ -515,7 +589,7 @@ A higher <code>MeanRel</code> means that individuals within the group
 are, on average, more related by descent.</p>
 <p>This summary is useful for tracking relatedness by generation or
 year.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tp_small</span><span class="op">$</span><span class="va">BirthYear</span> <span class="op">&lt;-</span> <span class="fl">2010</span> <span class="op">+</span> <span class="va">tp_small</span><span class="op">$</span><span class="va">Gen</span></span>
 <span></span>
 <span><span class="va">rel_by_gen</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pedrel.html">pedrel</a></span><span class="op">(</span><span class="va">tp_small</span>, by <span class="op">=</span> <span class="st">"Gen"</span><span class="op">)</span></span>
@@ -540,7 +614,7 @@ year.</p>
 <span><span class="co">#&gt; 6:     6      2     2 0.5507812</span></span></code></pre></div>
 <p>The <code>reference</code> argument lets you focus on a subset of
 interest inside each group, such as candidate breeders.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ref_ids</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Z1"</span>, <span class="st">"Z2"</span>, <span class="st">"X"</span>, <span class="st">"Y"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/pedrel.html">pedrel</a></span><span class="op">(</span><span class="va">tp_small</span>, by <span class="op">=</span> <span class="st">"Gen"</span>, reference <span class="op">=</span> <span class="va">ref_ids</span><span class="op">)</span></span>
@@ -585,7 +659,7 @@ increase</em> in coancestry across pedigree depth.</p>
 is the probability that the two alleles of an individual are identical
 by descent. A practical starting point is to inspect the mean trend by
 generation.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tp_inbred_f</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/inbreed.html">inbreed</a></span><span class="op">(</span><span class="va">tp_inbred</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">f_trend</span> <span class="op">&lt;-</span> <span class="va">tp_inbred_f</span><span class="op">[</span>, <span class="fu">.</span><span class="op">(</span>MeanF <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">f</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>, by <span class="op">=</span> <span class="va">Gen</span><span class="op">]</span></span>
@@ -600,7 +674,7 @@ generation.</p>
 <p>For classification by inbreeding severity, <code><a href="../reference/pedfclass.html">pedfclass()</a></code>
 can be applied directly to the pedigree object. If the inbreeding
 coefficient is not yet present, the function computes it internally.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/pedfclass.html">pedfclass</a></span><span class="op">(</span><span class="va">tp_inbred</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Calculating inbreeding coefficients...</span></span>
 <span><span class="co">#&gt; Key: &lt;FClass&gt;</span></span>
@@ -613,7 +687,7 @@ coefficient is not yet present, the function computes it internally.</p>
 <span><span class="co">#&gt; 5:            F &gt; 0.25     1   14.28571</span></span></code></pre></div>
 <p>Custom reporting thresholds can be supplied through
 <code>breaks</code>.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/pedfclass.html">pedfclass</a></span><span class="op">(</span><span class="va">tp_inbred</span>, breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.03125</span>, <span class="fl">0.0625</span>, <span class="fl">0.125</span>, <span class="fl">0.25</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Calculating inbreeding coefficients...</span></span>
 <span><span class="co">#&gt; Key: &lt;FClass&gt;</span></span>
@@ -648,7 +722,7 @@ full-sib or parent-offspring mating.</li>
 <p><code><a href="../reference/pedancestry.html">pedancestry()</a></code> tracks how founder groups contribute to
 later descendants. This is useful when founders are labeled by line,
 strain, or geographic origin.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ped_line</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a></span><span class="op">(</span></span>
 <span>  Ind <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span>, <span class="st">"D"</span>, <span class="st">"E"</span>, <span class="st">"F"</span>, <span class="st">"G"</span><span class="op">)</span>,</span>
 <span>  Sire <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span>, <span class="cn">NA</span>, <span class="cn">NA</span>, <span class="st">"A"</span>, <span class="st">"C"</span>, <span class="st">"E"</span><span class="op">)</span>,</span>
@@ -678,7 +752,7 @@ inbreeding?<a class="anchor" aria-label="anchor" href="#pedpartial-which-ancesto
 <p><code><a href="../reference/pedpartial.html">pedpartial()</a></code> decomposes total inbreeding into
 contributions from selected ancestors. It is useful for identifying
 which ancestors are most responsible for the observed inbreeding.</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">partial_f</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pedpartial.html">pedpartial</a></span><span class="op">(</span><span class="va">tp_inbred</span>, ancestors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Calculating partial inbreeding for 2 ancestors...</span></span>
 <span><span class="va">partial_f</span></span>
@@ -702,7 +776,8 @@ which ancestors are most responsible for the observed inbreeding.</p>
 <code><a href="../reference/pedecg.html">pedecg()</a></code>.</li>
 <li>Check generation timing with <code><a href="../reference/pedgenint.html">pedgenint()</a></code>.</li>
 <li>Quantify diversity loss with <code>fe</code>, <code>fa</code>, and
-<code>fg</code>.</li>
+<code>fg</code>; compare with <code>feH</code> and <code>faH</code> to
+assess long-tail founder value.</li>
 <li>Compare demographic, inbreeding, and coancestry-based
 <code>Ne</code>.</li>
 <li>Monitor <code>MeanRel</code> and <code>MeanF</code> over time.</li>
@@ -728,10 +803,14 @@ Genetics</em>, 128(1), 56-63.</li>
 <li>Gutiérrez, J. P., Cervantes, I., Molina, A., Valera, M., &amp;
 Goyache, F. (2008). Individual increase in inbreeding allows estimating
 effective sizes from pedigrees. <em>Genetics Selection Evolution</em>,
-40(4), 359-370.</li>
+40(4), 359-378.</li>
 <li>Gutiérrez, J. P., Cervantes, I., &amp; Goyache, F. (2009). Improving
 the estimation of realized effective population sizes in farm animals.
 <em>Journal of Animal Breeding and Genetics</em>, 126(4), 327-332.</li>
+<li>Hill, M. O. (1973). Diversity and evenness: a unifying notation and
+its consequences. <em>Ecology</em>, 54(2), 427-432.</li>
+<li>Jost, L. (2006). Entropy and diversity. <em>Oikos</em>, 113(2),
+363-375.</li>
 <li>Lacy, R. C. (1989). Analysis of founder representation in pedigrees:
 founder equivalents and founder genome equivalents. <em>Zoo
 Biology</em>, 8(2), 111-123.</li>

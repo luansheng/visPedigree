@@ -185,7 +185,7 @@ All exported analysis functions should mentally fall into one of these
 groups:
 
 1.  **Complete-pedigree required** — guarded by
-    `ensure_complete_tidyped()`.  
+    [`ensure_complete_tidyped()`](https://luansheng.github.io/visPedigree/reference/ensure_complete_tidyped.md).  
     Examples:
     [`inbreed()`](https://luansheng.github.io/visPedigree/reference/inbreed.md),
     [`pedecg()`](https://luansheng.github.io/visPedigree/reference/pedecg.md),
@@ -206,8 +206,9 @@ groups:
 
 3.  **Post-computation summaries on existing results** — guarded by
     [`ensure_tidyped()`](https://luansheng.github.io/visPedigree/reference/ensure_tidyped.md),
-    with conditional escalation to `ensure_complete_tidyped()` only when
-    new pedigree recursion is needed.  
+    with conditional escalation to
+    [`ensure_complete_tidyped()`](https://luansheng.github.io/visPedigree/reference/ensure_complete_tidyped.md)
+    only when new pedigree recursion is needed.  
     Examples:
     [`pedfclass()`](https://luansheng.github.io/visPedigree/reference/pedfclass.md)
     (Class 2 when `f` column already exists; Class 1 when it must

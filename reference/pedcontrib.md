@@ -53,8 +53,18 @@ A list with class `pedcontrib` containing:
 - `ancestors`: A `data.table` of ancestor contributions (if mode
   includes "ancestor", or "both").
 
-- `summary`: A `list` of summary statistics including the effective
-  number of founders (\$f_e\$) and ancestors (\$f_a\$).
+- `summary`: A `list` of summary statistics including:
+
+  - `f_e`: Classical effective number of founders (\\q=2\\, Lacy 1989).
+
+  - `f_e_H`: Information-theoretic effective number of founders
+    (\\q=1\\, Shannon entropy): \\f_e^{(H)} = \exp(-\sum p_i \ln p_i)\\.
+
+  - `f_a`: Classical effective number of ancestors (\\q=2\\, Boichard
+    1997).
+
+  - `f_a_H`: Information-theoretic effective number of ancestors
+    (\\q=1\\): \\f_a^{(H)} = \exp(-\sum q_k \ln q_k)\\.
 
 Each contribution table contains:
 
@@ -103,14 +113,14 @@ contrib <- pedcontrib(tp, reference = ref_ids, mode = "both")
 #> Calculating founder contributions...
 #> Calculating ancestor contributions (Boichard's iterative algorithm)...
 
-# Print results including f_e and f_a
+# Print results including f_e, f_e(H), f_a, and f_a(H)
 print(contrib)
 #> Founder and Ancestor Contributions
 #> ===================================
 #> Reference population size: 4
 #> 
 #> Founders: 9 (reported top 9)
-#> Effective number of founders (f_e): 6.59
+#>   f_e(H) = 7.672  |  f_e = 6.585
 #> 
 #> Top 10 Founder Contributions:
 #>       Ind  Contrib CumContrib  Rank
@@ -126,7 +136,7 @@ print(contrib)
 #> 9:      O 0.031250   1.000000     9
 #> 
 #> Ancestors: 3 (reported top 3)
-#> Effective number of ancestors (f_a): 2.67
+#>   f_a(H) = 2.828  |  f_a = 2.667
 #> 
 #> Top 10 Ancestor Contributions:
 #>       Ind Contrib CumContrib  Rank
@@ -134,5 +144,19 @@ print(contrib)
 #> 1:      X    0.50       0.50     1
 #> 2:      N    0.25       0.75     2
 #> 3:      Y    0.25       1.00     3
+
+# Access Shannon-entropy effective numbers directly
+contrib$summary$f_e_H   # Information-theoretic effective founders (q=1)
+#> [1] 7.671504
+contrib$summary$f_e     # Classical effective founders (q=2)
+#> [1] 6.585209
+contrib$summary$f_a_H   # Information-theoretic effective ancestors (q=1)
+#> [1] 2.828427
+contrib$summary$f_a     # Classical effective ancestors (q=2)
+#> [1] 2.666667
+
+# Diversity ratio rho > 1 indicates long-tail founder value
+contrib$summary$f_e_H / contrib$summary$f_e
+#> [1] 1.16496
 # }
 ```

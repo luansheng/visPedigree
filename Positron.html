@@ -190,11 +190,11 @@
 <div class="section level3">
 <h3 id="id_42-function-classes-by-structural-requirement">4.2 Function Classes by Structural Requirement<a class="anchor" aria-label="anchor" href="#id_42-function-classes-by-structural-requirement"></a></h3>
 <p>All exported analysis functions should mentally fall into one of these groups:</p>
-<ol style="list-style-type: decimal"><li><p><strong>Complete-pedigree required</strong> — guarded by <code>ensure_complete_tidyped()</code>.<br>
+<ol style="list-style-type: decimal"><li><p><strong>Complete-pedigree required</strong> — guarded by <code><a href="reference/ensure_complete_tidyped.html">ensure_complete_tidyped()</a></code>.<br>
 Examples: <code><a href="reference/inbreed.html">inbreed()</a></code>, <code><a href="reference/pedecg.html">pedecg()</a></code>, <code><a href="reference/pedrel.html">pedrel()</a></code>, <code><a href="reference/pedgenint.html">pedgenint()</a></code>, <code><a href="reference/pedcontrib.html">pedcontrib()</a></code>, <code><a href="reference/pedancestry.html">pedancestry()</a></code>, <code><a href="reference/pedpartial.html">pedpartial()</a></code>, <code><a href="reference/pediv.html">pediv()</a></code>, <code><a href="reference/pedmat.html">pedmat()</a></code>.</p></li>
 <li><p><strong>Structure-light summaries</strong> — guarded by <code><a href="reference/ensure_tidyped.html">ensure_tidyped()</a></code>.<br>
 Examples: <code><a href="reference/pedsubpop.html">pedsubpop()</a></code>, <code><a href="reference/splitped.html">splitped()</a></code>, <code>pedne(method="demographic")</code>.</p></li>
-<li><p><strong>Post-computation summaries on existing results</strong> — guarded by <code><a href="reference/ensure_tidyped.html">ensure_tidyped()</a></code>, with conditional escalation to <code>ensure_complete_tidyped()</code> only when new pedigree recursion is needed.<br>
+<li><p><strong>Post-computation summaries on existing results</strong> — guarded by <code><a href="reference/ensure_tidyped.html">ensure_tidyped()</a></code>, with conditional escalation to <code><a href="reference/ensure_complete_tidyped.html">ensure_complete_tidyped()</a></code> only when new pedigree recursion is needed.<br>
 Examples: <code><a href="reference/pedfclass.html">pedfclass()</a></code> (Class 2 when <code>f</code> column already exists; Class 1 when it must compute <code>f</code>).</p></li>
 <li><p><strong>Conditional — parameter-dependent</strong> — guard level depends on which code path the user selects.<br>
 Examples: <code>pedstats(ecg=TRUE)</code> requires Class 1; <code>pedstats(ecg=FALSE, genint=FALSE)</code> only needs Class 2. <code>pedne(method="coancestry")</code> requires Class 1; <code>pedne(method="demographic")</code> only needs Class 2.</p></li>

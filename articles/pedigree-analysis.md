@@ -275,12 +275,12 @@ div_res <- pediv(tp_deep, reference = ref_pop, top = 10, seed = 42L)
 #> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
 
 div_res$summary
-#>     NRef NFounder       fe NAncestor       fa     fafe       fg  MeanCoan
-#>    <int>    <int>    <num>     <int>    <num>    <num>    <num>     <num>
-#> 1:  3471      157 64.73344        94 44.12033 0.681569 19.17965 0.0260693
-#>    NSampledCoan NeCoancestry NeInbreeding NeDemographic
-#>           <int>        <num>        <num>         <num>
-#> 1:         1000     124.5124     98.00425      374.2021
+#>     NRef NFounder     feH       fe NAncestor     faH       fa     fafe       fg
+#>    <int>    <int>   <num>    <num>     <int>   <num>    <num>    <num>    <num>
+#> 1:  3471      157 92.0943 64.73344        94 60.1444 44.12033 0.681569 19.17965
+#>     MeanCoan NSampledCoan NeCoancestry NeInbreeding NeDemographic
+#>        <num>        <int>        <num>        <num>         <num>
+#> 1: 0.0260693         1000     124.5124     98.00425      374.2021
 div_res$ancestors
 #>          Ind    Contrib CumContrib  Rank
 #>       <char>      <num>      <num> <int>
@@ -344,6 +344,72 @@ and ${\bar{F}}_{s}$ is their mean inbreeding coefficient.
 Use `fg` when the main concern is **the amount of founder genome still
 surviving after unequal use, bottlenecks, and drift**. In practice, `fg`
 is often the most conservative diversity indicator.
+
+### 6.2 Shannon-entropy effective numbers: `feH` and `faH`
+
+The classical `fe` and `fa` are based on $\sum p_{i}^{2}$ (Hill number
+order $q = 2$), which is disproportionately influenced by a few large
+contributions. `visPedigree` also reports the information-theoretic
+counterpart at order $q = 1$, derived from Shannon entropy:
+
+\$\$ f_e^{(H)} = \exp\\\Bigl(-\sum\_{i=1}^{f} p_i \ln p_i\Bigr), \qquad
+f_a^{(H)} = \exp\\\Bigl(-\sum\_{j=1}^{a} q_j \ln q_j\Bigr) \$\$
+
+These are the exponentials of Shannon entropy, which give a diversity
+measure that counts all contributors — including rare ones — more
+equitably than the classical $q = 2$ metric. They appear in the
+[`pediv()`](https://luansheng.github.io/visPedigree/reference/pediv.md)
+summary as `feH` and `faH`, and in the
+[`pedcontrib()`](https://luansheng.github.io/visPedigree/reference/pedcontrib.md)
+summary as `f_e_H` and `f_a_H`.
+
+The three diversity orders satisfy a monotone ordering:
+
+$$N_{f} \geq f_{e}^{(H)} \geq f_{e},\qquad K \geq f_{a}^{(H)} \geq f_{a}$$
+
+where $N_{f}$ is the total number of founders and $K$ is the number of
+ancestors considered. When $f_{e}^{(H)}/f_{e}$ is much larger than 1,
+many minor founders still carry genetic material into the reference
+population but are invisible to the classical metric.
+
+``` r
+# Shannon metrics are included in pediv() output
+div_res$summary[, .(NFounder, feH, fe, NAncestor, faH, fa)]
+#>    NFounder     feH       fe NAncestor     faH       fa
+#>       <int>   <num>    <num>     <int>   <num>    <num>
+#> 1:      157 92.0943 64.73344        94 60.1444 44.12033
+
+# The ratio feH/fe reveals long-tail founder diversity
+div_res$summary[, .(rho_founder = feH / fe, rho_ancestor = faH / fa)]
+#>    rho_founder rho_ancestor
+#>          <num>        <num>
+#> 1:     1.42267      1.36319
+```
+
+``` r
+# pedcontrib() provides the same metrics via its summary
+contrib_res <- pedcontrib(tp_deep, reference = ref_pop, mode = "both")
+#> Calculating founder contributions...
+#> Calculating ancestor contributions (Boichard's iterative algorithm)...
+contrib_res$summary[c("n_founder", "f_e_H", "f_e", "n_ancestor", "f_a_H", "f_a")]
+#> $n_founder
+#> [1] 157
+#> 
+#> $f_e_H
+#> [1] 92.0943
+#> 
+#> $f_e
+#> [1] 64.73344
+#> 
+#> $n_ancestor
+#> [1] 94
+#> 
+#> $f_a_H
+#> [1] 60.1444
+#> 
+#> $f_a
+#> [1] 44.12033
+```
 
 ## 7. Effective Population Size with `pedne()` and `pediv()`
 
@@ -582,7 +648,8 @@ One useful interpretation order is:
     [`pedecg()`](https://luansheng.github.io/visPedigree/reference/pedecg.md).
 2.  Check generation timing with
     [`pedgenint()`](https://luansheng.github.io/visPedigree/reference/pedgenint.md).
-3.  Quantify diversity loss with `fe`, `fa`, and `fg`.
+3.  Quantify diversity loss with `fe`, `fa`, and `fg`; compare with
+    `feH` and `faH` to assess long-tail founder value.
 4.  Compare demographic, inbreeding, and coancestry-based `Ne`.
 5.  Monitor `MeanRel` and `MeanF` over time.
 6.  Use
@@ -606,10 +673,13 @@ One useful interpretation order is:
   Genetics*, 128(1), 56-63.
 - Gutiérrez, J. P., Cervantes, I., Molina, A., Valera, M., & Goyache, F.
   (2008). Individual increase in inbreeding allows estimating effective
-  sizes from pedigrees. *Genetics Selection Evolution*, 40(4), 359-370.
+  sizes from pedigrees. *Genetics Selection Evolution*, 40(4), 359-378.
 - Gutiérrez, J. P., Cervantes, I., & Goyache, F. (2009). Improving the
   estimation of realized effective population sizes in farm animals.
   *Journal of Animal Breeding and Genetics*, 126(4), 327-332.
+- Hill, M. O. (1973). Diversity and evenness: a unifying notation and
+  its consequences. *Ecology*, 54(2), 427-432.
+- Jost, L. (2006). Entropy and diversity. *Oikos*, 113(2), 363-375.
 - Lacy, R. C. (1989). Analysis of founder representation in pedigrees:
   founder equivalents and founder genome equivalents. *Zoo Biology*,
   8(2), 111-123.

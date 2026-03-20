@@ -20,6 +20,7 @@
 <url><loc>https://luansheng.github.io/visPedigree/reference/compact_pedigree.html</loc></url>
 <url><loc>https://luansheng.github.io/visPedigree/reference/complex_ped.html</loc></url>
 <url><loc>https://luansheng.github.io/visPedigree/reference/deep_ped.html</loc></url>
+<url><loc>https://luansheng.github.io/visPedigree/reference/ensure_complete_tidyped.html</loc></url>
 <url><loc>https://luansheng.github.io/visPedigree/reference/ensure_tidyped.html</loc></url>
 <url><loc>https://luansheng.github.io/visPedigree/reference/expand_pedmat.html</loc></url>
 <url><loc>https://luansheng.github.io/visPedigree/reference/fade_cols.html</loc></url>
@@ -33,6 +34,7 @@
 <url><loc>https://luansheng.github.io/visPedigree/reference/inbreed.html</loc></url>
 <url><loc>https://luansheng.github.io/visPedigree/reference/index.html</loc></url>
 <url><loc>https://luansheng.github.io/visPedigree/reference/inject_missing_parents.html</loc></url>
+<url><loc>https://luansheng.github.io/visPedigree/reference/is_complete_pedigree.html</loc></url>
 <url><loc>https://luansheng.github.io/visPedigree/reference/is_tidyped.html</loc></url>
 <url><loc>https://luansheng.github.io/visPedigree/reference/loop_ped.html</loc></url>
 <url><loc>https://luansheng.github.io/visPedigree/reference/new_tidyped.html</loc></url>
@@ -61,6 +63,7 @@
 <url><loc>https://luansheng.github.io/visPedigree/reference/print.tidyped.html</loc></url>
 <url><loc>https://luansheng.github.io/visPedigree/reference/query_relationship.html</loc></url>
 <url><loc>https://luansheng.github.io/visPedigree/reference/repeloverlap.html</loc></url>
+<url><loc>https://luansheng.github.io/visPedigree/reference/require_complete_pedigree.html</loc></url>
 <url><loc>https://luansheng.github.io/visPedigree/reference/simple_ped.html</loc></url>
 <url><loc>https://luansheng.github.io/visPedigree/reference/small_ped.html</loc></url>
 <url><loc>https://luansheng.github.io/visPedigree/reference/splitped.html</loc></url>

@@ -96,9 +96,12 @@ Default is <code>NULL</code> (no fixed seed).</p></dd>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A list with class <code>pediv</code> containing:</p><ul><li><p><code>summary</code>: A single-row <code>data.table</code> with columns
-    <code>NRef</code>, <code>NFounder</code>, <code>fe</code>, <code>NAncestor</code>, <code>fa</code>,
-    <code>fafe</code>, <code>fg</code>, <code>MeanCoan</code>, <code>NSampledCoan</code>,
-    <code>NeCoancestry</code>, <code>NeInbreeding</code>, <code>NeDemographic</code>.</p></li>
+    <code>NRef</code>, <code>NFounder</code>, <code>feH</code>, <code>fe</code>, <code>NAncestor</code>,
+    <code>faH</code>, <code>fa</code>, <code>fafe</code>, <code>fg</code>, <code>MeanCoan</code>,
+    <code>NSampledCoan</code>, <code>NeCoancestry</code>, <code>NeInbreeding</code>,
+    <code>NeDemographic</code>.
+    Here <code>feH</code> and <code>faH</code> are the Shannon-entropy (\(q=1\))
+    effective numbers of founders and ancestors, respectively.</p></li>
 <li><p><code>founders</code>: A <code>data.table</code> of top founder contributions.</p></li>
 <li><p><code>ancestors</code>: A <code>data.table</code> of top ancestor contributions.</p></li>
 </ul></div>
@@ -148,8 +151,8 @@ is their mean inbreeding coefficient.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Reference population size : 4</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> -- Founder / Ancestor Contributions --</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Founders  (total) : 9    fe = 6.585</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Ancestors (total) : 3    fa = 2.667</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Founders  (total) : 9    fe(H) = 7.672    fe = 6.585</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Ancestors (total) : 3    fa(H) = 2.828    fa = 2.667</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> fa/fe ratio       : 0.4049</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Founder genomes   : fg = 2.075  (MeanCoan = 0.240967, NSampled = 4)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Hierarchy: fg &lt;= fa &lt;= fe &lt;= NFounder  =  2.07 &lt;= 2.667 &lt;= 6.585 &lt;= 9</span>
@@ -174,6 +177,17 @@ is their mean inbreeding coefficient.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1:      X    0.50       0.50     1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2:      N    0.25       0.75     2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3:      Y    0.25       1.00     3</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Access Shannon effective numbers from summary</span></span></span>
+<span class="r-in"><span><span class="va">div</span><span class="op">$</span><span class="va">summary</span><span class="op">$</span><span class="va">feH</span>   <span class="co"># Shannon effective founders (q=1)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 7.671504</span>
+<span class="r-in"><span><span class="va">div</span><span class="op">$</span><span class="va">summary</span><span class="op">$</span><span class="va">faH</span>   <span class="co"># Shannon effective ancestors (q=1)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2.828427</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Founder diversity profile: NFounder &gt;= feH &gt;= fe</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="va">div</span><span class="op">$</span><span class="va">summary</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>NFounder <span class="op">=</span> <span class="va">NFounder</span>, feH <span class="op">=</span> <span class="va">feH</span>, fe <span class="op">=</span> <span class="va">fe</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> NFounder      feH       fe </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9.000000 7.671504 6.585209 </span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
