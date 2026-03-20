@@ -1,5 +1,28 @@
 # Changelog
 
+## Changes in version 1.5.0 released on 20 Mar 2026
+
+### New features
+
+1.  **Shannon-entropy effective founders and ancestors (`feH`, `faH`)**:
+    [`pedcontrib()`](https://luansheng.github.io/visPedigree/reference/pedcontrib.md)
+    and
+    [`pediv()`](https://luansheng.github.io/visPedigree/reference/pediv.md)
+    now compute two additional diversity statistics based on the Hill
+    number of order $q = 1$ (Shannon entropy):
+    - `feH` — effective number of founders under equal entropy
+      weighting. Satisfies the inequality
+      $N_{Founder} \geq f_{e}^{H} \geq f_{e}$.
+    - `faH` — effective number of ancestors under equal entropy
+      weighting. Satisfies the inequality
+      $N_{Ancestor} \geq f_{a}^{H} \geq f_{a}$. Both are computed from
+      the vector of genetic contributions using the formula
+      $\exp\left( - \sum p_{i}\ln p_{i} \right)$ and complement the
+      classical quadratic ($q = 2$) effective numbers $f_{e}$ and
+      $f_{a}$ (Lacy 1989; Boichard et al. 1997). The new columns appear
+      in `pediv()$summary` and `pedcontrib()$summary` alongside the
+      existing `fe`, `fa`, and `fg` columns.
+
 ## Changes in version 1.4.1 released on 15 Mar 2026
 
 ### Bug fixes

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">visPedigree</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,6 +40,19 @@
       <small>Source: <a href="https://github.com/luansheng/visPedigree/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.5.0" id="changes-in-version-150-released-on-20-mar-2026">Changes in version 1.5.0 released on 20 Mar 2026<a class="anchor" aria-label="anchor" href="#changes-in-version-150-released-on-20-mar-2026"></a></h2>
+<div class="section level3">
+<h3 id="new-features-1-5-0">New features<a class="anchor" aria-label="anchor" href="#new-features-1-5-0"></a></h3>
+<ol style="list-style-type: decimal"><li>
+<strong>Shannon-entropy effective founders and ancestors (<code>feH</code>, <code>faH</code>)</strong>: <code><a href="../reference/pedcontrib.html">pedcontrib()</a></code> and <code><a href="../reference/pediv.html">pediv()</a></code> now compute two additional diversity statistics based on the Hill number of order <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">q=1</annotation></semantics></math> (Shannon entropy):
+<ul><li>
+<code>feH</code> — effective number of founders under equal entropy weighting. Satisfies the inequality <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>N</mi><mrow><mi mathvariant="normal">F</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">u</mi><mi mathvariant="normal">n</mi><mi mathvariant="normal">d</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">r</mi></mrow></msub><mo>≥</mo><msubsup><mi>f</mi><mi>e</mi><mi>H</mi></msubsup><mo>≥</mo><msub><mi>f</mi><mi>e</mi></msub></mrow><annotation encoding="application/x-tex">N_{\mathrm{Founder}} \ge f_e^H \ge f_e</annotation></semantics></math>.</li>
+<li>
+<code>faH</code> — effective number of ancestors under equal entropy weighting. Satisfies the inequality <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>N</mi><mrow><mi mathvariant="normal">A</mi><mi mathvariant="normal">n</mi><mi mathvariant="normal">c</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">s</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">r</mi></mrow></msub><mo>≥</mo><msubsup><mi>f</mi><mi>a</mi><mi>H</mi></msubsup><mo>≥</mo><msub><mi>f</mi><mi>a</mi></msub></mrow><annotation encoding="application/x-tex">N_{\mathrm{Ancestor}} \ge f_a^H \ge f_a</annotation></semantics></math>. Both are computed from the vector of genetic contributions using the formula <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>exp</mo><mrow><mo stretchy="true" form="prefix">(</mo><mo>−</mo><mo>∑</mo><msub><mi>p</mi><mi>i</mi></msub><mo>ln</mo><msub><mi>p</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\exp(-\sum p_i \ln p_i)</annotation></semantics></math> and complement the classical quadratic (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">q=2</annotation></semantics></math>) effective numbers <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>f</mi><mi>e</mi></msub><annotation encoding="application/x-tex">f_e</annotation></semantics></math> and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>f</mi><mi>a</mi></msub><annotation encoding="application/x-tex">f_a</annotation></semantics></math> (Lacy 1989; Boichard et al. 1997). The new columns appear in <code>pediv()$summary</code> and <code>pedcontrib()$summary</code> alongside the existing <code>fe</code>, <code>fa</code>, and <code>fg</code> columns.</li>
+</ul></li>
+</ol></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.4.1" id="changes-in-version-141-released-on-15-mar-2026">Changes in version 1.4.1 released on 15 Mar 2026<a class="anchor" aria-label="anchor" href="#changes-in-version-141-released-on-15-mar-2026"></a></h2>
 <div class="section level3">
