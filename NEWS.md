@@ -1,3 +1,10 @@
+# Changes in version 1.5.0 released on 20 Mar 2026
+## New features
+1. **Shannon-entropy effective founders and ancestors (`feH`, `faH`)**: `pedcontrib()` and `pediv()` now compute two additional diversity statistics based on the Hill number of order $q=1$ (Shannon entropy):
+   - `feH` — effective number of founders under equal entropy weighting. Satisfies the inequality $N_{\mathrm{Founder}} \ge f_e^H \ge f_e$.
+   - `faH` — effective number of ancestors under equal entropy weighting. Satisfies the inequality $N_{\mathrm{Ancestor}} \ge f_a^H \ge f_a$.
+   Both are computed from the vector of genetic contributions using the formula $\exp(-\sum p_i \ln p_i)$ and complement the classical quadratic ($q=2$) effective numbers $f_e$ and $f_a$ (Lacy 1989; Boichard et al. 1997). The new columns appear in `pediv()$summary` and `pedcontrib()$summary` alongside the existing `fe`, `fa`, and `fg` columns.
+
 # Changes in version 1.4.1 released on 15 Mar 2026
 ## Bug fixes
 1. **Fail-fast incomplete pedigree analysis**: `inbreed()` and other completeness-sensitive analysis functions now error on row-truncated subsets with missing parent records. This prevents incorrect results (e.g., zero inbreeding) caused by calculating on partial ancestry data.
