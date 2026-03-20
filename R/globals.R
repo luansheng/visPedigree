@@ -114,4 +114,4 @@ if (getRversion() >= "2.15.1") {
 }
 
 utils::globalVariables(c('i.SireNum', 'i.DamNum', 'i.Sire', 'i.Dam', 'i.IsParent', 'sort_key', 'NCompressed', 'Family', 'grp', 'NewGen', 'Limit', 'CohortLabel', 'DeltaF_Ind', 'ECG', 'monoecious_nums', 'role',
-  '.orig_order_visped', 'Cohort', 'Contrib', 'Count', 'CumContrib', 'DeltaF', 'FClass', 'GenEquiv', 'Group', 'Interval', 'Mean', 'Ne', 'Pathway', 'Percentage', 'Rank', 'Time', 'child', 'child_label', 'family_id', 'from_label', 'i.label', 'rep_dam', 'rep_sire'))
+  '.orig_order_visped', 'Cohort', 'Contrib', 'Count', 'CumContrib', 'DeltaF', 'FClass', 'GenEquiv', 'Group', 'Interval', 'Mean', 'Ne', 'Pathway', 'Percentage', 'Rank', 'Time', 'child', 'child_label', 'family_id', 'from_label', 'i.label', 'rep_dam', 'rep_sire', 'Fe', 'Fa', 'Fg', 'LnFe', 'LnFa', 'LnFg', 'LnFaFe', 'LnFgFa', 'TimeStep', 'Value', 'Metric'))

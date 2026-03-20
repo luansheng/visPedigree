@@ -1,3 +1,7 @@
+# Changes in version 1.6.0 released on 20 Mar 2026
+## New features
+1. **Information-theoretic diversity half-life (`pedhalflife()`)**: New function that tracks $f_e$, $f_a$, and $f_g$ across time points and fits a log-linear decay model to quantify the rate of genetic diversity loss. The total loss rate $\lambda_{total}$ is decomposed into three additive components: foundation bottleneck ($\lambda_e$, unequal founder contributions), breeding bottleneck ($\lambda_b$, overuse of key ancestors), and genetic drift ($\lambda_d$, random sampling loss). The diversity half-life $T_{1/2} = \ln 2 / \lambda_{total}$ is reported in units of the `timevar` column (e.g., generations, years). S3 `print` and `plot` methods are provided. The `plot()` method supports both log-scale (`type = "log"`) and raw-scale (`type = "raw"`) views of the decay trajectory.
+
 # Changes in version 1.5.0 released on 20 Mar 2026
 ## New features
 1. **Shannon-entropy effective founders and ancestors (`feH`, `faH`)**: `pedcontrib()` and `pediv()` now compute two additional diversity statistics based on the Hill number of order $q=1$ (Shannon entropy):
