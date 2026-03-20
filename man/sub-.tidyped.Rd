@@ -9,7 +9,7 @@
 \arguments{
 \item{x}{A \code{tidyped} object.}
 
-\item{i, j, ...}{Arguments passed to the \code{data.table} \code{[} method.}
+\item{...}{Arguments passed to the \code{data.table} \code{[} method.}
 }
 \value{
 A \code{tidyped} object if the result is still a complete pedigree,

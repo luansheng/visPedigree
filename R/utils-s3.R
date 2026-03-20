@@ -153,7 +153,7 @@ ensure_tidyped <- function(ped) {
 
 #' Internal helper to ensure ped is a complete tidyped object
 #'
-#' Like \\code{ensure_tidyped()}, but also rejects row-truncated pedigree
+#' Like \code{ensure_tidyped()}, but also rejects row-truncated pedigree
 #' subsets whose referenced parents are no longer present.
 #'
 #' @param ped An object expected to be a complete tidyped pedigree.
@@ -354,7 +354,7 @@ validate_tidyped <- function(x) {
 #' \code{data.table}.
 #'
 #' @param x A \code{tidyped} object.
-#' @param i,j,... Arguments passed to the \code{data.table} \code{[} method.
+#' @param ... Arguments passed to the \code{data.table} \code{[} method.
 #' @return A \code{tidyped} object if the result is still a complete pedigree,
 #'   otherwise a plain \code{data.table}.
 #' @export

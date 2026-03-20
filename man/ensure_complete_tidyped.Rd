@@ -15,7 +15,7 @@ ensure_complete_tidyped(ped, fun)
 A valid, structurally complete tidyped object.
 }
 \description{
-Like \\code{ensure_tidyped()}, but also rejects row-truncated pedigree
+Like \code{ensure_tidyped()}, but also rejects row-truncated pedigree
 subsets whose referenced parents are no longer present.
 }
 \keyword{internal}
