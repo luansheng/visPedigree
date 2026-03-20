@@ -386,3 +386,65 @@ test_that("small_ped: f_a <= f_e", {
 
   expect_true(res$summary$f_a <= res$summary$f_e)
 })
+
+
+# ==========================================================================
+# Group 10: Shannon entropy effective numbers f_e(H) and f_a(H)
+# ==========================================================================
+
+test_that("Theory pedigree: f_e_H matches hand-derived value", {
+  tp <- make_theory_ped()
+  cand <- c("R1", "R2", "R3", "R4")
+  res <- suppressMessages(pedcontrib(tp, reference = cand, mode = "founder", top = 100))
+
+  p <- c(0.25, 0.25, 0.1875, 0.3125)
+  expected_fe_H <- exp(-sum(p * log(p)))
+  expect_equal(res$summary$f_e_H, expected_fe_H, tolerance = 1e-6)
+})
+
+test_that("Theory pedigree: f_e_H >= f_e (Hill monotonicity)", {
+  tp <- make_theory_ped()
+  cand <- c("R1", "R2", "R3", "R4")
+  res <- suppressMessages(pedcontrib(tp, reference = cand, mode = "founder", top = 100))
+
+  expect_true(res$summary$f_e_H >= res$summary$f_e)
+})
+
+test_that("Theory pedigree: f_a_H >= f_a", {
+  tp <- make_theory_ped()
+  cand <- c("R1", "R2", "R3", "R4")
+  res <- suppressMessages(pedcontrib(tp, reference = cand, mode = "both", top = 100))
+
+  expect_true(res$summary$f_a_H >= res$summary$f_a)
+})
+
+test_that("Uniform contributions: f_e_H == f_e == Nf", {
+  # Two founders each contributing exactly 0.5
+  tp <- make_founders_as_cand_ped()
+  res <- suppressMessages(pedcontrib(tp, reference = "C", mode = "founder", top = 100))
+
+  # Both parents contribute equally -> uniform
+  expect_equal(res$summary$f_e_H, res$summary$f_e, tolerance = 1e-6)
+  expect_equal(res$summary$f_e_H, res$summary$n_founder, tolerance = 1e-6)
+})
+
+test_that("small_ped: f_e_H >= f_e", {
+  tp <- make_small_ped()
+  cand <- c("Z1", "Z2", "Y", "X")
+  res <- suppressMessages(pedcontrib(tp, reference = cand, mode = "both", top = 100))
+
+  expect_true(res$summary$f_e_H >= res$summary$f_e)
+  expect_true(res$summary$f_a_H >= res$summary$f_a)
+})
+
+test_that("f_e_H is NA when no founders found", {
+  tp <- make_theory_ped()
+  cand <- c("R1", "R2", "R3", "R4")
+  res <- suppressMessages(pedcontrib(tp, reference = cand, mode = "ancestor", top = 100))
+
+  # When mode = "ancestor", founders is NULL, f_e_H should not exist
+
+  expect_null(res$summary$f_e_H)
+  # But f_a_H should exist
+  expect_true(!is.null(res$summary$f_a_H) && !is.na(res$summary$f_a_H))
+})

@@ -31,7 +31,15 @@ A list with class \code{pedcontrib} containing:
 \itemize{
   \item \code{founders}: A \code{data.table} of founder contributions (if mode includes "founder", or "both").
   \item \code{ancestors}: A \code{data.table} of ancestor contributions (if mode includes "ancestor", or "both").
-  \item \code{summary}: A \code{list} of summary statistics including the effective number of founders ($f_e$) and ancestors ($f_a$).
+  \item \code{summary}: A \code{list} of summary statistics including:
+    \itemize{
+      \item \code{f_e}: Classical effective number of founders (\eqn{q=2}, Lacy 1989).
+      \item \code{f_e_H}: Information-theoretic effective number of founders
+        (\eqn{q=1}, Shannon entropy): \eqn{f_e^{(H)} = \exp(-\sum p_i \ln p_i)}.
+      \item \code{f_a}: Classical effective number of ancestors (\eqn{q=2}, Boichard 1997).
+      \item \code{f_a_H}: Information-theoretic effective number of ancestors
+        (\eqn{q=1}): \eqn{f_a^{(H)} = \exp(-\sum q_k \ln q_k)}.
+    }
 }
 
 Each contribution table contains:
@@ -71,8 +79,17 @@ tp <- tidyped(small_ped)
 ref_ids <- c("Z1", "Z2", "X", "Y")
 contrib <- pedcontrib(tp, reference = ref_ids, mode = "both")
 
-# Print results including f_e and f_a
+# Print results including f_e, f_e(H), f_a, and f_a(H)
 print(contrib)
+
+# Access Shannon-entropy effective numbers directly
+contrib$summary$f_e_H   # Information-theoretic effective founders (q=1)
+contrib$summary$f_e     # Classical effective founders (q=2)
+contrib$summary$f_a_H   # Information-theoretic effective ancestors (q=1)
+contrib$summary$f_a     # Classical effective ancestors (q=2)
+
+# Diversity ratio rho > 1 indicates long-tail founder value
+contrib$summary$f_e_H / contrib$summary$f_e
 }
 
 }

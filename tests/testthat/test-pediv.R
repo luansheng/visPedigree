@@ -38,8 +38,8 @@ test_that("pediv summary is a single-row data.table with expected columns", {
   tp <- make_theory_ped()
   div <- suppressMessages(pediv(tp, reference = c("R1", "R2", "R3", "R4")))
 
-  expected_cols <- c("NRef", "NFounder", "fe",
-                     "NAncestor", "fa", "fafe",
+  expected_cols <- c("NRef", "NFounder", "feH", "fe",
+                     "NAncestor", "faH", "fa", "fafe",
                      "NeCoancestry", "NeInbreeding", "NeDemographic")
   expect_true(all(expected_cols %in% names(div$summary)))
   expect_equal(nrow(div$summary), 1L)
@@ -181,10 +181,29 @@ test_that("pediv rejects non-tidyped input", {
   expect_error(pediv(data.frame(a = 1)), "tidyped")
 })
 
+test_that("pediv feH matches pedcontrib f_e_H", {
+  tp  <- make_theory_ped()
+  ref <- c("R1", "R2", "R3", "R4")
+  div  <- suppressMessages(pediv(tp, reference = ref))
+  cont <- suppressMessages(pedcontrib(tp, reference = ref, mode = "both"))
+
+  expect_equal(div$summary$feH, cont$summary$f_e_H, tolerance = 1e-10)
+})
+
+test_that("pediv faH matches pedcontrib f_a_H", {
+  tp  <- make_theory_ped()
+  ref <- c("R1", "R2", "R3", "R4")
+  div  <- suppressMessages(pediv(tp, reference = ref))
+  cont <- suppressMessages(pedcontrib(tp, reference = ref, mode = "both"))
+
+  expect_equal(div$summary$faH, cont$summary$f_a_H, tolerance = 1e-10)
+})
+
 test_that("print.pediv runs without error", {
   tp  <- make_theory_ped()
   div <- suppressMessages(pediv(tp, reference = c("R1", "R2", "R3", "R4")))
   expect_output(print(div), "Genetic Diversity Summary")
-  expect_output(print(div), "fe")
+  expect_output(print(div), "fe\\(H\\)")
+  expect_output(print(div), "fa\\(H\\)")
   expect_output(print(div), "Ne")
 })

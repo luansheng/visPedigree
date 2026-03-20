@@ -249,6 +249,48 @@ Use `fg` when the main concern is **the amount of founder genome still surviving
 after unequal use, bottlenecks, and drift**. In practice, `fg` is often the
 most conservative diversity indicator.
 
+### 6.2 Shannon-entropy effective numbers: `feH` and `faH`
+
+The classical `fe` and `fa` are based on $\sum p_i^2$ (Hill number order
+$q = 2$), which is disproportionately influenced by a few large contributions.
+`visPedigree` also reports the information-theoretic counterpart at order
+$q = 1$, derived from Shannon entropy:
+
+$$
+f_e^{(H)} = \exp\!\Bigl(-\sum_{i=1}^{f} p_i \ln p_i\Bigr), \qquad
+f_a^{(H)} = \exp\!\Bigl(-\sum_{j=1}^{a} q_j \ln q_j\Bigr)
+$$
+
+These are the exponentials of Shannon entropy, which give a diversity measure
+that counts all contributors — including rare ones — more equitably than the
+classical $q = 2$ metric. They appear in the `pediv()` summary as `feH` and
+`faH`, and in the `pedcontrib()` summary as `f_e_H` and `f_a_H`.
+
+The three diversity orders satisfy a monotone ordering:
+
+$$
+N_f \ge f_e^{(H)} \ge f_e, \qquad K \ge f_a^{(H)} \ge f_a
+$$
+
+where $N_f$ is the total number of founders and $K$ is the number of ancestors
+considered. When $f_e^{(H)} / f_e$ is much larger than 1, many minor founders
+still carry genetic material into the reference population but are invisible to
+the classical metric.
+
+```{r pediv-shannon}
+# Shannon metrics are included in pediv() output
+div_res$summary[, .(NFounder, feH, fe, NAncestor, faH, fa)]
+
+# The ratio feH/fe reveals long-tail founder diversity
+div_res$summary[, .(rho_founder = feH / fe, rho_ancestor = faH / fa)]
+```
+
+```{r pedcontrib-shannon}
+# pedcontrib() provides the same metrics via its summary
+contrib_res <- pedcontrib(tp_deep, reference = ref_pop, mode = "both")
+contrib_res$summary[c("n_founder", "f_e_H", "f_e", "n_ancestor", "f_a_H", "f_a")]
+```
+
 ## 7. Effective Population Size with `pedne()` and `pediv()`
 
 `pediv()` reports three complementary effective population size definitions.
@@ -399,7 +441,8 @@ One useful interpretation order is:
 
 1. Check pedigree depth and completeness with `pedecg()`.
 2. Check generation timing with `pedgenint()`.
-3. Quantify diversity loss with `fe`, `fa`, and `fg`.
+3. Quantify diversity loss with `fe`, `fa`, and `fg`; compare with `feH` and
+   `faH` to assess long-tail founder value.
 4. Compare demographic, inbreeding, and coancestry-based `Ne`.
 5. Monitor `MeanRel` and `MeanF` over time.
 6. Use `pedsubpop()`, `pedancestry()`, and `pedpartial()` to diagnose structure,
@@ -410,8 +453,10 @@ One useful interpretation order is:
 - Boichard, D., Maignel, L., & Verrier, É. (1997). The value of using probabilities of gene origin to measure genetic variability in a population. *Genetics Selection Evolution*, 29(1), 5-23.
 - Caballero, A., & Toro, M. A. (2000). Interrelations between effective population size and other pedigree tools for the management of conserved populations. *Genetical Research*, 75(3), 331-343.
 - Cervantes, I., Goyache, F., Molina, A., Valera, M., & Gutiérrez, J. P. (2011). Estimation of effective population size from the rate of coancestry in pedigreed populations. *Journal of Animal Breeding and Genetics*, 128(1), 56-63.
-- Gutiérrez, J. P., Cervantes, I., Molina, A., Valera, M., & Goyache, F. (2008). Individual increase in inbreeding allows estimating effective sizes from pedigrees. *Genetics Selection Evolution*, 40(4), 359-370.
+- Gutiérrez, J. P., Cervantes, I., Molina, A., Valera, M., & Goyache, F. (2008). Individual increase in inbreeding allows estimating effective sizes from pedigrees. *Genetics Selection Evolution*, 40(4), 359-378.
 - Gutiérrez, J. P., Cervantes, I., & Goyache, F. (2009). Improving the estimation of realized effective population sizes in farm animals. *Journal of Animal Breeding and Genetics*, 126(4), 327-332.
+- Hill, M. O. (1973). Diversity and evenness: a unifying notation and its consequences. *Ecology*, 54(2), 427-432.
+- Jost, L. (2006). Entropy and diversity. *Oikos*, 113(2), 363-375.
 - Lacy, R. C. (1989). Analysis of founder representation in pedigrees: founder equivalents and founder genome equivalents. *Zoo Biology*, 8(2), 111-123.
 - Wright, S. (1922). Coefficients of inbreeding and relationship. *The American Naturalist*, 56(645), 330-338.
 - Wright, S. (1931). Evolution in Mendelian populations. *Genetics*, 16(2), 97-159.

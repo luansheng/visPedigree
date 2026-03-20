@@ -96,6 +96,12 @@ visped(simple_ped_tidy_inbreed,
        cex=0.25, 
        symbolsize=5.5)
 
+# visped() will automatically compute inbreeding coefficients if 'f' is missing
+visped(simple_ped_tidy,
+       showf = TRUE,
+       cex=0.25,
+       symbolsize=5.5)
+
 # Adjusting page width and symbol size for better layout
 # Increase pagewidth to spread nodes horizontally in the pdf file
 # Increase symbolsize for more padding around individual labels

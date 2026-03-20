@@ -1211,6 +1211,14 @@ fill_phantoms <- function(ped) {
   return(tidyped(ped_combined, addnum = TRUE))
 }
 
+# Internal: Shannon entropy -> effective number (q=1 Hill number)
+# p must be a probability vector (sums to 1); zeros are filtered out.
+calc_shannon_effective <- function(p) {
+  p <- p[p > 0]
+  if (length(p) == 0L) return(NA_real_)
+  exp(-sum(p * log(p)))
+}
+
 #' Calculate Founder and Ancestor Contributions
 #'
 #' Calculates genetic contributions from founders and influential ancestors.
@@ -1233,7 +1241,15 @@ fill_phantoms <- function(ped) {
 #' \itemize{
 #'   \item \code{founders}: A \code{data.table} of founder contributions (if mode includes "founder", or "both").
 #'   \item \code{ancestors}: A \code{data.table} of ancestor contributions (if mode includes "ancestor", or "both").
-#'   \item \code{summary}: A \code{list} of summary statistics including the effective number of founders ($f_e$) and ancestors ($f_a$).
+#'   \item \code{summary}: A \code{list} of summary statistics including:
+#'     \itemize{
+#'       \item \code{f_e}: Classical effective number of founders (\eqn{q=2}, Lacy 1989).
+#'       \item \code{f_e_H}: Information-theoretic effective number of founders
+#'         (\eqn{q=1}, Shannon entropy): \eqn{f_e^{(H)} = \exp(-\sum p_i \ln p_i)}.
+#'       \item \code{f_a}: Classical effective number of ancestors (\eqn{q=2}, Boichard 1997).
+#'       \item \code{f_a_H}: Information-theoretic effective number of ancestors
+#'         (\eqn{q=1}): \eqn{f_a^{(H)} = \exp(-\sum q_k \ln q_k)}.
+#'     }
 #' }
 #' 
 #' Each contribution table contains:
@@ -1262,13 +1278,22 @@ fill_phantoms <- function(ped) {
 #' library(data.table)
 #' # Load a sample pedigree
 #' tp <- tidyped(small_ped)
-#' 
+#'
 #' # Calculate both founder and ancestor contributions for reference population
 #' ref_ids <- c("Z1", "Z2", "X", "Y")
 #' contrib <- pedcontrib(tp, reference = ref_ids, mode = "both")
-#' 
-#' # Print results including f_e and f_a
+#'
+#' # Print results including f_e, f_e(H), f_a, and f_a(H)
 #' print(contrib)
+#'
+#' # Access Shannon-entropy effective numbers directly
+#' contrib$summary$f_e_H   # Information-theoretic effective founders (q=1)
+#' contrib$summary$f_e     # Classical effective founders (q=2)
+#' contrib$summary$f_a_H   # Information-theoretic effective ancestors (q=1)
+#' contrib$summary$f_a     # Classical effective ancestors (q=2)
+#'
+#' # Diversity ratio rho > 1 indicates long-tail founder value
+#' contrib$summary$f_e_H / contrib$summary$f_e
 #' }
 #'
 #' @references
@@ -1335,6 +1360,7 @@ pedcontrib <- function(ped, reference = NULL, mode = c("both", "founder", "ances
   
   # ---- Founder Contributions ----
   fe2_sum <- NA_real_
+  fe_H <- NA_real_
   n_founders_total <- 0L
   
   if (mode %in% c("founder", "both")) {
@@ -1358,6 +1384,7 @@ pedcontrib <- function(ped, reference = NULL, mode = c("both", "founder", "ances
       founder_dt[, Rank := seq_len(.N)]
       
       fe2_sum <- sum(founder_dt$Contrib^2, na.rm = TRUE)
+      fe_H <- calc_shannon_effective(founder_dt$Contrib)
       n_founders_total <- nrow(founder_dt)
       
       result$founders <- if (nrow(founder_dt) > top) founder_dt[1:top] else founder_dt
@@ -1366,6 +1393,7 @@ pedcontrib <- function(ped, reference = NULL, mode = c("both", "founder", "ances
   
   # ---- Ancestor Contributions ----
   fa2_sum <- NA_real_
+  fa_H <- NA_real_
   n_ancestors_total <- 0L
   
   if (mode %in% c("ancestor", "both")) {
@@ -1386,6 +1414,7 @@ pedcontrib <- function(ped, reference = NULL, mode = c("both", "founder", "ances
       ancestor_dt_full[, Rank := seq_len(.N)]
       
       fa2_sum <- sum(ancestor_dt_full$Contrib^2, na.rm = TRUE)
+      fa_H <- calc_shannon_effective(ancestor_dt_full$Contrib)
       n_ancestors_total <- nrow(ancestor_dt_full)
       
       result$ancestors <- if (nrow(ancestor_dt_full) > top) ancestor_dt_full[1:top] else ancestor_dt_full
@@ -1399,12 +1428,14 @@ pedcontrib <- function(ped, reference = NULL, mode = c("both", "founder", "ances
     summary_list$n_founder <- n_founders_total
     summary_list$n_founder_show <- nrow(result$founders)
     summary_list$f_e <- if (!is.na(fe2_sum) && fe2_sum > 0) 1 / fe2_sum else NA_real_
+    summary_list$f_e_H <- fe_H
   }
   
   if (!is.null(result$ancestors)) {
     summary_list$n_ancestor <- n_ancestors_total
     summary_list$n_ancestor_show <- nrow(result$ancestors)
     summary_list$f_a <- if (!is.na(fa2_sum) && fa2_sum > 0) 1 / fa2_sum else NA_real_
+    summary_list$f_a_H <- fa_H
   }
   
   result$summary <- summary_list
@@ -1738,14 +1769,18 @@ print.pedcontrib <- function(x, ...) {
   
   if (!is.null(x$founders)) {
     cat(sprintf("\nFounders: %d (reported top %d)\n", s$n_founder, s$n_founder_show))
-    cat(sprintf("Effective number of founders (f_e): %.2f\n", s$f_e))
+    cat(sprintf("  f_e(H) = %.3f  |  f_e = %.3f\n",
+                if (is.null(s$f_e_H) || is.na(s$f_e_H)) NA_real_ else s$f_e_H,
+                s$f_e))
     cat("\nTop 10 Founder Contributions:\n")
     print(head(x$founders, 10))
   }
   
   if (!is.null(x$ancestors)) {
     cat(sprintf("\nAncestors: %d (reported top %d)\n", s$n_ancestor, s$n_ancestor_show))
-    cat(sprintf("Effective number of ancestors (f_a): %.2f\n", s$f_a))
+    cat(sprintf("  f_a(H) = %.3f  |  f_a = %.3f\n",
+                if (is.null(s$f_a_H) || is.na(s$f_a_H)) NA_real_ else s$f_a_H,
+                s$f_a))
     cat("\nTop 10 Ancestor Contributions:\n")
     print(head(x$ancestors, 10))
   }
@@ -1773,9 +1808,12 @@ print.pedcontrib <- function(x, ...) {
 #' @return A list with class \code{pediv} containing:
 #' \itemize{
 #'   \item \code{summary}: A single-row \code{data.table} with columns
-#'     \code{NRef}, \code{NFounder}, \code{fe}, \code{NAncestor}, \code{fa},
-#'     \code{fafe}, \code{fg}, \code{MeanCoan}, \code{NSampledCoan},
-#'     \code{NeCoancestry}, \code{NeInbreeding}, \code{NeDemographic}.
+#'     \code{NRef}, \code{NFounder}, \code{feH}, \code{fe}, \code{NAncestor},
+#'     \code{faH}, \code{fa}, \code{fafe}, \code{fg}, \code{MeanCoan},
+#'     \code{NSampledCoan}, \code{NeCoancestry}, \code{NeInbreeding},
+#'     \code{NeDemographic}.
+#'     Here \code{feH} and \code{faH} are the Shannon-entropy (\eqn{q=1})
+#'     effective numbers of founders and ancestors, respectively.
 #'   \item \code{founders}: A \code{data.table} of top founder contributions.
 #'   \item \code{ancestors}: A \code{data.table} of top ancestor contributions.
 #' }
@@ -1803,6 +1841,13 @@ print.pedcontrib <- function(x, ...) {
 #' tp <- tidyped(small_ped)
 #' div <- pediv(tp, reference = c("Z1", "Z2", "X", "Y"), seed = 42L)
 #' print(div)
+#'
+#' # Access Shannon effective numbers from summary
+#' div$summary$feH   # Shannon effective founders (q=1)
+#' div$summary$faH   # Shannon effective ancestors (q=1)
+#'
+#' # Founder diversity profile: NFounder >= feH >= fe
+#' with(div$summary, c(NFounder = NFounder, feH = feH, fe = fe))
 #' }
 #'
 #' @seealso \code{\link{pedcontrib}}, \code{\link{pedne}}, \code{\link{pedstats}}
@@ -1871,8 +1916,10 @@ pediv <- function(ped, reference = NULL, top = 20, nsamples = 1000, ncores = 1,
   summary_dt <- data.table::data.table(
     NRef          = s$n_ref,
     NFounder      = s$n_founder,
+    feH           = if (!is.null(s$f_e_H)) s$f_e_H else NA_real_,
     fe            = s$f_e,
     NAncestor     = s$n_ancestor,
+    faH           = if (!is.null(s$f_a_H)) s$f_a_H else NA_real_,
     fa            = s$f_a,
     fafe          = if (!is.na(s$f_a) && !is.na(s$f_e) && s$f_e > 0)
                       round(s$f_a / s$f_e, 6) else NA_real_,
@@ -1908,8 +1955,10 @@ print.pediv <- function(x, ...) {
   cat(sprintf("Reference population size : %d\n", s$NRef))
 
   cat("\n-- Founder / Ancestor Contributions --\n")
-  cat(sprintf("Founders  (total) : %d    fe = %.3f\n", s$NFounder, s$fe))
-  cat(sprintf("Ancestors (total) : %d    fa = %.3f\n", s$NAncestor, s$fa))
+  cat(sprintf("Founders  (total) : %d    fe(H) = %.3f    fe = %.3f\n",
+              s$NFounder, s$feH, s$fe))
+  cat(sprintf("Ancestors (total) : %d    fa(H) = %.3f    fa = %.3f\n",
+              s$NAncestor, s$faH, s$fa))
   cat(sprintf("fa/fe ratio       : %.4f\n", s$fafe))
   if (!is.null(s$fg) && !is.na(s$fg)) {
     cat(sprintf("Founder genomes   : fg = %.3f  (MeanCoan = %.6f, NSampled = %d)\n",

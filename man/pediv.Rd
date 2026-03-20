@@ -35,9 +35,12 @@ Default is \code{NULL} (no fixed seed).}
 A list with class \code{pediv} containing:
 \itemize{
   \item \code{summary}: A single-row \code{data.table} with columns
-    \code{NRef}, \code{NFounder}, \code{fe}, \code{NAncestor}, \code{fa},
-    \code{fafe}, \code{fg}, \code{MeanCoan}, \code{NSampledCoan},
-    \code{NeCoancestry}, \code{NeInbreeding}, \code{NeDemographic}.
+    \code{NRef}, \code{NFounder}, \code{feH}, \code{fe}, \code{NAncestor},
+    \code{faH}, \code{fa}, \code{fafe}, \code{fg}, \code{MeanCoan},
+    \code{NSampledCoan}, \code{NeCoancestry}, \code{NeInbreeding},
+    \code{NeDemographic}.
+    Here \code{feH} and \code{faH} are the Shannon-entropy (\eqn{q=1})
+    effective numbers of founders and ancestors, respectively.
   \item \code{founders}: A \code{data.table} of top founder contributions.
   \item \code{ancestors}: A \code{data.table} of top ancestor contributions.
 }
@@ -69,6 +72,13 @@ is their mean inbreeding coefficient.
 tp <- tidyped(small_ped)
 div <- pediv(tp, reference = c("Z1", "Z2", "X", "Y"), seed = 42L)
 print(div)
+
+# Access Shannon effective numbers from summary
+div$summary$feH   # Shannon effective founders (q=1)
+div$summary$faH   # Shannon effective ancestors (q=1)
+
+# Founder diversity profile: NFounder >= feH >= fe
+with(div$summary, c(NFounder = NFounder, feH = feH, fe = fe))
 }
 
 }
