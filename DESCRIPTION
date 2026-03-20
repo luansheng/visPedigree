@@ -12,7 +12,7 @@ Description: A comprehensive toolkit for the standardization, statistical analys
     'data.table' framework. For exploration, it uses 'igraph' to offer scalable 
     network graphing and matrix plotting methods, simplifying the visualization 
     of deep genealogies and large full-sib families.
-License: MIT + file LICENSE
+License: GPL-3
 Encoding: UTF-8
 LazyData: true
 Depends: R (>= 4.1.0)

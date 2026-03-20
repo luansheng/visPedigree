@@ -40,3 +40,6 @@
 ^man/figures/.*\.png$
 ^sandbox$
 ^Positron\.md$
+
+# --- 协议文件 (GitHub 展示专用) ---
+^LICENSE\.md$
