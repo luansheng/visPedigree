@@ -278,6 +278,9 @@ plot.pedhalflife <- function(x, type = c("log", "raw"), ...) {
 
   dt <- x$timeseries
 
+  thalf <- x$decay$THalf
+  tv    <- if (!is.null(x$timevar)) x$timevar else "Time"
+
   if (type == "log") {
     plot_data <- data.frame(
       Time   = rep(dt$TimeStep, 3),
@@ -285,8 +288,36 @@ plot.pedhalflife <- function(x, type = c("log", "raw"), ...) {
       Metric = factor(rep(c("ln(fe)", "ln(fa)", "ln(fg)"), each = nrow(dt)),
                        levels = c("ln(fe)", "ln(fa)", "ln(fg)"))
     )
-    ylab_text <- "Log Diversity"
-    main_text <- "Information-Theoretic Diversity Decay"
+
+    # Pre-fit OLS on LnFg for the panel closure
+    ols_fit <- stats::lm(LnFg ~ TimeStep, data = dt)
+
+    lattice::xyplot(
+      Value ~ Time,
+      groups = Metric,
+      data   = plot_data,
+      type   = "b",
+      auto.key = list(columns = 3),
+      xlab   = tv,
+      ylab   = "Log Diversity",
+      main   = "Information-Theoretic Diversity Decay",
+      panel  = function(...) {
+        lattice::panel.xyplot(...)
+        # OLS regression line for ln(fg) total decay
+        lattice::panel.abline(ols_fit, lty = 2, col = "black", lwd = 1.5)
+        # Half-life vertical reference
+        if (is.finite(thalf)) {
+          lattice::panel.abline(v = thalf, lty = 3, col = "grey40")
+          lattice::panel.text(
+            x = thalf, y = max(plot_data$Value, na.rm = TRUE),
+            labels = sprintf("T1/2 = %.1f", thalf),
+            pos = 4, cex = 0.8, col = "grey30"
+          )
+        }
+      },
+      ...
+    )
+
   } else {
     plot_data <- data.frame(
       Time   = rep(dt$TimeStep, 3),
@@ -294,19 +325,17 @@ plot.pedhalflife <- function(x, type = c("log", "raw"), ...) {
       Metric = factor(rep(c("fe", "fa", "fg"), each = nrow(dt)),
                        levels = c("fe", "fa", "fg"))
     )
-    ylab_text <- "Equivalent Numbers"
-    main_text <- "Diversity Loss over Time"
-  }
 
-  lattice::xyplot(
-    Value ~ Time,
-    groups = Metric,
-    data   = plot_data,
-    type   = "b",
-    auto.key = list(columns = 3),
-    xlab   = "Time Step",
-    ylab   = ylab_text,
-    main   = main_text,
-    ...
-  )
+    lattice::xyplot(
+      Value ~ Time,
+      groups = Metric,
+      data   = plot_data,
+      type   = "b",
+      auto.key = list(columns = 3),
+      xlab   = tv,
+      ylab   = "Equivalent Numbers",
+      main   = "Diversity Loss over Time",
+      ...
+    )
+  }
 }
