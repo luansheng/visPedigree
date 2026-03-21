@@ -57,12 +57,12 @@ A list of class \code{pedhalflife} with two \code{data.table}
   \describe{
     \item{\code{timeseries}}{Per-time-point tracking with columns
       \code{Time} (time-point label from \code{timevar}), \code{NRef},
-      \code{Fe}, \code{Fa}, \code{Fg} and their log transformations
-      (\code{LnFe}, \code{LnFa}, \code{LnFg}, \code{LnFaFe},
-      \code{LnFgFa}), plus \code{TimeStep} (numeric OLS time axis).}
-    \item{\code{decay}}{Single-row table with \code{LambdaE},
-      \code{LambdaB}, \code{LambdaD}, \code{LambdaTotal}, and
-      \code{THalf}.}
+      \code{fe}, \code{fa}, \code{fg} and their log transformations
+      (\code{lnfe}, \code{lnfa}, \code{lnfg}, \code{lnfafe},
+      \code{lnfgfa}), plus \code{TimeStep} (numeric OLS time axis).}
+    \item{\code{decay}}{Single-row table with \code{lambda_e},
+      \code{lambda_b}, \code{lambda_d}, \code{lambda_total}, and
+      \code{thalf}.}
   }
 }
 \description{

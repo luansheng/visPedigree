@@ -1,7 +1,8 @@
 # Changes in version 1.6.1 released on 21 Mar 2026
 ## Improvements
-1. **Enhanced `plot.pedhalflife()` visualization**: In `type = "log"` mode, the plot now includes an OLS regression line for total diversity decay ($\ln f_g \sim \text{Time}$) and a vertical reference line for the diversity half-life $T_{1/2}$.
-2. **Improved unit labeling**: `plot.pedhalflife()` and `print.pedhalflife()` now automatically use the name of the `timevar` column (e.g., "Gen", "Year") for axis and summary labels.
+1. **Standardized diversity notation**: Output columns in `pedhalflife()$timeseries` are now lowercase (`fe`, `fa`, `fg`, `lnfe`, `lnfa`, `lnfg`, `lnfafe`, `lnfgfa`) to maintain consistency with standard population genetics nomenclature.
+2. **Enhanced `plot.pedhalflife()` visualization**: In `type = "log"` mode, the plot now includes an OLS regression line for total diversity decay ($\ln f_g \sim \text{Time}$) and a vertical reference line for the diversity half-life $T_{1/2}$.
+3. **Improved unit labeling**: `plot.pedhalflife()` and `print.pedhalflife()` now automatically use the name of the `timevar` column (e.g., "Gen", "Year") for axis and summary labels.
 
 # Changes in version 1.6.0 released on 20 Mar 2026
 ## New features

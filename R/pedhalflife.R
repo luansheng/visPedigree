@@ -39,12 +39,12 @@
 #'   \describe{
 #'     \item{\code{timeseries}}{Per-time-point tracking with columns
 #'       \code{Time} (time-point label from \code{timevar}), \code{NRef},
-#'       \code{Fe}, \code{Fa}, \code{Fg} and their log transformations
-#'       (\code{LnFe}, \code{LnFa}, \code{LnFg}, \code{LnFaFe},
-#'       \code{LnFgFa}), plus \code{TimeStep} (numeric OLS time axis).}
-#'     \item{\code{decay}}{Single-row table with \code{LambdaE},
-#'       \code{LambdaB}, \code{LambdaD}, \code{LambdaTotal}, and
-#'       \code{THalf}.}
+#'       \code{fe}, \code{fa}, \code{fg} and their log transformations
+#'       (\code{lnfe}, \code{lnfa}, \code{lnfg}, \code{lnfafe},
+#'       \code{lnfgfa}), plus \code{TimeStep} (numeric OLS time axis).}
+#'     \item{\code{decay}}{Single-row table with \code{lambda_e},
+#'       \code{lambda_b}, \code{lambda_d}, \code{lambda_total}, and
+#'       \code{thalf}.}
 #'   }
 #'
 #' @details
@@ -147,9 +147,9 @@ pedhalflife <- function(ped, timevar = "Gen", at = NULL, nsamples = 1000,
     ts_list[[i]] <- data.table::data.table(
       Time   = c_val,
       NRef   = s$n_ref,
-      Fe     = s$f_e,
-      Fa     = s$f_a,
-      Fg     = fg_val
+      fe     = s$f_e,
+      fa     = s$f_a,
+      fg     = fg_val
     )
   }
 
@@ -160,8 +160,8 @@ pedhalflife <- function(ped, timevar = "Gen", at = NULL, nsamples = 1000,
   }
 
   # ---- Guard: require positive finite fe/fa/fg for log ----
-  valid <- !is.na(ts_dt$Fe) & !is.na(ts_dt$Fa) & !is.na(ts_dt$Fg) &
-    ts_dt$Fe > 0 & ts_dt$Fa > 0 & ts_dt$Fg > 0
+  valid <- !is.na(ts_dt$fe) & !is.na(ts_dt$fa) & !is.na(ts_dt$fg) &
+    ts_dt$fe > 0 & ts_dt$fa > 0 & ts_dt$fg > 0
 
   n_dropped <- sum(!valid)
   if (n_dropped > 0) {
@@ -178,11 +178,11 @@ pedhalflife <- function(ped, timevar = "Gen", at = NULL, nsamples = 1000,
   }
 
   # ---- Logarithmic metrics ----
-  ts_valid[, LnFe := log(Fe)]
-  ts_valid[, LnFa := log(Fa)]
-  ts_valid[, LnFg := log(Fg)]
-  ts_valid[, LnFaFe := log(Fa / Fe)]
-  ts_valid[, LnFgFa := log(Fg / Fa)]
+  ts_valid[, lnfe := log(fe)]
+  ts_valid[, lnfa := log(fa)]
+  ts_valid[, lnfg := log(fg)]
+  ts_valid[, lnfafe := log(fa / fe)]
+  ts_valid[, lnfgfa := log(fg / fa)]
 
   # ---- Time axis ----
   t_vals <- suppressWarnings(as.numeric(ts_valid$Time))
@@ -202,10 +202,10 @@ pedhalflife <- function(ped, timevar = "Gen", at = NULL, nsamples = 1000,
     -stats::coef(fit)[[2]]
   }
 
-  lambda_e     <- calc_lambda(ts_valid$LnFe,   ts_valid$TimeStep)
-  lambda_b     <- calc_lambda(ts_valid$LnFaFe, ts_valid$TimeStep)
-  lambda_d     <- calc_lambda(ts_valid$LnFgFa, ts_valid$TimeStep)
-  lambda_total <- calc_lambda(ts_valid$LnFg,   ts_valid$TimeStep)
+  lambda_e     <- calc_lambda(ts_valid$lnfe,   ts_valid$TimeStep)
+  lambda_b     <- calc_lambda(ts_valid$lnfafe, ts_valid$TimeStep)
+  lambda_d     <- calc_lambda(ts_valid$lnfgfa, ts_valid$TimeStep)
+  lambda_total <- calc_lambda(ts_valid$lnfg,   ts_valid$TimeStep)
 
   thalf <- if (!is.na(lambda_total) && lambda_total > 0) {
     log(2) / lambda_total
@@ -284,13 +284,13 @@ plot.pedhalflife <- function(x, type = c("log", "raw"), ...) {
   if (type == "log") {
     plot_data <- data.frame(
       Time   = rep(dt$TimeStep, 3),
-      Value  = c(dt$LnFe, dt$LnFa, dt$LnFg),
+      Value  = c(dt$lnfe, dt$lnfa, dt$lnfg),
       Metric = factor(rep(c("ln(fe)", "ln(fa)", "ln(fg)"), each = nrow(dt)),
                        levels = c("ln(fe)", "ln(fa)", "ln(fg)"))
     )
 
-    # Pre-fit OLS on LnFg for the panel closure
-    ols_fit <- stats::lm(LnFg ~ TimeStep, data = dt)
+    # Pre-fit OLS on lnfg for the panel closure
+    ols_fit <- stats::lm(lnfg ~ TimeStep, data = dt)
 
     lattice::xyplot(
       Value ~ Time,
@@ -321,7 +321,7 @@ plot.pedhalflife <- function(x, type = c("log", "raw"), ...) {
   } else {
     plot_data <- data.frame(
       Time   = rep(dt$TimeStep, 3),
-      Value  = c(dt$Fe, dt$Fa, dt$Fg),
+      Value  = c(dt$fe, dt$fa, dt$fg),
       Metric = factor(rep(c("fe", "fa", "fg"), each = nrow(dt)),
                        levels = c("fe", "fa", "fg"))
     )

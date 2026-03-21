@@ -15,8 +15,8 @@ test_that("pedhalflife returns correct structure", {
   # Timeseries columns
   ts <- res$timeseries
   expect_s3_class(ts, "data.table")
-  expect_true(all(c("Time", "NRef", "Fe", "Fa", "Fg",
-                     "LnFe", "LnFa", "LnFg", "LnFaFe", "LnFgFa",
+  expect_true(all(c("Time", "NRef", "fe", "fa", "fg",
+                     "lnfe", "lnfa", "lnfg", "lnfafe", "lnfgfa",
                      "TimeStep") %in% names(ts)))
   expect_true(nrow(ts) >= 2)
 
@@ -61,11 +61,11 @@ test_that("log columns are consistent with raw values", {
   )
   ts <- res$timeseries
 
-  expect_equal(ts$LnFe, log(ts$Fe), tolerance = 1e-12)
-  expect_equal(ts$LnFa, log(ts$Fa), tolerance = 1e-12)
-  expect_equal(ts$LnFg, log(ts$Fg), tolerance = 1e-12)
-  expect_equal(ts$LnFaFe, log(ts$Fa / ts$Fe), tolerance = 1e-12)
-  expect_equal(ts$LnFgFa, log(ts$Fg / ts$Fa), tolerance = 1e-12)
+  expect_equal(ts$lnfe, log(ts$fe), tolerance = 1e-12)
+  expect_equal(ts$lnfa, log(ts$fa), tolerance = 1e-12)
+  expect_equal(ts$lnfg, log(ts$fg), tolerance = 1e-12)
+  expect_equal(ts$lnfafe, log(ts$fa / ts$fe), tolerance = 1e-12)
+  expect_equal(ts$lnfgfa, log(ts$fg / ts$fa), tolerance = 1e-12)
 })
 
 
