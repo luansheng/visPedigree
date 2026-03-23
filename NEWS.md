@@ -1,4 +1,4 @@
-# visPedigree 1.7.0 released on 23 Mar 2026
+# Changes in version 1.7.0 released on 23 Mar 2026
 ## New features
 1. **`pediv()` retained genetic diversity (`GeneDiv`)**: `pediv()$summary` gains a new column `GeneDiv = 1 − MeanCoan`, the pedigree-based retained genetic diversity of the reference population. Values lie in $[0, 1]$; higher values indicate more diversity retained relative to an unrelated base population. `print.pediv()` displays it alongside `fg` and `MeanCoan`. This is a dimensionless complement to `fg` that is easier to communicate to non-specialist stakeholders.
 
