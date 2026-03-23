@@ -1,5 +1,118 @@
 # Changelog
 
+## Changes in version 1.6.2 released on 23 Mar 2026
+
+### New features
+
+1.  **[`pedrel()`](https://luansheng.github.io/visPedigree/reference/pedrel.md)
+    coancestry scale**: Added a `scale` parameter to
+    [`pedrel()`](https://luansheng.github.io/visPedigree/reference/pedrel.md)
+    supporting `"relationship"` (default, returns mean $a_{ij}$) and
+    `"coancestry"` (returns corrected mean coancestry $\bar{c}$). The
+    coancestry scale uses the diagonal-corrected formula of Caballero &
+    Toro (2000), properly accounting for self-coancestry within the
+    reference group.
+
+### API Changes
+
+1.  **[`vispstat()`](https://luansheng.github.io/visPedigree/reference/vispstat.md)
+    internal downgrade**: The
+    [`vispstat()`](https://luansheng.github.io/visPedigree/reference/vispstat.md)
+    function has been downgraded to an internal-only function.
+    Specifically, it is now the internal backend for
+    [`plot.pedstats()`](https://luansheng.github.io/visPedigree/reference/vispstat.md).
+    Users should use the standard `plot(stats_obj)` S3 method instead.
+2.  **Standardized
+    [`vispstat()`](https://luansheng.github.io/visPedigree/reference/vispstat.md)
+    documentation**: Updated the documentation for generation intervals
+    in
+    [`vispstat()`](https://luansheng.github.io/visPedigree/reference/vispstat.md)
+    to accurately reflect the visualization of mean values (removing the
+    misleading “± SD” claim).
+
+### Documentation
+
+1.  **`pedigree-analysis.Rmd` §9 expanded**: Section 9 (“Average
+    Relationship Trends with
+    [`pedrel()`](https://luansheng.github.io/visPedigree/reference/pedrel.md)”)
+    split into two sub-sections to cover both `scale` options. Added
+    §9.2 with the Caballero & Toro (2000) diagonal-corrected coancestry
+    formula, a worked example using `scale = "coancestry"` (returning
+    `MeanCoan`), and guidance on when to prefer each scale.
+2.  **`relationship-matrix.Rmd` updated**: Added §3.2
+    compact-to-[`vismat()`](https://luansheng.github.io/visPedigree/reference/vismat.md)
+    direct path and expanded §4.1 with five sub-sections
+    (`reorder = FALSE`, `ids`, `by = "Gen"`, `by = "Family"`, compact
+    auto-expand). Replaced incorrect performance thresholds in §5 with
+    an accurate reference table.
+
+### Bug fixes
+
+1.  **Eliminated spurious subsetting warnings**: Internal group-by
+    slicing in
+    [`pedrel()`](https://luansheng.github.io/visPedigree/reference/pedrel.md),
+    [`pedne()`](https://luansheng.github.io/visPedigree/reference/pedne.md),
+    [`pediv()`](https://luansheng.github.io/visPedigree/reference/pediv.md),
+    [`pedhalflife()`](https://luansheng.github.io/visPedigree/reference/pedhalflife.md),
+    and
+    [`pedgenint()`](https://luansheng.github.io/visPedigree/reference/pedgenint.md)
+    previously triggered false-positive `[.tidyped]` warnings
+    (“Subsetting removed parent records…”). Fixed by using
+    [`as.data.table()`](https://rdrr.io/pkg/data.table/man/as.data.table.html)
+    to bypass the completeness guard when the subset is only used for ID
+    extraction, not for pedigree computation.
+2.  **Eliminated internal class-restoration messages**:
+    `pedrel(compact = TRUE)` previously emitted “Note: ‘ped’ lost its
+    tidyped class … Restoring automatically.” messages. Root cause was
+    [`compact_ped_for_matrix()`](https://luansheng.github.io/visPedigree/reference/compact_ped_for_matrix.md)
+    returning a plain `data.table` in its early-return branches (no
+    full-sib families or no compactable members). Fixed by returning
+    `data.table::copy(ped)` to preserve the `tidyped` class.
+3.  **Internal cleanup**: Removed dead code variables and added
+    comprehensive unit tests for the `genint` branch of
+    [`vispstat()`](https://luansheng.github.io/visPedigree/reference/vispstat.md).
+
+## Changes in version 1.6.1 released on 21 Mar 2026
+
+### Improvements
+
+1.  **Standardized diversity notation**: Output columns in
+    `pedhalflife()$timeseries` are now lowercase (`fe`, `fa`, `fg`,
+    `lnfe`, `lnfa`, `lnfg`, `lnfafe`, `lnfgfa`) to maintain consistency
+    with standard population genetics nomenclature.
+2.  **Enhanced
+    [`plot.pedhalflife()`](https://luansheng.github.io/visPedigree/reference/pedhalflife.md)
+    visualization**: In `type = "log"` mode, the plot now includes an
+    OLS regression line for total diversity decay
+    ($\ln f_{g} \sim \text{Time}$) and a vertical reference line for the
+    diversity half-life $T_{1/2}$.
+3.  **Improved unit labeling**:
+    [`plot.pedhalflife()`](https://luansheng.github.io/visPedigree/reference/pedhalflife.md)
+    and
+    [`print.pedhalflife()`](https://luansheng.github.io/visPedigree/reference/pedhalflife.md)
+    now automatically use the name of the `timevar` column (e.g., “Gen”,
+    “Year”) for axis and summary labels.
+
+## Changes in version 1.6.0 released on 20 Mar 2026
+
+### New features
+
+1.  **Information-theoretic diversity half-life
+    ([`pedhalflife()`](https://luansheng.github.io/visPedigree/reference/pedhalflife.md))**:
+    New function that tracks $f_{e}$, $f_{a}$, and $f_{g}$ across time
+    points and fits a log-linear decay model to quantify the rate of
+    genetic diversity loss. The total loss rate $\lambda_{total}$ is
+    decomposed into three additive components: foundation bottleneck
+    ($\lambda_{e}$, unequal founder contributions), breeding bottleneck
+    ($\lambda_{b}$, overuse of key ancestors), and genetic drift
+    ($\lambda_{d}$, random sampling loss). The diversity half-life
+    $T_{1/2} = \ln 2/\lambda_{total}$ is reported in units of the
+    `timevar` column (e.g., generations, years). S3 `print` and `plot`
+    methods are provided. The
+    [`plot()`](https://rdrr.io/r/graphics/plot.default.html) method
+    supports both log-scale (`type = "log"`) and raw-scale
+    (`type = "raw"`) views of the decay trajectory.
+
 ## Changes in version 1.5.0 released on 20 Mar 2026
 
 ### New features

@@ -356,8 +356,6 @@ representative individuals from each full-sib family.
 ``` r
 # Calculate compacted A matrix
 mat_compact <- pedmat(tped, method = "A", compact = TRUE)
-#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
-#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
 
 # The result is a 'pedmat' object containing the compacted matrix
 print(mat_compact)
@@ -468,6 +466,20 @@ query_relationship(mat_compact, "Z1", "Z2")
 #> [1] 0.5507812
 ```
 
+For visualization, you can pass the compact matrix **directly** to
+[`vismat()`](https://luansheng.github.io/visPedigree/reference/vismat.md)
+— it automatically calls
+[`expand_pedmat()`](https://luansheng.github.io/visPedigree/reference/expand_pedmat.md)
+internally and prints the expansion dimensions:
+
+``` r
+# Compact matrix is auto-expanded before plotting
+vismat(mat_compact)
+#> Expanding compact matrix (27 -> 28 individuals) for visualization.
+```
+
+![](relationship-matrix_files/figure-html/compact_vismat-1.png)
+
 ### 3.3 When to Use Compact Mode
 
 Compact mode is highly recommended for:
@@ -492,33 +504,82 @@ family clusters, and checking the distribution of genetic relationships.
 
 ### 4.1 Relationship Heatmaps
 
-The “heatmap” type (default) uses a Nature Genetics style color palette
-(White-Orange-Red) to display relationships.
+The `"heatmap"` type (default) uses a Nature Genetics style color
+palette (White–Orange–Red) to display relationships. Rows and columns
+are reordered by hierarchical clustering (Ward.D2) by default, bringing
+closely related individuals into contiguous blocks — full-sibs cluster
+tightly because they share nearly identical relationship profiles with
+the rest of the population.
 
 ``` r
-# Heatmap of the A matrix
+# Heatmap of the A matrix (with default clustering reorder)
 vismat(mat_A)
 ```
 
 ![](relationship-matrix_files/figure-html/heatmap-1.png)
 
-#### Reordering and Clustering
+#### Compact Matrix — Direct Visualization
 
-Setting `reorder = TRUE` (default) performs hierarchical clustering to
-group related individuals together.
+A compact `pedmat` object can be passed directly to
+[`vismat()`](https://luansheng.github.io/visPedigree/reference/vismat.md).
+It is automatically expanded to full dimensions before rendering.
 
-#### Grouping by Labels
+``` r
+# Compact matrix: expanded automatically (message printed)
+vismat(mat_compact)
+#> Expanding compact matrix (27 -> 28 individuals) for visualization.
+```
 
-You can aggregate relationships by groups (e.g., generations) using the
-`by` parameter.
+![](relationship-matrix_files/figure-html/heatmap_compact-1.png)
+
+#### Preserve Pedigree Order
+
+Set `reorder = FALSE` to keep the original pedigree order instead of
+re-sorting by clustering.
+
+``` r
+vismat(mat_A, reorder = FALSE)
+```
+
+![](relationship-matrix_files/figure-html/heatmap_no_reorder-1.png)
+
+#### Display a Subset of Individuals
+
+Use `ids` to focus on specific individuals.
+
+``` r
+target_ids <- rownames(as.matrix(mat_A))[1:8]
+vismat(mat_A, ids = target_ids,
+       main = "Relationship Heatmap — First 8 Individuals")
+```
+
+![](relationship-matrix_files/figure-html/heatmap_ids-1.png)
+
+#### Grouping by Pedigree Column
+
+For large populations, aggregate relationships to a group-level view
+using the `by` parameter. The matrix is reduced to mean coefficients
+between groups.
 
 ``` r
 # Mean relationship between generations
-vismat(mat_A, ped = tped, by = "Gen")
+vismat(mat_A, ped = tped, by = "Gen",
+       main = "Mean Relationship Between Generations")
 #> Aggregating 28 individuals into 6 groups based on 'Gen'...
 ```
 
 ![](relationship-matrix_files/figure-html/heatmap_group-1.png)
+
+``` r
+# Mean relationship between full-sib families
+# (founders without a family assignment are excluded automatically)
+vismat(mat_A, ped = tped, by = "Family",
+       main = "Mean Relationship Between Full-Sib Families")
+#> Note: Excluding 9 founder(s) with no family assignment: J1, O, N, F, R (and 4 more)
+#> Aggregating 19 individuals into 11 groups based on 'Family'...
+```
+
+![](relationship-matrix_files/figure-html/heatmap_family-1.png)
 
 ### 4.2 Inbreeding and Kinship Histograms
 
@@ -537,14 +598,29 @@ vismat(mat_A, type = "histogram")
 Calculation and visualization of large matrices can be
 resource-intensive.
 [`vismat()`](https://luansheng.github.io/visPedigree/reference/vismat.md)
-includes several optimizations for large datasets:
+applies the following automatic optimizations:
 
-- **N \> 2000**: For heatmaps larger than 2000x2000, labels are
-  suppressed.
-- **N \> 500**: For heatmaps larger than 500x500, reordering is disabled
-  by default to save time.
-- **Compact Pedigree**: Using a tidied pedigree with `compact = TRUE` is
-  recommended for high-fecundity species.
+| Condition     | Behavior                                                                                                                     |
+|:--------------|:-----------------------------------------------------------------------------------------------------------------------------|
+| N \> 2000     | Hierarchical clustering (reorder) is automatically skipped                                                                   |
+| N \> 500      | Individual labels are automatically hidden                                                                                   |
+| N \> 100      | Grid lines are automatically hidden                                                                                          |
+| Compact input | Matrix is automatically expanded via [`expand_pedmat()`](https://luansheng.github.io/visPedigree/reference/expand_pedmat.md) |
+
+For very large pedigrees where full matrix expansion is
+memory-intensive, use `by` grouping to aggregate to a group-level view
+without expanding:
+
+``` r
+# For a large pedigree with 100k individuals:
+# 1. Compute a compact matrix (fast and memory-efficient)
+big_compact <- pedmat(big_tped, method = "A", compact = TRUE)
+
+# 2. Visualize at generation level (no expansion needed)
+vismat(big_compact, ped = attr(big_compact, "call_info")$ped_original,
+       by = "Gen",
+       main = "Mean Relationship Between Generations")
+```
 
 ------------------------------------------------------------------------
 

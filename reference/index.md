@@ -48,6 +48,10 @@ Functions for genealogical and genetic computations.
   : Summarize Inbreeding Levels
 - [`pedgenint()`](https://luansheng.github.io/visPedigree/reference/pedgenint.md)
   : Calculate Generation Intervals
+- [`pedhalflife()`](https://luansheng.github.io/visPedigree/reference/pedhalflife.md)
+  [`print(`*`<pedhalflife>`*`)`](https://luansheng.github.io/visPedigree/reference/pedhalflife.md)
+  [`plot(`*`<pedhalflife>`*`)`](https://luansheng.github.io/visPedigree/reference/pedhalflife.md)
+  : Calculate Information-Theoretic Diversity Half-Life
 - [`pediv()`](https://luansheng.github.io/visPedigree/reference/pediv.md)
   : Calculate Genetic Diversity Indicators
 - [`pedmat()`](https://luansheng.github.io/visPedigree/reference/pedmat.md)
@@ -59,7 +63,7 @@ Functions for genealogical and genetic computations.
 - [`pedpartial()`](https://luansheng.github.io/visPedigree/reference/pedpartial.md)
   : Calculate Partial Inbreeding
 - [`pedrel()`](https://luansheng.github.io/visPedigree/reference/pedrel.md)
-  : Calculate Average Additive Genetic Relationship (\\a\_{ij}\\)
+  : Calculate Mean Relationship or Coancestry Within Groups
 - [`pedstats()`](https://luansheng.github.io/visPedigree/reference/pedstats.md)
   : Pedigree Statistics
 - [`pedsubpop()`](https://luansheng.github.io/visPedigree/reference/pedsubpop.md)
@@ -92,11 +96,12 @@ Generic methods for ‘tidyped’ and ‘pedmat’ objects.
 
 - [`` `[`( ``*`<tidyped>`*`)`](https://luansheng.github.io/visPedigree/reference/sub-.tidyped.md)
   : Subset a tidyped object
+- [`pedhalflife()`](https://luansheng.github.io/visPedigree/reference/pedhalflife.md)
+  [`print(`*`<pedhalflife>`*`)`](https://luansheng.github.io/visPedigree/reference/pedhalflife.md)
+  [`plot(`*`<pedhalflife>`*`)`](https://luansheng.github.io/visPedigree/reference/pedhalflife.md)
+  : Calculate Information-Theoretic Diversity Half-Life
 - [`plot(`*`<tidyped>`*`)`](https://luansheng.github.io/visPedigree/reference/plot.tidyped.md)
   : Plot a tidy pedigree
-- [`vispstat()`](https://luansheng.github.io/visPedigree/reference/vispstat.md)
-  [`plot(`*`<pedstats>`*`)`](https://luansheng.github.io/visPedigree/reference/vispstat.md)
-  : Visualize Pedigree Statistics
 - [`summary(`*`<tidyped>`*`)`](https://luansheng.github.io/visPedigree/reference/summary.tidyped.md)
   : Summary method for tidyped objects
 - [`summary_pedmat()`](https://luansheng.github.io/visPedigree/reference/summary_pedmat.md)

@@ -1,15 +1,19 @@
-# Calculate Average Additive Genetic Relationship (\\a\_{ij}\\)
+# Calculate Mean Relationship or Coancestry Within Groups
 
-Computes the average pairwise additive genetic relationship coefficients
-(\\a\_{ij}\\) within cohorts or groups. The relationship \\a\_{ij}\\ is
-defined as twice the coancestry coefficient (\\f\_{ij}\\), representing
-the expected proportion of genes shared by descent (e.g., 0.5 for full
-siblings).
+Computes either the average pairwise additive genetic relationship
+coefficients (\\a\_{ij}\\) within cohorts, or the corrected population
+mean coancestry used for pedigree-based diversity summaries.
 
 ## Usage
 
 ``` r
-pedrel(ped, by = "Gen", reference = NULL, compact = FALSE)
+pedrel(
+  ped,
+  by = "Gen",
+  reference = NULL,
+  compact = FALSE,
+  scale = c("relationship", "coancestry")
+)
 ```
 
 ## Arguments
@@ -36,6 +40,13 @@ pedrel(ped, by = "Gen", reference = NULL, compact = FALSE)
   save memory. Recommended when pedigree size exceeds 25,000. Default is
   FALSE.
 
+- scale:
+
+  Character. One of `"relationship"` or `"coancestry"`. `"relationship"`
+  returns the pairwise off-diagonal mean additive relationship (current
+  `pedrel()` behavior). `"coancestry"` returns the corrected population
+  mean coancestry used for pedigree-based diversity calculations.
+
 ## Value
 
 A `data.table` with columns:
@@ -48,9 +59,25 @@ A `data.table` with columns:
 - `NUsed`: Number of individuals used in calculation (could be subset by
   reference).
 
-- `MeanRel`: Average of off-diagonal elements in the Additive
-  Relationship (A) matrix for this group (\\a\_{ij} = 2f\_{ij}\\).
-  Returns NA if the group has fewer than 2 individuals.
+- `MeanRel`: Present when `scale = "relationship"`; average of
+  off-diagonal elements in the Additive Relationship (A) matrix for this
+  group (\\a\_{ij} = 2f\_{ij}\\).
+
+- `MeanCoan`: Present when `scale = "coancestry"`; diagonal-corrected
+  population mean coancestry for this group.
+
+## Details
+
+When `scale = "relationship"`, the returned value is the mean of the
+off-diagonal additive relationship coefficients among the selected
+individuals. When `scale = "coancestry"`, the returned value is the
+diagonal-corrected population mean coancestry: \$\$\bar{C} = \frac{N -
+1}{N} \cdot \frac{\bar{a}\_{off}}{2} + \frac{1 + \bar{F}}{2N}\$\$ where
+\\\bar{a}\_{off}\\ is the mean off-diagonal relationship, \\\bar{F}\\ is
+the mean inbreeding coefficient of the selected individuals, and \\N\\
+is the number of selected individuals. This \\\bar{C}\\ matches the
+internal coancestry quantity used to derive \\f_g\\ in
+[`pediv`](https://luansheng.github.io/visPedigree/reference/pediv.md).
 
 ## Examples
 
@@ -63,16 +90,6 @@ tp$Year <- 2010 + tp$Gen
 
 # Example 1: Calculate average relationship grouped by Generation (default)
 rel_by_gen <- pedrel(tp, by = "Gen")
-#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
-#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
-#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
-#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
-#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
-#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
-#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
-#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
-#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
-#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
 print(rel_by_gen)
 #>      Gen NTotal NUsed   MeanRel
 #>    <int>  <int> <int>     <num>
@@ -85,16 +102,6 @@ print(rel_by_gen)
 
 # Example 2: Calculate average relationship grouped by Year
 rel_by_year <- pedrel(tp, by = "Year")
-#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
-#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
-#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
-#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
-#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
-#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
-#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
-#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
-#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
-#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
 print(rel_by_year)
 #>     Year NTotal NUsed   MeanRel
 #>    <num>  <int> <int>     <num>
@@ -105,20 +112,22 @@ print(rel_by_year)
 #> 5:  2015      2     2 0.0468750
 #> 6:  2016      2     2 0.5507812
 
-# Example 3: Filter calculations with a reference list in a chosen group
+# Example 3: Calculate corrected mean coancestry
+coan_by_gen <- pedrel(tp, by = "Gen", scale = "coancestry")
+print(coan_by_gen)
+#>      Gen NTotal NUsed   MeanCoan
+#>    <int>  <int> <int>      <num>
+#> 1:     1      9     9 0.05555556
+#> 2:     2      5     5 0.18000000
+#> 3:     3      7     7 0.13775510
+#> 4:     4      3     3 0.20833333
+#> 5:     5      2     2 0.27148438
+#> 6:     6      2     2 0.39550781
+
+# Example 4: Filter calculations with a reference list in a chosen group
 candidates <- c("N", "O", "P", "Q", "T", "U", "V", "X", "Y")
 rel_subset <- pedrel(tp, by = "Gen", reference = candidates)
-#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
-#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
-#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
-#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
 #> Warning: Group '3' has less than 2 individuals after applying 'reference', returning NA_real_.
-#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
-#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
-#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
-#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
-#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
-#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
 #> Warning: Group '6' has less than 2 individuals after applying 'reference', returning NA_real_.
 print(rel_subset)
 #>      Gen NTotal NUsed  MeanRel

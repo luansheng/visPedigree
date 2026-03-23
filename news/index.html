@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">visPedigree</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.6.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -37,9 +37,60 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/luansheng/visPedigree/blob/v1.5.0/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/luansheng/visPedigree/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.6.2" id="changes-in-version-162-released-on-23-mar-2026">Changes in version 1.6.2 released on 23 Mar 2026<a class="anchor" aria-label="anchor" href="#changes-in-version-162-released-on-23-mar-2026"></a></h2>
+<div class="section level3">
+<h3 id="new-features-1-6-2">New features<a class="anchor" aria-label="anchor" href="#new-features-1-6-2"></a></h3>
+<ol style="list-style-type: decimal"><li>
+<strong><code><a href="../reference/pedrel.html">pedrel()</a></code> coancestry scale</strong>: Added a <code>scale</code> parameter to <code><a href="../reference/pedrel.html">pedrel()</a></code> supporting <code>"relationship"</code> (default, returns mean <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>a</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><annotation encoding="application/x-tex">a_{ij}</annotation></semantics></math>) and <code>"coancestry"</code> (returns corrected mean coancestry <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>c</mi><mo accent="true">‾</mo></mover><annotation encoding="application/x-tex">\bar{c}</annotation></semantics></math>). The coancestry scale uses the diagonal-corrected formula of Caballero &amp; Toro (2000), properly accounting for self-coancestry within the reference group.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="api-changes-1-6-2">API Changes<a class="anchor" aria-label="anchor" href="#api-changes-1-6-2"></a></h3>
+<ol style="list-style-type: decimal"><li>
+<strong><code><a href="../reference/vispstat.html">vispstat()</a></code> internal downgrade</strong>: The <code><a href="../reference/vispstat.html">vispstat()</a></code> function has been downgraded to an internal-only function. Specifically, it is now the internal backend for <code><a href="../reference/vispstat.html">plot.pedstats()</a></code>. Users should use the standard <code>plot(stats_obj)</code> S3 method instead.</li>
+<li>
+<strong>Standardized <code><a href="../reference/vispstat.html">vispstat()</a></code> documentation</strong>: Updated the documentation for generation intervals in <code><a href="../reference/vispstat.html">vispstat()</a></code> to accurately reflect the visualization of mean values (removing the misleading “± SD” claim).</li>
+</ol></div>
+<div class="section level3">
+<h3 id="documentation-1-6-2">Documentation<a class="anchor" aria-label="anchor" href="#documentation-1-6-2"></a></h3>
+<ol style="list-style-type: decimal"><li>
+<strong><code>pedigree-analysis.Rmd</code> §9 expanded</strong>: Section 9 (“Average Relationship Trends with <code><a href="../reference/pedrel.html">pedrel()</a></code>”) split into two sub-sections to cover both <code>scale</code> options. Added §9.2 with the Caballero &amp; Toro (2000) diagonal-corrected coancestry formula, a worked example using <code>scale = "coancestry"</code> (returning <code>MeanCoan</code>), and guidance on when to prefer each scale.</li>
+<li>
+<strong><code>relationship-matrix.Rmd</code> updated</strong>: Added §3.2 compact-to-<code><a href="../reference/vismat.html">vismat()</a></code> direct path and expanded §4.1 with five sub-sections (<code>reorder = FALSE</code>, <code>ids</code>, <code>by = "Gen"</code>, <code>by = "Family"</code>, compact auto-expand). Replaced incorrect performance thresholds in §5 with an accurate reference table.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="bug-fixes-1-6-2">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-1-6-2"></a></h3>
+<ol style="list-style-type: decimal"><li>
+<strong>Eliminated spurious subsetting warnings</strong>: Internal group-by slicing in <code><a href="../reference/pedrel.html">pedrel()</a></code>, <code><a href="../reference/pedne.html">pedne()</a></code>, <code><a href="../reference/pediv.html">pediv()</a></code>, <code><a href="../reference/pedhalflife.html">pedhalflife()</a></code>, and <code><a href="../reference/pedgenint.html">pedgenint()</a></code> previously triggered false-positive <code>[.tidyped]</code> warnings (“Subsetting removed parent records…”). Fixed by using <code><a href="https://rdrr.io/pkg/data.table/man/as.data.table.html" class="external-link">as.data.table()</a></code> to bypass the completeness guard when the subset is only used for ID extraction, not for pedigree computation.</li>
+<li>
+<strong>Eliminated internal class-restoration messages</strong>: <code>pedrel(compact = TRUE)</code> previously emitted “Note: ‘ped’ lost its tidyped class … Restoring automatically.” messages. Root cause was <code><a href="../reference/compact_ped_for_matrix.html">compact_ped_for_matrix()</a></code> returning a plain <code>data.table</code> in its early-return branches (no full-sib families or no compactable members). Fixed by returning <code>data.table::copy(ped)</code> to preserve the <code>tidyped</code> class.</li>
+<li>
+<strong>Internal cleanup</strong>: Removed dead code variables and added comprehensive unit tests for the <code>genint</code> branch of <code><a href="../reference/vispstat.html">vispstat()</a></code>.</li>
+</ol></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.6.1" id="changes-in-version-161-released-on-21-mar-2026">Changes in version 1.6.1 released on 21 Mar 2026<a class="anchor" aria-label="anchor" href="#changes-in-version-161-released-on-21-mar-2026"></a></h2>
+<div class="section level3">
+<h3 id="improvements-1-6-1">Improvements<a class="anchor" aria-label="anchor" href="#improvements-1-6-1"></a></h3>
+<ol style="list-style-type: decimal"><li>
+<strong>Standardized diversity notation</strong>: Output columns in <code>pedhalflife()$timeseries</code> are now lowercase (<code>fe</code>, <code>fa</code>, <code>fg</code>, <code>lnfe</code>, <code>lnfa</code>, <code>lnfg</code>, <code>lnfafe</code>, <code>lnfgfa</code>) to maintain consistency with standard population genetics nomenclature.</li>
+<li>
+<strong>Enhanced <code><a href="../reference/pedhalflife.html">plot.pedhalflife()</a></code> visualization</strong>: In <code>type = "log"</code> mode, the plot now includes an OLS regression line for total diversity decay (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>ln</mo><msub><mi>f</mi><mi>g</mi></msub><mo>∼</mo><mtext mathvariant="normal">Time</mtext></mrow><annotation encoding="application/x-tex">\ln f_g \sim \text{Time}</annotation></semantics></math>) and a vertical reference line for the diversity half-life <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>T</mi><mrow><mn>1</mn><mi>/</mi><mn>2</mn></mrow></msub><annotation encoding="application/x-tex">T_{1/2}</annotation></semantics></math>.</li>
+<li>
+<strong>Improved unit labeling</strong>: <code><a href="../reference/pedhalflife.html">plot.pedhalflife()</a></code> and <code><a href="../reference/pedhalflife.html">print.pedhalflife()</a></code> now automatically use the name of the <code>timevar</code> column (e.g., “Gen”, “Year”) for axis and summary labels.</li>
+</ol></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.6.0" id="changes-in-version-160-released-on-20-mar-2026">Changes in version 1.6.0 released on 20 Mar 2026<a class="anchor" aria-label="anchor" href="#changes-in-version-160-released-on-20-mar-2026"></a></h2>
+<div class="section level3">
+<h3 id="new-features-1-6-0">New features<a class="anchor" aria-label="anchor" href="#new-features-1-6-0"></a></h3>
+<ol style="list-style-type: decimal"><li>
+<strong>Information-theoretic diversity half-life (<code><a href="../reference/pedhalflife.html">pedhalflife()</a></code>)</strong>: New function that tracks <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>f</mi><mi>e</mi></msub><annotation encoding="application/x-tex">f_e</annotation></semantics></math>, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>f</mi><mi>a</mi></msub><annotation encoding="application/x-tex">f_a</annotation></semantics></math>, and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>f</mi><mi>g</mi></msub><annotation encoding="application/x-tex">f_g</annotation></semantics></math> across time points and fits a log-linear decay model to quantify the rate of genetic diversity loss. The total loss rate <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>λ</mi><mrow><mi>t</mi><mi>o</mi><mi>t</mi><mi>a</mi><mi>l</mi></mrow></msub><annotation encoding="application/x-tex">\lambda_{total}</annotation></semantics></math> is decomposed into three additive components: foundation bottleneck (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>λ</mi><mi>e</mi></msub><annotation encoding="application/x-tex">\lambda_e</annotation></semantics></math>, unequal founder contributions), breeding bottleneck (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>λ</mi><mi>b</mi></msub><annotation encoding="application/x-tex">\lambda_b</annotation></semantics></math>, overuse of key ancestors), and genetic drift (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>λ</mi><mi>d</mi></msub><annotation encoding="application/x-tex">\lambda_d</annotation></semantics></math>, random sampling loss). The diversity half-life <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>T</mi><mrow><mn>1</mn><mi>/</mi><mn>2</mn></mrow></msub><mo>=</mo><mo>ln</mo><mn>2</mn><mi>/</mi><msub><mi>λ</mi><mrow><mi>t</mi><mi>o</mi><mi>t</mi><mi>a</mi><mi>l</mi></mrow></msub></mrow><annotation encoding="application/x-tex">T_{1/2} = \ln 2 / \lambda_{total}</annotation></semantics></math> is reported in units of the <code>timevar</code> column (e.g., generations, years). S3 <code>print</code> and <code>plot</code> methods are provided. The <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> method supports both log-scale (<code>type = "log"</code>) and raw-scale (<code>type = "raw"</code>) views of the decay trajectory.</li>
+</ol></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.5.0" id="changes-in-version-150-released-on-20-mar-2026">Changes in version 1.5.0 released on 20 Mar 2026<a class="anchor" aria-label="anchor" href="#changes-in-version-150-released-on-20-mar-2026"></a></h2>
 <div class="section level3">

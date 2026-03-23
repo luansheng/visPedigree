@@ -30,14 +30,16 @@ vismat(
 
   - A `pedmat` object returned by
     [`pedmat`](https://luansheng.github.io/visPedigree/reference/pedmat.md)
-
-  - A named list containing matrices (preferring A, D, AA)
+    — including compact matrices, which are automatically expanded to
+    full dimensions before plotting (see Details).
 
   - A
     [`tidyped`](https://luansheng.github.io/visPedigree/reference/tidyped.md)
-    object (automatically calculates additive relationship matrix A)
+    object (automatically calculates additive relationship matrix A).
 
-  - A standard `matrix` or `Matrix` object
+  - A named list containing matrices (preferring A, D, AA).
+
+  - A standard `matrix` or `Matrix` object.
 
   **Note**: Inverse matrices (Ainv, Dinv, AAinv) are not supported for
   visualization because their elements do not represent meaningful
@@ -46,9 +48,9 @@ vismat(
 - ped:
 
   Optional. A tidied pedigree object (`tidyped`), used for extracting
-  labels or grouping information. Required when using the `by`
-  parameter. If `mat` is a `pedmat` object, the pedigree can be
-  automatically extracted from its attributes.
+  labels or grouping information. Required when using the `by` parameter
+  with a plain matrix input. If `mat` is a `pedmat` object, the pedigree
+  is extracted automatically.
 
 - type:
 
@@ -77,24 +79,25 @@ vismat(
   performance.
 
   **Clustering principle**: Based on relationship profile distance
-  (Euclidean). Full-sibs have nearly identical relationship profiles
-  with the population, so they cluster tightly together.
+  (Euclidean distance between rows). Full-sibs have nearly identical
+  relationship profiles with the whole population, so they cluster
+  tightly together and appear as contiguous blocks in the heatmap.
 
 - by:
 
   Optional. Column name in `ped` to group by (e.g., `"Family"`, `"Gen"`,
   `"Year"`). When grouping is enabled:
 
-  - Individual-level matrix is aggregated to group-level matrix
-    (computing mean relationship coefficients between groups)
+  - Individual-level matrix is aggregated to a group-level matrix
+    (computing mean relationship coefficients between groups).
 
   - For `"Family"` grouping, founders without family assignment are
-    excluded
+    excluded.
 
-  - For other grouping columns, NA values are assigned to `"Unknown"`
-    group
+  - For other grouping columns, NA values are assigned to an `"Unknown"`
+    group.
 
-  This is useful for analyzing the structure of large populations.
+  Useful for visualizing population structure in large pedigrees.
 
 - grouping:
 
@@ -103,13 +106,13 @@ vismat(
 - labelcex:
 
   Numeric. Manual control for font size of individual labels. If `NULL`
-  (default), uses dynamic font size that adjusts automatically based on
-  matrix dimensions (range 0.2-0.7). For matrices with more than 500
-  individuals, labels are automatically hidden.
+  (default), uses a dynamic font size that adjusts automatically based
+  on matrix dimensions (range 0.2–0.7). Labels are hidden automatically
+  when N \> 500.
 
 - ...:
 
-  Additional arguments passed to the plotting function:
+  Additional arguments passed to the underlying plotting function:
 
   - Heatmap uses
     [`levelplot`](https://rdrr.io/pkg/lattice/man/levelplot.html): can
@@ -122,98 +125,123 @@ vismat(
 
 ## Value
 
-Invisibly returns the `lattice` plot object. The plot is generated on
-the current graphics device.
+Invisibly returns the `lattice` plot object. The plot is rendered on the
+current graphics device.
 
 ## Details
 
-### Visualization Types
+### Compact Matrix Handling
 
-**Heatmap**:
+When `mat` is a compact `pedmat` object (created with
+`pedmat(..., compact = TRUE)`), `vismat()` automatically calls
+[`expand_pedmat`](https://luansheng.github.io/visPedigree/reference/expand_pedmat.md)
+to restore the full-dimension matrix before rendering. This ensures that
+all original individuals — including full-sib family members that were
+merged into a single representative — appear in the heatmap. A message
+is printed to report the expansion dimensions, e.g.:
 
-- Uses Nature Genetics style color palette (white to orange to red to
-  dark red)
+    Expanding compact matrix (18 -> 170000 individuals) for visualization.
 
-- Hierarchical clustering reordering is enabled by default to group
-  similar individuals
+For very large pedigrees where full expansion is memory-intensive,
+consider using the `by` parameter to aggregate to a group-level view
+instead.
 
-- Matrix\[1,1\] is displayed at top-left corner
+### Heatmap
 
-- Grid lines shown when N \<= 100
+- Uses a Nature Genetics style color palette (white to orange to red to
+  dark red).
 
-- Individual labels shown when N \<= 500
+- Hierarchical clustering reordering (Ward.D2) is enabled by default.
 
-**Histogram**:
+- Grid lines shown when N \\\le\\ 100; labels shown when N \\\le\\ 500.
 
-- Shows distribution of lower triangular elements (excluding diagonal)
+- `mat[1,1]` is displayed at the top-left corner.
 
-- X-axis: relationship coefficient values; Y-axis: frequency percentage
+### Histogram
 
-- Useful for checking population inbreeding levels and kinship structure
+- Shows the distribution of lower-triangular elements (pairwise
+  kinship).
 
-### Performance Considerations
+- X-axis: relationship coefficient values; Y-axis: frequency percentage.
 
-- N \> 2000: Hierarchical clustering reordering is automatically skipped
+### Performance
 
-- N \> 500: Individual labels are automatically hidden
+- N \> 2000: hierarchical clustering is automatically skipped.
 
-- N \> 100: Grid lines are automatically hidden
+- N \> 500: individual labels are automatically hidden.
 
-- Grouping functionality uses optimized matrix algebra, suitable for
-  large matrices
+- N \> 100: grid lines are automatically hidden.
+
+- `by` grouping uses vectorized
+  [`rowsum()`](https://rdrr.io/r/base/rowsum.html) algebra — suitable
+  for large matrices.
 
 ### Interpreting Relationship Coefficients
 
-For additive relationship matrix A:
+For the additive relationship matrix A:
 
-- Diagonal elements = 1 + F (where F is the inbreeding coefficient)
+- Diagonal elements = 1 + F (F = inbreeding coefficient).
 
-- Off-diagonal elements = 2 x kinship coefficient
+- Off-diagonal elements = 2 × kinship coefficient.
 
-- Value 0: No relationship (unrelated)
-
-- Value 0.25: Half-sibs or grandparent-grandchild
-
-- Value 0.5: Full-sibs or parent-offspring
-
-- Value 1.0: Same individual
+- 0: unrelated; 0.25: half-sibs / grandparent–grandchild; 0.5: full-sibs
+  / parent–offspring; 1.0: same individual.
 
 ## See also
 
 [`pedmat`](https://luansheng.github.io/visPedigree/reference/pedmat.md)
-for computing relationship matrices
+for computing relationship matrices,
+[`expand_pedmat`](https://luansheng.github.io/visPedigree/reference/expand_pedmat.md)
+for manually restoring compact matrix dimensions,
+[`query_relationship`](https://luansheng.github.io/visPedigree/reference/query_relationship.md)
+for querying individual pairs,
 [`tidyped`](https://luansheng.github.io/visPedigree/reference/tidyped.md)
-for tidying pedigree data
+for tidying pedigree data,
 [`visped`](https://luansheng.github.io/visPedigree/reference/visped.md)
-for visualizing pedigree structure graphs
-[`levelplot`](https://rdrr.io/pkg/lattice/man/levelplot.html) underlying
-plotting function for heatmaps
-[`histogram`](https://rdrr.io/pkg/lattice/man/histogram.html) underlying
-plotting function for histograms
+for visualizing pedigree structure graphs,
+[`levelplot`](https://rdrr.io/pkg/lattice/man/levelplot.html),
+[`histogram`](https://rdrr.io/pkg/lattice/man/histogram.html)
 
 ## Examples
 
 ``` r
+library(visPedigree)
+data(small_ped)
+ped <- tidyped(small_ped)
+
 # ============================================================
 # Basic Usage
 # ============================================================
 
-# Load example data
-data(simple_ped)
-ped <- tidyped(simple_ped)
-
-# Method 1: Plot directly from tidyped object (auto-computes A matrix)
+# Method 1: from tidyped object (auto-computes A)
 vismat(ped)
 
 
-# Method 2: Plot from pedmat object
+# Method 2: from pedmat object
 A <- pedmat(ped)
 vismat(A)
 
 
-# Method 3: Plot from plain matrix
-A_dense <- as.matrix(A)
-vismat(A_dense)
+# Method 3: from plain matrix
+vismat(as.matrix(A))
+
+
+# ============================================================
+# Compact Pedigree (auto-expanded before plotting)
+# ============================================================
+
+# For pedigrees with large full-sib families, compute a compact matrix
+# first for efficiency, then pass directly to vismat() — it automatically
+# expands back to full dimensions.
+A_compact <- pedmat(ped, compact = TRUE)
+vismat(A_compact)   # prints: "Expanding compact matrix (N -> M individuals)"
+#> Expanding compact matrix (27 -> 28 individuals) for visualization.
+
+
+# For very large pedigrees, aggregate to a group-level view instead
+vismat(A, ped = ped, by = "Gen",
+       main = "Mean Relationship Between Generations")
+#> Aggregating 28 individuals into 6 groups based on 'Gen'...
 
 
 # ============================================================
@@ -221,10 +249,11 @@ vismat(A_dense)
 # ============================================================
 
 # Custom title and axis labels
-vismat(A, main = "Additive Relationship Matrix", xlab = "Individual", ylab = "Individual")
+vismat(A, main = "Additive Relationship Matrix",
+       xlab = "Individual", ylab = "Individual")
 
 
-# Disable clustering reorder (preserve original order)
+# Preserve original pedigree order (no clustering)
 vismat(A, reorder = FALSE)
 
 
@@ -237,51 +266,44 @@ vismat(A, col.regions = colorRampPalette(c("blue", "white", "red"))(100))
 
 
 # ============================================================
-# Select Specific Individuals
+# Display a Subset of Individuals
 # ============================================================
 
-# Display only a subset of individuals
 target_ids <- rownames(A)[1:8]
 vismat(A, ids = target_ids)
 
 
 # ============================================================
-# Histogram Visualization
+# Histogram of Relationship Coefficients
 # ============================================================
 
-# Relationship coefficient distribution histogram
 vismat(A, type = "histogram")
 
-
-# Custom number of bins
 vismat(A, type = "histogram", nint = 30)
 
 
 # ============================================================
-# Group Aggregation (for large populations)
+# Group-level Aggregation
 # ============================================================
 
 # Group by generation
-vismat(A, ped = ped, by = "Gen", 
+vismat(A, ped = ped, by = "Gen",
        main = "Mean Relationship Between Generations")
-#> Aggregating 59 individuals into 6 groups based on 'Gen'...
+#> Aggregating 28 individuals into 6 groups based on 'Gen'...
 
 
-# Group by family (if pedigree has Family column)
-# vismat(A, ped = ped, by = "Family")
+# Group by full-sib family (founders without a family are excluded)
+vismat(A, ped = ped, by = "Family")
+#> Note: Excluding 9 founder(s) with no family assignment: J1, O, N, F, R (and 4 more)
+#> Aggregating 19 individuals into 11 groups based on 'Family'...
+
 
 # ============================================================
-# Different Types of Relationship Matrices
+# Other Relationship Matrices
 # ============================================================
 
 # Dominance relationship matrix
 D <- pedmat(ped, method = "D")
 vismat(D, main = "Dominance Relationship Matrix")
-
-
-# Inbreeding coefficient distribution (diagonal elements - 1)
-A_mat <- as.matrix(A)
-f_values <- Matrix::diag(A_mat) - 1
-hist(f_values, main = "Inbreeding Coefficient Distribution", xlab = "Inbreeding (F)")
 
 ```

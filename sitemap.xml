@@ -1,6 +1,6 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
 <url><loc>https://luansheng.github.io/visPedigree/404.html</loc></url>
-<url><loc>https://luansheng.github.io/visPedigree/LICENSE-text.html</loc></url>
+<url><loc>https://luansheng.github.io/visPedigree/LICENSE.html</loc></url>
 <url><loc>https://luansheng.github.io/visPedigree/Positron.html</loc></url>
 <url><loc>https://luansheng.github.io/visPedigree/articles/draw-pedigree.html</loc></url>
 <url><loc>https://luansheng.github.io/visPedigree/articles/efficient-visPedigree-workflows.html</loc></url>
@@ -44,6 +44,7 @@
 <url><loc>https://luansheng.github.io/visPedigree/reference/pedecg.html</loc></url>
 <url><loc>https://luansheng.github.io/visPedigree/reference/pedfclass.html</loc></url>
 <url><loc>https://luansheng.github.io/visPedigree/reference/pedgenint.html</loc></url>
+<url><loc>https://luansheng.github.io/visPedigree/reference/pedhalflife.html</loc></url>
 <url><loc>https://luansheng.github.io/visPedigree/reference/pediv.html</loc></url>
 <url><loc>https://luansheng.github.io/visPedigree/reference/pedmat.html</loc></url>
 <url><loc>https://luansheng.github.io/visPedigree/reference/pedmeta.html</loc></url>

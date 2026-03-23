@@ -45,8 +45,6 @@ tped <- tidyped(small_ped)
 
 # Compact matrix
 A_compact <- pedmat(tped, method = "A", compact = TRUE)
-#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
-#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
 dim(A_compact)  # Reduced dimensions
 #> [1] 27 27
 

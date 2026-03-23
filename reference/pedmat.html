@@ -11,7 +11,7 @@ Uses Rcpp with Meuwissen &amp;amp; Luo (1992) algorithm for efficient computatio
 
     <a class="navbar-brand me-2" href="../index.html">visPedigree</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.6.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,7 +41,7 @@ Uses Rcpp with Meuwissen &amp;amp; Luo (1992) algorithm for efficient computatio
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Genetic Relationship Matrices and Inbreeding Coefficients</h1>
-      <small class="dont-index">Source: <a href="https://github.com/luansheng/visPedigree/blob/v1.5.0/R/pedmatrix.R" class="external-link"><code>R/pedmatrix.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/luansheng/visPedigree/blob/master/R/pedmatrix.R" class="external-link"><code>R/pedmatrix.R</code></a></small>
       <div class="d-none name"><code>pedmat.Rd</code></div>
     </div>
 
@@ -144,7 +144,7 @@ family, dramatically reducing matrix size. For example, a pedigree with
 <p>Key features:</p><ul><li><p><code><a href="query_relationship.html">query_relationship</a>(x, id1, id2)</code>: Query any individual
         pair, including merged siblings (automatic lookup)</p></li>
 <li><p><code><a href="expand_pedmat.html">expand_pedmat</a>(x)</code>: Restore full matrix dimensions</p></li>
-<li><p><code><a href="vismat.html">vismat</a>(x)</code>: Visualize directly (auto-detects compact)</p></li>
+<li><p><code><a href="vismat.html">vismat</a>(x)</code>: Visualize directly (auto-expands compact)</p></li>
 </ul><p><strong>Performance Notes:</strong></p><ul><li><p><strong>Ainv</strong>: O(n) complexity using Henderson's rules. Fast for any size.</p></li>
 <li><p><strong>Dinv/AAinv</strong>: O(n³) matrix inversion. Practical limits:</p><ul><li><p>n &lt; 500: ~10-20 ms</p></li>
 <li><p>n = 1,000: ~40-60 ms</p></li>
@@ -251,8 +251,6 @@ Biometrics, 32(1), 69-83.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># --- Compact Mode (for large full-sib families) ---</span></span></span>
 <span class="r-in"><span><span class="va">A_compact</span> <span class="op">&lt;-</span> <span class="fu">pedmat</span><span class="op">(</span><span class="va">tped</span>, method <span class="op">=</span> <span class="st">"A"</span>, compact <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Subsetting removed parent records. Result is a plain data.table, not a tidyped.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Query relationships (works for any individual, including merged sibs)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="query_relationship.html">query_relationship</a></span><span class="op">(</span><span class="va">A_compact</span>, <span class="st">"Z1"</span>, <span class="st">"Z2"</span><span class="op">)</span>  <span class="co"># Full-sibs Z1 and Z2</span></span></span>

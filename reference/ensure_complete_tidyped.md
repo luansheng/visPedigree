@@ -1,7 +1,9 @@
 # Internal helper to ensure ped is a complete tidyped object
 
-Like \codeensure_tidyped(), but also rejects row-truncated pedigree
-subsets whose referenced parents are no longer present.
+Like
+[`ensure_tidyped()`](https://luansheng.github.io/visPedigree/reference/ensure_tidyped.md),
+but also rejects row-truncated pedigree subsets whose referenced parents
+are no longer present.
 
 ## Usage
 

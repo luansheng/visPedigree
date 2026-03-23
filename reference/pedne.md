@@ -121,16 +121,6 @@ Wright, S. (1931). Evolution in Mendelian populations. *Genetics*,
 tp_simple <- tidyped(simple_ped)
 tp_simple$BirthYear <- 2000 + tp_simple$Gen
 ne_coan <- suppressMessages(pedne(tp_simple, by = "BirthYear", seed = 42L))
-#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
-#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
-#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
-#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
-#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
-#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
-#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
-#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
-#> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
-#> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
 ne_coan
 #>    Cohort     N NSampled       DeltaC       Ne
 #>     <num> <int>    <int>        <num>    <num>

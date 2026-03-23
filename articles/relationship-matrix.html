@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">visPedigree</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.6.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -63,9 +63,9 @@
       <img src="../logo.png" class="logo" alt=""><h1>5. Calculation and visualization of relationship matrix</h1>
                         <h4 data-toc-skip class="author">Sheng Luan</h4>
             
-            <h4 data-toc-skip class="date">2026-03-21</h4>
+            <h4 data-toc-skip class="date">2026-03-23</h4>
       
-      <small class="dont-index">Source: <a href="https://github.com/luansheng/visPedigree/blob/v1.5.0/vignettes/relationship-matrix.Rmd" class="external-link"><code>vignettes/relationship-matrix.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/luansheng/visPedigree/blob/master/vignettes/relationship-matrix.Rmd" class="external-link"><code>vignettes/relationship-matrix.Rmd</code></a></small>
       <div class="d-none name"><code>relationship-matrix.Rmd</code></div>
     </div>
 
@@ -446,8 +446,6 @@ representative individuals from each full-sib family.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Calculate compacted A matrix</span></span>
 <span><span class="va">mat_compact</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pedmat.html">pedmat</a></span><span class="op">(</span><span class="va">tped</span>, method <span class="op">=</span> <span class="st">"A"</span>, compact <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.</span></span>
-<span><span class="co">#&gt; Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.</span></span>
 <span></span>
 <span><span class="co"># The result is a 'pedmat' object containing the compacted matrix</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">mat_compact</span><span class="op">)</span></span>
@@ -554,6 +552,15 @@ objects transparently.</p>
 <span><span class="co"># Query still works the same way</span></span>
 <span><span class="fu"><a href="../reference/query_relationship.html">query_relationship</a></span><span class="op">(</span><span class="va">mat_compact</span>, <span class="st">"Z1"</span>, <span class="st">"Z2"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 0.5507812</span></span></code></pre></div>
+<p>For visualization, you can pass the compact matrix
+<strong>directly</strong> to <code><a href="../reference/vismat.html">vismat()</a></code> — it automatically
+calls <code><a href="../reference/expand_pedmat.html">expand_pedmat()</a></code> internally and prints the expansion
+dimensions:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Compact matrix is auto-expanded before plotting</span></span>
+<span><span class="fu"><a href="../reference/vismat.html">vismat</a></span><span class="op">(</span><span class="va">mat_compact</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Expanding compact matrix (27 -&gt; 28 individuals) for visualization.</span></span></code></pre></div>
+<p><img src="relationship-matrix_files/figure-html/compact_vismat-1.png" class="r-plt" alt="" width="100%"></p>
 </div>
 <div class="section level3">
 <h3 id="id_3-3">3.3 When to Use Compact Mode<a class="anchor" aria-label="anchor" href="#id_3-3"></a>
@@ -606,28 +613,67 @@ relationships.</p>
 <div class="section level3">
 <h3 id="id_4-1">4.1 Relationship Heatmaps<a class="anchor" aria-label="anchor" href="#id_4-1"></a>
 </h3>
-<p>The “heatmap” type (default) uses a Nature Genetics style color
-palette (White-Orange-Red) to display relationships.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Heatmap of the A matrix</span></span>
+<p>The <code>"heatmap"</code> type (default) uses a Nature Genetics
+style color palette (White–Orange–Red) to display relationships. Rows
+and columns are reordered by hierarchical clustering (Ward.D2) by
+default, bringing closely related individuals into contiguous blocks —
+full-sibs cluster tightly because they share nearly identical
+relationship profiles with the rest of the population.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Heatmap of the A matrix (with default clustering reorder)</span></span>
 <span><span class="fu"><a href="../reference/vismat.html">vismat</a></span><span class="op">(</span><span class="va">mat_A</span><span class="op">)</span></span></code></pre></div>
 <p><img src="relationship-matrix_files/figure-html/heatmap-1.png" class="r-plt" alt="" width="100%"></p>
 <div class="section level4">
-<h4 id="reordering-and-clustering">Reordering and Clustering<a class="anchor" aria-label="anchor" href="#reordering-and-clustering"></a>
+<h4 id="compact-matrix-direct-visualization">Compact Matrix — Direct Visualization<a class="anchor" aria-label="anchor" href="#compact-matrix-direct-visualization"></a>
 </h4>
-<p>Setting <code>reorder = TRUE</code> (default) performs hierarchical
-clustering to group related individuals together.</p>
+<p>A compact <code>pedmat</code> object can be passed directly to
+<code><a href="../reference/vismat.html">vismat()</a></code>. It is automatically expanded to full dimensions
+before rendering.</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Compact matrix: expanded automatically (message printed)</span></span>
+<span><span class="fu"><a href="../reference/vismat.html">vismat</a></span><span class="op">(</span><span class="va">mat_compact</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Expanding compact matrix (27 -&gt; 28 individuals) for visualization.</span></span></code></pre></div>
+<p><img src="relationship-matrix_files/figure-html/heatmap_compact-1.png" class="r-plt" alt="" width="100%"></p>
 </div>
 <div class="section level4">
-<h4 id="grouping-by-labels">Grouping by Labels<a class="anchor" aria-label="anchor" href="#grouping-by-labels"></a>
+<h4 id="preserve-pedigree-order">Preserve Pedigree Order<a class="anchor" aria-label="anchor" href="#preserve-pedigree-order"></a>
 </h4>
-<p>You can aggregate relationships by groups (e.g., generations) using
-the <code>by</code> parameter.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<p>Set <code>reorder = FALSE</code> to keep the original pedigree order
+instead of re-sorting by clustering.</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/vismat.html">vismat</a></span><span class="op">(</span><span class="va">mat_A</span>, reorder <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<p><img src="relationship-matrix_files/figure-html/heatmap_no_reorder-1.png" class="r-plt" alt="" width="100%"></p>
+</div>
+<div class="section level4">
+<h4 id="display-a-subset-of-individuals">Display a Subset of Individuals<a class="anchor" aria-label="anchor" href="#display-a-subset-of-individuals"></a>
+</h4>
+<p>Use <code>ids</code> to focus on specific individuals.</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">target_ids</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">mat_A</span><span class="op">)</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">8</span><span class="op">]</span></span>
+<span><span class="fu"><a href="../reference/vismat.html">vismat</a></span><span class="op">(</span><span class="va">mat_A</span>, ids <span class="op">=</span> <span class="va">target_ids</span>,</span>
+<span>       main <span class="op">=</span> <span class="st">"Relationship Heatmap — First 8 Individuals"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="relationship-matrix_files/figure-html/heatmap_ids-1.png" class="r-plt" alt="" width="100%"></p>
+</div>
+<div class="section level4">
+<h4 id="grouping-by-pedigree-column">Grouping by Pedigree Column<a class="anchor" aria-label="anchor" href="#grouping-by-pedigree-column"></a>
+</h4>
+<p>For large populations, aggregate relationships to a group-level view
+using the <code>by</code> parameter. The matrix is reduced to mean
+coefficients between groups.</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Mean relationship between generations</span></span>
-<span><span class="fu"><a href="../reference/vismat.html">vismat</a></span><span class="op">(</span><span class="va">mat_A</span>, ped <span class="op">=</span> <span class="va">tped</span>, by <span class="op">=</span> <span class="st">"Gen"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/vismat.html">vismat</a></span><span class="op">(</span><span class="va">mat_A</span>, ped <span class="op">=</span> <span class="va">tped</span>, by <span class="op">=</span> <span class="st">"Gen"</span>,</span>
+<span>       main <span class="op">=</span> <span class="st">"Mean Relationship Between Generations"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Aggregating 28 individuals into 6 groups based on 'Gen'...</span></span></code></pre></div>
 <p><img src="relationship-matrix_files/figure-html/heatmap_group-1.png" class="r-plt" alt="" width="100%"></p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Mean relationship between full-sib families</span></span>
+<span><span class="co"># (founders without a family assignment are excluded automatically)</span></span>
+<span><span class="fu"><a href="../reference/vismat.html">vismat</a></span><span class="op">(</span><span class="va">mat_A</span>, ped <span class="op">=</span> <span class="va">tped</span>, by <span class="op">=</span> <span class="st">"Family"</span>,</span>
+<span>       main <span class="op">=</span> <span class="st">"Mean Relationship Between Full-Sib Families"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Note: Excluding 9 founder(s) with no family assignment: J1, O, N, F, R (and 4 more)</span></span>
+<span><span class="co">#&gt; Aggregating 19 individuals into 11 groups based on 'Family'...</span></span></code></pre></div>
+<p><img src="relationship-matrix_files/figure-html/heatmap_family-1.png" class="r-plt" alt="" width="100%"></p>
 </div>
 </div>
 <div class="section level3">
@@ -635,7 +681,7 @@ the <code>by</code> parameter.</p>
 </h3>
 <p>The “histogram” type displays the distribution of relationship
 coefficients (lower triangle) or inbreeding coefficients.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Distribution of relationship coefficients</span></span>
 <span><span class="fu"><a href="../reference/vismat.html">vismat</a></span><span class="op">(</span><span class="va">mat_A</span>, type <span class="op">=</span> <span class="st">"histogram"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="relationship-matrix_files/figure-html/histogram-1.png" class="r-plt" alt="" width="100%"></p>
@@ -645,20 +691,51 @@ coefficients (lower triangle) or inbreeding coefficients.</p>
 <h2 id="id_5">5. Performance Considerations<a class="anchor" aria-label="anchor" href="#id_5"></a>
 </h2>
 <p>Calculation and visualization of large matrices can be
-resource-intensive. <code><a href="../reference/vismat.html">vismat()</a></code> includes several optimizations
-for large datasets:</p>
-<ul>
-<li>
-<strong>N &gt; 2000</strong>: For heatmaps larger than 2000x2000,
-labels are suppressed.</li>
-<li>
-<strong>N &gt; 500</strong>: For heatmaps larger than 500x500,
-reordering is disabled by default to save time.</li>
-<li>
-<strong>Compact Pedigree</strong>: Using a tidied pedigree with
-<code>compact = TRUE</code> is recommended for high-fecundity
-species.</li>
-</ul>
+resource-intensive. <code><a href="../reference/vismat.html">vismat()</a></code> applies the following
+automatic optimizations:</p>
+<table class="table">
+<colgroup>
+<col width="50%">
+<col width="50%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">Condition</th>
+<th align="left">Behavior</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">N &gt; 2000</td>
+<td align="left">Hierarchical clustering (reorder) is automatically
+skipped</td>
+</tr>
+<tr class="even">
+<td align="left">N &gt; 500</td>
+<td align="left">Individual labels are automatically hidden</td>
+</tr>
+<tr class="odd">
+<td align="left">N &gt; 100</td>
+<td align="left">Grid lines are automatically hidden</td>
+</tr>
+<tr class="even">
+<td align="left">Compact input</td>
+<td align="left">Matrix is automatically expanded via
+<code><a href="../reference/expand_pedmat.html">expand_pedmat()</a></code>
+</td>
+</tr>
+</tbody>
+</table>
+<p>For very large pedigrees where full matrix expansion is
+memory-intensive, use <code>by</code> grouping to aggregate to a
+group-level view without expanding:</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># For a large pedigree with 100k individuals:</span></span>
+<span><span class="co"># 1. Compute a compact matrix (fast and memory-efficient)</span></span>
+<span><span class="va">big_compact</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pedmat.html">pedmat</a></span><span class="op">(</span><span class="va">big_tped</span>, method <span class="op">=</span> <span class="st">"A"</span>, compact <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># 2. Visualize at generation level (no expansion needed)</span></span>
+<span><span class="fu"><a href="../reference/vismat.html">vismat</a></span><span class="op">(</span><span class="va">big_compact</span>, ped <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">big_compact</span>, <span class="st">"call_info"</span><span class="op">)</span><span class="op">$</span><span class="va">ped_original</span>,</span>
+<span>       by <span class="op">=</span> <span class="st">"Gen"</span>,</span>
+<span>       main <span class="op">=</span> <span class="st">"Mean Relationship Between Generations"</span><span class="op">)</span></span></code></pre></div>
 <hr>
 <p><strong>See Also:</strong> -
 <code><a href="../articles/tidy-pedigree.html">vignette("tidy-pedigree", package = "visPedigree")</a></code> -

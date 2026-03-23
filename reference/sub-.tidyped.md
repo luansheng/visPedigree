@@ -22,7 +22,7 @@ x[...]
 
   A `tidyped` object.
 
-- i, j, ...:
+- ...:
 
   Arguments passed to the `data.table` `[` method.
 

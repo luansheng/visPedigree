@@ -9,7 +9,7 @@ For compact matrices, automatically handles lookup of merged full-siblings."><me
 
     <a class="navbar-brand me-2" href="../index.html">visPedigree</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.6.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -39,7 +39,7 @@ For compact matrices, automatically handles lookup of merged full-siblings."><me
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Query Relationship Coefficients from a Pedigree Matrix</h1>
-      <small class="dont-index">Source: <a href="https://github.com/luansheng/visPedigree/blob/v1.5.0/R/pedmatrix.R" class="external-link"><code>R/pedmatrix.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/luansheng/visPedigree/blob/master/R/pedmatrix.R" class="external-link"><code>R/pedmatrix.R</code></a></small>
       <div class="d-none name"><code>query_relationship.Rd</code></div>
     </div>
 
@@ -100,8 +100,6 @@ inverse matrix elements do not represent meaningful relationship coefficients.</
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">tped</span> <span class="op">&lt;-</span> <span class="fu"><a href="tidyped.html">tidyped</a></span><span class="op">(</span><span class="va">small_ped</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">A</span> <span class="op">&lt;-</span> <span class="fu"><a href="pedmat.html">pedmat</a></span><span class="op">(</span><span class="va">tped</span>, method <span class="op">=</span> <span class="st">"A"</span>, compact <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Subsetting removed parent records. Result is a plain data.table, not a tidyped.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Query specific pair</span></span></span>
 <span class="r-in"><span><span class="fu">query_relationship</span><span class="op">(</span><span class="va">A</span>, <span class="st">"A"</span>, <span class="st">"B"</span><span class="op">)</span></span></span>
