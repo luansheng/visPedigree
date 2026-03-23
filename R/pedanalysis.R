@@ -399,12 +399,21 @@ pedsubpop <- function(ped, by = NULL) {
   data.table::rbindlist(res_list)[]
 }
 
-#' Calculate Average Additive Genetic Relationship (\eqn{a_{ij}})
+#' Calculate Mean Relationship or Coancestry Within Groups
 #'
-#' Computes the average pairwise additive genetic relationship coefficients (\eqn{a_{ij}}) 
-#' within cohorts or groups. The relationship \eqn{a_{ij}} is defined as twice the 
-#' coancestry coefficient (\eqn{f_{ij}}), representing the expected proportion of 
-#' genes shared by descent (e.g., 0.5 for full siblings).
+#' Computes either the average pairwise additive genetic relationship
+#' coefficients (\eqn{a_{ij}}) within cohorts, or the corrected population mean
+#' coancestry used for pedigree-based diversity summaries.
+#'
+#' When \code{scale = "relationship"}, the returned value is the mean of the
+#' off-diagonal additive relationship coefficients among the selected
+#' individuals. When \code{scale = "coancestry"}, the returned value is the
+#' diagonal-corrected population mean coancestry:
+#' \deqn{\bar{C} = \frac{N - 1}{N} \cdot \frac{\bar{a}_{off}}{2} + \frac{1 + \bar{F}}{2N}}
+#' where \eqn{\bar{a}_{off}} is the mean off-diagonal relationship, \eqn{\bar{F}}
+#' is the mean inbreeding coefficient of the selected individuals, and \eqn{N}
+#' is the number of selected individuals. This \eqn{\bar{C}} matches the
+#' internal coancestry quantity used to derive \eqn{f_g} in \code{\link{pediv}}.
 #'
 #' @param ped A \code{tidyped} object.
 #' @param by Character. The column name to group by (e.g., "Year", "Breed", "Generation").
@@ -413,14 +422,22 @@ pedsubpop <- function(ped, by = NULL) {
 #'   will be used. Default is NULL (use all individuals in the group).
 #' @param compact Logical. Whether to use compact representation for large families to
 #'   save memory. Recommended when pedigree size exceeds 25,000. Default is FALSE.
+#' @param scale Character. One of \code{"relationship"} or \code{"coancestry"}.
+#'   \code{"relationship"} returns the pairwise off-diagonal mean additive
+#'   relationship (current \code{pedrel()} behavior). \code{"coancestry"}
+#'   returns the corrected population mean coancestry used for pedigree-based
+#'   diversity calculations.
 #'
 #' @return A \code{data.table} with columns:
 #' \itemize{
 #'   \item A grouping identifier column, named after the \code{by} parameter (e.g., \code{Gen}, \code{Year}).
 #'   \item \code{NTotal}: Total number of individuals in the group.
 #'   \item \code{NUsed}: Number of individuals used in calculation (could be subset by reference).
-#'   \item \code{MeanRel}: Average of off-diagonal elements in the Additive Relationship (A) matrix 
-#'     for this group (\eqn{a_{ij} = 2f_{ij}}). Returns NA if the group has fewer than 2 individuals.
+#'   \item \code{MeanRel}: Present when \code{scale = "relationship"}; average of off-diagonal
+#'     elements in the Additive Relationship (A) matrix for this group
+#'     (\eqn{a_{ij} = 2f_{ij}}).
+#'   \item \code{MeanCoan}: Present when \code{scale = "coancestry"}; diagonal-corrected
+#'     population mean coancestry for this group.
 #' }
 #' 
 #' @examples
@@ -438,16 +455,27 @@ pedsubpop <- function(ped, by = NULL) {
 #' rel_by_year <- pedrel(tp, by = "Year")
 #' print(rel_by_year)
 #' 
-#' # Example 3: Filter calculations with a reference list in a chosen group
+#' # Example 3: Calculate corrected mean coancestry
+#' coan_by_gen <- pedrel(tp, by = "Gen", scale = "coancestry")
+#' print(coan_by_gen)
+#' 
+#' # Example 4: Filter calculations with a reference list in a chosen group
 #' candidates <- c("N", "O", "P", "Q", "T", "U", "V", "X", "Y")
 #' rel_subset <- pedrel(tp, by = "Gen", reference = candidates)
 #' print(rel_subset)
 #' }
 #' 
 #' @export
-pedrel <- function(ped, by = "Gen", reference = NULL, compact = FALSE) {
+pedrel <- function(ped, by = "Gen", reference = NULL, compact = FALSE,
+                   scale = c("relationship", "coancestry")) {
   ped <- ensure_complete_tidyped(ped, "pedrel()")
+  scale <- match.arg(scale)
   if (!by %in% names(ped)) stop(sprintf("Column '%s' not found.", by))
+
+  corrected_mean_coancestry <- function(mean_rel, mean_f, n_ref) {
+    if (is.na(mean_rel) || is.na(mean_f) || n_ref < 1L) return(NA_real_)
+    (n_ref - 1) / n_ref * mean_rel / 2 + (1 + mean_f) / (2 * n_ref)
+  }
   
   groups <- unique(ped[[by]])
   groups <- groups[!is.na(groups)]
@@ -458,7 +486,7 @@ pedrel <- function(ped, by = "Gen", reference = NULL, compact = FALSE) {
     
     if (n_total < 2) {
       warning(sprintf("Group '%s' has less than 2 individuals, returning NA_real_.", g))
-      return(data.table(Group = g, NTotal = n_total, NUsed = n_total, MeanRel = NA_real_))
+      return(data.table(Group = g, NTotal = n_total, NUsed = n_total, Mean = NA_real_))
     }
     
     if (!is.null(reference)) {
@@ -470,7 +498,7 @@ pedrel <- function(ped, by = "Gen", reference = NULL, compact = FALSE) {
     
     if (n_used < 2) {
       warning(sprintf("Group '%s' has less than 2 individuals after applying 'reference', returning NA_real_.", g))
-      return(data.table(Group = g, NTotal = n_total, NUsed = n_used, MeanRel = NA_real_))
+      return(data.table(Group = g, NTotal = n_total, NUsed = n_used, Mean = NA_real_))
     }
     
     local_ped <- tryCatch({
@@ -484,6 +512,7 @@ pedrel <- function(ped, by = "Gen", reference = NULL, compact = FALSE) {
     
     if (is.null(local_ped)) {
       mean_rel <- 0.0
+      mean_f_s <- 0.0
     } else {
       target_inds <- sub_ped$Ind
       
@@ -494,7 +523,7 @@ pedrel <- function(ped, by = "Gen", reference = NULL, compact = FALSE) {
                  "for dense A matrix (limit: %d). Returning NA.\n",
                  "Hint: use 'reference' parameter to reduce group size, or set compact = TRUE."),
           g, nrow(local_ped), max_dense))
-        return(data.table(Group = g, NTotal = n_total, NUsed = n_used, MeanRel = NA_real_))
+        return(data.table(Group = g, NTotal = n_total, NUsed = n_used, Mean = NA_real_))
       }
       
       if (isTRUE(compact)) {
@@ -509,7 +538,7 @@ pedrel <- function(ped, by = "Gen", reference = NULL, compact = FALSE) {
         })
         
         if (is.null(A)) {
-          return(data.table(Group = g, NTotal = n_total, NUsed = n_used, MeanRel = NA_real_))
+          return(data.table(Group = g, NTotal = n_total, NUsed = n_used, Mean = NA_real_))
         }
         
         c_map <- attr(A, "compact_map")
@@ -541,10 +570,11 @@ pedrel <- function(ped, by = "Gen", reference = NULL, compact = FALSE) {
         }
         
         mean_rel <- (sum_between + sum_within) / (as.numeric(n_used) * (n_used - 1))
+        mean_f_s <- sum(W * (diag(A_rep) - 1)) / as.numeric(n_used)
       } else {
         target_idx <- match(target_inds, local_ped$Ind)
         if (anyNA(target_idx)) {
-          return(data.table(Group = g, NTotal = n_total, NUsed = n_used, MeanRel = NA_real_))
+          return(data.table(Group = g, NTotal = n_total, NUsed = n_used, Mean = NA_real_))
         }
         mean_rel <- tryCatch({
           cpp_mean_relationship(local_ped$SireNum, local_ped$DamNum, as.integer(target_idx))
@@ -555,14 +585,36 @@ pedrel <- function(ped, by = "Gen", reference = NULL, compact = FALSE) {
             g, e$message))
           return(NA_real_)
         })
+
+        mean_f_s <- if (is.na(mean_rel)) {
+          NA_real_
+        } else {
+          tryCatch({
+            f_traced <- cpp_calculate_inbreeding(local_ped$SireNum, local_ped$DamNum)$f
+            mean(f_traced[target_idx], na.rm = TRUE)
+          }, error = function(e) {
+            warning(sprintf(
+              paste0("Group '%s': %s\n",
+                     "Hint: subset with 'reference' or use 'compact = TRUE'."),
+              g, e$message))
+            NA_real_
+          })
+        }
       }
     }
-    
-    data.table(Group = g, NTotal = n_total, NUsed = n_used, MeanRel = mean_rel)
+
+    mean_value <- if (scale == "relationship") {
+      mean_rel
+    } else {
+      corrected_mean_coancestry(mean_rel, mean_f_s, n_used)
+    }
+
+    data.table(Group = g, NTotal = n_total, NUsed = n_used, Mean = mean_value)
   })
   
   result <- rbindlist(res_list)
   setnames(result, "Group", by)
+  setnames(result, "Mean", if (scale == "relationship") "MeanRel" else "MeanCoan")
   setorderv(result, cols = by)
   return(result[])
 }

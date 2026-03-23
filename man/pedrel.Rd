@@ -2,9 +2,15 @@
 % Please edit documentation in R/pedanalysis.R
 \name{pedrel}
 \alias{pedrel}
-\title{Calculate Average Additive Genetic Relationship (\eqn{a_{ij}})}
+\title{Calculate Mean Relationship or Coancestry Within Groups}
 \usage{
-pedrel(ped, by = "Gen", reference = NULL, compact = FALSE)
+pedrel(
+  ped,
+  by = "Gen",
+  reference = NULL,
+  compact = FALSE,
+  scale = c("relationship", "coancestry")
+)
 }
 \arguments{
 \item{ped}{A \code{tidyped} object.}
@@ -17,6 +23,12 @@ will be used. Default is NULL (use all individuals in the group).}
 
 \item{compact}{Logical. Whether to use compact representation for large families to
 save memory. Recommended when pedigree size exceeds 25,000. Default is FALSE.}
+
+\item{scale}{Character. One of \code{"relationship"} or \code{"coancestry"}.
+\code{"relationship"} returns the pairwise off-diagonal mean additive
+relationship (current \code{pedrel()} behavior). \code{"coancestry"}
+returns the corrected population mean coancestry used for pedigree-based
+diversity calculations.}
 }
 \value{
 A \code{data.table} with columns:
@@ -24,15 +36,28 @@ A \code{data.table} with columns:
   \item A grouping identifier column, named after the \code{by} parameter (e.g., \code{Gen}, \code{Year}).
   \item \code{NTotal}: Total number of individuals in the group.
   \item \code{NUsed}: Number of individuals used in calculation (could be subset by reference).
-  \item \code{MeanRel}: Average of off-diagonal elements in the Additive Relationship (A) matrix 
-    for this group (\eqn{a_{ij} = 2f_{ij}}). Returns NA if the group has fewer than 2 individuals.
+  \item \code{MeanRel}: Present when \code{scale = "relationship"}; average of off-diagonal
+    elements in the Additive Relationship (A) matrix for this group
+    (\eqn{a_{ij} = 2f_{ij}}).
+  \item \code{MeanCoan}: Present when \code{scale = "coancestry"}; diagonal-corrected
+    population mean coancestry for this group.
 }
 }
 \description{
-Computes the average pairwise additive genetic relationship coefficients (\eqn{a_{ij}}) 
-within cohorts or groups. The relationship \eqn{a_{ij}} is defined as twice the 
-coancestry coefficient (\eqn{f_{ij}}), representing the expected proportion of 
-genes shared by descent (e.g., 0.5 for full siblings).
+Computes either the average pairwise additive genetic relationship
+coefficients (\eqn{a_{ij}}) within cohorts, or the corrected population mean
+coancestry used for pedigree-based diversity summaries.
+}
+\details{
+When \code{scale = "relationship"}, the returned value is the mean of the
+off-diagonal additive relationship coefficients among the selected
+individuals. When \code{scale = "coancestry"}, the returned value is the
+diagonal-corrected population mean coancestry:
+\deqn{\bar{C} = \frac{N - 1}{N} \cdot \frac{\bar{a}_{off}}{2} + \frac{1 + \bar{F}}{2N}}
+where \eqn{\bar{a}_{off}} is the mean off-diagonal relationship, \eqn{\bar{F}}
+is the mean inbreeding coefficient of the selected individuals, and \eqn{N}
+is the number of selected individuals. This \eqn{\bar{C}} matches the
+internal coancestry quantity used to derive \eqn{f_g} in \code{\link{pediv}}.
 }
 \examples{
 \donttest{
@@ -49,7 +74,11 @@ print(rel_by_gen)
 rel_by_year <- pedrel(tp, by = "Year")
 print(rel_by_year)
 
-# Example 3: Filter calculations with a reference list in a chosen group
+# Example 3: Calculate corrected mean coancestry
+coan_by_gen <- pedrel(tp, by = "Gen", scale = "coancestry")
+print(coan_by_gen)
+
+# Example 4: Filter calculations with a reference list in a chosen group
 candidates <- c("N", "O", "P", "Q", "T", "U", "V", "X", "Y")
 rel_subset <- pedrel(tp, by = "Gen", reference = candidates)
 print(rel_subset)

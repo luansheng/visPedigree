@@ -52,6 +52,13 @@ test_that("pedrel calculates relation correctly and handles boundaries", {
   expect_equal(rel_year_ref[YearGroup == 2, MeanRel], 0.5)
   expect_equal(rel_year_ref[YearGroup == 3, NUsed], 1)
   expect_true(is.na(rel_year_ref[YearGroup == 3, MeanRel]))
+
+  coan <- pedrel(test_ped, by = "Gen", scale = "coancestry")
+  expect_true("MeanCoan" %in% names(coan))
+  expect_false("MeanRel" %in% names(coan))
+  expect_equal(coan[Gen == 1, MeanCoan], 0.25)
+  expect_equal(coan[Gen == 2, MeanCoan], 0.375)
+  expect_equal(coan[Gen == 3, MeanCoan], 0.5)
 })
 
 test_that("pedrel captures deep inbreeding and correct ancestor tracing", {
@@ -82,6 +89,12 @@ test_that("pedrel captures deep inbreeding and correct ancestor tracing", {
   # A[E,E] = 1 + f_CD = 1 + 0.25 = 1.25. A[E,F] = 0.75.
   # A_mat[G,H] = 0.5 * (0.5*(1.25+0.75) + 0.5*(0.75+1.25)) = 0.5 * (1.0 + 1.0) = 1.0
   expect_equal(rel_deep[Gen == 4, MeanRel], 1.0)
+
+  coan_deep <- pedrel(tp_deep, by = "Gen", scale = "coancestry")
+  expect_equal(coan_deep[Gen == 1, MeanCoan], 0.25)
+  expect_equal(coan_deep[Gen == 2, MeanCoan], 0.375)
+  expect_equal(coan_deep[Gen == 3, MeanCoan], 0.5)
+  expect_equal(coan_deep[Gen == 4, MeanCoan], 0.59375)
 })
 
 test_that("pedgenint computes Average from all parent-offspring pairs", {
@@ -413,4 +426,9 @@ test_that("pedrel results match between compact and non-compact modes", {
   rel_full <- pedrel(tp, compact = FALSE)
 
   expect_equal(rel_comp, rel_full)
+
+  coan_comp <- pedrel(tp, compact = TRUE, scale = "coancestry")
+  coan_full <- pedrel(tp, compact = FALSE, scale = "coancestry")
+
+  expect_equal(coan_comp, coan_full)
 })
