@@ -1,4 +1,4 @@
-# visPedigree: Tidying, Analysis, and Fast Visualization of Animal and Plant Pedigrees `<img src="man/figures/logo.png" align="right" height="138" alt="" />`
+# visPedigree: Tidying, Analysis, and Fast Visualization of Animal and Plant Pedigrees
 
 `visPedigree` is a comprehensive toolkit for the standardization,
 statistical analysis, and fast visualization of animal and plant
