@@ -232,8 +232,20 @@ representative individuals from each full-sib family.</p>
 <span><span class="va">mat_compact</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pedmat.html">pedmat</a></span><span class="op">(</span><span class="va">tped</span>, method <span class="op">=</span> <span class="st">"A"</span>, compact <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># The result is a 'pedmat' object containing the compacted matrix</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">mat_compact</span><span class="op">[</span><span class="fl">10</span>,<span class="fl">10</span><span class="op">]</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 1</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">mat_compact</span><span class="op">[</span><span class="fl">11</span><span class="op">:</span><span class="fl">20</span>,<span class="fl">11</span><span class="op">:</span><span class="fl">20</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="co">#&gt; 10 x 10 sparse Matrix of class "dsCMatrix"</span></span>
+<span><span class="co">#&gt;   [[ suppressing 10 column names 'D', 'E', 'P' ... ]]</span></span>
+<span><span class="co">#&gt;                                                        </span></span>
+<span><span class="co">#&gt; D 1.00 0.50 .    .   0.250 0.250 0.250 0.250 0.250 .   </span></span>
+<span><span class="co">#&gt; E 0.50 1.00 .    .   0.500 0.500 0.250 0.250 0.250 .   </span></span>
+<span><span class="co">#&gt; P .    .    1.00 0.5 .     .     .     .     .     0.25</span></span>
+<span><span class="co">#&gt; Q .    .    0.50 1.0 .     .     .     .     .     0.50</span></span>
+<span><span class="co">#&gt; G 0.25 0.50 .    .   1.000 0.500 0.125 0.125 0.125 .   </span></span>
+<span><span class="co">#&gt; H 0.25 0.50 .    .   0.500 1.000 0.125 0.125 0.125 .   </span></span>
+<span><span class="co">#&gt; K 0.25 0.25 .    .   0.125 0.125 1.000 0.500 0.500 .   </span></span>
+<span><span class="co">#&gt; L 0.25 0.25 .    .   0.125 0.125 0.500 1.000 0.500 .   </span></span>
+<span><span class="co">#&gt; M 0.25 0.25 .    .   0.125 0.125 0.500 0.500 1.000 .   </span></span>
+<span><span class="co">#&gt; S .    .    0.25 0.5 .     .     .     .     .     1.00</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="id_3-2">3.2 Expanding and Querying Compacted Matrices<a class="anchor" aria-label="anchor" href="#id_3-2"></a>
@@ -311,7 +323,7 @@ full-sibs cluster tightly because they share nearly identical
 relationship profiles with the rest of the population.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Heatmap of the A matrix (with default clustering reorder)</span></span>
-<span><span class="fu"><a href="../reference/vismat.html">vismat</a></span><span class="op">(</span><span class="va">mat_A</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/vismat.html">vismat</a></span><span class="op">(</span><span class="va">mat_A</span>, labelcex <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></code></pre></div>
 <p><img src="relationship-matrix_files/figure-html/heatmap-1.png" class="r-plt" alt="" width="100%"></p>
 <div class="section level4">
 <h4 id="compact-matrix-direct-visualization">Compact Matrix — Direct Visualization<a class="anchor" aria-label="anchor" href="#compact-matrix-direct-visualization"></a>
@@ -321,7 +333,7 @@ relationship profiles with the rest of the population.</p>
 before rendering.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Compact matrix: expanded automatically (message printed)</span></span>
-<span><span class="fu"><a href="../reference/vismat.html">vismat</a></span><span class="op">(</span><span class="va">mat_compact</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/vismat.html">vismat</a></span><span class="op">(</span><span class="va">mat_compact</span>,labelcex<span class="op">=</span><span class="fl">0.5</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Expanding compact matrix (27 -&gt; 28 individuals) for visualization.</span></span></code></pre></div>
 <p><img src="relationship-matrix_files/figure-html/heatmap_compact-1.png" class="r-plt" alt="" width="100%"></p>
 </div>
@@ -331,7 +343,7 @@ before rendering.</p>
 <p>Set <code>reorder = FALSE</code> to keep the original pedigree order
 instead of re-sorting by clustering.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/vismat.html">vismat</a></span><span class="op">(</span><span class="va">mat_A</span>, reorder <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/vismat.html">vismat</a></span><span class="op">(</span><span class="va">mat_A</span>, reorder <span class="op">=</span> <span class="cn">FALSE</span>, labelcex <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></code></pre></div>
 <p><img src="relationship-matrix_files/figure-html/heatmap_no_reorder-1.png" class="r-plt" alt="" width="100%"></p>
 </div>
 <div class="section level4">
@@ -454,6 +466,7 @@ expansion.</p>
 <span>       ped <span class="op">=</span> <span class="va">tp_big</span>,</span>
 <span>       ids <span class="op">=</span> <span class="va">ids_last_gen</span>,</span>
 <span>       by <span class="op">=</span> <span class="st">"Family"</span>,</span>
+<span>       labelcex <span class="op">=</span> <span class="fl">0.3</span>,</span>
 <span>       main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Mean Relationship Between All Families in Generation"</span>, <span class="va">last_gen</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; Aggregating 37009 individuals into 106 groups based on 'Family'...</span></span></code></pre></div>

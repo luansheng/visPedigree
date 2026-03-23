@@ -142,8 +142,20 @@ representative individuals from each full-sib family.
 mat_compact <- pedmat(tped, method = "A", compact = TRUE)
 
 # The result is a 'pedmat' object containing the compacted matrix
-print(mat_compact[10,10])
-#> [1] 1
+print(mat_compact[11:20,11:20])
+#> 10 x 10 sparse Matrix of class "dsCMatrix"
+#>   [[ suppressing 10 column names 'D', 'E', 'P' ... ]]
+#>                                                        
+#> D 1.00 0.50 .    .   0.250 0.250 0.250 0.250 0.250 .   
+#> E 0.50 1.00 .    .   0.500 0.500 0.250 0.250 0.250 .   
+#> P .    .    1.00 0.5 .     .     .     .     .     0.25
+#> Q .    .    0.50 1.0 .     .     .     .     .     0.50
+#> G 0.25 0.50 .    .   1.000 0.500 0.125 0.125 0.125 .   
+#> H 0.25 0.50 .    .   0.500 1.000 0.125 0.125 0.125 .   
+#> K 0.25 0.25 .    .   0.125 0.125 1.000 0.500 0.500 .   
+#> L 0.25 0.25 .    .   0.125 0.125 0.500 1.000 0.500 .   
+#> M 0.25 0.25 .    .   0.125 0.125 0.500 0.500 1.000 .   
+#> S .    .    0.25 0.5 .     .     .     .     .     1.00
 ```
 
 ### 3.2 Expanding and Querying Compacted Matrices
@@ -198,7 +210,7 @@ the rest of the population.
 
 ``` r
 # Heatmap of the A matrix (with default clustering reorder)
-vismat(mat_A)
+vismat(mat_A, labelcex = 0.5)
 ```
 
 ![](relationship-matrix_files/figure-html/heatmap-1.png)
@@ -211,7 +223,7 @@ It is automatically expanded to full dimensions before rendering.
 
 ``` r
 # Compact matrix: expanded automatically (message printed)
-vismat(mat_compact)
+vismat(mat_compact,labelcex=0.5)
 #> Expanding compact matrix (27 -> 28 individuals) for visualization.
 ```
 
@@ -223,7 +235,7 @@ Set `reorder = FALSE` to keep the original pedigree order instead of
 re-sorting by clustering.
 
 ``` r
-vismat(mat_A, reorder = FALSE)
+vismat(mat_A, reorder = FALSE, labelcex = 0.5)
 ```
 
 ![](relationship-matrix_files/figure-html/heatmap_no_reorder-1.png)
@@ -325,6 +337,7 @@ vismat(
        ped = tp_big,
        ids = ids_last_gen,
        by = "Family",
+       labelcex = 0.3,
        main = paste("Mean Relationship Between All Families in Generation", last_gen)
 )
 #> Aggregating 37009 individuals into 106 groups based on 'Family'...
