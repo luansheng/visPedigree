@@ -6,26 +6,26 @@
 
 1.  **[`pediv()`](https://luansheng.github.io/visPedigree/reference/pediv.md)
     retained genetic diversity (`GeneDiv`)**: `pediv()$summary` gains a
-    new column `GeneDiv = 1 − MeanCoan`, the pedigree-based retained
+    new column `GeneDiv = 1 - MeanCoan`, the pedigree-based retained
     genetic diversity of the reference population. Values lie in
     $\lbrack 0,1\rbrack$; higher values indicate more diversity retained
     relative to an unrelated base population.
     [`print.pediv()`](https://luansheng.github.io/visPedigree/reference/print.pediv.md)
-    displays it alongside `fg` and `MeanCoan`. This is a dimensionless
-    complement to `fg` that is easier to communicate to non-specialist
+    displays it alongside `fg` and `MeanCoan`. This dimensionless
+    complement to `fg` is easier to communicate to non-specialist
     stakeholders.
 
 2.  **[`vismat()`](https://luansheng.github.io/visPedigree/reference/vismat.md)
     large-pedigree representative view**: When the original pedigree has
     more than 5,000 individuals,
     [`vismat()`](https://luansheng.github.io/visPedigree/reference/vismat.md)
-    no longer attempts a full N × N matrix expansion. Instead it uses
+    no longer attempts a full N × N matrix expansion. Instead, it uses
     the compact matrix (K × K representative individuals) directly and
     adds sibling-count labels of the form `ID (×n)` to each axis tick.
-    For `compact = TRUE` with a `by` grouping, the function now computes
-    group means algebraically from the K × K matrix without expanding to
-    N × N, eliminating memory overflow for very large pedigrees (e.g., N
-    ≈ 178,000 in `big_family_size_ped`).
+    When `compact = TRUE` and `by` is supplied, the function now
+    computes group means algebraically from the K × K matrix without
+    expanding to N × N, eliminating memory overflow for very large
+    pedigrees (e.g., N ≈ 178,000 in `big_family_size_ped`).
 
 ### Internal changes
 
