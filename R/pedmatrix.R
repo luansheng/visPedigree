@@ -58,7 +58,7 @@
 #'   \item \code{\link{query_relationship}(x, id1, id2)}: Query any individual
 #'         pair, including merged siblings (automatic lookup)
 #'   \item \code{\link{expand_pedmat}(x)}: Restore full matrix dimensions
-#'   \item \code{\link{vismat}(x)}: Visualize directly (auto-detects compact)
+#'   \item \code{\link{vismat}(x)}: Visualize directly (auto-expands compact)
 #' }
 #' 
 #' \strong{Performance Notes:}

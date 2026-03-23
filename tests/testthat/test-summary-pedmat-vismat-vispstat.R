@@ -52,6 +52,90 @@ test_that("vismat works with tidyped input", {
   expect_true(inherits(p, "trellis"))
 })
 
+test_that("vismat reorder=FALSE preserves original order", {
+  tp <- tidyped(small_ped)
+  A <- pedmat(tp, method = "A")
+  p <- vismat(A, reorder = FALSE)
+  expect_true(inherits(p, "trellis"))
+})
+
+test_that("vismat ids subsets the matrix", {
+  tp <- tidyped(small_ped)
+  A <- pedmat(tp, method = "A")
+  target <- rownames(as.matrix(A))[1:5]
+  p <- vismat(A, ids = target)
+  expect_true(inherits(p, "trellis"))
+})
+
+test_that("vismat ids errors on non-existent IDs", {
+  tp <- tidyped(small_ped)
+  A <- pedmat(tp, method = "A")
+  expect_error(vismat(A, ids = c("NONEXIST_1", "NONEXIST_2")),
+               "None of the specified")
+})
+
+test_that("vismat by groups by generation", {
+  tp <- tidyped(small_ped)
+  A <- pedmat(tp, method = "A")
+  expect_message(
+    p <- vismat(A, ped = tp, by = "Gen"),
+    "Aggregating"
+  )
+  expect_true(inherits(p, "trellis"))
+})
+
+test_that("vismat by errors without ped", {
+  tp <- tidyped(small_ped)
+  A <- as.matrix(pedmat(tp, method = "A"))
+  # Plain matrix has no ped attribute
+  expect_error(vismat(A, by = "Gen"), "'ped' must be provided")
+})
+
+test_that("vismat grouping deprecated parameter works", {
+  tp <- tidyped(small_ped)
+  A <- pedmat(tp, method = "A")
+  expect_warning(
+    p <- vismat(A, ped = tp, grouping = "Gen"),
+    "deprecated"
+  )
+  expect_true(inherits(p, "trellis"))
+})
+
+test_that("vismat works with plain matrix input", {
+  tp <- tidyped(small_ped)
+  A <- pedmat(tp, method = "A")
+  A_dense <- as.matrix(A)
+  class(A_dense) <- "matrix"  # ensure no pedmat class
+  p <- vismat(A_dense)
+  expect_true(inherits(p, "trellis"))
+})
+
+test_that("vismat labelcex controls label font size", {
+  tp <- tidyped(small_ped)
+  A <- pedmat(tp, method = "A")
+  p <- vismat(A, labelcex = 0.3)
+  expect_true(inherits(p, "trellis"))
+})
+
+test_that("vismat auto-expands compact pedmat", {
+  tp <- tidyped(small_ped)
+  A_compact <- pedmat(tp, method = "A", compact = TRUE)
+  ci <- attr(A_compact, "call_info")
+
+  # Should produce a message about expanding
+  expect_message(
+    p <- vismat(A_compact),
+    "Expanding compact matrix"
+  )
+  expect_true(inherits(p, "trellis"))
+})
+
+test_that("vismat errors on unsupported type", {
+  tp <- tidyped(small_ped)
+  A <- pedmat(tp, method = "A")
+  expect_error(vismat(A, type = "scatter"), "not supported")
+})
+
 # --- vispstat ---
 test_that("vispstat produces ECG histogram", {
   tp <- tidyped(simple_ped)

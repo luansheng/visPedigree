@@ -134,6 +134,13 @@ dim(mat_full)
 query_relationship(mat_compact, "Z1", "Z2")
 ```
 
+For visualization, you can pass the compact matrix **directly** to `vismat()` — it automatically calls `expand_pedmat()` internally and prints the expansion dimensions:
+
+```{r compact_vismat, fig.width=6, fig.height=6}
+# Compact matrix is auto-expanded before plotting
+vismat(mat_compact)
+```
+
 ### 3.3 When to Use Compact Mode {#3-3}
 
 Compact mode is highly recommended for:
@@ -154,22 +161,62 @@ Visualization helps in understanding population structure, detecting family clus
 
 ### 4.1 Relationship Heatmaps {#4-1}
 
-The "heatmap" type (default) uses a Nature Genetics style color palette (White-Orange-Red) to display relationships.
+The `"heatmap"` type (default) uses a Nature Genetics style color palette
+(White–Orange–Red) to display relationships. Rows and columns are reordered
+by hierarchical clustering (Ward.D2) by default, bringing closely related
+individuals into contiguous blocks — full-sibs cluster tightly because they
+share nearly identical relationship profiles with the rest of the population.
 
 ```{r heatmap, fig.width=6, fig.height=6}
-# Heatmap of the A matrix
+# Heatmap of the A matrix (with default clustering reorder)
 vismat(mat_A)
 ```
 
-#### Reordering and Clustering
-Setting `reorder = TRUE` (default) performs hierarchical clustering to group related individuals together.
+#### Compact Matrix — Direct Visualization
 
-#### Grouping by Labels
-You can aggregate relationships by groups (e.g., generations) using the `by` parameter.
+A compact `pedmat` object can be passed directly to `vismat()`. It is
+automatically expanded to full dimensions before rendering.
+
+```{r heatmap_compact, fig.width=6, fig.height=6}
+# Compact matrix: expanded automatically (message printed)
+vismat(mat_compact)
+```
+
+#### Preserve Pedigree Order
+
+Set `reorder = FALSE` to keep the original pedigree order instead of
+re-sorting by clustering.
+
+```{r heatmap_no_reorder, fig.width=6, fig.height=6}
+vismat(mat_A, reorder = FALSE)
+```
+
+#### Display a Subset of Individuals
+
+Use `ids` to focus on specific individuals.
+
+```{r heatmap_ids, fig.width=5, fig.height=5}
+target_ids <- rownames(as.matrix(mat_A))[1:8]
+vismat(mat_A, ids = target_ids,
+       main = "Relationship Heatmap — First 8 Individuals")
+```
+
+#### Grouping by Pedigree Column
+
+For large populations, aggregate relationships to a group-level view using
+the `by` parameter. The matrix is reduced to mean coefficients between groups.
 
 ```{r heatmap_group, fig.width=6, fig.height=6}
 # Mean relationship between generations
-vismat(mat_A, ped = tped, by = "Gen")
+vismat(mat_A, ped = tped, by = "Gen",
+       main = "Mean Relationship Between Generations")
+```
+
+```{r heatmap_family, fig.width=6, fig.height=6}
+# Mean relationship between full-sib families
+# (founders without a family assignment are excluded automatically)
+vismat(mat_A, ped = tped, by = "Family",
+       main = "Mean Relationship Between Full-Sib Families")
 ```
 
 ### 4.2 Inbreeding and Kinship Histograms {#4-2}
@@ -183,11 +230,29 @@ vismat(mat_A, type = "histogram")
 
 ## 5. Performance Considerations {#5}
 
-Calculation and visualization of large matrices can be resource-intensive. `vismat()` includes several optimizations for large datasets:
+Calculation and visualization of large matrices can be resource-intensive.
+`vismat()` applies the following automatic optimizations:
 
--   **N > 2000**: For heatmaps larger than 2000x2000, labels are suppressed.
--   **N > 500**: For heatmaps larger than 500x500, reordering is disabled by default to save time.
--   **Compact Pedigree**: Using a tidied pedigree with `compact = TRUE` is recommended for high-fecundity species.
+| Condition | Behavior |
+| :--- | :--- |
+| N > 2000 | Hierarchical clustering (reorder) is automatically skipped |
+| N > 500 | Individual labels are automatically hidden |
+| N > 100 | Grid lines are automatically hidden |
+| Compact input | Matrix is automatically expanded via `expand_pedmat()` |
+
+For very large pedigrees where full matrix expansion is memory-intensive,
+use `by` grouping to aggregate to a group-level view without expanding:
+
+```{r large_ped_tip, eval=FALSE}
+# For a large pedigree with 100k individuals:
+# 1. Compute a compact matrix (fast and memory-efficient)
+big_compact <- pedmat(big_tped, method = "A", compact = TRUE)
+
+# 2. Visualize at generation level (no expansion needed)
+vismat(big_compact, ped = attr(big_compact, "call_info")$ped_original,
+       by = "Gen",
+       main = "Mean Relationship Between Generations")
+```
 
 ---
 **See Also:**
