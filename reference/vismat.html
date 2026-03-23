@@ -75,8 +75,10 @@ inbred individuals, and analyzing kinship between families.</p>
 
 <dl><dt id="arg-mat">mat<a class="anchor" aria-label="anchor" href="#arg-mat"></a></dt>
 <dd><p>A relationship matrix. Can be one of the following types:</p><ul><li><p>A <code>pedmat</code> object returned by <code><a href="pedmat.html">pedmat</a></code> — including
-        compact matrices, which are automatically expanded to full dimensions
-        before plotting (see Details).</p></li>
+        compact matrices. When <code>by</code> is specified, group-level means are
+        computed directly from the compact matrix (no full expansion needed).
+        Without <code>by</code>, compact matrices are automatically expanded to
+        full dimensions before plotting (see Details).</p></li>
 <li><p>A <code><a href="tidyped.html">tidyped</a></code> object (automatically calculates additive
         relationship matrix A).</p></li>
 <li><p>A named list containing matrices (preferring A, D, AA).</p></li>
@@ -112,7 +114,8 @@ filter and display a submatrix of specific individuals. If <code>NULL</code>
 <dd><p>Logical. If <code>TRUE</code> (default), rows and columns are
 reordered using hierarchical clustering (Ward.D2 method) to bring closely
 related individuals together. Only affects heatmap visualization.
-Automatically skipped for large matrices (N &gt; 2000) to improve performance.</p>
+Automatically skipped for large matrices (N &gt; VISMAT_REORDER_MAX, default 2 000)
+to improve performance.</p>
 <p><strong>Clustering principle</strong>: Based on relationship profile distance (Euclidean
 distance between rows). Full-sibs have nearly identical relationship profiles
 with the whole population, so they cluster tightly together and appear as
@@ -136,7 +139,7 @@ contiguous blocks in the heatmap.</p></dd>
 <dd><p>Numeric. Manual control for font size of individual labels.
 If <code>NULL</code> (default), uses a dynamic font size that adjusts automatically
 based on matrix dimensions (range 0.2–0.7). Labels are hidden automatically
-when N &gt; 500.</p></dd>
+when N &gt; VISMAT_LABEL_MAX (default 500).</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -159,20 +162,26 @@ rendered on the current graphics device.</p>
 <div class="section">
 <h3 id="compact-matrix-handling">Compact Matrix Handling<a class="anchor" aria-label="anchor" href="#compact-matrix-handling"></a></h3>
 <p>When <code>mat</code> is a compact <code>pedmat</code> object (created with
-<code>pedmat(..., compact = TRUE)</code>), <code>vismat()</code> automatically calls
-<code><a href="expand_pedmat.html">expand_pedmat</a></code> to restore the full-dimension matrix before
-rendering. This ensures that all original individuals — including full-sib
-family members that were merged into a single representative — appear in the
-heatmap. A message is printed to report the expansion dimensions, e.g.:</p><div class="sourceCode"><pre><code>Expanding compact matrix (18 -&gt; 170000 individuals) for visualization.</code></pre></div><p>For very large pedigrees where full expansion is memory-intensive, consider
-using the <code>by</code> parameter to aggregate to a group-level view instead.</p>
-</div>
+<code>pedmat(..., compact = TRUE)</code>):</p><ul><li><p><strong>With <code>by</code></strong>: Group-level mean relationships are computed
+        algebraically from the K×K compact matrix, including a correction for
+        sibling off-diagonal values. This avoids expanding to the full N×N
+        matrix, making family-level or generation-level visualization feasible
+        even for pedigrees with hundreds of thousands of individuals.</p></li>
+<li><p><strong>Without <code>by</code>, N &gt; VISMAT_EXPAND_MAX (5 000)</strong>: The compact K\(\times\)K matrix
+        is plotted directly using representative individuals. Labels show the
+        number of individuals each representative stands for, e.g.,
+        <code>"ID (\u00d7350)"</code>. This avoids memory-intensive full expansion.</p></li>
+<li><p><strong>Without <code>by</code>, N \(\le\) 5 000</strong>: The compact matrix is
+        expanded via <code><a href="expand_pedmat.html">expand_pedmat</a></code> to restore full dimensions.</p></li>
+</ul></div>
 
 <div class="section">
 <h3 id="heatmap">Heatmap<a class="anchor" aria-label="anchor" href="#heatmap"></a></h3>
 
 <ul><li><p>Uses a Nature Genetics style color palette (white to orange to red to dark red).</p></li>
 <li><p>Hierarchical clustering reordering (Ward.D2) is enabled by default.</p></li>
-<li><p>Grid lines shown when N \(\le\) 100; labels shown when N \(\le\) 500.</p></li>
+<li><p>Grid lines shown when N \(\le\) VISMAT_GRID_MAX (100);
+        labels shown when N \(\le\) VISMAT_LABEL_MAX (500).</p></li>
 <li><p><code>mat[1,1]</code> is displayed at the top-left corner.</p></li>
 </ul></div>
 
@@ -185,10 +194,13 @@ using the <code>by</code> parameter to aggregate to a group-level view instead.<
 
 <div class="section">
 <h3 id="performance">Performance<a class="anchor" aria-label="anchor" href="#performance"></a></h3>
-
-<ul><li><p>N &gt; 2000: hierarchical clustering is automatically skipped.</p></li>
-<li><p>N &gt; 500: individual labels are automatically hidden.</p></li>
-<li><p>N &gt; 100: grid lines are automatically hidden.</p></li>
+<p>The following automatic thresholds are defined as package-internal
+constants (<code>VISMAT_*</code>) at the top of <code>R/vismat.R</code>:</p><ul><li><p><code>VISMAT_EXPAND_MAX</code> (5 000): compact matrices with original
+        N above this are shown in representative view instead of expanding.</p></li>
+<li><p><code>VISMAT_REORDER_MAX</code> (2 000): hierarchical clustering is
+        automatically skipped.</p></li>
+<li><p><code>VISMAT_LABEL_MAX</code> (500): individual labels are hidden.</p></li>
+<li><p><code>VISMAT_GRID_MAX</code> (100): cell grid lines are hidden.</p></li>
 <li><p><code>by</code> grouping uses vectorized <code><a href="https://rdrr.io/r/base/rowsum.html" class="external-link">rowsum()</a></code> algebra — suitable
         for large matrices.</p></li>
 </ul></div>

@@ -30,8 +30,10 @@ vismat(
 
   - A `pedmat` object returned by
     [`pedmat`](https://luansheng.github.io/visPedigree/reference/pedmat.md)
-    — including compact matrices, which are automatically expanded to
-    full dimensions before plotting (see Details).
+    — including compact matrices. When `by` is specified, group-level
+    means are computed directly from the compact matrix (no full
+    expansion needed). Without `by`, compact matrices are automatically
+    expanded to full dimensions before plotting (see Details).
 
   - A
     [`tidyped`](https://luansheng.github.io/visPedigree/reference/tidyped.md)
@@ -75,8 +77,8 @@ vismat(
   Logical. If `TRUE` (default), rows and columns are reordered using
   hierarchical clustering (Ward.D2 method) to bring closely related
   individuals together. Only affects heatmap visualization.
-  Automatically skipped for large matrices (N \> 2000) to improve
-  performance.
+  Automatically skipped for large matrices (N \> VISMAT_REORDER_MAX,
+  default 2 000) to improve performance.
 
   **Clustering principle**: Based on relationship profile distance
   (Euclidean distance between rows). Full-sibs have nearly identical
@@ -108,7 +110,7 @@ vismat(
   Numeric. Manual control for font size of individual labels. If `NULL`
   (default), uses a dynamic font size that adjusts automatically based
   on matrix dimensions (range 0.2–0.7). Labels are hidden automatically
-  when N \> 500.
+  when N \> VISMAT_LABEL_MAX (default 500).
 
 - ...:
 
@@ -133,18 +135,23 @@ current graphics device.
 ### Compact Matrix Handling
 
 When `mat` is a compact `pedmat` object (created with
-`pedmat(..., compact = TRUE)`), `vismat()` automatically calls
-[`expand_pedmat`](https://luansheng.github.io/visPedigree/reference/expand_pedmat.md)
-to restore the full-dimension matrix before rendering. This ensures that
-all original individuals — including full-sib family members that were
-merged into a single representative — appear in the heatmap. A message
-is printed to report the expansion dimensions, e.g.:
+`pedmat(..., compact = TRUE)`):
 
-    Expanding compact matrix (18 -> 170000 individuals) for visualization.
+- **With `by`**: Group-level mean relationships are computed
+  algebraically from the K×K compact matrix, including a correction for
+  sibling off-diagonal values. This avoids expanding to the full N×N
+  matrix, making family-level or generation-level visualization feasible
+  even for pedigrees with hundreds of thousands of individuals.
 
-For very large pedigrees where full expansion is memory-intensive,
-consider using the `by` parameter to aggregate to a group-level view
-instead.
+- **Without `by`, N \> VISMAT_EXPAND_MAX (5 000)**: The compact
+  K\\\times\\K matrix is plotted directly using representative
+  individuals. Labels show the number of individuals each representative
+  stands for, e.g., `"ID (\u00d7350)"`. This avoids memory-intensive
+  full expansion.
+
+- **Without `by`, N \\\le\\ 5 000**: The compact matrix is expanded via
+  [`expand_pedmat`](https://luansheng.github.io/visPedigree/reference/expand_pedmat.md)
+  to restore full dimensions.
 
 ### Heatmap
 
@@ -153,7 +160,8 @@ instead.
 
 - Hierarchical clustering reordering (Ward.D2) is enabled by default.
 
-- Grid lines shown when N \\\le\\ 100; labels shown when N \\\le\\ 500.
+- Grid lines shown when N \\\le\\ VISMAT_GRID_MAX (100); labels shown
+  when N \\\le\\ VISMAT_LABEL_MAX (500).
 
 - `mat[1,1]` is displayed at the top-left corner.
 
@@ -166,11 +174,18 @@ instead.
 
 ### Performance
 
-- N \> 2000: hierarchical clustering is automatically skipped.
+The following automatic thresholds are defined as package-internal
+constants (`VISMAT_*`) at the top of `R/vismat.R`:
 
-- N \> 500: individual labels are automatically hidden.
+- `VISMAT_EXPAND_MAX` (5 000): compact matrices with original N above
+  this are shown in representative view instead of expanding.
 
-- N \> 100: grid lines are automatically hidden.
+- `VISMAT_REORDER_MAX` (2 000): hierarchical clustering is automatically
+  skipped.
+
+- `VISMAT_LABEL_MAX` (500): individual labels are hidden.
+
+- `VISMAT_GRID_MAX` (100): cell grid lines are hidden.
 
 - `by` grouping uses vectorized
   [`rowsum()`](https://rdrr.io/r/base/rowsum.html) algebra — suitable
