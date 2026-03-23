@@ -92,4 +92,4 @@ summary(split_list[[1]])
 
 ## Citation
 
-Luan Sheng (2026). visPedigree: Tidying, Analysis, and Fast Visualization of Animal and Plant Pedigrees. R package version 1.4.0, https://github.com/luansheng/visPedigree.
+Luan Sheng (2026). visPedigree: Tidying, Analysis, and Fast Visualization of Animal and Plant Pedigrees. R package version 1.6.2, https://github.com/luansheng/visPedigree.
