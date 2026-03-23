@@ -118,7 +118,7 @@ When `compact = TRUE`, the matrix is calculated for unique representative indivi
 mat_compact <- pedmat(tped, method = "A", compact = TRUE)
 
 # The result is a 'pedmat' object containing the compacted matrix
-print(mat_compact[10,10])
+print(mat_compact[11:20,11:20])
 ```
 
 ### 3.2 Expanding and Querying Compacted Matrices {#3-2}
@@ -162,7 +162,7 @@ share nearly identical relationship profiles with the rest of the population.
 
 ```{r heatmap, fig.width=6, fig.height=6}
 # Heatmap of the A matrix (with default clustering reorder)
-vismat(mat_A)
+vismat(mat_A, labelcex = 0.5)
 ```
 
 #### Compact Matrix — Direct Visualization
@@ -172,7 +172,7 @@ automatically expanded to full dimensions before rendering.
 
 ```{r heatmap_compact, fig.width=6, fig.height=6}
 # Compact matrix: expanded automatically (message printed)
-vismat(mat_compact)
+vismat(mat_compact,labelcex=0.5)
 ```
 
 #### Preserve Pedigree Order
@@ -181,7 +181,7 @@ Set `reorder = FALSE` to keep the original pedigree order instead of
 re-sorting by clustering.
 
 ```{r heatmap_no_reorder, fig.width=6, fig.height=6}
-vismat(mat_A, reorder = FALSE)
+vismat(mat_A, reorder = FALSE, labelcex = 0.5)
 ```
 
 #### Display a Subset of Individuals
@@ -263,6 +263,7 @@ vismat(
        ped = tp_big,
        ids = ids_last_gen,
        by = "Family",
+       labelcex = 0.3,
        main = paste("Mean Relationship Between All Families in Generation", last_gen)
 )
 ```
