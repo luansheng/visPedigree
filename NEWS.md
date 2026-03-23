@@ -1,3 +1,5 @@
+# visPedigree 1.7.0
+
 # Changes in version 1.6.2 released on 23 Mar 2026
 ## New features
 1. **`pedrel()` coancestry scale**: Added a `scale` parameter to `pedrel()` supporting `"relationship"` (default, returns mean $a_{ij}$) and `"coancestry"` (returns corrected mean coancestry $\bar{c}$). The coancestry scale uses the diagonal-corrected formula of Caballero & Toro (2000), properly accounting for self-coancestry within the reference group.
