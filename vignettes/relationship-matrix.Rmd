@@ -90,7 +90,7 @@ class(mat_A)
 Use the `summary()` method to get an overview of the calculated matrix, including size, density, and average relationship.
 
 ```{r matrix_summary}
-summary(mat_A)
+tail(summary(mat_A),10)
 ```
 
 ### 2.2 Querying Specific Relationships {#2-2}
@@ -118,7 +118,7 @@ When `compact = TRUE`, the matrix is calculated for unique representative indivi
 mat_compact <- pedmat(tped, method = "A", compact = TRUE)
 
 # The result is a 'pedmat' object containing the compacted matrix
-print(mat_compact)
+print(mat_compact[10,10])
 ```
 
 ### 3.2 Expanding and Querying Compacted Matrices {#3-2}
@@ -132,13 +132,6 @@ dim(mat_full)
 
 # Query still works the same way
 query_relationship(mat_compact, "Z1", "Z2")
-```
-
-For visualization, you can pass the compact matrix **directly** to `vismat()` — it automatically calls `expand_pedmat()` internally and prints the expansion dimensions:
-
-```{r compact_vismat, fig.width=6, fig.height=6}
-# Compact matrix is auto-expanded before plotting
-vismat(mat_compact)
 ```
 
 ### 3.3 When to Use Compact Mode {#3-3}
@@ -235,24 +228,48 @@ Calculation and visualization of large matrices can be resource-intensive.
 
 | Condition | Behavior |
 | :--- | :--- |
-| N > 2000 | Hierarchical clustering (reorder) is automatically skipped |
+| Compact + `by` | Group means are computed directly from the compact matrix (no full expansion) |
+| Compact, no `by`, N > 5 000 | Uses compact representative view (labels show `ID (×n)`) |
+| Compact, no `by`, N ≤ 5 000 | Matrix is automatically expanded via `expand_pedmat()` |
+| N > 2 000 | Hierarchical clustering (reorder) is automatically skipped |
 | N > 500 | Individual labels are automatically hidden |
 | N > 100 | Grid lines are automatically hidden |
-| Compact input | Matrix is automatically expanded via `expand_pedmat()` |
 
-For very large pedigrees where full matrix expansion is memory-intensive,
-use `by` grouping to aggregate to a group-level view without expanding:
+When a compact `pedmat` is used with `by`, `vismat()` computes the group-level
+mean relationship matrix algebraically from the K×K compact matrix, including
+a sibling off-diagonal correction. This avoids expanding to the full N×N matrix,
+making family-level or generation-level visualization feasible even for pedigrees
+with hundreds of thousands of individuals.
 
-```{r large_ped_tip, eval=FALSE}
-# For a large pedigree with 100k individuals:
-# 1. Compute a compact matrix (fast and memory-efficient)
-big_compact <- pedmat(big_tped, method = "A", compact = TRUE)
+The example below uses `big_family_size_ped` (178 431 individuals, compact to 2 626)
+and displays the mean additive relationship among **all** full-sib families in the
+latest generation — a computation that would be infeasible with full expansion.
 
-# 2. Visualize at generation level (no expansion needed)
-vismat(big_compact, ped = attr(big_compact, "call_info")$ped_original,
-       by = "Gen",
-       main = "Mean Relationship Between Generations")
+```{r large_ped_tip, fig.width=7, fig.height=6.5}
+data(big_family_size_ped)
+
+tp_big <- tidyped(big_family_size_ped)
+last_gen <- max(tp_big$Gen, na.rm = TRUE)
+
+# Compute the compact A matrix for the entire pedigree
+mat_big_compact <- pedmat(tp_big, method = "A", compact = TRUE)
+
+# Focus on all individuals in the last generation that belong to a family
+ids_last_gen <- tp_big[Gen == last_gen & !is.na(Family), Ind]
+
+# vismat() aggregates directly from the compact matrix — no expansion needed
+vismat(
+       mat_big_compact,
+       ped = tp_big,
+       ids = ids_last_gen,
+       by = "Family",
+       main = paste("Mean Relationship Between All Families in Generation", last_gen)
+)
 ```
+
+This family-level view reveals the genetic structure among all `r length(unique(tp_big[Gen == last_gen & !is.na(Family), Family]))` families
+comprising `r length(ids_last_gen)` individuals, computed in seconds from the
+compact matrix.
 
 ---
 **See Also:**

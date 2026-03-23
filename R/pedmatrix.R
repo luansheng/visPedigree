@@ -1135,6 +1135,32 @@ query_relationship <- function(x, id1, id2 = NULL) {
   }
 }
 
+# --------------------------------------------------------------------------
+# Internal helper: sibling off-diagonal value from parent relationships
+# --------------------------------------------------------------------------
+# Computes the relationship value between full-siblings who share the same
+# compact representative. Used by expand_pedmat() and aggregate_compact_by_group().
+#
+# @param A_mat The compact A (additive) matrix.
+# @param sire_idx Integer, row index of the sire in A_mat (0 = unknown).
+# @param dam_idx  Integer, row index of the dam in A_mat (0 = unknown).
+# @param method   Character, one of "A", "D", "AA".
+# @return Numeric scalar: the sibling off-diagonal value.
+calc_sib_offdiag <- function(A_mat, sire_idx, dam_idx, method = "A") {
+  A_ss <- if (sire_idx > 0) A_mat[sire_idx, sire_idx] else 1.0
+  A_dd <- if (dam_idx  > 0) A_mat[dam_idx,  dam_idx]  else 1.0
+  A_sd <- if (sire_idx > 0 && dam_idx > 0) A_mat[sire_idx, dam_idx] else 0.0
+
+  res_A_sib <- 0.25 * (A_ss + A_dd + 2 * A_sd)
+
+  switch(method,
+    "A"  = res_A_sib,
+    "D"  = 0.25 * (A_ss * A_dd + A_sd^2),
+    "AA" = res_A_sib^2,
+    stop(sprintf("Unsupported method '%s' for sibling off-diagonal.", method))
+  )
+}
+
 #' Expand a Compact Pedigree Matrix to Full Dimensions
 #' 
 #' @description
@@ -1177,6 +1203,7 @@ query_relationship <- function(x, id1, id2 = NULL) {
 #' 
 #' @export
 expand_pedmat <- function(x) {
+  # NOTE: sibling off-diagonal correction uses calc_sib_offdiag() below.
   # Check if x is a pedmat (either S3 or S4 with marker)
   is_pedmat <- inherits(x, "pedmat") || !is.null(attr(x, "pedmat_S4"))
   if (!is_pedmat) {
@@ -1235,35 +1262,16 @@ expand_pedmat <- function(x) {
         
         if (!is.null(A_mat)) {
           for (rep_idx in reps_with_sibs) {
-            # Find parents (all siblings share same parents)
             first_idx <- which(map_ordered$RepIndNum == rep_idx)[1]
             s_idx <- map_ordered$SireNum[first_idx]
             d_idx <- map_ordered$DamNum[first_idx]
             
-            # Use parent relationships to calculate sibling relationship
-            A_ss <- if (s_idx > 0) A_mat[s_idx, s_idx] else 1.0
-            A_dd <- if (d_idx > 0) A_mat[d_idx, d_idx] else 1.0
-            A_sd <- if (s_idx > 0 && d_idx > 0) A_mat[s_idx, d_idx] else 0.0
+            sib_val <- calc_sib_offdiag(A_mat, s_idx, d_idx, primary_method)
             
-            # Sibling A value: 0.25 * (A_ss + A_dd + 2*A_sd)
-            res_A_sib <- 0.25 * (A_ss + A_dd + 2 * A_sd)
-            
-            # Value for current method
-            sib_val <- switch(primary_method,
-              "A" = res_A_sib,
-              "D" = 0.25 * (A_ss * A_dd + A_sd^2),
-              "AA" = res_A_sib^2
-            )
-            
-            # Identify all indices for this representative
             member_indices <- which(map_ordered$RepIndNum == rep_idx)
-            
-            # Update the off-diagonal elements in this sub-block
-            # Note: diagonal remains mat[rep_idx, rep_idx]
             if (length(member_indices) > 1) {
               diag_val <- mat[rep_idx, rep_idx]
               result_full[member_indices, member_indices] <- sib_val
-              # Restore diagonal
               diag_indices <- cbind(member_indices, member_indices)
               result_full[diag_indices] <- diag_val
             }

@@ -193,3 +193,76 @@ test_that("plot.pedstats dispatches genint correctly", {
   p <- plot(stats, type = "genint")
   expect_true(inherits(p, "trellis"))
 })
+
+# --- vismat compact + by (fast aggregation path) ---
+test_that("vismat compact+by=Gen matches expand-then-aggregate", {
+  tp <- tidyped(small_ped)
+  A_compact <- pedmat(tp, method = "A", compact = TRUE)
+  A_full    <- pedmat(tp, method = "A", compact = FALSE)
+
+  # Fast path: aggregate directly from compact
+  agg_compact <- visPedigree:::aggregate_compact_by_group(
+    A_compact, tp$Ind, "Gen", tp
+  )
+
+  # Reference: expand, then aggregate manually
+  mat_exp <- as.matrix(expand_pedmat(A_compact))
+  grp <- tp$Gen[match(rownames(mat_exp), tp$Ind)]
+  grps <- sort(unique(grp))
+  agg_ref <- matrix(0, length(grps), length(grps),
+                    dimnames = list(grps, grps))
+  for (i in seq_along(grps)) {
+    for (j in i:length(grps)) {
+      idx_i <- which(grp == grps[i])
+      idx_j <- which(grp == grps[j])
+      agg_ref[i, j] <- mean(mat_exp[idx_i, idx_j])
+      agg_ref[j, i] <- agg_ref[i, j]
+    }
+  }
+
+  expect_equal(agg_compact, agg_ref, tolerance = 1e-12)
+})
+
+test_that("vismat compact+by=Family matches expand-then-aggregate", {
+  tp <- tidyped(small_ped)
+  A_compact <- pedmat(tp, method = "A", compact = TRUE)
+
+  # Focus on gen 3 (has 3 families)
+  ids_g3 <- tp[Gen == 3, Ind]
+  agg_compact <- visPedigree:::aggregate_compact_by_group(
+    A_compact, ids_g3, "Family", tp
+  )
+
+  # Reference
+  mat_exp <- as.matrix(expand_pedmat(A_compact))
+  sub_ids <- ids_g3
+  sub_mat <- mat_exp[sub_ids, sub_ids, drop = FALSE]
+  grp <- tp$Family[match(sub_ids, tp$Ind)]
+  grps <- sort(unique(grp[!is.na(grp)]))
+  keep <- !is.na(grp)
+  sub_mat <- sub_mat[keep, keep, drop = FALSE]
+  grp <- grp[keep]
+  agg_ref <- matrix(0, length(grps), length(grps),
+                    dimnames = list(grps, grps))
+  for (i in seq_along(grps)) {
+    for (j in i:length(grps)) {
+      idx_i <- which(grp == grps[i])
+      idx_j <- which(grp == grps[j])
+      agg_ref[i, j] <- mean(sub_mat[idx_i, idx_j])
+      agg_ref[j, i] <- agg_ref[i, j]
+    }
+  }
+
+  expect_equal(agg_compact, agg_ref, tolerance = 1e-12)
+})
+
+test_that("vismat compact+by produces valid trellis plot", {
+  tp <- tidyped(small_ped)
+  A_compact <- pedmat(tp, method = "A", compact = TRUE)
+
+  expect_message(
+    p <- vismat(A_compact, ped = tp, by = "Gen"),
+    "Aggregating"
+  )
+  expect_true(inherits(p, "trellis"))
+})
