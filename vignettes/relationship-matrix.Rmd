@@ -245,7 +245,7 @@ The example below uses `big_family_size_ped` (178 431 individuals, compact to 2 
 and displays the mean additive relationship among **all** full-sib families in the
 latest generation — a computation that would be infeasible with full expansion.
 
-```{r large_ped_tip, fig.width=7, fig.height=6.5}
+```{r large_ped_tip, fig.width=9, fig.height=8}
 data(big_family_size_ped)
 
 tp_big <- tidyped(big_family_size_ped)
