@@ -207,3 +207,37 @@ test_that("print.pediv runs without error", {
   expect_output(print(div), "fa\\(H\\)")
   expect_output(print(div), "Ne")
 })
+
+
+# ==========================================================================
+# Group 8: GeneDiv
+# ==========================================================================
+
+test_that("GeneDiv column is present in summary", {
+  tp  <- make_theory_ped()
+  div <- suppressMessages(pediv(tp, reference = c("R1", "R2", "R3", "R4")))
+  expect_true("GeneDiv" %in% names(div$summary))
+})
+
+test_that("GeneDiv equals 1 - MeanCoan", {
+  tp  <- make_small_ped()
+  div <- suppressMessages(pediv(tp, reference = c("Z1", "Z2", "Y", "X")))
+  if (!is.na(div$summary$MeanCoan) && !is.na(div$summary$GeneDiv)) {
+    expect_equal(div$summary$GeneDiv, 1 - div$summary$MeanCoan, tolerance = 1e-12)
+  }
+})
+
+test_that("GeneDiv is in [0, 1]", {
+  tp  <- make_small_ped()
+  div <- suppressMessages(pediv(tp, reference = c("Z1", "Z2", "Y", "X")))
+  if (!is.na(div$summary$GeneDiv)) {
+    expect_true(div$summary$GeneDiv >= 0)
+    expect_true(div$summary$GeneDiv <= 1)
+  }
+})
+
+test_that("print.pediv displays GeneDiv", {
+  tp  <- make_small_ped()
+  div <- suppressMessages(pediv(tp, reference = c("Z1", "Z2", "Y", "X")))
+  expect_output(print(div), "GeneDiv")
+})

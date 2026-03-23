@@ -37,10 +37,13 @@ A list with class \code{pediv} containing:
   \item \code{summary}: A single-row \code{data.table} with columns
     \code{NRef}, \code{NFounder}, \code{feH}, \code{fe}, \code{NAncestor},
     \code{faH}, \code{fa}, \code{fafe}, \code{fg}, \code{MeanCoan},
-    \code{NSampledCoan}, \code{NeCoancestry}, \code{NeInbreeding},
+    \code{GeneDiv}, \code{NSampledCoan}, \code{NeCoancestry}, \code{NeInbreeding},
     \code{NeDemographic}.
     Here \code{feH} and \code{faH} are the Shannon-entropy (\eqn{q=1})
     effective numbers of founders and ancestors, respectively.
+    \code{GeneDiv} is the pedigree-based retained genetic diversity,
+    computed as \eqn{1 - \bar{C}}, where \eqn{\bar{C}} is the
+    diagonal-corrected population mean coancestry (\code{MeanCoan}).
   \item \code{founders}: A \code{data.table} of top founder contributions.
   \item \code{ancestors}: A \code{data.table} of top ancestor contributions.
 }

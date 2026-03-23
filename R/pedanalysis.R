@@ -1865,10 +1865,13 @@ print.pedcontrib <- function(x, ...) {
 #'   \item \code{summary}: A single-row \code{data.table} with columns
 #'     \code{NRef}, \code{NFounder}, \code{feH}, \code{fe}, \code{NAncestor},
 #'     \code{faH}, \code{fa}, \code{fafe}, \code{fg}, \code{MeanCoan},
-#'     \code{NSampledCoan}, \code{NeCoancestry}, \code{NeInbreeding},
+#'     \code{GeneDiv}, \code{NSampledCoan}, \code{NeCoancestry}, \code{NeInbreeding},
 #'     \code{NeDemographic}.
 #'     Here \code{feH} and \code{faH} are the Shannon-entropy (\eqn{q=1})
 #'     effective numbers of founders and ancestors, respectively.
+#'     \code{GeneDiv} is the pedigree-based retained genetic diversity,
+#'     computed as \eqn{1 - \bar{C}}, where \eqn{\bar{C}} is the
+#'     diagonal-corrected population mean coancestry (\code{MeanCoan}).
 #'   \item \code{founders}: A \code{data.table} of top founder contributions.
 #'   \item \code{ancestors}: A \code{data.table} of top ancestor contributions.
 #' }
@@ -1980,6 +1983,7 @@ pediv <- function(ped, reference = NULL, top = 20, nsamples = 1000, ncores = 1,
                       round(s$f_a / s$f_e, 6) else NA_real_,
     fg            = fg_val,
     MeanCoan      = mean_coan,
+    GeneDiv       = if (!is.na(mean_coan)) pmax(0, pmin(1, 1 - mean_coan)) else NA_real_,
     NSampledCoan  = n_samp_coan,
     NeCoancestry  = extract_ne(raw_coan),
     NeInbreeding  = extract_ne(ne_i),
@@ -2018,6 +2022,9 @@ print.pediv <- function(x, ...) {
   if (!is.null(s$fg) && !is.na(s$fg)) {
     cat(sprintf("Founder genomes   : fg = %.3f  (MeanCoan = %.6f, NSampled = %d)\n",
                 s$fg, s$MeanCoan, s$NSampledCoan))
+    if (!is.null(s$GeneDiv) && !is.na(s$GeneDiv)) {
+      cat(sprintf("Gene diversity    : GeneDiv = %.4f  (= 1 - MeanCoan)\n", s$GeneDiv))
+    }
     # Hierarchy fg <= fa <= fe <= NFounder holds only when all metrics share
     # the same reference population. Display it only when the order is intact.
     if (!is.na(s$fa) && !is.na(s$fe) && s$fg <= s$fa + 1e-6 && s$fa <= s$fe + 1e-6) {
