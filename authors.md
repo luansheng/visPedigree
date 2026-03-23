@@ -10,13 +10,13 @@ Source:
 [`DESCRIPTION`](https://github.com/luansheng/visPedigree/blob/master/DESCRIPTION)
 
 Luan S (2026). *visPedigree: Tidying, Analysis, and Fast Visualization
-of Animal and Plant Pedigrees*. R package version 1.6.2,
+of Animal and Plant Pedigrees*. R package version 1.7.0,
 <https://github.com/luansheng/visPedigree>.
 
     @Manual{,
       title = {visPedigree: Tidying, Analysis, and Fast Visualization of Animal and Plant Pedigrees},
       author = {Sheng Luan},
       year = {2026},
-      note = {R package version 1.6.2},
+      note = {R package version 1.7.0},
       url = {https://github.com/luansheng/visPedigree},
     }

@@ -58,9 +58,12 @@ A list with class `pediv` containing:
 
 - `summary`: A single-row `data.table` with columns `NRef`, `NFounder`,
   `feH`, `fe`, `NAncestor`, `faH`, `fa`, `fafe`, `fg`, `MeanCoan`,
-  `NSampledCoan`, `NeCoancestry`, `NeInbreeding`, `NeDemographic`. Here
-  `feH` and `faH` are the Shannon-entropy (\\q=1\\) effective numbers of
-  founders and ancestors, respectively.
+  `GeneDiv`, `NSampledCoan`, `NeCoancestry`, `NeInbreeding`,
+  `NeDemographic`. Here `feH` and `faH` are the Shannon-entropy
+  (\\q=1\\) effective numbers of founders and ancestors, respectively.
+  `GeneDiv` is the pedigree-based retained genetic diversity, computed
+  as \\1 - \bar{C}\\, where \\\bar{C}\\ is the diagonal-corrected
+  population mean coancestry (`MeanCoan`).
 
 - `founders`: A `data.table` of top founder contributions.
 
@@ -115,6 +118,7 @@ print(div)
 #> Ancestors (total) : 3    fa(H) = 2.828    fa = 2.667
 #> fa/fe ratio       : 0.4049
 #> Founder genomes   : fg = 2.075  (MeanCoan = 0.240967, NSampled = 4)
+#> Gene diversity    : GeneDiv = 0.7590  (= 1 - MeanCoan)
 #> Hierarchy: fg <= fa <= fe <= NFounder  =  2.07 <= 2.667 <= 6.585 <= 9
 #> 
 #> -- Effective Population Size (Ne) --

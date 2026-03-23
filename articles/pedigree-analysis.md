@@ -234,6 +234,7 @@ is the integrated diversity summary. It combines:
 
 - founder and ancestor contributions (`fe`, `fa`),
 - founder genome equivalents (`fg`),
+- retained genetic diversity (`GeneDiv`),
 - three effective population size estimates (`Ne`).
 
 All of these quantities depend on the definition of the **reference
@@ -259,9 +260,9 @@ div_res$summary
 #>     NRef NFounder     feH       fe NAncestor     faH       fa     fafe       fg
 #>    <int>    <int>   <num>    <num>     <int>   <num>    <num>    <num>    <num>
 #> 1:  3471      157 92.0943 64.73344        94 60.1444 44.12033 0.681569 19.17965
-#>     MeanCoan NSampledCoan NeCoancestry NeInbreeding NeDemographic
-#>        <num>        <int>        <num>        <num>         <num>
-#> 1: 0.0260693         1000     124.5124     98.00425      374.2021
+#>     MeanCoan   GeneDiv NSampledCoan NeCoancestry NeInbreeding NeDemographic
+#>        <num>     <num>        <int>        <num>        <num>         <num>
+#> 1: 0.0260693 0.9739307         1000     124.5124     98.00425      374.2021
 div_res$ancestors
 #>          Ind    Contrib CumContrib  Rank
 #>       <char>      <num>      <num> <int>
@@ -326,6 +327,34 @@ Use `fg` when the main concern is **the amount of founder genome still
 surviving after unequal use, bottlenecks, and drift**. In practice, `fg`
 is often the most conservative diversity indicator.
 
+#### Retained genetic diversity (`GeneDiv`)
+
+`GeneDiv` is the pedigree-based retained genetic diversity of the
+reference population:
+
+$$GeneDiv = 1 - \bar{C}$$
+
+where $\bar{C}$ is the same diagonal-corrected mean coancestry used to
+compute $f_{g}$. Because coancestry increases as individuals become more
+related by descent, $GeneDiv$ decreases towards 0 as the population
+becomes more uniform. An unrelated, non-inbred population has
+$GeneDiv = 1$; a population of full sibs from two unrelated founders has
+$GeneDiv \approx 0.75$.
+
+`GeneDiv` and `fg` are both derived from $\bar{C}$, but they answer
+different questions. `fg` is measured in “equivalent number of founders”
+and is most useful for between-programme comparisons. `GeneDiv` is a
+dimensionless proportion and is easiest to communicate to managers and
+stakeholders who need a single intuitive index of diversity retention.
+
+``` r
+# GeneDiv is in the summary alongside MeanCoan
+div_res$summary[, .(fg, MeanCoan, GeneDiv)]
+#>          fg  MeanCoan   GeneDiv
+#>       <num>     <num>     <num>
+#> 1: 19.17965 0.0260693 0.9739307
+```
+
 ### 6.2 Shannon-entropy effective numbers: `feH` and `faH`
 
 The classical `fe` and `fa` are based on $\sum p_{i}^{2}$ (Hill number
@@ -345,13 +374,14 @@ ancestors considered.
 
 #### Metric guide
 
-| Metric | Order   | Sensitivity                           | What it measures                                                                                                                                                                     |
-|--------|---------|---------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `fe`   | $q = 2$ | Dominated by common founders          | Effective number of founders if contributions were equalized. Dominated by the largest contributions; many rare founders with small $p_{i}$ have negligible influence on the metric. |
-| `feH`  | $q = 1$ | Balanced; sensitive to rare founders  | Shannon-entropy effective founders. Counts rare founders more equitably than $q = 2$; always $\geq$`fe`.                                                                             |
-| `fa`   | $q = 2$ | Dominated by common ancestors         | Effective number of ancestors accounting for bottleneck structure. Typically lower than `fe`.                                                                                        |
-| `faH`  | $q = 1$ | Balanced; sensitive to rare ancestors | Shannon-entropy effective ancestors. Less dominated by the single most influential ancestor.                                                                                         |
-| `fg`   | —       | Realized coancestry                   | Founder genome equivalents; the most conservative indicator because it captures drift as well.                                                                                       |
+| Metric    | Order   | Sensitivity                           | What it measures                                                                                                                                                                     |
+|-----------|---------|---------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `fe`      | $q = 2$ | Dominated by common founders          | Effective number of founders if contributions were equalized. Dominated by the largest contributions; many rare founders with small $p_{i}$ have negligible influence on the metric. |
+| `feH`     | $q = 1$ | Balanced; sensitive to rare founders  | Shannon-entropy effective founders. Counts rare founders more equitably than $q = 2$; always $\geq$`fe`.                                                                             |
+| `fa`      | $q = 2$ | Dominated by common ancestors         | Effective number of ancestors accounting for bottleneck structure. Typically lower than `fe`.                                                                                        |
+| `faH`     | $q = 1$ | Balanced; sensitive to rare ancestors | Shannon-entropy effective ancestors. Less dominated by the single most influential ancestor.                                                                                         |
+| `fg`      | —       | Realized coancestry                   | Founder genome equivalents; the most conservative indicator because it captures drift as well.                                                                                       |
+| `GeneDiv` | —       | Retained diversity                    | Pedigree-based retained genetic diversity: $1 - \bar{C}$. Values on the $\lbrack 0,1\rbrack$ scale; higher values indicate more diversity retained relative to the base population.  |
 
 #### Interpreting the ratio $f_{e}^{(H)}/f_{e}$
 
@@ -729,6 +759,15 @@ Use `scale = "coancestry"` when you need a population-level coancestry
 consistent with diversity metrics from
 [`pediv()`](https://luansheng.github.io/visPedigree/reference/pediv.md).
 
+`pedrel(scale = "coancestry")` applies the same diagonal-corrected
+formula as
+[`pediv()`](https://luansheng.github.io/visPedigree/reference/pediv.md).
+The resulting `MeanCoan` values are therefore directly comparable to
+`pediv()$summary$MeanCoan`, and `GeneDiv = 1 - MeanCoan` translates the
+trend table from
+[`pedrel()`](https://luansheng.github.io/visPedigree/reference/pedrel.md)
+into a retained-diversity timeline without any additional computation.
+
 `MeanRel` and coancestry-based `Ne` are conceptually linked, but they
 are not identical summaries. `MeanRel` is an average additive
 relationship within a group, whereas coancestry-based `Ne` is derived
@@ -857,9 +896,11 @@ One useful interpretation order is:
     [`pedecg()`](https://luansheng.github.io/visPedigree/reference/pedecg.md).
 2.  Check generation timing with
     [`pedgenint()`](https://luansheng.github.io/visPedigree/reference/pedgenint.md).
-3.  Quantify static diversity with `fe`, `fa`, and `fg` via
+3.  Quantify static diversity with `fe`, `fa`, `fg`, and `GeneDiv` via
     [`pediv()`](https://luansheng.github.io/visPedigree/reference/pediv.md);
-    compare with `feH` and `faH` to assess long-tail founder value.
+    compare with `feH` and `faH` to assess long-tail founder value. Use
+    `GeneDiv` (= $1 - \bar{C}$) as the headline retained-diversity index
+    for management reporting.
 4.  Track diversity dynamics over time with
     [`pedhalflife()`](https://luansheng.github.io/visPedigree/reference/pedhalflife.md).
     Inspect $\lambda_{e}$, $\lambda_{b}$, and $\lambda_{d}$ to identify

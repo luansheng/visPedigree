@@ -9,7 +9,7 @@ size estimates (Ne) from three methods into a single summary object."><meta prop
 
     <a class="navbar-brand me-2" href="../index.html">visPedigree</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.6.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -98,10 +98,13 @@ Default is <code>NULL</code> (no fixed seed).</p></dd>
     <p>A list with class <code>pediv</code> containing:</p><ul><li><p><code>summary</code>: A single-row <code>data.table</code> with columns
     <code>NRef</code>, <code>NFounder</code>, <code>feH</code>, <code>fe</code>, <code>NAncestor</code>,
     <code>faH</code>, <code>fa</code>, <code>fafe</code>, <code>fg</code>, <code>MeanCoan</code>,
-    <code>NSampledCoan</code>, <code>NeCoancestry</code>, <code>NeInbreeding</code>,
+    <code>GeneDiv</code>, <code>NSampledCoan</code>, <code>NeCoancestry</code>, <code>NeInbreeding</code>,
     <code>NeDemographic</code>.
     Here <code>feH</code> and <code>faH</code> are the Shannon-entropy (\(q=1\))
-    effective numbers of founders and ancestors, respectively.</p></li>
+    effective numbers of founders and ancestors, respectively.
+    <code>GeneDiv</code> is the pedigree-based retained genetic diversity,
+    computed as \(1 - \bar{C}\), where \(\bar{C}\) is the
+    diagonal-corrected population mean coancestry (<code>MeanCoan</code>).</p></li>
 <li><p><code>founders</code>: A <code>data.table</code> of top founder contributions.</p></li>
 <li><p><code>ancestors</code>: A <code>data.table</code> of top ancestor contributions.</p></li>
 </ul></div>
@@ -149,6 +152,7 @@ is their mean inbreeding coefficient.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Ancestors (total) : 3    fa(H) = 2.828    fa = 2.667</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> fa/fe ratio       : 0.4049</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Founder genomes   : fg = 2.075  (MeanCoan = 0.240967, NSampled = 4)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Gene diversity    : GeneDiv = 0.7590  (= 1 - MeanCoan)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Hierarchy: fg &lt;= fa &lt;= fe &lt;= NFounder  =  2.07 &lt;= 2.667 &lt;= 6.585 &lt;= 9</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> -- Effective Population Size (Ne) --</span>

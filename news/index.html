@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">visPedigree</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.6.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,6 +40,19 @@
       <small>Source: <a href="https://github.com/luansheng/visPedigree/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.7.0" id="changes-in-version-170-released-on-23-mar-2026">Changes in version 1.7.0 released on 23 Mar 2026<a class="anchor" aria-label="anchor" href="#changes-in-version-170-released-on-23-mar-2026"></a></h2>
+<div class="section level3">
+<h3 id="new-features-1-7-0">New features<a class="anchor" aria-label="anchor" href="#new-features-1-7-0"></a></h3>
+<ol style="list-style-type: decimal"><li><p><strong><code><a href="../reference/pediv.html">pediv()</a></code> retained genetic diversity (<code>GeneDiv</code>)</strong>: <code>pediv()$summary</code> gains a new column <code>GeneDiv = 1 − MeanCoan</code>, the pedigree-based retained genetic diversity of the reference population. Values lie in <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">[</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[0, 1]</annotation></semantics></math>; higher values indicate more diversity retained relative to an unrelated base population. <code><a href="../reference/print.pediv.html">print.pediv()</a></code> displays it alongside <code>fg</code> and <code>MeanCoan</code>. This is a dimensionless complement to <code>fg</code> that is easier to communicate to non-specialist stakeholders.</p></li>
+<li><p><strong><code><a href="../reference/vismat.html">vismat()</a></code> large-pedigree representative view</strong>: When the original pedigree has more than 5,000 individuals, <code><a href="../reference/vismat.html">vismat()</a></code> no longer attempts a full N × N matrix expansion. Instead it uses the compact matrix (K × K representative individuals) directly and adds sibling-count labels of the form <code>ID (×n)</code> to each axis tick. For <code>compact = TRUE</code> with a <code>by</code> grouping, the function now computes group means algebraically from the K × K matrix without expanding to N × N, eliminating memory overflow for very large pedigrees (e.g., N ≈ 178,000 in <code>big_family_size_ped</code>).</p></li>
+</ol></div>
+<div class="section level3">
+<h3 id="internal-changes-1-7-0">Internal changes<a class="anchor" aria-label="anchor" href="#internal-changes-1-7-0"></a></h3>
+<ol style="list-style-type: decimal"><li>
+<strong><code><a href="../reference/vismat.html">vismat()</a></code> named threshold constants</strong>: Hardcoded magic numbers controlling large-pedigree behavior (<code>5000</code>, <code>2000</code>, <code>50</code>) have been refactored into named constants (<code>VISMAT_EXPAND_MAX</code>, <code>VISMAT_LABEL_MAX</code>, <code>VISMAT_WARN_THRESHOLD</code>) at the top of <code>R/vismat.R</code> for easier maintenance.</li>
+</ol></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.6.2" id="changes-in-version-162-released-on-23-mar-2026">Changes in version 1.6.2 released on 23 Mar 2026<a class="anchor" aria-label="anchor" href="#changes-in-version-162-released-on-23-mar-2026"></a></h2>
 <div class="section level3">

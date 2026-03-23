@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">visPedigree</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.6.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -319,6 +319,7 @@ combines:</p>
 <li>founder and ancestor contributions (<code>fe</code>,
 <code>fa</code>),</li>
 <li>founder genome equivalents (<code>fg</code>),</li>
+<li>retained genetic diversity (<code>GeneDiv</code>),</li>
 <li>three effective population size estimates (<code>Ne</code>).</li>
 </ul>
 <p>All of these quantities depend on the definition of the
@@ -342,9 +343,9 @@ reference population is defined as the most recent two generations in
 <span><span class="co">#&gt;     NRef NFounder     feH       fe NAncestor     faH       fa     fafe       fg</span></span>
 <span><span class="co">#&gt;    &lt;int&gt;    &lt;int&gt;   &lt;num&gt;    &lt;num&gt;     &lt;int&gt;   &lt;num&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;</span></span>
 <span><span class="co">#&gt; 1:  3471      157 92.0943 64.73344        94 60.1444 44.12033 0.681569 19.17965</span></span>
-<span><span class="co">#&gt;     MeanCoan NSampledCoan NeCoancestry NeInbreeding NeDemographic</span></span>
-<span><span class="co">#&gt;        &lt;num&gt;        &lt;int&gt;        &lt;num&gt;        &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: 0.0260693         1000     124.5124     98.00425      374.2021</span></span>
+<span><span class="co">#&gt;     MeanCoan   GeneDiv NSampledCoan NeCoancestry NeInbreeding NeDemographic</span></span>
+<span><span class="co">#&gt;        &lt;num&gt;     &lt;num&gt;        &lt;int&gt;        &lt;num&gt;        &lt;num&gt;         &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: 0.0260693 0.9739307         1000     124.5124     98.00425      374.2021</span></span>
 <span><span class="va">div_res</span><span class="op">$</span><span class="va">ancestors</span></span>
 <span><span class="co">#&gt;          Ind    Contrib CumContrib  Rank</span></span>
 <span><span class="co">#&gt;       &lt;char&gt;      &lt;num&gt;      &lt;num&gt; &lt;int&gt;</span></span>
@@ -427,6 +428,40 @@ is their mean inbreeding coefficient.</p>
 founder genome still surviving after unequal use, bottlenecks, and
 drift</strong>. In practice, <code>fg</code> is often the most
 conservative diversity indicator.</p>
+</div>
+<div class="section level4">
+<h4 id="retained-genetic-diversity-genediv">Retained genetic diversity (<code>GeneDiv</code>)<a class="anchor" aria-label="anchor" href="#retained-genetic-diversity-genediv"></a>
+</h4>
+<p><code>GeneDiv</code> is the pedigree-based retained genetic diversity
+of the reference population:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>G</mi><mi>e</mi><mi>n</mi><mi>e</mi><mi>D</mi><mi>i</mi><mi>v</mi><mo>=</mo><mn>1</mn><mo>−</mo><mover><mi>C</mi><mo accent="true">‾</mo></mover></mrow><annotation encoding="application/x-tex">
+GeneDiv = 1 - \bar{C}
+</annotation></semantics></math></p>
+<p>where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>C</mi><mo accent="true">‾</mo></mover><annotation encoding="application/x-tex">\bar{C}</annotation></semantics></math>
+is the same diagonal-corrected mean coancestry used to compute
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>f</mi><mi>g</mi></msub><annotation encoding="application/x-tex">f_g</annotation></semantics></math>.
+Because coancestry increases as individuals become more related by
+descent,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>G</mi><mi>e</mi><mi>n</mi><mi>e</mi><mi>D</mi><mi>i</mi><mi>v</mi></mrow><annotation encoding="application/x-tex">GeneDiv</annotation></semantics></math>
+decreases towards 0 as the population becomes more uniform. An
+unrelated, non-inbred population has
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>G</mi><mi>e</mi><mi>n</mi><mi>e</mi><mi>D</mi><mi>i</mi><mi>v</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">GeneDiv = 1</annotation></semantics></math>;
+a population of full sibs from two unrelated founders has
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>G</mi><mi>e</mi><mi>n</mi><mi>e</mi><mi>D</mi><mi>i</mi><mi>v</mi><mo>≈</mo><mn>0.75</mn></mrow><annotation encoding="application/x-tex">GeneDiv \approx 0.75</annotation></semantics></math>.</p>
+<p><code>GeneDiv</code> and <code>fg</code> are both derived from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>C</mi><mo accent="true">‾</mo></mover><annotation encoding="application/x-tex">\bar{C}</annotation></semantics></math>,
+but they answer different questions. <code>fg</code> is measured in
+“equivalent number of founders” and is most useful for between-programme
+comparisons. <code>GeneDiv</code> is a dimensionless proportion and is
+easiest to communicate to managers and stakeholders who need a single
+intuitive index of diversity retention.</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># GeneDiv is in the summary alongside MeanCoan</span></span>
+<span><span class="va">div_res</span><span class="op">$</span><span class="va">summary</span><span class="op">[</span>, <span class="fu">.</span><span class="op">(</span><span class="va">fg</span>, <span class="va">MeanCoan</span>, <span class="va">GeneDiv</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">#&gt;          fg  MeanCoan   GeneDiv</span></span>
+<span><span class="co">#&gt;       &lt;num&gt;     &lt;num&gt;     &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: 19.17965 0.0260693 0.9739307</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level3">
@@ -512,6 +547,17 @@ most influential ancestor.</td>
 <td>Founder genome equivalents; the most conservative indicator because
 it captures drift as well.</td>
 </tr>
+<tr class="even">
+<td><code>GeneDiv</code></td>
+<td>—</td>
+<td>Retained diversity</td>
+<td>Pedigree-based retained genetic diversity:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>−</mo><mover><mi>C</mi><mo accent="true">‾</mo></mover></mrow><annotation encoding="application/x-tex">1 - \bar{C}</annotation></semantics></math>.
+Values on the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">[</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[0, 1]</annotation></semantics></math>
+scale; higher values indicate more diversity retained relative to the
+base population.</td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -566,7 +612,7 @@ is large, secondary ancestors are still present but marginalized;
 diversifying sire selection could rebalance the gene pool before their
 lineages are lost entirely.</li>
 </ol>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Shannon metrics are included in pediv() output</span></span>
 <span><span class="va">div_res</span><span class="op">$</span><span class="va">summary</span><span class="op">[</span>, <span class="fu">.</span><span class="op">(</span><span class="va">NFounder</span>, <span class="va">feH</span>, <span class="va">fe</span>, <span class="va">NAncestor</span>, <span class="va">faH</span>, <span class="va">fa</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="co">#&gt;    NFounder     feH       fe NAncestor     faH       fa</span></span>
@@ -578,7 +624,7 @@ lineages are lost entirely.</li>
 <span><span class="co">#&gt;    rho_founder rho_ancestor</span></span>
 <span><span class="co">#&gt;          &lt;num&gt;        &lt;num&gt;</span></span>
 <span><span class="co">#&gt; 1:     1.42267      1.36319</span></span></code></pre></div>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># pedcontrib() provides the same metrics via its summary</span></span>
 <span><span class="va">contrib_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pedcontrib.html">pedcontrib</a></span><span class="op">(</span><span class="va">tp_deep</span>, reference <span class="op">=</span> <span class="va">ref_pop</span>, mode <span class="op">=</span> <span class="st">"both"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Calculating founder contributions...</span></span>
@@ -649,7 +695,7 @@ for
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>f</mi><mi>g</mi></msub><annotation encoding="application/x-tex">f_g</annotation></semantics></math>
 to halve:
 <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>T</mi><mrow><mn>1</mn><mi>/</mi><mn>2</mn></mrow></msub><mo>=</mo><mfrac><mrow><mo>ln</mo><mn>2</mn></mrow><msub><mi>λ</mi><mrow><mi>t</mi><mi>o</mi><mi>t</mi><mi>a</mi><mi>l</mi></mrow></msub></mfrac></mrow><annotation encoding="application/x-tex">T_{1/2} = \frac{\ln 2}{\lambda_{total}}</annotation></semantics></math></p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">hl</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pedhalflife.html">pedhalflife</a></span><span class="op">(</span><span class="va">tp_deep</span>, timevar <span class="op">=</span> <span class="st">"Gen"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Calculating diversity across 13 time points...</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">hl</span><span class="op">)</span></span>
@@ -801,7 +847,7 @@ and aquaculture genetics. Breed registries and conservation programmes
 often use
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>T</mi><mrow><mn>1</mn><mi>/</mi><mn>2</mn></mrow></msub><annotation encoding="application/x-tex">T_{1/2}</annotation></semantics></math>
 as a threshold indicator for triggering corrective management.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">hl</span><span class="op">$</span><span class="va">timeseries</span></span>
 <span><span class="co">#&gt;      Time  NRef        fe        fa         fg     lnfe     lnfa     lnfg</span></span>
 <span><span class="co">#&gt;     &lt;int&gt; &lt;int&gt;     &lt;num&gt;     &lt;num&gt;      &lt;num&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;</span></span>
@@ -835,7 +881,7 @@ as a threshold indicator for triggering corrective management.</p>
 <span><span class="co">#&gt; 13: -0.3898361 -0.8121477       13</span></span></code></pre></div>
 <p>To focus on a specific time window, pass the desired values to the
 <code>at</code> argument:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">hl_recent</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pedhalflife.html">pedhalflife</a></span><span class="op">(</span><span class="va">tp_deep</span>, timevar <span class="op">=</span> <span class="st">"Gen"</span>,</span>
 <span>                         at <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">tp_deep</span><span class="op">$</span><span class="va">Gen</span><span class="op">)</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Calculating diversity across 4 time points...</span></span>
@@ -852,12 +898,12 @@ as a threshold indicator for triggering corrective management.</p>
 <span><span class="co">#&gt; Timeseries: 4 time points</span></span></code></pre></div>
 <p>Plotting the object shows the log-linear decay of each diversity
 metric:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">hl</span>, type <span class="op">=</span> <span class="st">"log"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="pedigree-analysis_files/figure-html/pedhalflife-plot-1.png" class="r-plt" alt="" width="1800"></p>
 <p>A <code>type = "raw"</code> plot shows the equivalent numbers on the
 original scale:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">hl</span>, type <span class="op">=</span> <span class="st">"raw"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="pedigree-analysis_files/figure-html/pedhalflife-plot-raw-1.png" class="r-plt" alt="" width="1800"></p>
 </div>
@@ -937,7 +983,7 @@ and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math>.
 A higher <code>MeanRel</code> means that individuals within the group
 are, on average, more related by descent.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tp_small</span><span class="op">$</span><span class="va">BirthYear</span> <span class="op">&lt;-</span> <span class="fl">2010</span> <span class="op">+</span> <span class="va">tp_small</span><span class="op">$</span><span class="va">Gen</span></span>
 <span></span>
 <span><span class="va">rel_by_gen</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pedrel.html">pedrel</a></span><span class="op">(</span><span class="va">tp_small</span>, by <span class="op">=</span> <span class="st">"Gen"</span><span class="op">)</span></span>
@@ -952,7 +998,7 @@ are, on average, more related by descent.</p>
 <span><span class="co">#&gt; 6:     6      2     2 0.5507812</span></span></code></pre></div>
 <p>The <code>reference</code> argument lets you focus on a subset of
 interest inside each group, such as candidate breeders.</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ref_ids</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Z1"</span>, <span class="st">"Z2"</span>, <span class="st">"X"</span>, <span class="st">"Y"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/pedrel.html">pedrel</a></span><span class="op">(</span><span class="va">tp_small</span>, by <span class="op">=</span> <span class="st">"Gen"</span>, reference <span class="op">=</span> <span class="va">ref_ids</span><span class="op">)</span></span>
@@ -994,7 +1040,7 @@ is the group size. This
 accounts for self-coancestry within the group and matches the internal
 coancestry quantity used by <code><a href="../reference/pediv.html">pediv()</a></code> to derive
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>f</mi><mi>g</mi></msub><annotation encoding="application/x-tex">f_g</annotation></semantics></math>.</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">coan_by_gen</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pedrel.html">pedrel</a></span><span class="op">(</span><span class="va">tp_small</span>, by <span class="op">=</span> <span class="st">"Gen"</span>, scale <span class="op">=</span> <span class="st">"coancestry"</span><span class="op">)</span></span>
 <span><span class="va">coan_by_gen</span></span>
 <span><span class="co">#&gt;      Gen NTotal NUsed   MeanCoan</span></span>
@@ -1009,6 +1055,13 @@ coancestry quantity used by <code><a href="../reference/pediv.html">pediv()</a><
 relatedness trends. Use <code>scale = "coancestry"</code> when you need
 a population-level coancestry consistent with diversity metrics from
 <code><a href="../reference/pediv.html">pediv()</a></code>.</p>
+<p><code>pedrel(scale = "coancestry")</code> applies the same
+diagonal-corrected formula as <code><a href="../reference/pediv.html">pediv()</a></code>. The resulting
+<code>MeanCoan</code> values are therefore directly comparable to
+<code>pediv()$summary$MeanCoan</code>, and
+<code>GeneDiv = 1 - MeanCoan</code> translates the trend table from
+<code><a href="../reference/pedrel.html">pedrel()</a></code> into a retained-diversity timeline without any
+additional computation.</p>
 <p><code>MeanRel</code> and coancestry-based <code>Ne</code> are
 conceptually linked, but they are not identical summaries.
 <code>MeanRel</code> is an average additive relationship within a group,
@@ -1025,7 +1078,7 @@ increase</em> in coancestry across pedigree depth.</p>
 is the probability that the two alleles of an individual are identical
 by descent. A practical starting point is to inspect the mean trend by
 generation.</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tp_inbred_f</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/inbreed.html">inbreed</a></span><span class="op">(</span><span class="va">tp_inbred</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">f_trend</span> <span class="op">&lt;-</span> <span class="va">tp_inbred_f</span><span class="op">[</span>, <span class="fu">.</span><span class="op">(</span>MeanF <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">f</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>, by <span class="op">=</span> <span class="va">Gen</span><span class="op">]</span></span>
@@ -1040,7 +1093,7 @@ generation.</p>
 <p>For classification by inbreeding severity, <code><a href="../reference/pedfclass.html">pedfclass()</a></code>
 can be applied directly to the pedigree object. If the inbreeding
 coefficient is not yet present, the function computes it internally.</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/pedfclass.html">pedfclass</a></span><span class="op">(</span><span class="va">tp_inbred</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Calculating inbreeding coefficients...</span></span>
 <span><span class="co">#&gt; Key: &lt;FClass&gt;</span></span>
@@ -1053,7 +1106,7 @@ coefficient is not yet present, the function computes it internally.</p>
 <span><span class="co">#&gt; 5:            F &gt; 0.25     1   14.28571</span></span></code></pre></div>
 <p>Custom reporting thresholds can be supplied through
 <code>breaks</code>.</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/pedfclass.html">pedfclass</a></span><span class="op">(</span><span class="va">tp_inbred</span>, breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.03125</span>, <span class="fl">0.0625</span>, <span class="fl">0.125</span>, <span class="fl">0.25</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Calculating inbreeding coefficients...</span></span>
 <span><span class="co">#&gt; Key: &lt;FClass&gt;</span></span>
@@ -1088,7 +1141,7 @@ full-sib or parent-offspring mating.</li>
 <p><code><a href="../reference/pedancestry.html">pedancestry()</a></code> tracks how founder groups contribute to
 later descendants. This is useful when founders are labeled by line,
 strain, or geographic origin.</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ped_line</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a></span><span class="op">(</span></span>
 <span>  Ind <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span>, <span class="st">"D"</span>, <span class="st">"E"</span>, <span class="st">"F"</span>, <span class="st">"G"</span><span class="op">)</span>,</span>
 <span>  Sire <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span>, <span class="cn">NA</span>, <span class="cn">NA</span>, <span class="st">"A"</span>, <span class="st">"C"</span>, <span class="st">"E"</span><span class="op">)</span>,</span>
@@ -1118,7 +1171,7 @@ inbreeding?<a class="anchor" aria-label="anchor" href="#pedpartial-which-ancesto
 <p><code><a href="../reference/pedpartial.html">pedpartial()</a></code> decomposes total inbreeding into
 contributions from selected ancestors. It is useful for identifying
 which ancestors are most responsible for the observed inbreeding.</p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">partial_f</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pedpartial.html">pedpartial</a></span><span class="op">(</span><span class="va">tp_inbred</span>, ancestors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Calculating partial inbreeding for 2 ancestors...</span></span>
 <span><span class="va">partial_f</span></span>
@@ -1141,9 +1194,12 @@ which ancestors are most responsible for the observed inbreeding.</p>
 <li>Check pedigree depth and completeness with
 <code><a href="../reference/pedecg.html">pedecg()</a></code>.</li>
 <li>Check generation timing with <code><a href="../reference/pedgenint.html">pedgenint()</a></code>.</li>
-<li>Quantify static diversity with <code>fe</code>, <code>fa</code>, and
-<code>fg</code> via <code><a href="../reference/pediv.html">pediv()</a></code>; compare with <code>feH</code>
-and <code>faH</code> to assess long-tail founder value.</li>
+<li>Quantify static diversity with <code>fe</code>, <code>fa</code>,
+<code>fg</code>, and <code>GeneDiv</code> via <code><a href="../reference/pediv.html">pediv()</a></code>;
+compare with <code>feH</code> and <code>faH</code> to assess long-tail
+founder value. Use <code>GeneDiv</code> (=
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>−</mo><mover><mi>C</mi><mo accent="true">‾</mo></mover></mrow><annotation encoding="application/x-tex">1 - \bar{C}</annotation></semantics></math>)
+as the headline retained-diversity index for management reporting.</li>
 <li>Track diversity dynamics over time with <code><a href="../reference/pedhalflife.html">pedhalflife()</a></code>.
 Inspect
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>λ</mi><mi>e</mi></msub><annotation encoding="application/x-tex">\lambda_e</annotation></semantics></math>,
