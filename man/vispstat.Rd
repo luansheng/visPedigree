@@ -3,7 +3,7 @@
 \name{vispstat}
 \alias{vispstat}
 \alias{plot.pedstats}
-\title{Visualize Pedigree Statistics}
+\title{Visualize Pedigree Statistics (internal)}
 \usage{
 vispstat(x, type = c("genint", "ecg"), metric = "ECG", ...)
 
@@ -14,7 +14,7 @@ vispstat(x, type = c("genint", "ecg"), metric = "ECG", ...)
 
 \item{type}{Character. The type of plot to generate:
 \itemize{
-  \item \code{"genint"}: Bar chart of generation intervals (Mean ± SD).
+  \item \code{"genint"}: Bar chart of mean generation intervals.
   \item \code{"ecg"}: Histogram of ancestral depth metrics (ECG, FullGen, or MaxGen).
 }}
 
@@ -28,35 +28,10 @@ Options: \code{"ECG"} (default), \code{"FullGen"}, \code{"MaxGen"}.}
 A lattice plot object.
 }
 \description{
-\code{vispstat} visualizes statistics from a \code{pedstats} object,
-including generation intervals and ancestral depth distributions.
-}
-\examples{
-\dontrun{
-library(visPedigree)
-data(simple_ped)
-
-# Add a birth year column for generation interval calculation
-simple_ped$Year <- sample(2010:2020, nrow(simple_ped), replace = TRUE)
-tped <- tidyped(simple_ped)
-
-# Calculate statistics
-stats <- pedstats(tped, timevar = "Year")
-
-# Visualize generation intervals
-vispstat(stats, type = "genint")
-
-# Visualize ancestral depth (ECG)
-vispstat(stats, type = "ecg", metric = "ECG")
-
-# Visualize fully traced generations
-vispstat(stats, type = "ecg", metric = "FullGen")
-
-# Use the plot method
-plot(stats, type = "ecg", metric = "MaxGen")
-}
-
+Internal plotting backend for \code{\link{plot.pedstats}}.
+Users should call \code{plot(stats, ...)} instead of this function directly.
 }
 \seealso{
-\code{\link{pedstats}}
+\code{\link{pedstats}}, \code{\link{plot.pedstats}}
 }
+\keyword{internal}

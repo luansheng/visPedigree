@@ -73,10 +73,39 @@ test_that("vispstat errors on non-pedstats input", {
   expect_error(vispstat(list()), "must be a pedstats object")
 })
 
-test_that("plot.pedstats dispatches to vispstat", {
+test_that("plot.pedstats dispatches to vispstat for ecg", {
   tp <- tidyped(simple_ped)
   stats <- pedstats(tp)
 
   p <- plot(stats, type = "ecg")
+  expect_true(inherits(p, "trellis"))
+})
+
+test_that("vispstat genint produces bar chart when gen_intervals exist", {
+  tp <- tidyped(simple_ped)
+  # Assign synthetic birth years so pedgenint can compute intervals
+  tp$Year <- tp$Gen * 3 + 2000
+  stats <- pedstats(tp, timevar = "Year")
+  skip_if(is.null(stats$gen_intervals), "No generation intervals computed")
+
+  p <- vispstat(stats, type = "genint")
+  expect_true(inherits(p, "trellis"))
+})
+
+test_that("vispstat genint errors when gen_intervals is NULL", {
+  tp <- tidyped(simple_ped)
+  stats <- pedstats(tp, genint = FALSE)
+
+  expect_error(vispstat(stats, type = "genint"),
+               "No generation interval data found")
+})
+
+test_that("plot.pedstats dispatches genint correctly", {
+  tp <- tidyped(simple_ped)
+  tp$Year <- tp$Gen * 3 + 2000
+  stats <- pedstats(tp, timevar = "Year")
+  skip_if(is.null(stats$gen_intervals), "No generation intervals computed")
+
+  p <- plot(stats, type = "genint")
   expect_true(inherits(p, "trellis"))
 })

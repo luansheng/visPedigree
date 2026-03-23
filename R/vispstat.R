@@ -1,12 +1,12 @@
-#' Visualize Pedigree Statistics
+#' Visualize Pedigree Statistics (internal)
 #'
-#' \code{vispstat} visualizes statistics from a \code{pedstats} object,
-#' including generation intervals and ancestral depth distributions.
+#' Internal plotting backend for \code{\link{plot.pedstats}}.
+#' Users should call \code{plot(stats, ...)} instead of this function directly.
 #'
 #' @param x A \code{pedstats} object returned by \code{\link{pedstats}}.
 #' @param type Character. The type of plot to generate:
 #' \itemize{
-#'   \item \code{"genint"}: Bar chart of generation intervals (Mean ± SD).
+#'   \item \code{"genint"}: Bar chart of mean generation intervals.
 #'   \item \code{"ecg"}: Histogram of ancestral depth metrics (ECG, FullGen, or MaxGen).
 #' }
 #' @param metric Character. Specific metric to plot when \code{type = "ecg"}.
@@ -16,34 +16,9 @@
 #'
 #' @return A lattice plot object.
 #'
-#' @seealso \code{\link{pedstats}}
+#' @seealso \code{\link{pedstats}}, \code{\link{plot.pedstats}}
 #' 
-#' @examples
-#' \dontrun{
-#' library(visPedigree)
-#' data(simple_ped)
-#' 
-#' # Add a birth year column for generation interval calculation
-#' simple_ped$Year <- sample(2010:2020, nrow(simple_ped), replace = TRUE)
-#' tped <- tidyped(simple_ped)
-#' 
-#' # Calculate statistics
-#' stats <- pedstats(tped, timevar = "Year")
-#' 
-#' # Visualize generation intervals
-#' vispstat(stats, type = "genint")
-#' 
-#' # Visualize ancestral depth (ECG)
-#' vispstat(stats, type = "ecg", metric = "ECG")
-#' 
-#' # Visualize fully traced generations
-#' vispstat(stats, type = "ecg", metric = "FullGen")
-#' 
-#' # Use the plot method
-#' plot(stats, type = "ecg", metric = "MaxGen")
-#' }
-#' 
-#' @export
+#' @keywords internal
 vispstat <- function(x, type = c("genint", "ecg"), metric = "ECG", ...) {
   if (!inherits(x, "pedstats")) {
     stop("x must be a pedstats object")
@@ -118,7 +93,6 @@ vispstat <- function(x, type = c("genint", "ecg"), metric = "ECG", ...) {
     
     # Determine appropriate number of bins based on data range
     metric_data <- x$ecg[[metric]]
-    n_unique <- length(unique(metric_data[!is.na(metric_data)]))
     n_bins <- min(30, max(10, ceiling(sqrt(length(metric_data)))))
     
     # For integer metrics (FullGen, MaxGen), use integer breaks
