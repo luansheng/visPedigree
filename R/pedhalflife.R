@@ -133,7 +133,7 @@ pedhalflife <- function(ped, timevar = "Gen", at = NULL, nsamples = 1000,
     # ---- fg via internal coancestry engine (avoids redundant Ne calcs) ----
     fg_val <- NA_real_
     tryCatch({
-      ped_subset <- ped_dt[Ind %in% ref_ids]
+      ped_subset <- as.data.table(ped_dt)[Ind %in% ref_ids]
       raw <- calc_ne_coancestry(ped_subset, ped_dt, by_all, nsamples,
                                 seed = seed)
       if (!is.null(raw) && nrow(raw) > 0 && "fg" %in% names(raw)) {

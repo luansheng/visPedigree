@@ -523,7 +523,7 @@ compact_ped_for_matrix <- function(ped) {
     ped <- tidyped(ped, addnum = TRUE)
   }
   
-  ped_dt <- data.table::copy(ped)
+  ped_dt <- data.table::as.data.table(data.table::copy(ped))
   n_original <- nrow(ped_dt)
   
   # Step 1: Create family identifiers
@@ -552,8 +552,9 @@ compact_ped_for_matrix <- function(ped) {
   
   if (nrow(fullsib_families) == 0) {
     # No full-sibling families to compact
+    ped_compact <- data.table::copy(ped)
     return(list(
-      ped_compact = ped_dt,
+      ped_compact = ped_compact,
       compact_map = data.table(
         Ind = ped_dt$Ind,
         IndNum = ped_dt$IndNum,
@@ -588,8 +589,9 @@ compact_ped_for_matrix <- function(ped) {
   
   if (nrow(compactable_members) == 0) {
     # No non-parent full-siblings to compact
+    ped_compact <- data.table::copy(ped)
     return(list(
-      ped_compact = ped_dt,
+      ped_compact = ped_compact,
       compact_map = data.table(
         Ind = ped_dt$Ind,
         IndNum = ped_dt$IndNum,

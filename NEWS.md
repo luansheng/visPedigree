@@ -1,3 +1,11 @@
+# Changes in version 1.6.2 released on 23 Mar 2026
+## New features
+1. **`pedrel()` coancestry scale**: Added a `scale` parameter to `pedrel()` supporting `"relationship"` (default, returns mean $a_{ij}$) and `"coancestry"` (returns corrected mean coancestry $\bar{c}$). The coancestry scale uses the diagonal-corrected formula of Caballero & Toro (2000), properly accounting for self-coancestry within the reference group.
+
+## Bug fixes
+1. **Eliminated spurious subsetting warnings**: Internal group-by slicing in `pedrel()`, `pedne()`, `pediv()`, `pedhalflife()`, and `pedgenint()` previously triggered false-positive `[.tidyped]` warnings ("Subsetting removed parent records..."). Fixed by using `as.data.table()` to bypass the completeness guard when the subset is only used for ID extraction, not for pedigree computation.
+2. **Eliminated internal class-restoration messages**: `pedrel(compact = TRUE)` previously emitted "Note: 'ped' lost its tidyped class ... Restoring automatically." messages. Root cause was `compact_ped_for_matrix()` returning a plain `data.table` in its early-return branches (no full-sib families or no compactable members). Fixed by returning `data.table::copy(ped)` to preserve the `tidyped` class.
+
 # Changes in version 1.6.1 released on 21 Mar 2026
 ## Improvements
 1. **Standardized diversity notation**: Output columns in `pedhalflife()$timeseries` are now lowercase (`fe`, `fa`, `fg`, `lnfe`, `lnfa`, `lnfg`, `lnfafe`, `lnfgfa`) to maintain consistency with standard population genetics nomenclature.

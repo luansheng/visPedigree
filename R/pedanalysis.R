@@ -105,7 +105,7 @@ pedgenint <- function(ped, timevar = NULL, unit = c("year", "month", "day", "hou
   cols <- c("Ind", "Sire", "Dam", "Sex")
   if (!is.null(by)) cols <- c(cols, by)
   
-  dt <- ped[, ..cols]
+  dt <- as.data.table(ped)[, ..cols]
   dt[, Time := numeric_time]
   
   # Key: Ind -> Time
@@ -481,7 +481,8 @@ pedrel <- function(ped, by = "Gen", reference = NULL, compact = FALSE,
   groups <- groups[!is.na(groups)]
   
   res_list <- lapply(groups, function(g) {
-    sub_ped_full <- ped[get(by) == g]
+    row_idx <- which(ped[[by]] == g)
+    sub_ped_full <- as.data.table(ped)[row_idx]
     n_total <- nrow(sub_ped_full)
     
     if (n_total < 2) {
@@ -1004,7 +1005,7 @@ pedne <- function(ped, method = c("coancestry", "inbreeding", "demographic"),
       missing <- reference[!reference %in% ped_dt$Ind]
       warning(sprintf("Reference IDs not found in pedigree: %s", paste(missing, collapse = ", ")))
     }
-    ped_subset <- ped_dt[Ind %in% reference]
+    ped_subset <- as.data.table(ped_dt)[Ind %in% reference]
   } else {
     ped_subset <- ped_dt
   }
@@ -1102,6 +1103,8 @@ calc_ne_coancestry <- function(ped_subset, ped_full, by, nsamples,
   # Returns extended table with fg/MeanCoan/NSampledCoan columns.
   # NOTE: pedne() strips fg columns before exposing its public output;
   #       pediv() calls this function directly to access fg without duplication.
+
+  ped_subset <- as.data.table(ped_subset)
 
   ped_subset[, CohortLabel := get(by)]
   cohorts <- sort(unique(ped_subset$CohortLabel))
@@ -1923,7 +1926,7 @@ pediv <- function(ped, reference = NULL, top = 20, nsamples = 1000, ncores = 1,
   ped_dt[[by_all]] <- "All"
 
   if (!is.null(reference)) {
-    ped_subset <- ped_dt[Ind %in% reference]
+    ped_subset <- as.data.table(ped_dt)[Ind %in% reference]
   } else {
     ped_subset <- ped_dt
   }
