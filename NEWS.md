@@ -6,6 +6,10 @@
 1. **`vispstat()` internal downgrade**: The `vispstat()` function has been downgraded to an internal-only function. Specifically, it is now the internal backend for `plot.pedstats()`. Users should use the standard `plot(stats_obj)` S3 method instead.
 2. **Standardized `vispstat()` documentation**: Updated the documentation for generation intervals in `vispstat()` to accurately reflect the visualization of mean values (removing the misleading "± SD" claim).
 
+## Documentation
+1. **`pedigree-analysis.Rmd` §9 expanded**: Section 9 ("Average Relationship Trends with `pedrel()`") split into two sub-sections to cover both `scale` options. Added §9.2 with the Caballero & Toro (2000) diagonal-corrected coancestry formula, a worked example using `scale = "coancestry"` (returning `MeanCoan`), and guidance on when to prefer each scale.
+2. **`relationship-matrix.Rmd` updated**: Added §3.2 compact-to-`vismat()` direct path and expanded §4.1 with five sub-sections (`reorder = FALSE`, `ids`, `by = "Gen"`, `by = "Family"`, compact auto-expand). Replaced incorrect performance thresholds in §5 with an accurate reference table.
+
 ## Bug fixes
 1. **Eliminated spurious subsetting warnings**: Internal group-by slicing in `pedrel()`, `pedne()`, `pediv()`, `pedhalflife()`, and `pedgenint()` previously triggered false-positive `[.tidyped]` warnings ("Subsetting removed parent records..."). Fixed by using `as.data.table()` to bypass the completeness guard when the subset is only used for ID extraction, not for pedigree computation.
 2. **Eliminated internal class-restoration messages**: `pedrel(compact = TRUE)` previously emitted "Note: 'ped' lost its tidyped class ... Restoring automatically." messages. Root cause was `compact_ped_for_matrix()` returning a plain `data.table` in its early-return branches (no full-sib families or no compactable members). Fixed by returning `data.table::copy(ped)` to preserve the `tidyped` class.

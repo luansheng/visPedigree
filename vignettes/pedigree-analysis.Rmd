@@ -496,7 +496,12 @@ and most sensitive warning signal in managed breeding populations.
 
 ## 9. Average Relationship Trends with `pedrel()`
 
-`pedrel()` summarizes the mean off-diagonal additive relationship within groups:
+`pedrel()` summarizes pairwise relatedness within groups. Two complementary
+scales are available via the `scale` argument.
+
+### 9.1 Mean additive relationship (`scale = "relationship"`)
+
+The default scale returns the mean off-diagonal additive relationship:
 
 $$
 MeanRel = \frac{1}{n(n-1)} \sum_{i \ne j} a_{ij}
@@ -506,8 +511,6 @@ where $a_{ij} = 2c_{ij}$ is the additive relationship and $c_{ij}$ is the
 coancestry (kinship coefficient) between individuals $i$ and $j$.
 A higher `MeanRel` means that individuals within the group are, on average,
 more related by descent.
-
-This summary is useful for tracking relatedness by generation or year.
 
 ```{r pedrel-example}
 tp_small$BirthYear <- 2010 + tp_small$Gen
@@ -524,6 +527,29 @@ ref_ids <- c("Z1", "Z2", "X", "Y")
 
 pedrel(tp_small, by = "Gen", reference = ref_ids)
 ```
+
+### 9.2 Corrected mean coancestry (`scale = "coancestry"`)
+
+When `scale = "coancestry"`, `pedrel()` returns the diagonal-corrected
+population mean coancestry following Caballero & Toro (2000):
+
+$$
+\bar{C} = \frac{N - 1}{N} \cdot \frac{\bar{a}_{off}}{2} + \frac{1 + \bar{F}}{2N}
+$$
+
+where $\bar{a}_{off}$ is the mean off-diagonal relationship, $\bar{F}$ is the
+mean inbreeding coefficient of the group, and $N$ is the group size. This
+$\bar{C}$ accounts for self-coancestry within the group and matches the
+internal coancestry quantity used by `pediv()` to derive $f_g$.
+
+```{r pedrel-coancestry}
+coan_by_gen <- pedrel(tp_small, by = "Gen", scale = "coancestry")
+coan_by_gen
+```
+
+Use `scale = "relationship"` to track mean pairwise relatedness trends.
+Use `scale = "coancestry"` when you need a population-level coancestry
+consistent with diversity metrics from `pediv()`.
 
 `MeanRel` and coancestry-based `Ne` are conceptually linked, but they are not
 identical summaries. `MeanRel` is an average additive relationship within a
