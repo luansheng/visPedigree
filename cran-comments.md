@@ -6,8 +6,8 @@
 
 * local `devtools::check()`
 * 0 errors | 0 warnings | 1 note
-* Note: "unable to verify current time" — network-level timestamp check; not
-  a code issue.
+* Note: "unable to verify current time" — an environment-level timestamp
+	verification issue, not a code issue.
 
 This is an update from CRAN version 1.0.1 to 1.7.0.
 
@@ -17,7 +17,7 @@ This is an update from CRAN version 1.0.1 to 1.7.0.
 * Added population-genetic analysis workflows including:
 	- `pedrel()` for average relationship trends, with both relationship and coancestry scales
 	- `pedne()` for effective population size estimation
-	- `pediv()` for pedigree diversity indicators (now includes `GeneDiv = 1 - MeanCoan`,
+	- `pediv()` for pedigree diversity indicators (now including `GeneDiv = 1 - MeanCoan`,
 		the pedigree-based retained genetic diversity)
 	- `pedancestry()` and `pedpartial()` for ancestry and partial inbreeding analysis
 	- `pedcontrib()` for founder and ancestor contribution analysis
@@ -26,7 +26,7 @@ This is an update from CRAN version 1.0.1 to 1.7.0.
 	- `pedfclass()` for inbreeding-class summaries
 	- `pedsubpop()` for pedigree subgroup summaries
 	- `pedhalflife()` for information-theoretic diversity half-life analysis
-* Added robust `tidyped` infrastructure improvements, including metadata helpers,
+* Added `tidyped` infrastructure improvements, including metadata helpers,
 	safer subsetting, and class restoration tools.
 * Expanded visualization workflows:
 	- `vismat()` now supports direct aggregation from compact relationship matrices
