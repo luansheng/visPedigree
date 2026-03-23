@@ -1,4 +1,4 @@
-# visPedigree: Tidying, Analysis, and Fast Visualization of Animal and Plant Pedigrees `<img src="man/figures/logo.png" align="right" height="138" alt="" />`
+# visPedigree: Tidying, Analysis, and Fast Visualization of Animal and Plant Pedigrees <img src="man/figures/logo.png" align="right" height="138" alt="" />
 
 `visPedigree` is a comprehensive toolkit for the standardization, statistical analysis, and fast visualization of animal and plant pedigrees. It robustly handles complex mating systems, such as selfing and monoecious reproduction. Using optimized C++ algorithms, the `data.table` framework, and `igraph`, it supports pedigree analysis, relationship matrix calculation, and scalable graph and matrix displays for large pedigrees.
 
