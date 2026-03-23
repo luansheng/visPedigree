@@ -67,6 +67,9 @@ stats_deep <- pedstats(tp_deep)
 stats_deep$summary
 tail(stats_deep$ecg)
 stats_deep$gen_intervals
+
+# Visualize ancestral depth (Equivalent Complete Generations)
+plot(stats_deep, type = "ecg", metric = "ECG")
 ```
 
 Pedigree depth and pedigree time are related but distinct quantities. The former
@@ -122,6 +125,10 @@ tp_time <- tidyped(big_family_size_ped)
 
 genint_year <- pedgenint(tp_time, timevar = "Year", unit = "year")
 genint_year
+
+# Visualize generation intervals
+# Note: we can also use stats <- pedstats(tp_time, timevar = "Year") followed by plot(stats)
+plot(genint_year)
 ```
 
 The optional `cycle` parameter adds `GenEquiv`, which compares the observed mean
