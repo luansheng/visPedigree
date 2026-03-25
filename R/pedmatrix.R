@@ -172,20 +172,21 @@
 #' numerator relationship matrix used in prediction of breeding values.
 #' Biometrics, 32(1), 69-83.
 #' 
-#' @export
 # Wrap a base matrix as dgeMatrix without any N² symmetry/sparsity scan.
 # Used by the sparse=TRUE path of pedmat() when dense storage is appropriate.
 # inherits(result, "Matrix") == TRUE; as.matrix() round-trips correctly.
+# Class definition is cached on first call to avoid repeated namespace lookups.
+.dgeMatrix_cache <- new.env(parent = emptyenv())
 .to_dgeMatrix <- function(mat) {
+  if (is.null(.dgeMatrix_cache$cls))
+    .dgeMatrix_cache$cls <- methods::getClass("dgeMatrix", where = asNamespace("Matrix"))
   dn <- dimnames(mat)
   if (is.null(dn)) dn <- list(NULL, NULL)
-  # Explicitly look up class in Matrix namespace so this works when Matrix is
-  # only in Imports (not attached). Avoids the N² symmetry/sparsity scan done
-  # by Matrix::Matrix(mat, sparse=FALSE).
-  cls <- methods::getClass("dgeMatrix", where = asNamespace("Matrix"))
-  methods::new(cls, x = as.double(mat), Dim = as.integer(dim(mat)), Dimnames = dn)
+  methods::new(.dgeMatrix_cache$cls, x = as.double(mat),
+               Dim = as.integer(dim(mat)), Dimnames = dn)
 }
 
+#' @export
 pedmat <- function(ped, method = "A", sparse = TRUE, invert_method = "auto", 
                      threads = 0, compact = FALSE) {
   # Check for splitped input - not supported

@@ -1087,7 +1087,9 @@ IntegerVector cpp_trace_ancestors(IntegerVector sire, IntegerVector dam,
     }
 
     while (!q.empty()) {
-        auto [cur, d] = q.front(); q.pop();
+        int cur = q.front().first;
+        int d   = q.front().second;
+        q.pop();
         if (max_gen > 0 && d >= max_gen) continue;
 
         int s  = sire[cur - 1];
@@ -1134,7 +1136,9 @@ IntegerVector cpp_trace_descendants(IntegerVector sire, IntegerVector dam,
     }
 
     while (!q.empty()) {
-        auto [cur, d] = q.front(); q.pop();
+        int cur = q.front().first;
+        int d   = q.front().second;
+        q.pop();
         if (max_gen > 0 && d >= max_gen) continue;
 
         for (int child : children[cur]) {

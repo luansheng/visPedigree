@@ -234,6 +234,46 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// cpp_trace_ancestors
+IntegerVector cpp_trace_ancestors(IntegerVector sire, IntegerVector dam, IntegerVector targets, int max_gen);
+RcppExport SEXP _visPedigree_cpp_trace_ancestors(SEXP sireSEXP, SEXP damSEXP, SEXP targetsSEXP, SEXP max_genSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< IntegerVector >::type sire(sireSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type dam(damSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type targets(targetsSEXP);
+    Rcpp::traits::input_parameter< int >::type max_gen(max_genSEXP);
+    rcpp_result_gen = Rcpp::wrap(cpp_trace_ancestors(sire, dam, targets, max_gen));
+    return rcpp_result_gen;
+END_RCPP
+}
+// cpp_trace_descendants
+IntegerVector cpp_trace_descendants(IntegerVector sire, IntegerVector dam, IntegerVector targets, int max_gen);
+RcppExport SEXP _visPedigree_cpp_trace_descendants(SEXP sireSEXP, SEXP damSEXP, SEXP targetsSEXP, SEXP max_genSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< IntegerVector >::type sire(sireSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type dam(damSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type targets(targetsSEXP);
+    Rcpp::traits::input_parameter< int >::type max_gen(max_genSEXP);
+    rcpp_result_gen = Rcpp::wrap(cpp_trace_descendants(sire, dam, targets, max_gen));
+    return rcpp_result_gen;
+END_RCPP
+}
+// cpp_topo_order
+IntegerVector cpp_topo_order(IntegerVector sire, IntegerVector dam);
+RcppExport SEXP _visPedigree_cpp_topo_order(SEXP sireSEXP, SEXP damSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< IntegerVector >::type sire(sireSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type dam(damSEXP);
+    rcpp_result_gen = Rcpp::wrap(cpp_topo_order(sire, dam));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_visPedigree_cpp_set_num_threads", (DL_FUNC) &_visPedigree_cpp_set_num_threads, 1},
@@ -254,6 +294,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_visPedigree_cpp_calculate_sampled_coancestry_delta", (DL_FUNC) &_visPedigree_cpp_calculate_sampled_coancestry_delta, 4},
     {"_visPedigree_cpp_pedcontrib", (DL_FUNC) &_visPedigree_cpp_pedcontrib, 4},
     {"_visPedigree_cpp_calculate_ancestry", (DL_FUNC) &_visPedigree_cpp_calculate_ancestry, 3},
+    {"_visPedigree_cpp_trace_ancestors", (DL_FUNC) &_visPedigree_cpp_trace_ancestors, 4},
+    {"_visPedigree_cpp_trace_descendants", (DL_FUNC) &_visPedigree_cpp_trace_descendants, 4},
+    {"_visPedigree_cpp_topo_order", (DL_FUNC) &_visPedigree_cpp_topo_order, 2},
     {NULL, NULL, 0}
 };
 
