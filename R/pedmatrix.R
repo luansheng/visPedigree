@@ -1,3 +1,18 @@
+# --- Internal: dgeMatrix fast-coercion cache ---
+# Wrap a base matrix as dgeMatrix without any N² symmetry/sparsity scan.
+# Used by the sparse=TRUE path of pedmat() when dense storage is appropriate.
+# inherits(result, "Matrix") == TRUE; as.matrix() round-trips correctly.
+# Class definition is cached on first call to avoid repeated namespace lookups.
+.dgeMatrix_cache <- new.env(parent = emptyenv())
+.to_dgeMatrix <- function(mat) {
+  if (is.null(.dgeMatrix_cache$cls))
+    .dgeMatrix_cache$cls <- methods::getClass("dgeMatrix", where = asNamespace("Matrix"))
+  dn <- dimnames(mat)
+  if (is.null(dn)) dn <- list(NULL, NULL)
+  methods::new(.dgeMatrix_cache$cls, x = as.double(mat),
+               Dim = as.integer(dim(mat)), Dimnames = dn)
+}
+
 #' Genetic Relationship Matrices and Inbreeding Coefficients
 #'
 #' @description
@@ -172,20 +187,6 @@
 #' numerator relationship matrix used in prediction of breeding values.
 #' Biometrics, 32(1), 69-83.
 #' 
-# Wrap a base matrix as dgeMatrix without any N² symmetry/sparsity scan.
-# Used by the sparse=TRUE path of pedmat() when dense storage is appropriate.
-# inherits(result, "Matrix") == TRUE; as.matrix() round-trips correctly.
-# Class definition is cached on first call to avoid repeated namespace lookups.
-.dgeMatrix_cache <- new.env(parent = emptyenv())
-.to_dgeMatrix <- function(mat) {
-  if (is.null(.dgeMatrix_cache$cls))
-    .dgeMatrix_cache$cls <- methods::getClass("dgeMatrix", where = asNamespace("Matrix"))
-  dn <- dimnames(mat)
-  if (is.null(dn)) dn <- list(NULL, NULL)
-  methods::new(.dgeMatrix_cache$cls, x = as.double(mat),
-               Dim = as.integer(dim(mat)), Dimnames = dn)
-}
-
 #' @export
 pedmat <- function(ped, method = "A", sparse = TRUE, invert_method = "auto", 
                      threads = 0, compact = FALSE) {
