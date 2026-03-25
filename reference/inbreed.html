@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">visPedigree</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -68,7 +68,19 @@
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>This function takes a pedigree tidied by the <code><a href="tidyped.html">tidyped</a></code> function and calculates the inbreeding coefficients using optimized C++ code based on the Meuwissen &amp; Luo (1992) algorithm. It is the core engine used by both <code>tidyped(..., inbreed = TRUE)</code> and <code>pedmat(..., method = "f")</code>, ensuring consistent results across the package. It is significantly faster than standard R implementations for large pedigrees.</p>
+    <p>This function takes a pedigree tidied by the <code><a href="tidyped.html">tidyped</a></code> function and
+calculates the inbreeding coefficients using an optimized C++ implementation of
+the Sargolzaei &amp; Iwaisaki (2005) LAP (Longest Ancestral Path) bucket algorithm.
+This method is the fastest known direct algorithm for computing all inbreeding
+coefficients: it replaces the O(\(N^2\)) linear scan of Meuwissen &amp; Luo (1992)
+with O(1) bucket pops and selective ancestor clearing, giving
+\(O(\sum m_i)\) total work where \(m_i\) is the number of distinct
+ancestors of individual \(i\). At \(N = 1{,}000{,}000\), the kernel
+completes in approximately 0.12 s — over 10\(\times\) faster than the previous
+Meuwissen &amp; Luo (1992) implementation and on par with the <span class="pkg">pedigreemm</span>
+reference C implementation of the same algorithm.
+It is the core engine used by both <code>tidyped(..., inbreed = TRUE)</code> and
+<code>pedmat(..., method = "f")</code>, ensuring consistent results across the package.</p>
     </div>
 
     <div class="section level2">

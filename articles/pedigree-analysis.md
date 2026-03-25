@@ -503,7 +503,7 @@ three components:
 
 The cascade rests on a simple algebraic identity:
 
-$$\ln f_{g} = \underset{\text{LnFe}}{\underbrace{\ln f_{e}}} + \underset{\text{LnFaFe}}{\underbrace{\ln\!\left( \frac{f_{a}}{f_{e}} \right)}} + \underset{\text{LnFgFa}}{\underbrace{\ln\!\left( \frac{f_{g}}{f_{a}} \right)}}$$
+$$\ln f_{g} = \underset{\texttt{𝚕𝚗𝚏𝚎}}{\underbrace{\ln f_{e}}} + \underset{\texttt{𝚕𝚗𝚏𝚊𝚏𝚎}}{\underbrace{\ln\!\left( \frac{f_{a}}{f_{e}} \right)}} + \underset{\texttt{𝚕𝚗𝚏𝚐𝚏𝚊}}{\underbrace{\ln\!\left( \frac{f_{g}}{f_{a}} \right)}}$$
 
 Because OLS is linear, the slope of $\ln f_{g}$ versus time equals the
 sum of the slopes of the three right-hand terms. This guarantees exact
@@ -511,11 +511,11 @@ additivity: $\lambda_{total} = \lambda_{e} + \lambda_{b} + \lambda_{d}$.
 
 | Column     | Formula                         | What it measures                                                                                                                                                                           |
 |------------|---------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `LnFe`     | $\ln f_{e}$                     | Log effective-founder diversity. Declines when founder contributions become more unequal over time.                                                                                        |
-| `LnFa`     | $\ln f_{a}$                     | Log effective-ancestor diversity. Lies below `LnFe` whenever bottleneck ancestors have been over-used.                                                                                     |
-| `LnFg`     | $\ln f_{g}$                     | Log founder-genome equivalents. The most comprehensive diversity signal; integrates founder use, bottlenecks, and drift.                                                                   |
-| `LnFaFe`   | $\ln\left( f_{a}/f_{e} \right)$ | **Bottleneck gap.** When this ratio decreases over time, a small number of ancestors dominate the gene pool even beyond what unequal founder use would predict.                            |
-| `LnFgFa`   | $\ln\left( f_{g}/f_{a} \right)$ | **Drift gap.** Captures random allele loss due to finite population size. Because $f_{g} \leq f_{a}$ always, this term is $\leq 0$ and becomes more negative as genetic drift accumulates. |
+| `lnfe`     | $\ln f_{e}$                     | Log effective-founder diversity. Declines when founder contributions become more unequal over time.                                                                                        |
+| `lnfa`     | $\ln f_{a}$                     | Log effective-ancestor diversity. Lies below `lnfe` whenever bottleneck ancestors have been over-used.                                                                                     |
+| `lnfg`     | $\ln f_{g}$                     | Log founder-genome equivalents. The most comprehensive diversity signal; integrates founder use, bottlenecks, and drift.                                                                   |
+| `lnfafe`   | $\ln\left( f_{a}/f_{e} \right)$ | **Bottleneck gap.** When this ratio decreases over time, a small number of ancestors dominate the gene pool even beyond what unequal founder use would predict.                            |
+| `lnfgfa`   | $\ln\left( f_{g}/f_{a} \right)$ | **Drift gap.** Captures random allele loss due to finite population size. Because $f_{g} \leq f_{a}$ always, this term is $\leq 0$ and becomes more negative as genetic drift accumulates. |
 | `TimeStep` | numeric                         | OLS time axis (same as `Time` for numeric `timevar`; sequential indices otherwise).                                                                                                        |
 
 ### 7.2 Interpreting the $\lambda$ components

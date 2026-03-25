@@ -1,5 +1,124 @@
 # Changelog
 
+## Changes in version 1.8.0 released on 25 Mar 2026
+
+### Bug Fixes
+
+1.  **[`tidyped()`](https://luansheng.github.io/visPedigree/reference/tidyped.md)
+    fast path with `addnum = FALSE` + `cand`**: When the input `tidyped`
+    object was created with `addnum = FALSE` (no `IndNum`/`SireNum`/
+    `DamNum` columns), passing a `cand` argument would always raise
+    `"None of the specified candidates were found in the pedigree."`
+    because the fast-path BFS looked up `ped_dt$IndNum` which was
+    `NULL`. The fix temporarily adds integer index columns for the BFS
+    and removes them from the output when `addnum = FALSE`.
+
+2.  **[`pediv()`](https://luansheng.github.io/visPedigree/reference/pediv.md)
+    /
+    [`pedne()`](https://luansheng.github.io/visPedigree/reference/pedne.md)
+    incorrect `fg`, `MeanCoan`, and `NeCoancestry` values when `ECG` was
+    not pre-computed**: Inside
+    [`pediv()`](https://luansheng.github.io/visPedigree/reference/pediv.md)
+    and
+    [`pedne()`](https://luansheng.github.io/visPedigree/reference/pedne.md),
+    a `merge(..., by = "Ind", all.x = TRUE)` was used to attach `ECG`
+    values.
+    [`data.table::merge()`](https://rdrr.io/pkg/data.table/man/merge.html)
+    sorts output by the key column (`Ind`, alphabetically), breaking the
+    `IndNum == row-index` invariant that the fast-path BFS in
+    [`tidyped()`](https://luansheng.github.io/visPedigree/reference/tidyped.md)
+    depends on. The result was that the traced pedigree used for
+    coancestry calculation was incorrect, producing wildly wrong `fg`
+    and related values (e.g., `fg ≈ 240` instead of `fg ≈ 19`). Fixed by
+    calling `setorder(ped_dt, IndNum)` immediately after the merge.
+
+3.  **[`summary_pedmat()`](https://luansheng.github.io/visPedigree/reference/summary_pedmat.md)
+    reported `Density = 100%` for all `A`, `D`, and `AA` matrices**: The
+    speed branch changed the return type of `pedmat(sparse = TRUE)` for
+    these methods from `dgCMatrix` (sparse) to `dgeMatrix` (dense) to
+    avoid the O(N²) zero-scan performed by
+    `Matrix::Matrix(..., sparse = TRUE)`. However,
+    [`summary_pedmat()`](https://luansheng.github.io/visPedigree/reference/summary_pedmat.md)
+    contained a hard-coded branch that returned `sparsity = 1.0` for any
+    non-`sparseMatrix` `Matrix` subclass (including `dgeMatrix`), always
+    printing `Density = 100%` instead of the true fill ratio. Fixed by
+    using `Matrix::nnzero() / (nrow * ncol)` for all `Matrix`
+    subclasses; `nnzero()` works correctly for both `dgeMatrix` and
+    `dgCMatrix`.
+
+### Performance
+
+1.  **~100× faster inbreeding calculation**: Replaced the Meuwissen &
+    Luo (1992) linear path-trace algorithm in `cpp_calculate_inbreeding`
+    with the Sargolzaei & Iwaisaki (2005) LAP (Longest Ancestral Path)
+    bucket method. At N = 1,000,000, the C++ kernel now completes in
+    ~0.15 s (previously ~15 s), and the full
+    [`inbreed()`](https://luansheng.github.io/visPedigree/reference/inbreed.md)
+    call returns in ~0.40 s. The key improvements are O(1) ancestor
+    retrieval via bucket pop (vs. O(gap) linear scan), O(1) duplicate
+    suppression via `L[k] == 0` check, and O(m_i) path-coefficient reset
+    (vs. O(k) full-array scan). All results are numerically identical to
+    the previous implementation (max difference \< 2 × 10⁻¹⁵).
+
+2.  **~16× faster
+    [`tidyped()`](https://luansheng.github.io/visPedigree/reference/tidyped.md)
+    candidate tracing**: When the input is already a `tidyped` object
+    and `cand` is specified, the fast path now uses three new pure C++
+    BFS functions (`cpp_trace_ancestors`, `cpp_trace_descendants`,
+    `cpp_topo_order`) instead of rebuilding an igraph object. At N =
+    1,000,000 with 200 candidates, elapsed time drops from ~0.91 s to
+    ~0.056 s. The fast path now also correctly applies sibling and mate
+    generation alignment for `genmethod = "bottom"`, matching the output
+    of the full path.
+
+3.  **~9× faster
+    [`pedgenint()`](https://luansheng.github.io/visPedigree/reference/pedgenint.md)
+    generation-interval lookup**: Replaced the character-key
+    `data.table` join used to look up each individual’s generation
+    number with a pre-computed integer index array. Benchmark on a
+    representative dataset: 4.24 s → 0.49 s.
+
+4.  **~2× faster `pedmat(sparse = TRUE)` matrix coercion**: The
+    conversion from a dense numeric matrix to a `Matrix::dgeMatrix` now
+    bypasses the S4 dispatch overhead of `as(mat, "dgeMatrix")` via a
+    direct [`methods::new()`](https://rdrr.io/r/methods/new.html) call
+    backed by a package-level class cache. The cached class object is
+    looked up once per session instead of on every call. Benchmark: 1.24
+    s → 0.60 s for a representative subpedigree.
+
+5.  **`pedrel(compact = TRUE)` 200 k safety guard**: Added an early
+    error when the number of reference individuals exceeds 200,000 in
+    compact mode, preventing inadvertent multi-hour runs from silent
+    O(N²) matrix allocation.
+
+### Internal changes
+
+1.  **`align_bottom_generations()` extracted as shared helper**: The
+    ~60-line sibling/mate generation-alignment block previously
+    duplicated between the main path and the fast path of
+    [`tidyped()`](https://luansheng.github.io/visPedigree/reference/tidyped.md)
+    has been consolidated into a single internal helper. Both paths now
+    call it consistently.
+
+2.  **C++11 compatibility**: Two C++17 structured-binding usages
+    (`auto [cur, d] = q.front()`) in the BFS functions have been
+    replaced with explicit C++11 equivalents, ensuring compatibility
+    with GCC 8 (CRAN’s minimum required compiler).
+
+3.  **`methods` declared in `Imports`**: The `methods` package is now
+    explicitly listed under `Imports` in `DESCRIPTION`, as required by
+    CRAN policy when
+    [`methods::getClass()`](https://rdrr.io/r/methods/getClass.html) and
+    [`methods::new()`](https://rdrr.io/r/methods/new.html) are called at
+    runtime.
+
+### Documentation
+
+1.  Updated
+    [`inbreed()`](https://luansheng.github.io/visPedigree/reference/inbreed.md)
+    and vignette references to cite Sargolzaei & Iwaisaki (2005) instead
+    of Meuwissen & Luo (1992).
+
 ## Changes in version 1.7.0 released on 23 Mar 2026
 
 ### New features

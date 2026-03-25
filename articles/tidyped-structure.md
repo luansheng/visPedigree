@@ -1,8 +1,7 @@
 # 6. tidyped Class Structure and Extension Notes
 
-This document describes the current structural contract of the `tidyped`
-class. It is intended for future maintenance and extension work inside
-`visPedigree`.
+This document describes the structural contract of the `tidyped` class
+in visPedigree 1.8.0. It is intended for maintenance and extension work.
 
 ## 1. Class identity
 
@@ -14,36 +13,96 @@ Expected class vector:
 c("tidyped", "data.table", "data.frame")
 ```
 
-The class should be created through
+The class is created through
 [`new_tidyped()`](https://luansheng.github.io/visPedigree/reference/new_tidyped.md)
-and checked with
+(internal constructor) and checked with
 [`is_tidyped()`](https://luansheng.github.io/visPedigree/reference/is_tidyped.md).
 
 ## 2. Core design goals
 
 `tidyped` is designed to be:
 
-1.  fast for large pedigrees,
-2.  compatible with `data.table` workflows,
-3.  safe for downstream C++ code that depends on integer pedigree
-    indices,
-4.  explicit about when a subset is no longer a valid pedigree.
+1.  **safe for C++**: integer pedigree indices (`IndNum`, `SireNum`,
+    `DamNum`) are always aligned with row order, so C++ routines can
+    index directly without translation;
+2.  **fast for large pedigrees**: the fast path skips redundant
+    validation when the input is already a `tidyped`;
+3.  **compatible with `data.table`**: in-place modification via `:=` and
+    [`set()`](https://rdrr.io/pkg/data.table/man/assign.html) preserves
+    class and metadata without copying;
+4.  **explicit about structural degradation**: row subsets that break
+    pedigree completeness are downgraded to plain `data.table` with a
+    warning.
 
-## 3. Structural layers
+## 3. The head invariant: IndNum == row index
 
-### 3.1 Data layer
+The single most important structural rule in visPedigree:
 
-The object body is a `data.table`. All ordinary columns live here.
+> **`IndNum[i]` must equal `i` for every row.**
 
-### 3.2 Class layer
+This means `SireNum` and `DamNum` are direct row pointers: the sire of
+individual `i` lives at row `SireNum[i]`, and `0L` encodes a missing
+parent.
 
-The S3 class adds:
+Every C++ function in visPedigree — inbreeding coefficients,
+relationship matrices, BFS tracing, topological sorting — relies on this
+invariant. If it breaks, C++ will read wrong parents.
 
-- printing and summary methods,
-- validation / auto-restoration helpers,
-- safe subsetting via `[.tidyped`.
+This invariant is enforced at three levels:
 
-### 3.3 Metadata layer
+- **[`tidyped()`](https://luansheng.github.io/visPedigree/reference/tidyped.md)**:
+  builds indices from scratch during construction.
+- **`[.tidyped`**: rebuilds indices in-place after valid row subsets.
+- **[`ensure_tidyped()`](https://luansheng.github.io/visPedigree/reference/ensure_tidyped.md)
+  /
+  [`ensure_complete_tidyped()`](https://luansheng.github.io/visPedigree/reference/ensure_complete_tidyped.md)**:
+  detect and repair stale indices when class was accidentally dropped.
+
+## 4. Column contract
+
+### 4.1 Minimal structural columns
+
+These four columns define a valid `tidyped`:
+
+| Column | Type      | Description                          |
+|--------|-----------|--------------------------------------|
+| `Ind`  | character | Unique individual ID                 |
+| `Sire` | character | Sire ID, `NA` for unknown            |
+| `Dam`  | character | Dam ID, `NA` for unknown             |
+| `Sex`  | character | `"male"`, `"female"`, or `"unknown"` |
+
+Checked by
+[`validate_tidyped()`](https://luansheng.github.io/visPedigree/reference/validate_tidyped.md).
+
+### 4.2 Integer pedigree columns
+
+| Column    | Type    | Description                         |
+|-----------|---------|-------------------------------------|
+| `IndNum`  | integer | Row index (== row number, see §3)   |
+| `SireNum` | integer | Row index of sire, `0L` for missing |
+| `DamNum`  | integer | Row index of dam, `0L` for missing  |
+
+These exist whenever
+[`tidyped()`](https://luansheng.github.io/visPedigree/reference/tidyped.md)
+is called with `addnum = TRUE` (default). They are the interface between
+R and C++.
+
+### 4.3 Other common columns
+
+| Column       | Description                                                                                                   |
+|--------------|---------------------------------------------------------------------------------------------------------------|
+| `Gen`        | Generation number                                                                                             |
+| `Family`     | Family group code                                                                                             |
+| `FamilySize` | Number of offspring in the family                                                                             |
+| `Cand`       | `TRUE` for candidate individuals                                                                              |
+| `f`          | Inbreeding coefficient (added by [`inbreed()`](https://luansheng.github.io/visPedigree/reference/inbreed.md)) |
+
+### 4.4 Column naming convention
+
+All data columns use **PascalCase** (`Ind`, `SireNum`, `MeanF`, `ECG`),
+matching the core column style.
+
+## 5. Metadata layer
 
 Pedigree-level metadata is stored in a single attribute:
 
@@ -51,166 +110,243 @@ Pedigree-level metadata is stored in a single attribute:
 attr(x, "ped_meta")
 ```
 
-This metadata is built by
-[`build_ped_meta()`](https://luansheng.github.io/visPedigree/reference/build_ped_meta.md)
-and accessed by
+Built by
+[`build_ped_meta()`](https://luansheng.github.io/visPedigree/reference/build_ped_meta.md),
+accessed by
 [`pedmeta()`](https://luansheng.github.io/visPedigree/reference/pedmeta.md).
 
-Current fields:
+| Field              | Type      | Description                                |
+|--------------------|-----------|--------------------------------------------|
+| `selfing`          | logical   | Whether self-fertilization mode was used   |
+| `bisexual_parents` | character | IDs appearing as both sire and dam         |
+| `genmethod`        | character | `"top"` or `"bottom"` generation numbering |
 
-- `selfing`: logical
-- `bisexual_parents`: character vector
-- `genmethod`: one of `"top"` or `"bottom"`
+No other pedigree-level attributes should be added outside `ped_meta`.
 
-## 4. Column contract
+## 6. Structural invariants
 
-### 4.1 Required structural columns
+The following invariants must hold for a valid `tidyped`:
 
-These columns define the minimal structural contract for a valid
-`tidyped`:
+1.  **IndNum == row index** (see §3).
+2.  **Ind is unique** — no duplicate individual IDs.
+3.  **Completeness** — every non-`NA` Sire and Dam appears in `Ind`.
+4.  **Acyclicity** — no individual is its own ancestor.
+5.  **SireNum / DamNum consistency** — `0L` for missing parents, valid
+    row indices otherwise.
+6.  **ped_meta is the sole metadata container** — no scattered
+    attributes.
 
-- `Ind`
-- `Sire`
-- `Dam`
-- `Sex`
-
-These are required by
-[`validate_tidyped()`](https://luansheng.github.io/visPedigree/reference/validate_tidyped.md).
-
-### 4.2 Common computed columns
-
-Frequently present columns include:
-
-- `Gen`
-- `IndNum`
-- `SireNum`
-- `DamNum`
-- `Family`
-- `FamilySize`
-- `Cand`
-- `f`
-
-Not every `tidyped` must contain all of them, but downstream functions
-may require specific subsets.
-
-### 4.3 Integer pedigree columns
-
-The integer pedigree columns are especially important:
-
-- `IndNum`: row-wise individual index
-- `SireNum`: integer index of sire, `0L` for missing sire
-- `DamNum`: integer index of dam, `0L` for missing dam
-
-Many heavy computations in C++ assume these columns are aligned with the
-current row order. If row subsets change pedigree membership, these
-indices must be rebuilt before the result can remain a `tidyped`.
-
-## 5. Invariants
-
-The following invariants should hold for a structurally valid `tidyped`:
-
-1.  `Ind` is unique.
-2.  `Sire` and `Dam` are either `NA` or present in `Ind`.
-3.  The pedigree is acyclic.
-4.  If integer columns exist, they are aligned with the current row
-    order.
-5.  `ped_meta` is the only pedigree-level metadata container.
-
-## 6. Constructor and validators
-
-### 6.1 `tidyped()`
-
+Invariants 1–5 are established by
 [`tidyped()`](https://luansheng.github.io/visPedigree/reference/tidyped.md)
-is the public constructor and full preparation pipeline.
+and guarded by `[.tidyped`. Invariant 6 is a development convention.
 
-Standard path:
+## 7. Constructor pipeline
 
-1.  validate raw input,
-2.  normalize IDs,
-3.  add missing founders,
-4.  build graph,
-5.  check loops,
-6.  trace candidates if requested,
-7.  assign generations,
-8.  infer sex,
-9.  sort and build integer indices,
-10. attach class and metadata.
+### 7.1 Full path: `tidyped(raw_input)`
 
-### 6.2 Fast path
+When the input is a raw `data.frame` or `data.table`:
 
-When the input is already a `tidyped` and `cand` is supplied,
-[`tidyped()`](https://luansheng.github.io/visPedigree/reference/tidyped.md)
-now uses a fast path:
+1.  `validate_and_prepare_ped()` — normalize IDs, detect duplicates and
+    bisexual parents, inject missing founders.
+2.  Loop detection — igraph builds a directed graph and checks
+    `is_dag()`; `which_loop()` and `shortest_paths()` are used only on
+    the error path to report informative loop diagnostics.
+3.  Candidate tracing — C++ BFS (`cpp_trace_ancestors` /
+    `cpp_trace_descendants`).
+4.  Generation assignment — C++ (`cpp_assign_generations_top` /
+    `cpp_assign_generations_bottom`).
+5.  Sex inference — resolve unknowns from parental roles.
+6.  Topological sort — C++ (`cpp_topo_order`).
+7.  Build integer indices — `IndNum`, `SireNum`, `DamNum`.
+8.  [`new_tidyped()`](https://luansheng.github.io/visPedigree/reference/new_tidyped.md) +
+    attach `ped_meta`.
 
-- skip raw-data validation,
-- skip loop detection,
-- skip sex inference,
-- rebuild only the subset-specific structures.
+### 7.2 Fast path: `tidyped(tp, cand = ids)`
 
-This is the preferred workflow for repeated local tracing from a
-previously validated master pedigree.
+When the input is already a `tidyped` **and** `cand` is supplied:
 
-### 6.3 `new_tidyped()`
+- **Skipped**: ID validation, loop detection, sex inference, founder
+  injection.
+- **Executed**: C++ BFS tracing → C++ topo sort → C++ generation
+  assignment → rebuild indices →
+  [`new_tidyped()`](https://luansheng.github.io/visPedigree/reference/new_tidyped.md) +
+  `ped_meta`.
+
+The fast path is the preferred workflow for repeated local tracing from
+a previously validated master pedigree:
+
+``` r
+tp_master <- tidyped(raw_ped)
+tp_local  <- tidyped(tp_master, cand = ids, trace = "up", tracegen = 3)
+```
+
+### 7.3 `new_tidyped()` — internal constructor
 
 [`new_tidyped()`](https://luansheng.github.io/visPedigree/reference/new_tidyped.md)
-is the internal class constructor. It should only be used when the
-caller already knows the object body is structurally valid.
+attaches the `"tidyped"` class via
+[`setattr()`](https://rdrr.io/pkg/data.table/man/setattr.html) (no copy)
+and clears data.table’s invisible flag via `x[]`. It does **not** attach
+`ped_meta` — that is the caller’s responsibility. It should only be
+called when the caller has already ensured structural validity.
 
-### 6.4 `ensure_tidyped()` and `validate_tidyped()`
+## 8. Three-tier guard system
 
-- [`ensure_tidyped()`](https://luansheng.github.io/visPedigree/reference/ensure_tidyped.md)
-  restores class when structure is still recoverable.
-- [`validate_tidyped()`](https://luansheng.github.io/visPedigree/reference/validate_tidyped.md)
-  checks that a tidyped object is usable and delegates to
+Analysis functions must guard their inputs. visPedigree provides three
+guard levels, chosen based on what each function needs.
+
+### 8.1 `validate_tidyped()` — visualization guard
+
+- Attempts silent class recovery via
+  [`ensure_tidyped()`](https://luansheng.github.io/visPedigree/reference/ensure_tidyped.md).
+- Checks only that `Ind`, `Sire`, `Dam`, `Sex` exist.
+- **Does not require** pedigree completeness.
+- Used by:
+  [`visped()`](https://luansheng.github.io/visPedigree/reference/visped.md),
+  [`plot.tidyped()`](https://luansheng.github.io/visPedigree/reference/plot.tidyped.md),
+  [`summary.tidyped()`](https://luansheng.github.io/visPedigree/reference/summary.tidyped.md).
+
+### 8.2 `ensure_tidyped()` — structure-light guard
+
+- If already `tidyped`: returns as-is.
+- If class was dropped but 8 core columns (`Ind`, `Sire`, `Dam`, `Sex`,
+  `Gen`, `IndNum`, `SireNum`, `DamNum`) are present: rebuilds `IndNum`
+  if stale, restores class, emits a message.
+- **Does not check** pedigree completeness.
+- Used by:
+  [`pedsubpop()`](https://luansheng.github.io/visPedigree/reference/pedsubpop.md),
+  [`splitped()`](https://luansheng.github.io/visPedigree/reference/splitped.md),
+  `pedne(method = "demographic")`,
+  `pedstats(ecg = FALSE, genint = FALSE)`,
+  [`pedfclass()`](https://luansheng.github.io/visPedigree/reference/pedfclass.md)
+  (when `f` column already exists).
+
+### 8.3 `ensure_complete_tidyped()` — complete-pedigree guard
+
+- Everything
   [`ensure_tidyped()`](https://luansheng.github.io/visPedigree/reference/ensure_tidyped.md)
-  for class recovery.
+  does, **plus**:
+- Calls
+  [`require_complete_pedigree()`](https://luansheng.github.io/visPedigree/reference/require_complete_pedigree.md)
+  — verifies that every non-`NA` Sire/Dam is present in `Ind`. Stops
+  with an error if not.
+- Required by any function that recurses through pedigree structure in
+  C++.
+- Used by:
+  [`inbreed()`](https://luansheng.github.io/visPedigree/reference/inbreed.md),
+  [`pedecg()`](https://luansheng.github.io/visPedigree/reference/pedecg.md),
+  [`pedgenint()`](https://luansheng.github.io/visPedigree/reference/pedgenint.md),
+  [`pedrel()`](https://luansheng.github.io/visPedigree/reference/pedrel.md),
+  `pedne(method = "inbreeding" | "coancestry")`,
+  [`pedcontrib()`](https://luansheng.github.io/visPedigree/reference/pedcontrib.md),
+  [`pedancestry()`](https://luansheng.github.io/visPedigree/reference/pedancestry.md),
+  [`pedfclass()`](https://luansheng.github.io/visPedigree/reference/pedfclass.md)
+  (when `f` must be computed),
+  [`pedpartial()`](https://luansheng.github.io/visPedigree/reference/pedpartial.md),
+  [`pediv()`](https://luansheng.github.io/visPedigree/reference/pediv.md),
+  [`pedmat()`](https://luansheng.github.io/visPedigree/reference/pedmat.md),
+  [`pedhalflife()`](https://luansheng.github.io/visPedigree/reference/pedhalflife.md).
 
-## 7. Safe subsetting contract
+### 8.4 Choosing the right guard
+
+| Guard                                                                                                       | Recovers class? | Requires completeness? | When to use                   |
+|-------------------------------------------------------------------------------------------------------------|:---------------:|:----------------------:|-------------------------------|
+| [`validate_tidyped()`](https://luansheng.github.io/visPedigree/reference/validate_tidyped.md)               |       yes       |           no           | Visualization                 |
+| [`ensure_tidyped()`](https://luansheng.github.io/visPedigree/reference/ensure_tidyped.md)                   |       yes       |           no           | Summaries on existing columns |
+| [`ensure_complete_tidyped()`](https://luansheng.github.io/visPedigree/reference/ensure_complete_tidyped.md) |       yes       |        **yes**         | Pedigree recursion in C++     |
+
+Some functions are **conditionally guarded**: they use
+[`ensure_tidyped()`](https://luansheng.github.io/visPedigree/reference/ensure_tidyped.md)
+by default but escalate to
+[`ensure_complete_tidyped()`](https://luansheng.github.io/visPedigree/reference/ensure_complete_tidyped.md)
+when a parameter triggers pedigree recursion (for example
+`pedstats(ecg = TRUE)`, `pedne(method = "coancestry")`).
+
+## 9. Safe subsetting contract
 
 `[.tidyped` is the key protection layer.
 
-Behavior:
+### 9.1 `:=` operations
 
-1.  `:=` operations are passed through safely and preserve class.
-2.  Column-only selections that remove pedigree structure return plain
-    results.
-3.  Row subsets are checked for pedigree completeness.
-4.  If all retained parents are still present, the result remains
-    `tidyped` and integer pedigree columns are rebuilt.
-5.  If parent records are missing, the result is downgraded to plain
-    `data.table` with a warning.
+Modify-by-reference is passed through safely. Class and metadata are
+preserved via
+[`setattr()`](https://rdrr.io/pkg/data.table/man/setattr.html). No copy
+occurs.
 
-This downgrade behavior is deliberate. It prevents stale `IndNum` /
-`SireNum` / `DamNum` values from silently reaching C++ routines.
+### 9.2 Column-only selections
 
-## 8. Recommended extension rules
+If the selection removes core pedigree columns, the result is returned
+as a plain `data.table` without warning.
+
+### 9.3 Row subsets
+
+After row subsetting, `[.tidyped` checks pedigree completeness:
+
+- **Complete subset** (all referenced parents still present): `IndNum`,
+  `SireNum`, `DamNum` are rebuilt in-place, class and `ped_meta` are
+  preserved.
+- **Incomplete subset** (parent records missing): result is downgraded
+  to plain `data.table` with a warning guiding the user to
+  `tidyped(tp, cand = ids, trace = "up")`.
+
+This downgrade is deliberate. It prevents stale integer indices from
+reaching C++ routines.
+
+## 10. Computational boundaries: C++ vs igraph
+
+visPedigree delegates heavy computation to C++ and uses igraph only for
+graph-specific tasks.
+
+### 10.1 C++ — core computation path
+
+| Task                          | C++ function                                                  |
+|-------------------------------|---------------------------------------------------------------|
+| Ancestry / descendant tracing | `cpp_trace_ancestors`, `cpp_trace_descendants`                |
+| Topological sorting           | `cpp_topo_order`                                              |
+| Generation assignment         | `cpp_assign_generations_top`, `cpp_assign_generations_bottom` |
+| Inbreeding coefficients       | `cpp_calculate_inbreeding` (Meuwissen & Luo)                  |
+| Relationship matrices         | `cpp_addmat`, `cpp_dommat`, `cpp_aamat`, `cpp_ainv`           |
+
+All C++ functions consume `SireNum` / `DamNum` integer vectors and
+assume the head invariant (§3).
+
+### 10.2 igraph — graph-specific tasks
+
+| Task                   | Where                                                                                  | igraph functions                                               |
+|------------------------|----------------------------------------------------------------------------------------|----------------------------------------------------------------|
+| Pedigree visualization | [`visped()`](https://luansheng.github.io/visPedigree/reference/visped.md) pipeline     | `graph_from_data_frame`, `layout_with_sugiyama`, `plot.igraph` |
+| Connected components   | [`splitped()`](https://luansheng.github.io/visPedigree/reference/splitped.md)          | `graph_from_edgelist`, `components`                            |
+| Loop diagnosis         | [`tidyped()`](https://luansheng.github.io/visPedigree/reference/tidyped.md) error path | `is_dag`, `which_loop`, `shortest_paths`                       |
+
+igraph is not used in any pedigree analysis function.
+
+## 11. Extension rules
 
 When extending the class, follow these rules.
 
-### 8.1 Do not add new pedigree-level attributes casually
+### 11.1 Do not add new pedigree-level attributes
 
 Prefer adding fields to `ped_meta` instead of scattering new standalone
 attributes.
 
-### 8.2 Keep computed state derivable
+### 11.2 Keep computed state derivable
 
 If a column can be rebuilt from pedigree structure, prefer derivation
 over storing opaque cached state.
 
-### 8.3 Preserve `data.table` semantics
+### 11.3 Preserve `data.table` semantics
 
 Use `:=`, [`set()`](https://rdrr.io/pkg/data.table/man/assign.html), and
 [`setattr()`](https://rdrr.io/pkg/data.table/man/setattr.html)
 carefully. Avoid patterns that trigger full copies unless unavoidable.
 
-### 8.4 Respect downgrade semantics
+### 11.4 Respect downgrade semantics
 
 Any future method that subsets rows must preserve the current rule:
 
-- valid complete subset -\> may remain `tidyped`
-- incomplete subset -\> plain `data.table`
+valid complete subset -\> `tidyped`; incomplete subset -\> plain
+`data.table`.
 
-### 8.5 Keep C++ assumptions explicit
+### 11.5 Document C++ assumptions
 
 Any feature using `IndNum`, `SireNum`, or `DamNum` should document
 whether it requires:
@@ -219,34 +355,40 @@ whether it requires:
 - dense consecutive indices,
 - `0L` encoding for missing parents.
 
-## 9. User-facing inspection helpers
+## 12. User-facing inspection helpers
 
-Current helpers:
+| Function                  | Returns                           |
+|---------------------------|-----------------------------------|
+| `is_tidyped(x)`           | `TRUE` if class is present        |
+| `is_complete_pedigree(x)` | `TRUE` if all Sire/Dam are in Ind |
+| `pedmeta(x)`              | The `ped_meta` named list         |
+| `has_inbreeding(x)`       | `TRUE` if `f` column exists       |
+| `has_candidates(x)`       | `TRUE` if `Cand` column exists    |
 
-- `is_tidyped(x)`
-- `pedmeta(x)`
-- `has_inbreeding(x)`
-- `has_candidates(x)`
+Future extensions should prefer helper functions over direct attribute
+access.
 
-Future extensions should prefer helper functions over direct scattered
-attribute access in user-facing code.
-
-## 10. Practical maintenance checklist
+## 13. Maintenance checklist
 
 Before merging a structural change to `tidyped`, check:
 
 1.  Does class identity remain
     `c("tidyped", "data.table", "data.frame")`?
-2.  Are `ped_meta` fields preserved correctly?
-3.  Does `[.tidyped` still handle `:=` without copy issues?
-4.  Do incomplete row subsets still downgrade with warning?
-5.  Are integer pedigree columns rebuilt whenever a subset remains
+2.  Is the head invariant `IndNum == row index` preserved after every
+    code path?
+3.  Are `ped_meta` fields preserved correctly?
+4.  Does `[.tidyped` still handle `:=` without copy issues?
+5.  Do incomplete row subsets still downgrade with warning?
+6.  Are integer pedigree columns rebuilt whenever a subset remains
     valid?
-6.  Does `tidyped(tp_master, cand = ...)` still match the full path
-    result?
-7.  Do package tests and vignettes still build cleanly?
+7.  Does `tidyped(tp_master, cand = ...)` match the full path result?
+8.  After
+    [`setorder()`](https://rdrr.io/pkg/data.table/man/setorder.html) or
+    [`merge()`](https://rdrr.io/r/base/merge.html), are indices rebuilt
+    before reaching C++?
+9.  Do package tests and vignettes build cleanly?
 
-## 11. Recommended user workflow
+## 14. Recommended workflow
 
 For large pedigrees, the intended usage pattern is:
 
@@ -254,7 +396,7 @@ For large pedigrees, the intended usage pattern is:
 # build one validated master pedigree
 tp_master <- tidyped(raw_ped)
 
-# reuse it many times
+# reuse it for repeated local tracing (fast path)
 tp_local <- tidyped(tp_master, cand = ids, trace = "up", tracegen = 3)
 
 # modify analysis columns in place

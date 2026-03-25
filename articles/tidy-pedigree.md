@@ -284,22 +284,22 @@ tidy_simple_ped_J5X804_ancestors <-
   tail(tidy_simple_ped_J5X804_ancestors)
 #> Warning: Subsetting removed parent records. Result is a plain data.table, not a tidyped.
 #> Use tidyped(tp, cand = ids, trace = "up") to extract a valid sub-pedigree.
-#>       Ind   Sire    Dam    Sex        Family FamilySize   Gen IndNum SireNum
-#>    <char> <char> <char> <char>        <char>      <int> <int>  <int>   <int>
-#> 1: J3X697 J2Z903   <NA> female          <NA>          1     4     45      43
-#> 2: J3Y620 J2C161 J2Z411   male J2C161xJ2Z411          1     4     46      37
-#> 3: J3Y771 J2G465 J2X544 female J2G465xJ2X544          1     4     47      40
-#> 4: J4E185 J3L886 J3X697 female J3L886xJ3X697          1     5     48      44
-#> 5: J4Y326 J3Y620 J3Y771   male J3Y620xJ3Y771          1     5     49      46
-#> 6: J5X804 J4Y326 J4E185 female J4Y326xJ4E185          1     6     50      49
-#>    DamNum   Cand
-#>     <int> <lgcl>
-#> 1:      0  FALSE
-#> 2:     42  FALSE
-#> 3:     41  FALSE
-#> 4:     45  FALSE
-#> 5:     47  FALSE
-#> 6:     48   TRUE
+#>       Ind   Sire    Dam    Sex        Family FamilySize IndNum SireNum DamNum
+#>    <char> <char> <char> <char>        <char>      <int>  <int>   <int>  <int>
+#> 1: J3X697 J2Z903   <NA> female          <NA>          1     45      43      0
+#> 2: J3Y620 J2C161 J2Z411   male J2C161xJ2Z411          1     46      37     42
+#> 3: J3Y771 J2G465 J2X544 female J2G465xJ2X544          1     47      40     41
+#> 4: J4E185 J3L886 J3X697 female J3L886xJ3X697          1     48      44     45
+#> 5: J4Y326 J3Y620 J3Y771   male J3Y620xJ3Y771          1     49      46     47
+#> 6: J5X804 J4Y326 J4E185 female J4Y326xJ4E185          1     50      49     48
+#>      Gen   Cand
+#>    <int> <lgcl>
+#> 1:     4  FALSE
+#> 2:     4  FALSE
+#> 3:     4  FALSE
+#> 4:     5  FALSE
+#> 5:     5  FALSE
+#> 6:     6   TRUE
 ```
 
 By default, the function traces ancestors. You can limit the number of
@@ -313,24 +313,24 @@ tidy_simple_ped_J5X804_ancestors_2 <-
   tracegen = 2)
   print(tidy_simple_ped_J5X804_ancestors_2)
 #> Tidy Pedigree Object
-#>       Ind   Sire    Dam    Sex        Family FamilySize   Gen IndNum SireNum
-#>    <char> <char> <char> <char>        <char>      <int> <int>  <int>   <int>
-#> 1: J3L886   <NA>   <NA>   male          <NA>          1     1      1       0
-#> 2: J3X697   <NA>   <NA> female          <NA>          1     1      2       0
-#> 3: J3Y620   <NA>   <NA>   male          <NA>          1     1      3       0
-#> 4: J3Y771   <NA>   <NA> female          <NA>          1     1      4       0
-#> 5: J4E185 J3L886 J3X697 female J3L886xJ3X697          1     2      5       1
-#> 6: J4Y326 J3Y620 J3Y771   male J3Y620xJ3Y771          1     2      6       3
-#> 7: J5X804 J4Y326 J4E185 female J4Y326xJ4E185          1     3      7       6
-#>    DamNum   Cand
-#>     <int> <lgcl>
-#> 1:      0  FALSE
-#> 2:      0  FALSE
-#> 3:      0  FALSE
-#> 4:      0  FALSE
-#> 5:      2  FALSE
-#> 6:      4  FALSE
-#> 7:      5   TRUE
+#>       Ind   Sire    Dam    Sex        Family FamilySize IndNum SireNum DamNum
+#>    <char> <char> <char> <char>        <char>      <int>  <int>   <int>  <int>
+#> 1: J3L886   <NA>   <NA>   male          <NA>          1      1       0      0
+#> 2: J3X697   <NA>   <NA> female          <NA>          1      2       0      0
+#> 3: J3Y620   <NA>   <NA>   male          <NA>          1      3       0      0
+#> 4: J3Y771   <NA>   <NA> female          <NA>          1      4       0      0
+#> 5: J4E185 J3L886 J3X697 female J3L886xJ3X697          1      5       1      2
+#> 6: J4Y326 J3Y620 J3Y771   male J3Y620xJ3Y771          1      6       3      4
+#> 7: J5X804 J4Y326 J4E185 female J4Y326xJ4E185          1      7       6      5
+#>      Gen   Cand
+#>    <int> <lgcl>
+#> 1:     1  FALSE
+#> 2:     1  FALSE
+#> 3:     1  FALSE
+#> 4:     1  FALSE
+#> 5:     2  FALSE
+#> 6:     2  FALSE
+#> 7:     3   TRUE
 ```
 
 The code above traces the ancestors of `J5X804` back two generations.
@@ -349,14 +349,14 @@ tidy_simple_ped_J0Z990_offspring <-
   tidyped(ped = tidy_simple_ped_no_gen_num, cand = "J0Z990", trace = "down")
   print(tidy_simple_ped_J0Z990_offspring)
 #> Tidy Pedigree Object
-#>       Ind   Sire    Dam    Sex Family FamilySize   Gen IndNum SireNum DamNum
-#>    <char> <char> <char> <char> <char>      <int> <int>  <int>   <int>  <int>
-#> 1: J0Z990   <NA>   <NA>   male   <NA>          1     1      1       0      0
-#> 2: J1I438 J0Z990   <NA>   male   <NA>          1     2      2       1      0
-#> 3: J2G465 J1I438   <NA>   male   <NA>          1     3      3       2      0
-#> 4: J3Y771 J2G465   <NA> female   <NA>          1     4      4       3      0
-#> 5: J4Y326   <NA> J3Y771   male   <NA>          1     5      5       0      4
-#> 6: J5X804 J4Y326   <NA> female   <NA>          1     6      6       5      0
+#>       Ind   Sire    Dam    Sex Family FamilySize IndNum SireNum DamNum   Gen
+#>    <char> <char> <char> <char> <char>      <int>  <int>   <int>  <int> <int>
+#> 1: J0Z990   <NA>   <NA>   male   <NA>          1      1       0      0     1
+#> 2: J1I438 J0Z990   <NA>   male   <NA>          1      2       1      0     2
+#> 3: J2G465 J1I438   <NA>   male   <NA>          1      3       2      0     3
+#> 4: J3Y771 J2G465   <NA> female   <NA>          1      4       3      0     4
+#> 5: J4Y326   <NA> J3Y771   male   <NA>          1      5       0      4     5
+#> 6: J5X804 J4Y326   <NA> female   <NA>          1      6       5      0     6
 #>      Cand
 #>    <lgcl>
 #> 1:   TRUE
@@ -403,9 +403,9 @@ inbreeding coefficients to a tidied pedigree:
 
 1.  Set `inbreed = TRUE` in the
     [`tidyped()`](https://luansheng.github.io/visPedigree/reference/tidyped.md)
-    function. This will calculate the inbreeding coefficients using
-    optimized C++ code (Meuwissen & Luo algorithm) and add an `f` column
-    to the tidied pedigree.
+    function. This will calculate the inbreeding coefficients using an
+    optimized C++ implementation of the Sargolzaei & Iwaisaki (2005) LAP
+    bucket algorithm and add an `f` column to the tidied pedigree.
 2.  Or call
     [`inbreed()`](https://luansheng.github.io/visPedigree/reference/inbreed.md)
     directly on a tidied pedigree to add the `f` column.

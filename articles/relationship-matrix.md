@@ -76,7 +76,7 @@ pedigrees where many individuals are unrelated.
 
 ``` r
 class(mat_A)
-#> [1] "dsCMatrix"
+#> [1] "dgeMatrix"
 #> attr(,"package")
 #> [1] "Matrix"
 ```
@@ -91,18 +91,8 @@ average relationship.
 
 ``` r
 tail(summary(mat_A),10)
-#> 28 x 28 sparse Matrix of class "dsCMatrix", with 226 entries
-#>      i  j         x
-#> 217 19 28 0.2031250
-#> 218 20 28 0.1875000
-#> 219 21 28 0.2500000
-#> 220 22 28 0.3515625
-#> 221 23 28 0.3046875
-#> 222 24 28 0.0468750
-#> 223 25 28 0.5703125
-#> 224 26 28 0.0234375
-#> 225 27 28 0.5507812
-#> 226 28 28 1.0312500
+#>    Length     Class      Mode 
+#>       784 dgeMatrix        S4
 ```
 
 ### 2.2 Querying Specific Relationships
@@ -118,10 +108,10 @@ query_relationship(mat_A, "Z1", "Z2")
 
 # Query multiple pairs
 query_relationship(mat_A, c("Z1", "A"), c("Z2", "B"))
-#> 2 x 2 sparse Matrix of class "dgCMatrix"
+#> 2 x 2 Matrix of class "dgeMatrix"
 #>           Z2       B
 #> Z1 0.5507812 0.09375
-#> A  0.0937500 .
+#> A  0.0937500 0.00000
 ```
 
 ## 3. Compact Mode for Large Pedigrees
@@ -143,19 +133,18 @@ mat_compact <- pedmat(tped, method = "A", compact = TRUE)
 
 # The result is a 'pedmat' object containing the compacted matrix
 print(mat_compact[11:20,11:20])
-#> 10 x 10 sparse Matrix of class "dsCMatrix"
-#>   [[ suppressing 10 column names 'D', 'E', 'P' ... ]]
-#>                                                        
-#> D 1.00 0.50 .    .   0.250 0.250 0.250 0.250 0.250 .   
-#> E 0.50 1.00 .    .   0.500 0.500 0.250 0.250 0.250 .   
-#> P .    .    1.00 0.5 .     .     .     .     .     0.25
-#> Q .    .    0.50 1.0 .     .     .     .     .     0.50
-#> G 0.25 0.50 .    .   1.000 0.500 0.125 0.125 0.125 .   
-#> H 0.25 0.50 .    .   0.500 1.000 0.125 0.125 0.125 .   
-#> K 0.25 0.25 .    .   0.125 0.125 1.000 0.500 0.500 .   
-#> L 0.25 0.25 .    .   0.125 0.125 0.500 1.000 0.500 .   
-#> M 0.25 0.25 .    .   0.125 0.125 0.500 0.500 1.000 .   
-#> S .    .    0.25 0.5 .     .     .     .     .     1.00
+#> 10 x 10 Matrix of class "dgeMatrix"
+#>      D    E    P   Q     G     H     K     L     M    S
+#> D 1.00 0.50 0.00 0.0 0.250 0.250 0.250 0.250 0.250 0.00
+#> E 0.50 1.00 0.00 0.0 0.500 0.500 0.250 0.250 0.250 0.00
+#> P 0.00 0.00 1.00 0.5 0.000 0.000 0.000 0.000 0.000 0.25
+#> Q 0.00 0.00 0.50 1.0 0.000 0.000 0.000 0.000 0.000 0.50
+#> G 0.25 0.50 0.00 0.0 1.000 0.500 0.125 0.125 0.125 0.00
+#> H 0.25 0.50 0.00 0.0 0.500 1.000 0.125 0.125 0.125 0.00
+#> K 0.25 0.25 0.00 0.0 0.125 0.125 1.000 0.500 0.500 0.00
+#> L 0.25 0.25 0.00 0.0 0.125 0.125 0.500 1.000 0.500 0.00
+#> M 0.25 0.25 0.00 0.0 0.125 0.125 0.500 0.500 1.000 0.00
+#> S 0.00 0.00 0.25 0.5 0.000 0.000 0.000 0.000 0.000 1.00
 ```
 
 ### 3.2 Expanding and Querying Compacted Matrices

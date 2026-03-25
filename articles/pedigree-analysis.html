@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">visPedigree</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -728,10 +728,10 @@ the call.</li>
 <h3 id="column-guide-for-timeseries">7.1 Column guide for <code>$timeseries</code><a class="anchor" aria-label="anchor" href="#column-guide-for-timeseries"></a>
 </h3>
 <p>The cascade rests on a simple algebraic identity:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>ln</mo><msub><mi>f</mi><mi>g</mi></msub><mo>=</mo><munder><munder><mrow><mo>ln</mo><msub><mi>f</mi><mi>e</mi></msub></mrow><mo accent="true">⏟</mo></munder><mtext mathvariant="normal">LnFe</mtext></munder><mo>+</mo><munder><munder><mrow><mo>ln</mo><mspace width="-0.167em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><msub><mi>f</mi><mi>a</mi></msub><msub><mi>f</mi><mi>e</mi></msub></mfrac><mo stretchy="true" form="postfix">)</mo></mrow></mrow><mo accent="true">⏟</mo></munder><mtext mathvariant="normal">LnFaFe</mtext></munder><mo>+</mo><munder><munder><mrow><mo>ln</mo><mspace width="-0.167em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><msub><mi>f</mi><mi>g</mi></msub><msub><mi>f</mi><mi>a</mi></msub></mfrac><mo stretchy="true" form="postfix">)</mo></mrow></mrow><mo accent="true">⏟</mo></munder><mtext mathvariant="normal">LnFgFa</mtext></munder></mrow><annotation encoding="application/x-tex">
-\ln f_g = \underbrace{\ln f_e}_{\text{LnFe}}
-         + \underbrace{\ln\!\left(\frac{f_a}{f_e}\right)}_{\text{LnFaFe}}
-         + \underbrace{\ln\!\left(\frac{f_g}{f_a}\right)}_{\text{LnFgFa}}
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>ln</mo><msub><mi>f</mi><mi>g</mi></msub><mo>=</mo><munder><munder><mrow><mo>ln</mo><msub><mi>f</mi><mi>e</mi></msub></mrow><mo accent="true">⏟</mo></munder><mtext mathvariant="monospace">𝚕𝚗𝚏𝚎</mtext></munder><mo>+</mo><munder><munder><mrow><mo>ln</mo><mspace width="-0.167em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><msub><mi>f</mi><mi>a</mi></msub><msub><mi>f</mi><mi>e</mi></msub></mfrac><mo stretchy="true" form="postfix">)</mo></mrow></mrow><mo accent="true">⏟</mo></munder><mtext mathvariant="monospace">𝚕𝚗𝚏𝚊𝚏𝚎</mtext></munder><mo>+</mo><munder><munder><mrow><mo>ln</mo><mspace width="-0.167em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><msub><mi>f</mi><mi>g</mi></msub><msub><mi>f</mi><mi>a</mi></msub></mfrac><mo stretchy="true" form="postfix">)</mo></mrow></mrow><mo accent="true">⏟</mo></munder><mtext mathvariant="monospace">𝚕𝚗𝚏𝚐𝚏𝚊</mtext></munder></mrow><annotation encoding="application/x-tex">
+\ln f_g = \underbrace{\ln f_e}_{\texttt{lnfe}}
+         + \underbrace{\ln\!\left(\frac{f_a}{f_e}\right)}_{\texttt{lnfafe}}
+         + \underbrace{\ln\!\left(\frac{f_g}{f_a}\right)}_{\texttt{lnfgfa}}
 </annotation></semantics></math></p>
 <p>Because OLS is linear, the slope of
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>ln</mo><msub><mi>f</mi><mi>g</mi></msub></mrow><annotation encoding="application/x-tex">\ln f_g</annotation></semantics></math>
@@ -751,25 +751,25 @@ This guarantees exact additivity:
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td><code>LnFe</code></td>
+<td><code>lnfe</code></td>
 <td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>ln</mo><msub><mi>f</mi><mi>e</mi></msub></mrow><annotation encoding="application/x-tex">\ln f_e</annotation></semantics></math></td>
 <td>Log effective-founder diversity. Declines when founder contributions
 become more unequal over time.</td>
 </tr>
 <tr class="even">
-<td><code>LnFa</code></td>
+<td><code>lnfa</code></td>
 <td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>ln</mo><msub><mi>f</mi><mi>a</mi></msub></mrow><annotation encoding="application/x-tex">\ln f_a</annotation></semantics></math></td>
-<td>Log effective-ancestor diversity. Lies below <code>LnFe</code>
+<td>Log effective-ancestor diversity. Lies below <code>lnfe</code>
 whenever bottleneck ancestors have been over-used.</td>
 </tr>
 <tr class="odd">
-<td><code>LnFg</code></td>
+<td><code>lnfg</code></td>
 <td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>ln</mo><msub><mi>f</mi><mi>g</mi></msub></mrow><annotation encoding="application/x-tex">\ln f_g</annotation></semantics></math></td>
 <td>Log founder-genome equivalents. The most comprehensive diversity
 signal; integrates founder use, bottlenecks, and drift.</td>
 </tr>
 <tr class="even">
-<td><code>LnFaFe</code></td>
+<td><code>lnfafe</code></td>
 <td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>ln</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>f</mi><mi>a</mi></msub><mi>/</mi><msub><mi>f</mi><mi>e</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\ln(f_a/f_e)</annotation></semantics></math></td>
 <td>
 <strong>Bottleneck gap.</strong> When this ratio decreases over
@@ -777,7 +777,7 @@ time, a small number of ancestors dominate the gene pool even beyond
 what unequal founder use would predict.</td>
 </tr>
 <tr class="odd">
-<td><code>LnFgFa</code></td>
+<td><code>lnfgfa</code></td>
 <td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>ln</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>f</mi><mi>g</mi></msub><mi>/</mi><msub><mi>f</mi><mi>a</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\ln(f_g/f_a)</annotation></semantics></math></td>
 <td>
 <strong>Drift gap.</strong> Captures random allele loss due to

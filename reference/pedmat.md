@@ -272,8 +272,8 @@ attr(A, "ped")              # Original pedigree
 attr(A, "method")           # "A"
 #> [1] "A"
 names(attributes(A))        # All available attributes
-#>  [1] "i"         "p"         "Dim"       "Dimnames"  "x"         "uplo"     
-#>  [7] "factors"   "class"     "call_info" "method"    "ped"       "pedmat_S4"
+#> [1] "Dim"       "Dimnames"  "x"         "factors"   "class"     "call_info"
+#> [7] "method"    "ped"       "pedmat_S4"
 
 # --- Compact Mode (for large full-sib families) ---
 A_compact <- pedmat(tped, method = "A", compact = TRUE)
