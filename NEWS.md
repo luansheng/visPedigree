@@ -1,4 +1,4 @@
-# Changes in version 1.7.1 released on 25 Mar 2026
+# Changes in version 1.8.0 released on 25 Mar 2026
 ## Bug Fixes
 1. **`tidyped()` fast path with `addnum = FALSE` + `cand`**: When the input
    `tidyped` object was created with `addnum = FALSE` (no `IndNum`/`SireNum`/

@@ -1,6 +1,6 @@
 # visPedigree: Tidying, Analysis, and Fast Visualization of Animal and Plant Pedigrees <img src="man/figures/logo.png" align="right" height="138" alt="" />
 
-`visPedigree` is a comprehensive toolkit for the standardization, statistical analysis, and fast visualization of animal and plant pedigrees. It robustly handles complex mating systems, such as selfing and monoecious reproduction. Using optimized C++ algorithms, the `data.table` framework, and `igraph`, it supports pedigree analysis, relationship matrix calculation, and scalable graph and matrix displays for large pedigrees.
+`visPedigree` provides tools for the analysis and visualization of animal and plant pedigrees. Analytical methods cover equivalent complete generations, generation intervals, effective population size, founder and ancestor contributions, partial inbreeding, genetic diversity indices, and relationship matrices (A, D, AA). Core algorithms — ancestry tracing, topological sorting, inbreeding coefficients, and matrix construction — are implemented in C++ (Rcpp/RcppArmadillo) and `data.table`, scaling to pedigrees with over one million individuals. Pedigree graphs are rendered via `igraph`; relationship matrices can be visualized as heatmaps. Complex mating systems are supported, including selfing and pedigrees in which the same individual can appear as both sire and dam.
 
 <p align="center">
   <img src="man/figures/ped_example.png" width="800" alt="Example pedigree visualization produced by visPedigree">
@@ -8,11 +8,11 @@
 
 ## Key Features
 
-- **Pedigree Standardization**: Standardizes pedigree records, handles selfing and monoecious reproduction, detects pedigree loops, prepares pedigrees for downstream analysis, and efficiently splits disconnected sub-populations.
+- **Pedigree Standardization**: Standardizes pedigree records, handles selfing and pedigrees in which the same individual can appear as both sire and dam, detects pedigree loops, prepares pedigrees for downstream analysis, and efficiently splits disconnected sub-populations.
 - **Comprehensive Pedigree Analysis**: Computes pedigree summaries, equivalent complete generations, generation intervals, effective population size, founder and ancestor contributions, partial inbreeding, relationship matrices, and inbreeding coefficients.
 - **High-Throughput Matrix Calculation**: Calculates Additive (A), Dominance (D), and Additive-by-Additive (AA) relationship matrices and their inverses.
-- **Advanced Visualization**: Uses `igraph` to generate scalable pedigree graphs, matrix displays, and compact representations for large full-sib families.
-- **High Performance**: Uses optimized C++ algorithms together with `data.table` for efficient analysis of large pedigrees.
+- **Advanced Visualization**: Renders scalable pedigree graphs via `igraph` with compact representations for large full-sib families, plus heatmap displays for relationship matrices.
+- **High Performance**: Core algorithms — ancestry tracing, topological sorting, inbreeding calculation, and matrix construction — are implemented in C++ (Rcpp/RcppArmadillo) with `data.table` for tabular operations, scaling to pedigrees with over one million individuals.
 
 ## Installation
 
@@ -92,4 +92,4 @@ summary(split_list[[1]])
 
 ## Citation
 
-Luan Sheng (2026). visPedigree: Tidying, Analysis, and Fast Visualization of Animal and Plant Pedigrees. R package version 1.7.1, https://github.com/luansheng/visPedigree.
+Luan Sheng (2026). visPedigree: Tidying, Analysis, and Fast Visualization of Animal and Plant Pedigrees. R package version 1.8.0, https://github.com/luansheng/visPedigree.
