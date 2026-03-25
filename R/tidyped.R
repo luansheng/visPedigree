@@ -1,8 +1,22 @@
-#' Tidy and prepare a pedigree using graph theory
+#' Tidy and prepare a pedigree
 #'
-#' This function takes a pedigree, checks for duplicate and bisexual individuals, detects pedigree loops using graph theory, adds missing founders, assigns generation numbers, sorts the pedigree, and traces the pedigree of specified candidates. If the \code{cand} parameter contains individual IDs, only those individuals and their ancestors or descendants are retained. Tracing direction and the number of generations can be specified using the \code{trace} and \code{tracegen} parameters.
-#' 
-#' Compared to the legacy version, this function handles cyclic pedigrees more robustly by detecting and reporting loops, and it is generally faster for large pedigrees due to the use of sparse graph algorithms from the \code{igraph} package. Generation assignment can be performed using either a top-down approach (default, aligning founders at the top) or a bottom-up approach (aligning terminal nodes at the bottom).
+#' This function standardizes pedigree records, checks for duplicate IDs and
+#' incompatible parental roles, detects pedigree loops, injects missing
+#' founders, assigns generation numbers, sorts the pedigree, and optionally
+#' traces the pedigree of specified candidates. If the \code{cand} parameter
+#' contains individual IDs, only those individuals and their ancestors or
+#' descendants are retained. Tracing direction and the number of generations
+#' can be specified using the \code{trace} and \code{tracegen} parameters.
+#'
+#' Compared to the legacy version, this function reports cyclic pedigrees more
+#' clearly and uses a mixed implementation. There are two candidate-tracing
+#' paths: when the input is a raw pedigree, \code{igraph} is used for loop
+#' checking, candidate tracing, and topological sorting; when the input is an
+#' already validated \code{tidyped} object and \code{cand} is supplied,
+#' tracing and topological sorting use integer-indexed C++ routines. Generation
+#' assignment can be performed using either a top-down approach (default,
+#' aligning founders at the top) or a bottom-up approach (aligning terminal
+#' nodes at the bottom).
 #'
 #' @param ped A data.table or data frame containing the pedigree. The first three columns must be \strong{individual}, \strong{sire}, and \strong{dam} IDs. Additional columns, such as sex or generation, can be included. Column names can be customized, but their order must remain unchanged. Individual IDs should not be coded as "", " ", "0", "*", or "NA"; otherwise, they will be removed. Missing parents should be denoted by "NA", "0", or "*". Spaces and empty strings ("") are also treated as missing parents but are not recommended.
 #' @param cand A character vector of individual IDs, or NULL. If provided, only the candidates and their ancestors/descendants are retained.
@@ -15,7 +29,7 @@
 #' @param genmethod A character value specifying the generation assignment method: "\strong{top}" or "\strong{bottom}". "top" (top-aligned) assigns generations from parents to offspring, starting founders at Gen 1. "bottom" (bottom-aligned) assigns generations from offspring to parents, aligning terminal nodes at the bottom. Default is "top".
 #' @param ... Additional arguments passed to \code{\link{inbreed}}.
 #' 
-#' @return A \code{tidyped} object (which inherits from \code{data.table}). Individual, sire, and dam ID columns are renamed to \strong{Ind}, \strong{Sire}, and \strong{Dam}. Missing parents are replaced with \strong{NA}. The \strong{Sex} column contains "male", "female", or NA. The \strong{Cand} column is included if \code{cand} is not NULL. The \strong{Gen} column is included if \code{addgen} is TRUE. The \strong{IndNum}, \strong{SireNum}, and \strong{DamNum} columns are included if \code{addnum} is TRUE. The \strong{Family} and \strong{FamilySize} columns identify full-sibling families (e.g., "A x B" for offspring of sire A and dam B). The \strong{f} column is included if \code{inbreed} is TRUE.
+#' @return A \code{tidyped} object (which inherits from \code{data.table}). Individual, sire, and dam ID columns are renamed to \strong{Ind}, \strong{Sire}, and \strong{Dam}. Missing parents are replaced with \strong{NA}. The \strong{Sex} column contains \code{"male"}, \code{"female"}, \code{"monoecious"}, or \code{NA}. The \strong{Cand} column is included if \code{cand} is not NULL. The \strong{Gen} column is included if \code{addgen} is TRUE. The \strong{IndNum}, \strong{SireNum}, and \strong{DamNum} columns are included if \code{addnum} is TRUE. The \strong{Family} and \strong{FamilySize} columns identify full-sibling families (for example, \code{"AxB"} for offspring of sire \code{A} and dam \code{B}). The \strong{f} column is included if \code{inbreed} is TRUE.
 #' 
 #' @seealso 
 #' \code{\link{summary.tidyped}} for summarizing tidyped objects
