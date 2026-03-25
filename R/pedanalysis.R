@@ -101,24 +101,32 @@ pedgenint <- function(ped, timevar = NULL, unit = c("year", "month", "day", "hou
   # Parse time to numeric axis
   numeric_time <- .parse_to_numeric_time(ped[[timevar]], unit = unit, format = format)
   
-  # Prepare working data
-  cols <- c("Ind", "Sire", "Dam", "Sex")
+  # Prepare working data — include numeric parent IDs for fast integer lookup
+  cols <- c("Ind", "Sire", "Dam", "Sex", "IndNum", "SireNum", "DamNum")
   if (!is.null(by)) cols <- c(cols, by)
   
   dt <- as.data.table(ped)[, ..cols]
   dt[, Time := numeric_time]
   
-  # Key: Ind -> Time
-  time_map <- setNames(dt$Time, dt$Ind)
+  # Build integer-indexed time vector instead of a named character vector.
+  # time_vec[IndNum + 1L] = time for individual IndNum.
+  # time_vec[1L] = NA  (sentinel for SireNum/DamNum = 0, i.e. unknown parent).
+  # This replaces time_map <- setNames(dt$Time, dt$Ind) which requires a
+  # 1M-entry character hash table and four O(N) hash lookups per call.
+  n_ped <- nrow(ped)
+  time_vec <- vector("double", n_ped + 1L)
+  time_vec[1L] <- NA_real_
+  time_vec[ped$IndNum + 1L] <- numeric_time   # IndNum 1-based → offset by 1
   
   calc_pathway <- function(parent_col, offspring_sex_label) {
+    parent_num_col <- paste0(parent_col, "Num")  # "SireNum" or "DamNum"
     valid_offspring <- dt[!is.na(Sex) & Sex == offspring_sex_label]
-    valid_pairs <- valid_offspring[!is.na(get(parent_col))]
+    valid_pairs <- valid_offspring[get(parent_num_col) > 0L]
     
     if (nrow(valid_pairs) == 0) return(NULL)
     
-    p_ids <- valid_pairs[[parent_col]]
-    p_times <- time_map[p_ids]
+    p_nums <- valid_pairs[[parent_num_col]]
+    p_times <- time_vec[p_nums + 1L]  # integer array lookup — O(1) per element
     o_times <- valid_pairs$Time
     
     intervals <- o_times - p_times
@@ -156,10 +164,11 @@ pedgenint <- function(ped, timevar = NULL, unit = c("year", "month", "day", "hou
   # Compute Average from ALL parent-offspring pairs regardless of offspring sex.
   # This avoids severely underestimating N when most offspring lack Sex info.
   calc_all_pathway <- function(parent_col) {
-    valid_pairs <- dt[!is.na(get(parent_col))]
+    parent_num_col <- paste0(parent_col, "Num")
+    valid_pairs <- dt[get(parent_num_col) > 0L]
     if (nrow(valid_pairs) == 0) return(NULL)
-    p_ids <- valid_pairs[[parent_col]]
-    p_times <- time_map[p_ids]
+    p_nums <- valid_pairs[[parent_num_col]]
+    p_times <- time_vec[p_nums + 1L]
     o_times <- valid_pairs$Time
     intervals <- o_times - p_times
     valid_idx <- !is.na(intervals) & intervals > 0
@@ -528,6 +537,14 @@ pedrel <- function(ped, by = "Gen", reference = NULL, compact = FALSE,
       }
       
       if (isTRUE(compact)) {
+        if (nrow(local_ped) > 200000L) {
+          warning(sprintf(
+            paste0("Group '%s': traced pedigree too large (%d individuals) for matrix ",
+                   "computation (limit: 200,000). Returning NA.\n",
+                   "Hint: use 'reference' to limit the traced ancestry depth."),
+            g, nrow(local_ped)))
+          return(data.table(Group = g, NTotal = n_total, NUsed = n_used, Mean = NA_real_))
+        }
         A <- tryCatch({
           pedmat(local_ped, method = "A", sparse = FALSE, compact = TRUE)
         }, error = function(e) {

@@ -73,3 +73,15 @@ cpp_calculate_ancestry <- function(sire, dam, res_mat) {
     .Call(`_visPedigree_cpp_calculate_ancestry`, sire, dam, res_mat)
 }
 
+cpp_trace_ancestors <- function(sire, dam, targets, max_gen = 0L) {
+    .Call(`_visPedigree_cpp_trace_ancestors`, sire, dam, targets, max_gen)
+}
+
+cpp_trace_descendants <- function(sire, dam, targets, max_gen = 0L) {
+    .Call(`_visPedigree_cpp_trace_descendants`, sire, dam, targets, max_gen)
+}
+
+cpp_topo_order <- function(sire, dam) {
+    .Call(`_visPedigree_cpp_topo_order`, sire, dam)
+}
+

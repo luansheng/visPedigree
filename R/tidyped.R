@@ -114,16 +114,48 @@ tidyped <- function(ped,
     # Strip class so internal := ops don't hit [.tidyped
     data.table::setattr(ped_dt, "class", setdiff(class(ped_dt), "tidyped"))
 
-    graph_res <- build_ped_graph(ped_dt)
-    g <- graph_res$g
-    ped_dt <- trace_ped_candidates(g, ped_dt, cand, trace, tracegen)
+    # --- C++ BFS tracing (replaces igraph build + trace_ped_candidates) ---
+    cand_clean <- as.character(cand[!is.na(cand) & cand != "" & cand != " "])
+    if (length(cand_clean) == 0) stop("The cand parameter contains no valid individual IDs.")
+    cand_nums <- ped_dt$IndNum[match(cand_clean, ped_dt$Ind)]
+    valid_mask <- !is.na(cand_nums)
+    if (!any(valid_mask)) stop("None of the specified candidates were found in the pedigree.")
+    if (sum(!valid_mask) > 0) {
+      missing_cands <- cand_clean[!valid_mask]
+      warning(sprintf("The following %d candidates were not found in the pedigree: %s",
+                      length(missing_cands), paste(head(missing_cands, 5), collapse = ", ")))
+    }
+    cand_nums <- cand_nums[valid_mask]
 
-    # Rebuild graph for the subset
-    graph_res <- build_ped_graph(ped_dt)
-    g <- graph_res$g
-    topo_order <- as.integer(topo_sort(g))
+    tracegen_int <- if (is.null(tracegen) || tracegen <= 0L) 0L else as.integer(tracegen)
+    sn_full <- ped_dt$SireNum
+    dn_full <- ped_dt$DamNum
 
-    # Re-derive Family / FamilySize for the subset
+    subset_idx <- if (trace == "all") {
+      sort(unique(c(
+        cpp_trace_ancestors(sn_full, dn_full, cand_nums, tracegen_int),
+        cpp_trace_descendants(sn_full, dn_full, cand_nums, tracegen_int)
+      )))
+    } else if (trace == "up") {
+      cpp_trace_ancestors(sn_full, dn_full, cand_nums, tracegen_int)
+    } else {
+      cpp_trace_descendants(sn_full, dn_full, cand_nums, tracegen_int)
+    }
+
+    ped_dt <- ped_dt[subset_idx]
+    # NA-out parents dropped from the subset
+    keep_inds <- ped_dt$Ind
+    ped_dt[!is.na(Sire) & !(Sire %in% keep_inds), Sire := NA_character_]
+    ped_dt[!is.na(Dam)  & !(Dam  %in% keep_inds), Dam  := NA_character_]
+
+    # Rebuild integer indices for the subset (needed for C++ topo / gen assignment)
+    new_sn <- match(ped_dt$Sire, ped_dt$Ind, nomatch = 0L)
+    new_dn <- match(ped_dt$Dam,  ped_dt$Ind, nomatch = 0L)
+
+    # --- C++ topological sort (replaces igraph build + topo_sort) ---
+    topo <- cpp_topo_order(new_sn, new_dn)
+
+    # Family / FamilySize
     ped_dt[, Family := ifelse(
       !is.na(Sire) & !is.na(Dam), paste0(Sire, "x", Dam), NA_character_
     )]
@@ -131,15 +163,26 @@ tidyped <- function(ped,
     ped_dt[is.na(Family), FamilySize := 1L]
 
     if (addgen) {
-      ped_dt <- assign_ped_generations(g, ped_dt, topo_order, genmethod_val)
+      gen_vec <- if (genmethod_val == "top") {
+        cpp_assign_generations_top(new_sn, new_dn, topo)
+      } else {
+        cpp_assign_generations_bottom(new_sn, new_dn, topo)
+      }
+      # Isolated nodes (no parents AND no children in the subset): set Gen = 0
+      n_sub <- nrow(ped_dt)
+      is_ref <- logical(n_sub)
+      if (any(new_sn > 0L)) is_ref[new_sn[new_sn > 0L]] <- TRUE
+      if (any(new_dn > 0L)) is_ref[new_dn[new_dn > 0L]] <- TRUE
+      iso_mask <- (new_sn == 0L) & (new_dn == 0L) & !is_ref
+      if (any(iso_mask)) gen_vec[iso_mask] <- 0L
+      ped_dt[, Gen := gen_vec]
     }
 
     # Sort
     if (addgen) {
       setorder(ped_dt, Gen, Ind)
     } else {
-      sorted_inds <- V(g)$name[topo_order]
-      ped_dt <- ped_dt[match(sorted_inds, Ind)]
+      ped_dt <- ped_dt[topo]
     }
 
     # Numeric IDs

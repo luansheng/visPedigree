@@ -173,6 +173,19 @@
 #' Biometrics, 32(1), 69-83.
 #' 
 #' @export
+# Wrap a base matrix as dgeMatrix without any N² symmetry/sparsity scan.
+# Used by the sparse=TRUE path of pedmat() when dense storage is appropriate.
+# inherits(result, "Matrix") == TRUE; as.matrix() round-trips correctly.
+.to_dgeMatrix <- function(mat) {
+  dn <- dimnames(mat)
+  if (is.null(dn)) dn <- list(NULL, NULL)
+  # Explicitly look up class in Matrix namespace so this works when Matrix is
+  # only in Imports (not attached). Avoids the N² symmetry/sparsity scan done
+  # by Matrix::Matrix(mat, sparse=FALSE).
+  cls <- methods::getClass("dgeMatrix", where = asNamespace("Matrix"))
+  methods::new(cls, x = as.double(mat), Dim = as.integer(dim(mat)), Dimnames = dn)
+}
+
 pedmat <- function(ped, method = "A", sparse = TRUE, invert_method = "auto", 
                      threads = 0, compact = FALSE) {
   # Check for splitped input - not supported
@@ -382,11 +395,16 @@ pedmat <- function(ped, method = "A", sparse = TRUE, invert_method = "auto",
       
     } else if (m == "A") {
       A_mat <- get_A_dense()
-      output$A <- if (sparse) Matrix::Matrix(A_mat, sparse = TRUE) else A_mat
+      # A matrices are nearly fully non-zero; converting to dgCMatrix via
+      # Matrix::Matrix(dense, sparse=TRUE) scans all N² elements to detect
+      # zeros — pure overhead with no storage benefit.  Return a dgeMatrix
+      # (dense symmetric) which satisfies inherits(., "Matrix") and coerces
+      # to a base matrix via as.matrix() without the N² scan.
+      output$A <- if (sparse) .to_dgeMatrix(A_mat) else A_mat
       
     } else if (m == "D") {
       D_mat <- get_D_dense()
-      output$D <- if (sparse) Matrix::Matrix(D_mat, sparse = TRUE) else D_mat
+      output$D <- if (sparse) .to_dgeMatrix(D_mat) else D_mat
       # Store A matrix for compact mode reuse (on output list, not S4 matrix)
       if (!is.null(cache$A_dense)) {
         output$A_intermediate_D <- cache$A_dense
@@ -399,11 +417,11 @@ pedmat <- function(ped, method = "A", sparse = TRUE, invert_method = "auto",
         "sympd" = cpp_invert_sympd(D_mat),
         "general" = cpp_invert_dense(D_mat)
       )
-      output$Dinv <- if (sparse) Matrix::Matrix(Dinv, sparse = TRUE) else Dinv
+      output$Dinv <- if (sparse) .to_dgeMatrix(Dinv) else Dinv
 
     } else if (m == "AA") {
       AA_mat <- get_AA_dense()
-      output$AA <- if (sparse) Matrix::Matrix(AA_mat, sparse = TRUE) else AA_mat
+      output$AA <- if (sparse) .to_dgeMatrix(AA_mat) else AA_mat
       # Store A matrix for compact mode reuse (on output list, not S4 matrix)
       if (!is.null(cache$A_dense)) {
         output$A_intermediate_AA <- cache$A_dense
@@ -416,7 +434,7 @@ pedmat <- function(ped, method = "A", sparse = TRUE, invert_method = "auto",
         "sympd" = cpp_invert_sympd(AA_mat),
         "general" = cpp_invert_dense(AA_mat)
       )
-      output$AAinv <- if (sparse) Matrix::Matrix(AAinv, sparse = TRUE) else AAinv
+      output$AAinv <- if (sparse) .to_dgeMatrix(AAinv) else AAinv
       
     } else if (m == "Ainv") {
       f_res <- get_f_res()
