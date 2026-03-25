@@ -396,9 +396,9 @@ directly from the `timevar` argument.  The full object exposes three components:
 The cascade rests on a simple algebraic identity:
 
 $$
-\ln f_g = \underbrace{\ln f_e}_{\text{LnFe}}
-         + \underbrace{\ln\!\left(\frac{f_a}{f_e}\right)}_{\text{LnFaFe}}
-         + \underbrace{\ln\!\left(\frac{f_g}{f_a}\right)}_{\text{LnFgFa}}
+\ln f_g = \underbrace{\ln f_e}_{\texttt{lnfe}}
+         + \underbrace{\ln\!\left(\frac{f_a}{f_e}\right)}_{\texttt{lnfafe}}
+         + \underbrace{\ln\!\left(\frac{f_g}{f_a}\right)}_{\texttt{lnfgfa}}
 $$
 
 Because OLS is linear, the slope of $\ln f_g$ versus time equals the sum of the
@@ -407,11 +407,11 @@ $\lambda_{total} = \lambda_e + \lambda_b + \lambda_d$.
 
 | Column | Formula | What it measures |
 |---|---|---|
-| `LnFe` | $\ln f_e$ | Log effective-founder diversity. Declines when founder contributions become more unequal over time. |
-| `LnFa` | $\ln f_a$ | Log effective-ancestor diversity. Lies below `LnFe` whenever bottleneck ancestors have been over-used. |
-| `LnFg` | $\ln f_g$ | Log founder-genome equivalents. The most comprehensive diversity signal; integrates founder use, bottlenecks, and drift. |
-| `LnFaFe` | $\ln(f_a/f_e)$ | **Bottleneck gap.** When this ratio decreases over time, a small number of ancestors dominate the gene pool even beyond what unequal founder use would predict. |
-| `LnFgFa` | $\ln(f_g/f_a)$ | **Drift gap.** Captures random allele loss due to finite population size. Because $f_g \le f_a$ always, this term is $\le 0$ and becomes more negative as genetic drift accumulates. |
+| `lnfe` | $\ln f_e$ | Log effective-founder diversity. Declines when founder contributions become more unequal over time. |
+| `lnfa` | $\ln f_a$ | Log effective-ancestor diversity. Lies below `lnfe` whenever bottleneck ancestors have been over-used. |
+| `lnfg` | $\ln f_g$ | Log founder-genome equivalents. The most comprehensive diversity signal; integrates founder use, bottlenecks, and drift. |
+| `lnfafe` | $\ln(f_a/f_e)$ | **Bottleneck gap.** When this ratio decreases over time, a small number of ancestors dominate the gene pool even beyond what unequal founder use would predict. |
+| `lnfgfa` | $\ln(f_g/f_a)$ | **Drift gap.** Captures random allele loss due to finite population size. Because $f_g \le f_a$ always, this term is $\le 0$ and becomes more negative as genetic drift accumulates. |
 | `TimeStep` | numeric | OLS time axis (same as `Time` for numeric `timevar`; sequential indices otherwise). |
 
 ### 7.2 Interpreting the $\lambda$ components

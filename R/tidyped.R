@@ -114,16 +114,57 @@ tidyped <- function(ped,
     # Strip class so internal := ops don't hit [.tidyped
     data.table::setattr(ped_dt, "class", setdiff(class(ped_dt), "tidyped"))
 
-    graph_res <- build_ped_graph(ped_dt)
-    g <- graph_res$g
-    ped_dt <- trace_ped_candidates(g, ped_dt, cand, trace, tracegen)
+    # Ensure numeric parent indices exist for BFS — the input tidyped may have
+    # been created with addnum = FALSE, so IndNum/SireNum/DamNum may be absent.
+    had_num_cols <- "IndNum" %in% names(ped_dt)
+    if (!had_num_cols) {
+      ped_dt[, IndNum  := .I]
+      ped_dt[, SireNum := match(Sire, Ind, nomatch = 0L)]
+      ped_dt[, DamNum  := match(Dam,  Ind, nomatch = 0L)]
+    }
 
-    # Rebuild graph for the subset
-    graph_res <- build_ped_graph(ped_dt)
-    g <- graph_res$g
-    topo_order <- as.integer(topo_sort(g))
+    # --- C++ BFS tracing (replaces igraph build + trace_ped_candidates) ---
+    cand_clean <- as.character(cand[!is.na(cand) & cand != "" & cand != " "])
+    if (length(cand_clean) == 0) stop("The cand parameter contains no valid individual IDs.")
+    cand_nums <- ped_dt$IndNum[match(cand_clean, ped_dt$Ind)]
+    valid_mask <- !is.na(cand_nums)
+    if (!any(valid_mask)) stop("None of the specified candidates were found in the pedigree.")
+    if (sum(!valid_mask) > 0) {
+      missing_cands <- cand_clean[!valid_mask]
+      warning(sprintf("The following %d candidates were not found in the pedigree: %s",
+                      length(missing_cands), paste(head(missing_cands, 5), collapse = ", ")))
+    }
+    cand_nums <- cand_nums[valid_mask]
 
-    # Re-derive Family / FamilySize for the subset
+    tracegen_int <- if (is.null(tracegen) || tracegen <= 0L) 0L else as.integer(tracegen)
+    sn_full <- ped_dt$SireNum
+    dn_full <- ped_dt$DamNum
+
+    subset_idx <- if (trace == "all") {
+      sort(unique(c(
+        cpp_trace_ancestors(sn_full, dn_full, cand_nums, tracegen_int),
+        cpp_trace_descendants(sn_full, dn_full, cand_nums, tracegen_int)
+      )))
+    } else if (trace == "up") {
+      cpp_trace_ancestors(sn_full, dn_full, cand_nums, tracegen_int)
+    } else {
+      cpp_trace_descendants(sn_full, dn_full, cand_nums, tracegen_int)
+    }
+
+    ped_dt <- ped_dt[subset_idx]
+    # NA-out parents dropped from the subset
+    keep_inds <- ped_dt$Ind
+    ped_dt[!is.na(Sire) & !(Sire %in% keep_inds), Sire := NA_character_]
+    ped_dt[!is.na(Dam)  & !(Dam  %in% keep_inds), Dam  := NA_character_]
+
+    # Rebuild integer indices for the subset (needed for C++ topo / gen assignment)
+    new_sn <- match(ped_dt$Sire, ped_dt$Ind, nomatch = 0L)
+    new_dn <- match(ped_dt$Dam,  ped_dt$Ind, nomatch = 0L)
+
+    # --- C++ topological sort (replaces igraph build + topo_sort) ---
+    topo <- cpp_topo_order(new_sn, new_dn)
+
+    # Family / FamilySize
     ped_dt[, Family := ifelse(
       !is.na(Sire) & !is.na(Dam), paste0(Sire, "x", Dam), NA_character_
     )]
@@ -131,15 +172,30 @@ tidyped <- function(ped,
     ped_dt[is.na(Family), FamilySize := 1L]
 
     if (addgen) {
-      ped_dt <- assign_ped_generations(g, ped_dt, topo_order, genmethod_val)
+      gen_vec <- if (genmethod_val == "top") {
+        cpp_assign_generations_top(new_sn, new_dn, topo)
+      } else {
+        cpp_assign_generations_bottom(new_sn, new_dn, topo)
+      }
+      # Isolated nodes (no parents AND no children in the subset): set Gen = 0
+      n_sub <- nrow(ped_dt)
+      is_ref <- logical(n_sub)
+      if (any(new_sn > 0L)) is_ref[new_sn[new_sn > 0L]] <- TRUE
+      if (any(new_dn > 0L)) is_ref[new_dn[new_dn > 0L]] <- TRUE
+      iso_mask <- (new_sn == 0L) & (new_dn == 0L) & !is_ref
+      if (any(iso_mask)) gen_vec[iso_mask] <- 0L
+      ped_dt[, Gen := gen_vec]
+
+      if (genmethod_val == "bottom") {
+        align_bottom_generations(ped_dt)
+      }
     }
 
     # Sort
     if (addgen) {
       setorder(ped_dt, Gen, Ind)
     } else {
-      sorted_inds <- V(g)$name[topo_order]
-      ped_dt <- ped_dt[match(sorted_inds, Ind)]
+      ped_dt <- ped_dt[topo]
     }
 
     # Numeric IDs
@@ -147,6 +203,13 @@ tidyped <- function(ped,
       ped_dt[, IndNum  := .I]
       ped_dt[, SireNum := match(Sire, Ind, nomatch = 0L)]
       ped_dt[, DamNum  := match(Dam,  Ind, nomatch = 0L)]
+    } else {
+      # Remove index cols that were added temporarily (only if they were absent
+      # in the original input).
+      if (!had_num_cols) {
+        drop_cols <- intersect(c("IndNum", "SireNum", "DamNum"), names(ped_dt))
+        if (length(drop_cols) > 0L) ped_dt[, (drop_cols) := NULL]
+      }
     }
 
     ped_dt[, Cand := Ind %in% cand]
@@ -211,84 +274,7 @@ tidyped <- function(ped,
     # This prevents leaves (individuals with no progeny) from dropping to the bottom
     # when they have siblings who are parents of deep lineages.
     if (genmethod == "bottom") {
-      ped_dt[!is.na(Family), Gen := min(Gen), by = Family]
-      
-      # 2. Align mates to the same generation
-      # If Sire and Dam have different generations, align them to the earlier (min) generation.
-      # This ensures pedigree plots look cleaner with horizontal mating lines.
-      # We iterate this until stability or max depth 
-      # (usually one pass is sufficient for most cases, but overlapping generations might need more).
-      # But for speed, we do a single efficient pass that should catch the 'I' vs 'H' case.
-      
-      # We need to lookup mate generations. Join self to self on Sire/Dam.
-      # Create a small lookup table of Ind -> Gen
-      # Using match() is fast.
-      
-      # Iterate a few times to propagate changes.
-      # For standard pedigrees, 1 or 2 passes cover the "mate alignment".
-      # Using a while loop with a safe maximum to handle deep recursive alignments
-      iter <- 0
-      max_iter <- 10
-      repeat {
-        iter <- iter + 1
-        # Get generations of parents for every individual
-        sire_gen <- ped_dt$Gen[match(ped_dt$Sire, ped_dt$Ind)]
-        dam_gen <- ped_dt$Gen[match(ped_dt$Dam, ped_dt$Ind)]
-        
-        # Identify families where SireGen != DamGen (and both exist)
-        valid_mask <- !is.na(sire_gen) & !is.na(dam_gen) & (sire_gen != dam_gen)
-        
-        if (!any(valid_mask) || iter > max_iter) break
-        
-        # Get the target maximum generation for each mismatched couple
-        # We push the "older/higher" parent DOWN to the "younger/lower" parent's generation.
-        # This is safe from parent constraints (moving away from parents), but risky for child constraints.
-        target_gen <- pmax(sire_gen[valid_mask], dam_gen[valid_mask])
-        
-        # Collect updates needed: (Ind, NewGen)
-        sires_to_upd <- ped_dt$Sire[valid_mask]
-        dams_to_upd <- ped_dt$Dam[valid_mask]
-        
-        upd_dt <- data.table(
-          Ind = c(sires_to_upd, dams_to_upd),
-          NewGen = c(target_gen, target_gen)
-        )
-        
-        # Resolve multiple updates (take max to go deeper)
-        upd_dt <- upd_dt[, .(NewGen = max(NewGen)), by = Ind]
-        
-        # Constraint check: Individuals cannot move down if they hit their children.
-        # NewGen must be < Min(ChildGen).
-        inds_vec <- upd_dt$Ind
-        relevant_kids <- ped_dt[Sire %in% inds_vec | Dam %in% inds_vec, 
-                                .(Sire, Dam, Gen)]
-        
-        limits <- rbind(
-          relevant_kids[Sire %in% inds_vec, .(Ind=Sire, Limit=Gen)],
-          relevant_kids[Dam %in% inds_vec, .(Ind=Dam, Limit=Gen)]
-        )[, .(Limit = min(Limit)), by = Ind]
-        
-        limit_vals <- limits$Limit[match(upd_dt$Ind, limits$Ind)]
-        
-        curr_gen <- ped_dt$Gen[match(upd_dt$Ind, ped_dt$Ind)]
-        
-        # Valid only if pushing down (New > Curr) AND valid against children
-        to_change <- (upd_dt$NewGen > curr_gen) & (is.na(limit_vals) | upd_dt$NewGen < limit_vals)
-        
-        if(any(to_change)) {
-           update_inds <- upd_dt$Ind[to_change]
-           update_gens <- upd_dt$NewGen[to_change]
-           ped_dt[Ind %in% update_inds, Gen := update_gens[match(Ind, update_inds)]]
-        } else {
-           break
-        }
-      }
-      
-      # Final Sibling Alignment check:
-      # Mate alignment might have pushed one sibling down (away from others) to match a mate.
-      # But Sibling Consistency (P1) > Mate Consistency (P2). 
-      # So we enforce sibling alignment again.
-      ped_dt[!is.na(Family), Gen := min(Gen), by = Family]
+      align_bottom_generations(ped_dt)
     }
   }
   
@@ -644,4 +630,63 @@ infer_and_check_sex <- function(ped_dt, selfing = FALSE) {
   }
   
   return(ped_dt[])
+}
+
+#' Align generations for bottom-up method
+#'
+#' Aligns full siblings and mates to consistent generations after
+#' bottom-up generation assignment.  Called by both the main path and
+#' the fast path of \code{tidyped()}.
+#' @param ped_dt A data.table with Ind, Sire, Dam, Family, Gen columns.
+#' @return ped_dt modified in-place (Gen column updated).
+#' @noRd
+align_bottom_generations <- function(ped_dt) {
+  # 1. Sibling alignment: all full-sibs share the minimum Gen
+  ped_dt[!is.na(Family), Gen := min(Gen), by = Family]
+
+  # 2. Mate alignment: iteratively push mismatched mates to the same Gen
+  iter <- 0L
+  max_iter <- 10L
+  repeat {
+    iter <- iter + 1L
+    sire_gen <- ped_dt$Gen[match(ped_dt$Sire, ped_dt$Ind)]
+    dam_gen  <- ped_dt$Gen[match(ped_dt$Dam,  ped_dt$Ind)]
+
+    valid_mask <- !is.na(sire_gen) & !is.na(dam_gen) & (sire_gen != dam_gen)
+    if (!any(valid_mask) || iter > max_iter) break
+
+    target_gen <- pmax(sire_gen[valid_mask], dam_gen[valid_mask])
+    upd_dt <- data.table(
+      Ind    = c(ped_dt$Sire[valid_mask], ped_dt$Dam[valid_mask]),
+      NewGen = c(target_gen, target_gen)
+    )
+    upd_dt <- upd_dt[, .(NewGen = max(NewGen)), by = Ind]
+
+    # Constraint: NewGen must be < min(child Gen)
+    inds_vec <- upd_dt$Ind
+    relevant_kids <- ped_dt[Sire %in% inds_vec | Dam %in% inds_vec,
+                            .(Sire, Dam, Gen)]
+    limits <- rbind(
+      relevant_kids[Sire %in% inds_vec, .(Ind = Sire, Limit = Gen)],
+      relevant_kids[Dam  %in% inds_vec, .(Ind = Dam,  Limit = Gen)]
+    )[, .(Limit = min(Limit)), by = Ind]
+
+    limit_vals <- limits$Limit[match(upd_dt$Ind, limits$Ind)]
+    curr_gen   <- ped_dt$Gen[match(upd_dt$Ind, ped_dt$Ind)]
+    to_change  <- (upd_dt$NewGen > curr_gen) &
+                  (is.na(limit_vals) | upd_dt$NewGen < limit_vals)
+
+    if (any(to_change)) {
+      update_inds <- upd_dt$Ind[to_change]
+      update_gens <- upd_dt$NewGen[to_change]
+      ped_dt[Ind %in% update_inds, Gen := update_gens[match(Ind, update_inds)]]
+    } else {
+      break
+    }
+  }
+
+  # 3. Final sibling re-alignment (mate push may have split siblings)
+  ped_dt[!is.na(Family), Gen := min(Gen), by = Family]
+
+  invisible(ped_dt)
 }

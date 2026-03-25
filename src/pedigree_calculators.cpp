@@ -1055,3 +1055,136 @@ NumericMatrix cpp_calculate_ancestry(IntegerVector sire, IntegerVector dam, Nume
     }
     return res_mat;
 }
+
+// ============================================================================
+// Pedigree Subset and Topological Order Utilities
+//
+// These three functions replace igraph-based BFS and topo_sort in the
+// tidyped() fast-path.  All inputs are 1-based integer vectors (0 = unknown
+// parent).  All returned index vectors are 1-based and sorted ascending.
+// Complexity: O(N) per function.
+// ============================================================================
+
+// cpp_trace_ancestors
+//   BFS upward through sire/dam links from a set of target individuals.
+//   Returns the sorted 1-based row indices of targets + all their ancestors.
+//   max_gen = 0 means unlimited depth.
+// [[Rcpp::export]]
+IntegerVector cpp_trace_ancestors(IntegerVector sire, IntegerVector dam,
+                                   IntegerVector targets,
+                                   int max_gen = 0) {
+    const int n = sire.size();
+    std::vector<bool> visited(n + 1, false);
+    // BFS queue: (row_index_1based, generation_depth)
+    std::queue<std::pair<int,int>> q;
+
+    for (int i = 0; i < targets.size(); ++i) {
+        int t = targets[i];
+        if (t >= 1 && t <= n && !visited[t]) {
+            visited[t] = true;
+            q.push({t, 0});
+        }
+    }
+
+    while (!q.empty()) {
+        int cur = q.front().first;
+        int d   = q.front().second;
+        q.pop();
+        if (max_gen > 0 && d >= max_gen) continue;
+
+        int s  = sire[cur - 1];
+        int dm = dam[cur - 1];
+        if (s  >= 1 && s  <= n && !visited[s])  { visited[s]  = true; q.push({s,  d + 1}); }
+        if (dm >= 1 && dm <= n && !visited[dm]) { visited[dm] = true; q.push({dm, d + 1}); }
+    }
+
+    std::vector<int> result;
+    result.reserve(n / 4);
+    for (int i = 1; i <= n; ++i) if (visited[i]) result.push_back(i);
+    return wrap(result);
+}
+
+// cpp_trace_descendants
+//   BFS downward through child links from a set of target individuals.
+//   Builds a children adjacency list (O(N)), then BFS from targets.
+//   Returns sorted 1-based row indices of targets + all their descendants.
+//   max_gen = 0 means unlimited depth.
+// [[Rcpp::export]]
+IntegerVector cpp_trace_descendants(IntegerVector sire, IntegerVector dam,
+                                     IntegerVector targets,
+                                     int max_gen = 0) {
+    const int n = sire.size();
+
+    // Build children list: children[parent] = {child1, child2, ...}
+    std::vector<std::vector<int>> children(n + 1);
+    for (int i = 1; i <= n; ++i) {
+        int s  = sire[i - 1];
+        int dm = dam[i - 1];
+        if (s  >= 1 && s  <= n) children[s].push_back(i);
+        if (dm >= 1 && dm <= n) children[dm].push_back(i);
+    }
+
+    std::vector<bool> visited(n + 1, false);
+    std::queue<std::pair<int,int>> q;
+
+    for (int i = 0; i < targets.size(); ++i) {
+        int t = targets[i];
+        if (t >= 1 && t <= n && !visited[t]) {
+            visited[t] = true;
+            q.push({t, 0});
+        }
+    }
+
+    while (!q.empty()) {
+        int cur = q.front().first;
+        int d   = q.front().second;
+        q.pop();
+        if (max_gen > 0 && d >= max_gen) continue;
+
+        for (int child : children[cur]) {
+            if (!visited[child]) {
+                visited[child] = true;
+                q.push({child, d + 1});
+            }
+        }
+    }
+
+    std::vector<int> result;
+    result.reserve(n / 4);
+    for (int i = 1; i <= n; ++i) if (visited[i]) result.push_back(i);
+    return wrap(result);
+}
+
+// cpp_topo_order
+//   Kahn's algorithm topological sort on the pedigree DAG
+//   (edge direction: parent → offspring).
+//   Returns the 1-based row indices in topological order (ancestors first).
+//   Assumes the input is already a valid DAG (no cycle detection performed).
+// [[Rcpp::export]]
+IntegerVector cpp_topo_order(IntegerVector sire, IntegerVector dam) {
+    const int n = sire.size();
+
+    std::vector<int> indegree(n + 1, 0);
+    std::vector<std::vector<int>> children(n + 1);
+
+    for (int i = 1; i <= n; ++i) {
+        int s  = sire[i - 1];
+        int dm = dam[i - 1];
+        if (s  >= 1 && s  <= n) { children[s].push_back(i);  ++indegree[i]; }
+        if (dm >= 1 && dm <= n) { children[dm].push_back(i); ++indegree[i]; }
+    }
+
+    std::queue<int> q;
+    for (int i = 1; i <= n; ++i) if (indegree[i] == 0) q.push(i);
+
+    std::vector<int> order;
+    order.reserve(n);
+    while (!q.empty()) {
+        int cur = q.front(); q.pop();
+        order.push_back(cur);
+        for (int child : children[cur])
+            if (--indegree[child] == 0) q.push(child);
+    }
+
+    return wrap(order);
+}
