@@ -108,7 +108,7 @@ print(result)
 # Access individual groups (each is a tidyped object)
 result$GP1
 #> Tidy Pedigree Object
-#> Indices: <Sire>, <Dam>, <Sex>
+#> Indices: <Sire>, <Dam>
 #>        Ind   Sire    Dam    Sex Family FamilySize   Gen IndNum SireNum DamNum
 #>     <char> <char> <char> <char> <char>      <int> <int>  <int>   <int>  <int>
 #>  1:      A   <NA>   <NA>   male   <NA>          1     1      1       0      0
