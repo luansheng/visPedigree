@@ -1,7 +1,7 @@
 Package: visPedigree
 Type: Package
 Title: Tidying, Analysis, and Fast Visualization of Animal and Plant Pedigrees
-Version: 1.7.0
+Version: 1.7.1
 Authors@R: person("Sheng","Luan", email="luansheng@gmail.com", role = c("aut","cre"))
 Description: A comprehensive toolkit for the standardization, statistical analysis, 
     and fast visualization of animal and plant pedigrees. It robustly handles 

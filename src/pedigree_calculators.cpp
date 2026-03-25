@@ -1,6 +1,8 @@
 #include <RcppArmadillo.h>
 #include <vector>
 #include <map>
+#include <unordered_map>
+#include <queue>
 #include <algorithm>
 #include <functional>
 
@@ -45,104 +47,139 @@ bool cpp_openmp_available() {
 }
 
 // ============================================================================
-// Calculate Inbreeding Coefficients and Dii (Diagonal of D⁻¹)
+// Calculate Inbreeding Coefficients and Dii (Diagonal of D in A = TDT')
 // ============================================================================
-// Algorithm: Meuwissen & Luo (1992) - Path tracing with caching
-// Complexity: O(n²) in worst case, O(n) for simple pedigrees
-// Parallelization: Not implemented due to recursive dependencies
+// Algorithm: Sargolzaei & Iwaisaki (2005) — LAP bucket method
+// Reference: "Comparison of four direct algorithms for computing inbreeding
+//            coefficients", Animal Science Journal 76: 401-406.
+//
+// Key insight: ancestors are bucketed by their Longest Ancestral Path (LAP)
+// depth and processed from deepest to shallowest.  This gives:
+//   - O(1) ancestor retrieval (bucket pop instead of linear search)
+//   - O(1) deduplication (L[k]==0 check)
+//   - O(m_i) reset per individual (only visited ancestors cleared)
+// where m_i is the number of distinct ancestors of individual i.
+//
+// Additional optimisation:
+//   - Full-sib shortcut: consecutive same-parent rows reuse previous result.
+//
+// Input:  sire, dam — 1-based integer vectors (0 = unknown parent), length N
+// Output: List with f (inbreeding coefficients) and dii (Mendelian variance)
 // ============================================================================
-// Calculate Inbreeding and Dii using Meuwissen & Luo (1992)
 // [[Rcpp::export]]
 List cpp_calculate_inbreeding(IntegerVector sire, IntegerVector dam) {
-    int n = sire.size();
+    const int n = sire.size();
     if (dam.size() != n) {
         stop("sire and dam vectors must have the same length");
     }
-    
-    NumericVector f(n);
-    NumericVector dii(n);
-    std::vector<double> a(n, 1.0); // a_ii = 1 + f_i
-    
-    // Work vector L and visited tracking
-    std::vector<double> L(n, 0.0);
-    std::vector<int> visited;
-    visited.reserve(2048);
-    
-    // Cache for parent pair results: key is (min(s,d), max(s,d))
-    std::map<std::pair<int, int>, double> pair_cache;
 
-    for (int i = 0; i < n; ++i) {
-        int s = sire[i] - 1;
-        int d = dam[i] - 1;
+    // --- Allocate output vectors (R-visible) ---
+    NumericVector f_out(n, 0.0);
+    NumericVector dii_out(n, 1.0);
 
-        if (s >= n || d >= n) {
-            stop("Parent index out of bounds");
+    // --- Internal 1-based arrays (index 0 = unknown-parent sentinel) ---
+    // Using 1-based indexing matches the pedigree convention and simplifies
+    // the port from pedigreemm's C implementation.
+    std::vector<double> F(n + 1, 0.0);   // F[0] = -1 (sentinel)
+    std::vector<double> L(n + 1, 0.0);   // path coefficients
+    std::vector<double> B(n + 1, 0.0);   // Mendelian sampling variance
+    std::vector<int>    Anc(n + 1, 0);   // ancestor stack (bucket storage)
+    std::vector<int>    LAP(n + 1, 0);   // longest ancestral path
+
+    F[0]   = -1.0;
+    LAP[0] = -1;
+
+    // --- Phase 1: compute LAP for every individual and find max LAP ---
+    int t_max = -1;
+    for (int i = 1; i <= n; ++i) {
+        int S = sire[i - 1];  // 1-based (0 = unknown)
+        int D = dam[i - 1];
+        if (S > n || D > n) stop("Parent index out of bounds");
+        int lap_s = LAP[S];   // LAP[0] = -1 for unknown parent
+        int lap_d = LAP[D];
+        LAP[i] = (lap_s > lap_d ? lap_s : lap_d) + 1;
+        if (LAP[i] > t_max) t_max = LAP[i];
+    }
+
+    // --- Phase 2: allocate SI/MI bucket pointers ---
+    std::vector<int> SI(t_max + 1, 0);  // start index for each LAP group
+    std::vector<int> MI(t_max + 1, 0);  // minor (current) index
+
+    // --- Phase 3: compute F[i] for each individual ---
+    for (int i = 1; i <= n; ++i) {
+        int S = sire[i - 1];
+        int D = dam[i - 1];
+
+        // Mendelian sampling variance: B[i] = 0.5 - 0.25*(F_s + F_d)
+        B[i] = 0.5 - 0.25 * (F[S] + F[D]);
+
+        // Advance SI/MI pointers for all LAP groups below LAP[i]
+        for (int j = 0; j < LAP[i]; ++j) {
+            ++SI[j];
+            ++MI[j];
         }
 
-        // 1. Full-sib optimization
-        if (i > 0 && sire[i] == sire[i-1] && dam[i] == dam[i-1]) {
-            f[i] = f[i-1];
-            dii[i] = dii[i-1];
-            a[i] = a[i-1];
-            continue; 
+        // Both parents unknown → founder
+        if (S == 0 || D == 0) {
+            F[i] = 0.0;
+            L[i] = 0.0;
+            continue;
         }
-        
-        // 2. Compute dii
-        double fs = (s >= 0) ? f[s] : 0.0;
-        double fd = (d >= 0) ? f[d] : 0.0;
-        if (s >= 0 && d >= 0) {
-            dii[i] = 0.5 - 0.25 * (fs + fd);
-        } else if (s >= 0 || d >= 0) {
-            dii[i] = 0.75 - 0.25 * (s >= 0 ? fs : fd);
-        } else {
-            dii[i] = 1.0;
-        }
-        
-        // 3. Compute f[i] using path trace
-        if (s >= 0 && d >= 0) {
-            std::pair<int, int> parents = (s < d) ? std::make_pair(s, d) : std::make_pair(d, s);
-            auto it = pair_cache.find(parents);
-            if (it != pair_cache.end()) {
-                a[i] = it->second;
-                f[i] = a[i] - 1.0;
-            } else {
-                visited.clear();
-                L[i] = 1.0;
-                visited.push_back(i);
-                
-                double sum_L2d = 0.0;
-                // Meuwissen & Luo algorithm: trace back
-                for (int k = i; k >= 0; --k) {
-                    if (L[k] == 0) continue;
-                    
-                    int sk = sire[k] - 1;
-                    int dk = dam[k] - 1;
-                    
-                    if (sk >= 0) {
-                        if (L[sk] == 0) visited.push_back(sk);
-                        L[sk] += 0.5 * L[k];
-                    }
-                    if (dk >= 0) {
-                        if (L[dk] == 0) visited.push_back(dk);
-                        L[dk] += 0.5 * L[k];
-                    }
-                    sum_L2d += L[k] * L[k] * dii[k];
-                }
-                a[i] = sum_L2d;
-                f[i] = a[i] - 1.0;
-                pair_cache[parents] = a[i];
 
-                for (int idx : visited) L[idx] = 0.0;
+        // Full-sib shortcut
+        if (i > 1 && S == sire[i - 2] && D == dam[i - 2]) {
+            F[i] = F[i - 1];
+            L[i] = L[i - 1];
+            continue;
+        }
+
+        // --- Core LAP bucket algorithm ---
+        F[i] = -1.0;
+        L[i] = 1.0;
+        int t = LAP[i];              // start from deepest LAP group
+        Anc[MI[t]++] = i;            // seed with individual i
+
+        while (t > -1) {
+            int j = Anc[--MI[t]];    // pop next ancestor from bucket t
+            int Sj = sire[j - 1];    // parents of ancestor j (1-based)
+            int Dj = dam[j - 1];
+
+            if (Sj) {
+                if (L[Sj] == 0.0) Anc[MI[LAP[Sj]]++] = Sj;  // first visit → enqueue
+                L[Sj] += 0.5 * L[j];
             }
-        } else {
-            f[i] = 0.0;
-            a[i] = 1.0;
+            if (Dj) {
+                if (L[Dj] == 0.0) Anc[MI[LAP[Dj]]++] = Dj;
+                L[Dj] += 0.5 * L[j];
+            }
+
+            F[i] += L[j] * L[j] * B[j];
+            L[j] = 0.0;             // clear for next individual
+
+            if (MI[t] == SI[t]) --t; // bucket empty → move to next group
         }
     }
-    
+
+    // --- Phase 4: copy to R output vectors and compute dii ---
+    for (int i = 0; i < n; ++i) {
+        f_out[i] = F[i + 1];
+
+        int S = sire[i];
+        int D = dam[i];
+        double fs = (S > 0) ? F[S] : 0.0;
+        double fd = (D > 0) ? F[D] : 0.0;
+        if (S > 0 && D > 0) {
+            dii_out[i] = 0.5 - 0.25 * (fs + fd);
+        } else if (S > 0 || D > 0) {
+            dii_out[i] = 0.75 - 0.25 * (S > 0 ? fs : fd);
+        } else {
+            dii_out[i] = 1.0;
+        }
+    }
+
     return List::create(
-        Named("f") = f, 
-        Named("dii") = dii
+        Named("f")   = f_out,
+        Named("dii") = dii_out
     );
 }
 

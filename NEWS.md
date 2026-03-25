@@ -1,3 +1,19 @@
+# Changes in version 1.7.1 released on 25 Mar 2026
+## Performance
+1. **10× faster inbreeding calculation**: Replaced the Meuwissen & Luo (1992)
+   linear path-trace algorithm in `cpp_calculate_inbreeding` with the
+   Sargolzaei & Iwaisaki (2005) LAP (Longest Ancestral Path) bucket method.
+   At N = 1,000,000, the C++ kernel now completes in ~0.12 s (previously ~1.34 s),
+   matching the reference C implementation in **pedigreemm**. The key improvements
+   are O(1) ancestor retrieval via bucket pop (vs. O(gap) linear scan), O(1)
+   duplicate suppression via `L[k] == 0` check, and O(m_i) path-coefficient
+   reset (vs. O(k) full-array scan). All results are numerically identical to
+   the previous implementation (max difference < 2 × 10⁻¹⁵).
+
+## Documentation
+1. Updated `inbreed()` and vignette references to cite Sargolzaei & Iwaisaki (2005)
+   instead of Meuwissen & Luo (1992).
+
 # Changes in version 1.7.0 released on 23 Mar 2026
 ## New features
 1. **`pediv()` retained genetic diversity (`GeneDiv`)**: `pediv()$summary` gains a new column `GeneDiv = 1 - MeanCoan`, the pedigree-based retained genetic diversity of the reference population. Values lie in $[0, 1]$; higher values indicate more diversity retained relative to an unrelated base population. `print.pediv()` displays it alongside `fg` and `MeanCoan`. This dimensionless complement to `fg` is easier to communicate to non-specialist stakeholders.
