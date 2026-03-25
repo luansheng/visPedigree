@@ -133,7 +133,7 @@ Visualization of Animal and Plant Pedigrees. R package version 1.8.0,
 Main tools for processing and visualizing animal pedigrees.
 
 - [`tidyped()`](https://luansheng.github.io/visPedigree/reference/tidyped.md)
-  : Tidy and prepare a pedigree using graph theory
+  : Tidy and prepare a pedigree
 - [`as_tidyped()`](https://luansheng.github.io/visPedigree/reference/as_tidyped.md)
   : Restore the tidyped class to a manipulated pedigree
 - [`is_tidyped()`](https://luansheng.github.io/visPedigree/reference/is_tidyped.md)

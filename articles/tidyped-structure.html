@@ -320,6 +320,19 @@ by <code>[.tidyped</code>. Invariant 6 is a development convention.</p>
 <div class="section level2">
 <h2 id="constructor-pipeline">7. Constructor pipeline<a class="anchor" aria-label="anchor" href="#constructor-pipeline"></a>
 </h2>
+<p><code><a href="../reference/tidyped.html">tidyped()</a></code> currently has two distinct tracing paths:</p>
+<ul>
+<li>
+<strong>Raw-input path</strong> (<code>data.frame</code> /
+<code>data.table</code>) — uses igraph for loop detection, candidate
+tracing, and topological sorting before integer indices are
+finalized.</li>
+<li>
+<strong>Fast path</strong> (<code>tidyped</code> +
+<code>cand</code>) — skips graph rebuilding and uses C++ for candidate
+tracing and topological sorting on existing integer pedigree
+indices.</li>
+</ul>
 <div class="section level3">
 <h3 id="full-path-tidypedraw_input">7.1 Full path: <code>tidyped(raw_input)</code><a class="anchor" aria-label="anchor" href="#full-path-tidypedraw_input"></a>
 </h3>
@@ -333,12 +346,14 @@ duplicates and bisexual parents, inject missing founders.</li>
 <code>is_dag()</code>; <code>which_loop()</code> and
 <code>shortest_paths()</code> are used only on the error path to report
 informative loop diagnostics.</li>
-<li>Candidate tracing — C++ BFS (<code>cpp_trace_ancestors</code> /
-<code>cpp_trace_descendants</code>).</li>
+<li>Candidate tracing — if <code>cand</code> is supplied, igraph
+neighborhood search is used on the raw-input path.</li>
+<li>Topological sort — igraph <code>topo_sort()</code> on the raw-input
+path.</li>
 <li>Generation assignment — C++ (<code>cpp_assign_generations_top</code>
-/ <code>cpp_assign_generations_bottom</code>).</li>
+/ <code>cpp_assign_generations_bottom</code>) using the pedigree implied
+by the sorted rows.</li>
 <li>Sex inference — resolve unknowns from parental roles.</li>
-<li>Topological sort — C++ (<code>cpp_topo_order</code>).</li>
 <li>Build integer indices — <code>IndNum</code>, <code>SireNum</code>,
 <code>DamNum</code>.</li>
 <li>
@@ -518,8 +533,8 @@ reaching C++ routines.</p>
 <div class="section level2">
 <h2 id="computational-boundaries-c-vs-igraph">10. Computational boundaries: C++ vs igraph<a class="anchor" aria-label="anchor" href="#computational-boundaries-c-vs-igraph"></a>
 </h2>
-<p>visPedigree delegates heavy computation to C++ and uses igraph only
-for graph-specific tasks.</p>
+<p>visPedigree delegates heavy pedigree recursion to C++ and uses igraph
+where a graph object is still the simplest representation.</p>
 <div class="section level3">
 <h3 id="c-core-computation-path">10.1 C++ — core computation path<a class="anchor" aria-label="anchor" href="#c-core-computation-path"></a>
 </h3>
@@ -573,9 +588,9 @@ integer vectors and assume the head invariant (§3).</p>
 </h3>
 <table class="table">
 <colgroup>
-<col width="23%">
-<col width="23%">
-<col width="52%">
+<col width="22%">
+<col width="28%">
+<col width="49%">
 </colgroup>
 <thead><tr class="header">
 <th>Task</th>
@@ -600,17 +615,40 @@ integer vectors and assume the head invariant (§3).</p>
 </td>
 </tr>
 <tr class="odd">
+<td>Loop detection</td>
+<td>
+<code><a href="../reference/tidyped.html">tidyped()</a></code> raw-input path</td>
+<td>
+<code>graph_from_edgelist</code>, <code>is_dag</code>
+</td>
+</tr>
+<tr class="even">
 <td>Loop diagnosis</td>
 <td>
 <code><a href="../reference/tidyped.html">tidyped()</a></code> error path</td>
 <td>
-<code>is_dag</code>, <code>which_loop</code>,
-<code>shortest_paths</code>
+<code>which_loop</code>, <code>shortest_paths</code>,
+<code>neighbors</code>, <code>components</code>
 </td>
+</tr>
+<tr class="odd">
+<td>Candidate tracing</td>
+<td>
+<code><a href="../reference/tidyped.html">tidyped()</a></code> raw-input path</td>
+<td><code>neighborhood</code></td>
+</tr>
+<tr class="even">
+<td>Topological sorting</td>
+<td>
+<code><a href="../reference/tidyped.html">tidyped()</a></code> raw-input path</td>
+<td><code>topo_sort</code></td>
 </tr>
 </tbody>
 </table>
-<p>igraph is not used in any pedigree analysis function.</p>
+<p>igraph is not used in the core numerical pedigree analysis routines
+such as <code><a href="../reference/inbreed.html">inbreed()</a></code>, <code><a href="../reference/pedmat.html">pedmat()</a></code>,
+<code><a href="../reference/pedecg.html">pedecg()</a></code>, or <code><a href="../reference/pedrel.html">pedrel()</a></code>, but it is still part of
+the preprocessing and visualization stack.</p>
 </div>
 </div>
 <div class="section level2">

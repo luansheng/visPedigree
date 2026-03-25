@@ -142,6 +142,16 @@ and guarded by `[.tidyped`. Invariant 6 is a development convention.
 
 ## 7. Constructor pipeline
 
+[`tidyped()`](https://luansheng.github.io/visPedigree/reference/tidyped.md)
+currently has two distinct tracing paths:
+
+- **Raw-input path** (`data.frame` / `data.table`) — uses igraph for
+  loop detection, candidate tracing, and topological sorting before
+  integer indices are finalized.
+- **Fast path** (`tidyped` + `cand`) — skips graph rebuilding and uses
+  C++ for candidate tracing and topological sorting on existing integer
+  pedigree indices.
+
 ### 7.1 Full path: `tidyped(raw_input)`
 
 When the input is a raw `data.frame` or `data.table`:
@@ -151,12 +161,13 @@ When the input is a raw `data.frame` or `data.table`:
 2.  Loop detection — igraph builds a directed graph and checks
     `is_dag()`; `which_loop()` and `shortest_paths()` are used only on
     the error path to report informative loop diagnostics.
-3.  Candidate tracing — C++ BFS (`cpp_trace_ancestors` /
-    `cpp_trace_descendants`).
-4.  Generation assignment — C++ (`cpp_assign_generations_top` /
-    `cpp_assign_generations_bottom`).
-5.  Sex inference — resolve unknowns from parental roles.
-6.  Topological sort — C++ (`cpp_topo_order`).
+3.  Candidate tracing — if `cand` is supplied, igraph neighborhood
+    search is used on the raw-input path.
+4.  Topological sort — igraph `topo_sort()` on the raw-input path.
+5.  Generation assignment — C++ (`cpp_assign_generations_top` /
+    `cpp_assign_generations_bottom`) using the pedigree implied by the
+    sorted rows.
+6.  Sex inference — resolve unknowns from parental roles.
 7.  Build integer indices — `IndNum`, `SireNum`, `DamNum`.
 8.  [`new_tidyped()`](https://luansheng.github.io/visPedigree/reference/new_tidyped.md) +
     attach `ped_meta`.
@@ -293,8 +304,8 @@ reaching C++ routines.
 
 ## 10. Computational boundaries: C++ vs igraph
 
-visPedigree delegates heavy computation to C++ and uses igraph only for
-graph-specific tasks.
+visPedigree delegates heavy pedigree recursion to C++ and uses igraph
+where a graph object is still the simplest representation.
 
 ### 10.1 C++ — core computation path
 
@@ -311,13 +322,23 @@ assume the head invariant (§3).
 
 ### 10.2 igraph — graph-specific tasks
 
-| Task                   | Where                                                                                  | igraph functions                                               |
-|------------------------|----------------------------------------------------------------------------------------|----------------------------------------------------------------|
-| Pedigree visualization | [`visped()`](https://luansheng.github.io/visPedigree/reference/visped.md) pipeline     | `graph_from_data_frame`, `layout_with_sugiyama`, `plot.igraph` |
-| Connected components   | [`splitped()`](https://luansheng.github.io/visPedigree/reference/splitped.md)          | `graph_from_edgelist`, `components`                            |
-| Loop diagnosis         | [`tidyped()`](https://luansheng.github.io/visPedigree/reference/tidyped.md) error path | `is_dag`, `which_loop`, `shortest_paths`                       |
+| Task                   | Where                                                                                      | igraph functions                                               |
+|------------------------|--------------------------------------------------------------------------------------------|----------------------------------------------------------------|
+| Pedigree visualization | [`visped()`](https://luansheng.github.io/visPedigree/reference/visped.md) pipeline         | `graph_from_data_frame`, `layout_with_sugiyama`, `plot.igraph` |
+| Connected components   | [`splitped()`](https://luansheng.github.io/visPedigree/reference/splitped.md)              | `graph_from_edgelist`, `components`                            |
+| Loop detection         | [`tidyped()`](https://luansheng.github.io/visPedigree/reference/tidyped.md) raw-input path | `graph_from_edgelist`, `is_dag`                                |
+| Loop diagnosis         | [`tidyped()`](https://luansheng.github.io/visPedigree/reference/tidyped.md) error path     | `which_loop`, `shortest_paths`, `neighbors`, `components`      |
+| Candidate tracing      | [`tidyped()`](https://luansheng.github.io/visPedigree/reference/tidyped.md) raw-input path | `neighborhood`                                                 |
+| Topological sorting    | [`tidyped()`](https://luansheng.github.io/visPedigree/reference/tidyped.md) raw-input path | `topo_sort`                                                    |
 
-igraph is not used in any pedigree analysis function.
+igraph is not used in the core numerical pedigree analysis routines such
+as
+[`inbreed()`](https://luansheng.github.io/visPedigree/reference/inbreed.md),
+[`pedmat()`](https://luansheng.github.io/visPedigree/reference/pedmat.md),
+[`pedecg()`](https://luansheng.github.io/visPedigree/reference/pedecg.md),
+or
+[`pedrel()`](https://luansheng.github.io/visPedigree/reference/pedrel.md),
+but it is still part of the preprocessing and visualization stack.
 
 ## 11. Extension rules
 

@@ -1,10 +1,10 @@
-# Tidy and prepare a pedigree using graph theory
+# Tidy and prepare a pedigree
 
-This function takes a pedigree, checks for duplicate and bisexual
-individuals, detects pedigree loops using graph theory, adds missing
-founders, assigns generation numbers, sorts the pedigree, and traces the
-pedigree of specified candidates. If the `cand` parameter contains
-individual IDs, only those individuals and their ancestors or
+This function standardizes pedigree records, checks for duplicate IDs
+and incompatible parental roles, detects pedigree loops, injects missing
+founders, assigns generation numbers, sorts the pedigree, and optionally
+traces the pedigree of specified candidates. If the `cand` parameter
+contains individual IDs, only those individuals and their ancestors or
 descendants are retained. Tracing direction and the number of
 generations can be specified using the `trace` and `tracegen`
 parameters.
@@ -102,21 +102,25 @@ tidyped(
 A `tidyped` object (which inherits from `data.table`). Individual, sire,
 and dam ID columns are renamed to **Ind**, **Sire**, and **Dam**.
 Missing parents are replaced with **NA**. The **Sex** column contains
-"male", "female", or NA. The **Cand** column is included if `cand` is
-not NULL. The **Gen** column is included if `addgen` is TRUE. The
-**IndNum**, **SireNum**, and **DamNum** columns are included if `addnum`
-is TRUE. The **Family** and **FamilySize** columns identify full-sibling
-families (e.g., "A x B" for offspring of sire A and dam B). The **f**
-column is included if `inbreed` is TRUE.
+`"male"`, `"female"`, `"monoecious"`, or `NA`. The **Cand** column is
+included if `cand` is not NULL. The **Gen** column is included if
+`addgen` is TRUE. The **IndNum**, **SireNum**, and **DamNum** columns
+are included if `addnum` is TRUE. The **Family** and **FamilySize**
+columns identify full-sibling families (for example, `"AxB"` for
+offspring of sire `A` and dam `B`). The **f** column is included if
+`inbreed` is TRUE.
 
 ## Details
 
-Compared to the legacy version, this function handles cyclic pedigrees
-more robustly by detecting and reporting loops, and it is generally
-faster for large pedigrees due to the use of sparse graph algorithms
-from the `igraph` package. Generation assignment can be performed using
-either a top-down approach (default, aligning founders at the top) or a
-bottom-up approach (aligning terminal nodes at the bottom).
+Compared to the legacy version, this function reports cyclic pedigrees
+more clearly and uses a mixed implementation. There are two
+candidate-tracing paths: when the input is a raw pedigree, `igraph` is
+used for loop checking, candidate tracing, and topological sorting; when
+the input is an already validated `tidyped` object and `cand` is
+supplied, tracing and topological sorting use integer-indexed C++
+routines. Generation assignment can be performed using either a top-down
+approach (default, aligning founders at the top) or a bottom-up approach
+(aligning terminal nodes at the bottom).
 
 ## See also
 
