@@ -18,6 +18,16 @@
    values (e.g., `fg ≈ 240` instead of `fg ≈ 19`).  Fixed by calling
    `setorder(ped_dt, IndNum)` immediately after the merge.
 
+3. **`summary_pedmat()` reported `Density = 100%` for all `A`, `D`, and `AA`
+   matrices**: The speed branch changed the return type of `pedmat(sparse = TRUE)`
+   for these methods from `dgCMatrix` (sparse) to `dgeMatrix` (dense) to avoid
+   the O(N²) zero-scan performed by `Matrix::Matrix(..., sparse = TRUE)`.
+   However, `summary_pedmat()` contained a hard-coded branch that returned
+   `sparsity = 1.0` for any non-`sparseMatrix` `Matrix` subclass (including
+   `dgeMatrix`), always printing `Density = 100%` instead of the true fill ratio.
+   Fixed by using `Matrix::nnzero() / (nrow * ncol)` for all `Matrix` subclasses;
+   `nnzero()` works correctly for both `dgeMatrix` and `dgCMatrix`.
+
 ## Performance
 1. **~100× faster inbreeding calculation**: Replaced the Meuwissen & Luo (1992)
    linear path-trace algorithm in `cpp_calculate_inbreeding` with the
