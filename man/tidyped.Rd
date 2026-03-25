@@ -2,7 +2,7 @@
 % Please edit documentation in R/tidyped.R
 \name{tidyped}
 \alias{tidyped}
-  itle{Tidy and prepare a pedigree}
+\title{Tidy and prepare a pedigree}
 \usage{
 tidyped(
   ped,
