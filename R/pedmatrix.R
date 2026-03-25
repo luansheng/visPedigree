@@ -1389,10 +1389,13 @@ summary_pedmat <- function(x) {
       }
     }, error = function(e) NA_real_)
     
-    stats$sparsity <- if (inherits(obj_clean, "sparseMatrix")) {
+    stats$sparsity <- if (inherits(obj_clean, "Matrix")) {
+      # Works for both sparseMatrix (e.g. dgCMatrix) and dense Matrix (e.g. dgeMatrix).
+      # speed branch returns dgeMatrix for A/D/AA to avoid the N² zero-scan
+      # overhead of Matrix::Matrix(..., sparse=TRUE); nnzero() handles both cases.
       Matrix::nnzero(obj_clean) / (as.numeric(nrow(obj_clean)) * ncol(obj_clean))
-    } else if (is.matrix(obj_clean) || inherits(obj_clean, "Matrix")) {
-      1.0
+    } else if (is.matrix(obj_clean)) {
+      sum(obj_clean != 0L) / length(obj_clean)
     } else { NA_real_ }
   }
   
