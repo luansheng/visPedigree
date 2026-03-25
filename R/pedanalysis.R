@@ -1013,6 +1013,9 @@ pedne <- function(ped, method = c("coancestry", "inbreeding", "demographic"),
     if (!"ECG" %in% names(ped_dt)) {
       ecg_dt <- pedecg(ped_dt)
       ped_dt <- merge(ped_dt, ecg_dt[, .(Ind, ECG)], by = "Ind", all.x = TRUE)
+      # merge() sorts by Ind (alphabetically), breaking the IndNum == row-index
+      # invariant that the fast-path BFS in tidyped() depends on.
+      setorder(ped_dt, IndNum)
     }
   }
   
@@ -1941,6 +1944,9 @@ pediv <- function(ped, reference = NULL, top = 20, nsamples = 1000, ncores = 1,
   if (!"ECG" %in% names(ped_dt)) {
     ecg_dt <- pedecg(ped_dt)
     ped_dt <- merge(ped_dt, ecg_dt[, .(Ind, ECG)], by = "Ind", all.x = TRUE)
+    # merge() sorts by Ind (alphabetically), breaking the IndNum == row-index
+    # invariant that the fast-path BFS in tidyped() depends on.
+    setorder(ped_dt, IndNum)
   }
   by_all <- ".CohortAll"
   ped_dt[[by_all]] <- "All"

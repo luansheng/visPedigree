@@ -114,6 +114,15 @@ tidyped <- function(ped,
     # Strip class so internal := ops don't hit [.tidyped
     data.table::setattr(ped_dt, "class", setdiff(class(ped_dt), "tidyped"))
 
+    # Ensure numeric parent indices exist for BFS — the input tidyped may have
+    # been created with addnum = FALSE, so IndNum/SireNum/DamNum may be absent.
+    had_num_cols <- "IndNum" %in% names(ped_dt)
+    if (!had_num_cols) {
+      ped_dt[, IndNum  := .I]
+      ped_dt[, SireNum := match(Sire, Ind, nomatch = 0L)]
+      ped_dt[, DamNum  := match(Dam,  Ind, nomatch = 0L)]
+    }
+
     # --- C++ BFS tracing (replaces igraph build + trace_ped_candidates) ---
     cand_clean <- as.character(cand[!is.na(cand) & cand != "" & cand != " "])
     if (length(cand_clean) == 0) stop("The cand parameter contains no valid individual IDs.")
@@ -194,6 +203,13 @@ tidyped <- function(ped,
       ped_dt[, IndNum  := .I]
       ped_dt[, SireNum := match(Sire, Ind, nomatch = 0L)]
       ped_dt[, DamNum  := match(Dam,  Ind, nomatch = 0L)]
+    } else {
+      # Remove index cols that were added temporarily (only if they were absent
+      # in the original input).
+      if (!had_num_cols) {
+        drop_cols <- intersect(c("IndNum", "SireNum", "DamNum"), names(ped_dt))
+        if (length(drop_cols) > 0L) ped_dt[, (drop_cols) := NULL]
+      }
     }
 
     ped_dt[, Cand := Ind %in% cand]

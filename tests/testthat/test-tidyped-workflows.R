@@ -58,6 +58,36 @@ test_that("tidyped fast path matches full tracing result", {
   expect_equal(pedmeta(res_fast), pedmeta(res_raw))
 })
 
+test_that("fast path: cand works on tidyped created with addnum=FALSE (regression)", {
+  # Regression: fast-path previously used IndNum which is absent when addnum=FALSE,
+  # causing "None of the specified candidates were found" even for valid IDs.
+  tp_no <- tidyped(simple_ped, addnum = FALSE, addgen = FALSE)
+  expect_false("IndNum" %in% names(tp_no))
+
+  # Must not error and must find the candidate
+  res <- tidyped(tp_no, cand = "J5X804", trace = "up")
+  expect_true(is_tidyped(res))
+  expect_true(has_candidates(res))
+  expect_true("J5X804" %in% res$Ind)
+  expect_true(any(res$Cand))
+
+  # addnum=FALSE: output must not contain integer index columns
+  res_no <- tidyped(tp_no, cand = "J5X804", addnum = FALSE, addgen = FALSE)
+  expect_false("IndNum"  %in% names(res_no))
+  expect_false("SireNum" %in% names(res_no))
+  expect_false("DamNum"  %in% names(res_no))
+
+  # addnum=TRUE: output must contain integer index columns
+  res_yes <- tidyped(tp_no, cand = "J5X804", addnum = TRUE)
+  expect_true("IndNum"  %in% names(res_yes))
+  expect_true("SireNum" %in% names(res_yes))
+  expect_true("DamNum"  %in% names(res_yes))
+
+  # Results must match a full-path trace from the raw pedigree
+  res_ref <- tidyped(simple_ped, cand = "J5X804", trace = "up")
+  expect_equal(sort(res_yes$Ind), sort(res_ref$Ind))
+})
+
 test_that("state accessors report tidyped contents correctly", {
   tp <- tidyped(simple_ped)
   tp_f <- inbreed(tp)
