@@ -582,6 +582,9 @@ infer_and_check_sex <- function(ped_dt, selfing = FALSE) {
   } else {
     ped_dt[, Sex := tolower(as.character(Sex))]
     ped_dt[Sex %in% c("", " ", "na"), Sex := NA_character_]
+    # Normalize common abbreviations to canonical values
+    ped_dt[Sex %in% c("m", "1", "male"),   Sex := "male"]
+    ped_dt[Sex %in% c("f", "2", "female"), Sex := "female"]
   }
   
   sires <- unique(ped_dt[!is.na(Sire), Sire])

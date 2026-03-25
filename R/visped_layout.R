@@ -96,7 +96,7 @@ prepare_ped_graph <- function(ped, compact = FALSE, outline = FALSE, cex = NULL,
   }
   ped_igraph$node[nodetype %in% c("real", "compact")] <- real_node
 
-  if ((!outline) & gen_max_size >= 2) {
+  if (gen_max_size >= 2) {
     min_gap <- 0.8 / gen_max_size
     fam_gap <- min_gap * 1.2
     
