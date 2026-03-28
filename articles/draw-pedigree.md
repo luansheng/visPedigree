@@ -49,7 +49,7 @@ tidy_small_ped <-
   tidyped(ped = small_ped,
           cand = c("Y", "Z1", "Z2"))
 visped(tidy_small_ped, compact = TRUE, file = tempfile(fileext = ".pdf"))
-#> Pedigree saved to: /tmp/Rtmp8Jiycy/file20c973ca77a0.pdf
+#> Pedigree saved to: /tmp/RtmpqFcAOK/file20cc73852fa1.pdf
 #> Label cex: 0.65. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 ```
 
@@ -81,6 +81,18 @@ visped(tidy_simple_ped, cex=0.3, symbolsize=10)
 ```
 
 ![](draw-pedigree_files/figure-html/vissimpleped-1.png)
+
+Generation labels can be added on the left margin of the pedigree graph
+by setting `genlab = TRUE`. This is useful for deep pedigrees when you
+want to quickly identify the generation of each row.
+
+``` r
+visped(tidy_simple_ped, cex = 0.3, symbolsize = 10, genlab = TRUE)
+#> Label cex: 0.3. Symbol size: 10. Adjust 'cex' and 'symbolsize' if labels are too large or small.
+#> Tip: Use 'file' to save as a legible vector PDF.
+```
+
+![](draw-pedigree_files/figure-html/vissimpleped_genlab-1.png)
 
 Figures displayed in the RStudio Plots panel often have limited
 resolution. Individual IDs may overlap if the pedigree is large and the
@@ -210,7 +222,7 @@ visped(
   showgraph = TRUE,
   file = tempfile(fileext = ".pdf")
 )
-#> Pedigree saved to: /tmp/Rtmp8Jiycy/file20c99e0bd9f.pdf
+#> Pedigree saved to: /tmp/RtmpqFcAOK/file20cc11cf6ac9.pdf
 #> Label cex: 0.08. Symbol size: 5.5. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 ```
 
@@ -241,7 +253,7 @@ visped(
   showgraph = FALSE,
   file = tempfile(fileext = ".pdf")
 )
-#> Pedigree saved to: /tmp/Rtmp8Jiycy/file20c91e08bfc3.pdf
+#> Pedigree saved to: /tmp/RtmpqFcAOK/file20cc1ca6c974.pdf
 #> Label cex: 0.83. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 ```
 
