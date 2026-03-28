@@ -30,6 +30,7 @@
 #' @param pagewidth A numeric value specifying the width of the PDF file in inches. This controls the horizontal scaling of the layout. The default value is 200.
 #' @param symbolsize A numeric value specifying the scaling factor for node size relative to the label size. Values greater than 1 increase the node size (adding padding around the label), while values less than 1 decrease it. This is useful for fine-tuning the whitespace and legibility of dense graphs. The default value is 1.
 #' @param maxiter An integer specifying the maximum number of iterations for the Sugiyama layout algorithm to minimize edge crossings. Higher values (e.g., 2000 or 5000) may result in fewer crossed lines for complex pedigrees but will increase computation time. The default value is 1000.
+#' @param genlab A logical value indicating whether generation labels (G1, G2, ...) will be drawn on the left margin of the pedigree graph. This helps identify the generation of each row of nodes, especially in deep pedigrees with many generations. The default value is FALSE.
 #' @param ... Additional arguments passed to \code{\link[igraph:plot.igraph]{plot.igraph}}.
 #' @return The function mainly produces a plot on the current graphics device and/or a PDF file. It invisibly returns a list containing the graph object, layout coordinates, and node sizes.
 #'
@@ -128,6 +129,7 @@ visped <- function(
   pagewidth = 200,
   symbolsize = 1,
   maxiter = 1000,
+  genlab = FALSE,
   ...
 ) {
   # Automatically convert raw data to tidyped object if needed.
@@ -222,6 +224,10 @@ visped <- function(
     stop("'maxiter' must be a single positive integer.")
   }
   maxiter <- as.integer(maxiter)
+
+  if (!isTRUE(genlab) && !isFALSE(genlab)) {
+    stop("'genlab' must be TRUE or FALSE.")
+  }
 
   # 2. Sanitize highlight inputs
   if (!is.null(highlight)) {
@@ -320,7 +326,7 @@ visped <- function(
 
   #===Draw the pedigree================================================================
   if (showgraph) {
-    plot_ped_igraph(g, l, node_size, ...)
+    plot_ped_igraph(g, l, node_size, gen_info = graph_data$gen_info, genlab = genlab, ...)
   }
 
   if (!is.null(file)) {
@@ -331,7 +337,7 @@ visped <- function(
     )
     # Ensure the device is closed even if plotting fails.
     on.exit(if (dev.cur() > 1) dev.off(), add = TRUE)
-    plot_ped_igraph(g, l, node_size, ...)
+    plot_ped_igraph(g, l, node_size, gen_info = graph_data$gen_info, genlab = genlab, ...)
 
     # Correct path normalization for the message
     saved_path <- tryCatch(
@@ -361,5 +367,6 @@ visped <- function(
     message("Note: Inbreeding coefficients of 0 are not shown in the graph.")
   }
 
+  graph_data$gen_info <- NULL
   invisible(graph_data)
 }

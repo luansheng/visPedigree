@@ -1,9 +1,17 @@
+#' Left margin (in normalized [0,1] coords) reserved for generation labels
+#' @keywords internal
+GENLAB_MARGIN <- 0.05
+
+#' Generation label color
+#' @keywords internal
+GENLAB_COLOR <- "#888888"
+
 #' Render pedigree graph using Two-Pass strategy
 #' @importFrom igraph V E plot.igraph vertex_attr edge_attr
 #' @importFrom utils modifyList
 #' @importFrom stats median
 #' @keywords internal
-plot_ped_igraph <- function(g, l, node_size, ...) {
+plot_ped_igraph <- function(g, l, node_size, gen_info = NULL, genlab = FALSE, ...) {
   # ============================================================================
   # SCALING LOGIC FOR RENDERING
   # ============================================================================
@@ -41,12 +49,13 @@ plot_ped_igraph <- function(g, l, node_size, ...) {
   
   user_args <- list(...)
   margin <- max(node_size / 100, 0.02)
+  genlab_space <- if (genlab && !is.null(gen_info) && nrow(gen_info) > 0) GENLAB_MARGIN else 0
   
   # PASS 1: Draw EDGES ONLY
   # Instead of modifying g, we pass visual attributes directly to plot.igraph
   plot_args_edges <- list(
     x = g, rescale = FALSE,
-    xlim = c(-margin, 1 + margin), ylim = c(1 + margin, -margin),
+    xlim = c(-margin - genlab_space, 1 + margin), ylim = c(1 + margin, -margin),
     layout = l, asp = 0, add = FALSE,
     # Edge styles
     edge.width = e_width,
@@ -78,7 +87,7 @@ plot_ped_igraph <- function(g, l, node_size, ...) {
   # We reuse the same graph object but hide edges
   plot_args_nodes <- list(
     x = g, rescale = FALSE,
-    xlim = c(-margin, 1 + margin), ylim = c(1 + margin, -margin),
+    xlim = c(-margin - genlab_space, 1 + margin), ylim = c(1 + margin, -margin),
     layout = l, asp = 0, add = TRUE,
     # Node styles
     vertex.size = if (!is.null(v_attrs$size)) v_attrs$size else 15,
@@ -102,5 +111,22 @@ plot_ped_igraph <- function(g, l, node_size, ...) {
   }
   
   suppressWarnings(do.call(igraph::plot.igraph, plot_args_nodes))
+
+  # PASS 3: Draw generation labels on the left margin
+  if (genlab && !is.null(gen_info) && nrow(gen_info) > 0) {
+    gen_label_cex <- max(0.5, min(1.5, scaling_ref * 0.3))
+    gen_label_x <- -margin - genlab_space * 0.5
+    for (i in seq_len(nrow(gen_info))) {
+      graphics::text(
+        x = gen_label_x,
+        y = gen_info$y[i],
+        labels = paste0("G", gen_info$gen[i]),
+        cex = gen_label_cex,
+        col = GENLAB_COLOR,
+        font = 2,
+        adj = c(0.5, 0.5)
+      )
+    }
+  }
 }
 

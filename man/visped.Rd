@@ -17,6 +17,7 @@ visped(
   pagewidth = 200,
   symbolsize = 1,
   maxiter = 1000,
+  genlab = FALSE,
   ...
 )
 }
@@ -52,6 +53,8 @@ For example: \code{c("A", "B")} or \code{list(ids = c("A", "B"), frame.color = "
 \item{symbolsize}{A numeric value specifying the scaling factor for node size relative to the label size. Values greater than 1 increase the node size (adding padding around the label), while values less than 1 decrease it. This is useful for fine-tuning the whitespace and legibility of dense graphs. The default value is 1.}
 
 \item{maxiter}{An integer specifying the maximum number of iterations for the Sugiyama layout algorithm to minimize edge crossings. Higher values (e.g., 2000 or 5000) may result in fewer crossed lines for complex pedigrees but will increase computation time. The default value is 1000.}
+
+\item{genlab}{A logical value indicating whether generation labels (G1, G2, ...) will be drawn on the left margin of the pedigree graph. This helps identify the generation of each row of nodes, especially in deep pedigrees with many generations. The default value is FALSE.}
 
 \item{...}{Additional arguments passed to \code{\link[igraph:plot.igraph]{plot.igraph}}.}
 }
