@@ -1,3 +1,11 @@
+
+# Changes in version 1.8.1 released on 28 Mar 2026
+## New features
+1. **`visped()` generation labels**: Added a new `genlab` argument to `visped()` for drawing generation labels (`G1`, `G2`, ...) on the left margin of pedigree plots. This helps identify each row in deep pedigrees. The default is `FALSE`, so existing plots are unchanged unless `genlab = TRUE` is requested.
+
+## Documentation
+1. **`draw-pedigree` vignette updated**: Added a new example showing how to display generation labels with `visped(..., genlab = TRUE)`.
+
 # Changes in version 1.8.0 released on 25 Mar 2026
 ## Bug Fixes
 1. **`tidyped()` fast path with `addnum = FALSE` + `cand`**: When the input
