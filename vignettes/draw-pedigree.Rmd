@@ -56,6 +56,12 @@ tidy_simple_ped <- tidyped(simple_ped)
 visped(tidy_simple_ped, cex=0.3, symbolsize=10)
 ```
 
+Generation labels can be added on the left margin of the pedigree graph by setting `genlab = TRUE`. This is useful for deep pedigrees when you want to quickly identify the generation of each row.
+
+```{r vissimpleped_genlab, fig.show="hold"}
+visped(tidy_simple_ped, cex = 0.3, symbolsize = 10, genlab = TRUE)
+```
+
 Figures displayed in the RStudio Plots panel often have limited resolution. Individual IDs may overlap if the pedigree is large and the plot area is restricted. This can be resolved by saving the graph as a vector graphic in a PDF file. The **visped** function will suppress output to the default device if `showgraph = FALSE`.
 
 ```{r}
