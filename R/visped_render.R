@@ -1,17 +1,12 @@
-#' Left margin (in normalized [0,1] coords) reserved for generation labels
-#' @keywords internal
-GENLAB_MARGIN <- 0.05
-
-#' Generation label color
-#' @keywords internal
-GENLAB_COLOR <- "#888888"
-
 #' Render pedigree graph using Two-Pass strategy
 #' @importFrom igraph V E plot.igraph vertex_attr edge_attr
 #' @importFrom utils modifyList
 #' @importFrom stats median
 #' @keywords internal
 plot_ped_igraph <- function(g, l, node_size, gen_info = NULL, genlab = FALSE, ...) {
+  genlab_margin <- 0.05
+  genlab_color <- "#888888"
+
   # ============================================================================
   # SCALING LOGIC FOR RENDERING
   # ============================================================================
@@ -49,7 +44,7 @@ plot_ped_igraph <- function(g, l, node_size, gen_info = NULL, genlab = FALSE, ..
   
   user_args <- list(...)
   margin <- max(node_size / 100, 0.02)
-  genlab_space <- if (genlab && !is.null(gen_info) && nrow(gen_info) > 0) GENLAB_MARGIN else 0
+  genlab_space <- if (genlab && !is.null(gen_info) && nrow(gen_info) > 0) genlab_margin else 0
   
   # PASS 1: Draw EDGES ONLY
   # Instead of modifying g, we pass visual attributes directly to plot.igraph
@@ -122,7 +117,7 @@ plot_ped_igraph <- function(g, l, node_size, gen_info = NULL, genlab = FALSE, ..
         y = gen_info$y[i],
         labels = paste0("G", gen_info$gen[i]),
         cex = gen_label_cex,
-        col = GENLAB_COLOR,
+        col = genlab_color,
         font = 2,
         adj = c(0.5, 0.5)
       )
