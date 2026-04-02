@@ -2,6 +2,8 @@
 
 ## Changes in version 1.8.1 released on 28 Mar 2026
 
+CRAN release: 2026-03-30
+
 ### New features
 
 1.  **[`visped()`](https://luansheng.github.io/visPedigree/reference/visped.md)
