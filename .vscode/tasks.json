@@ -15,6 +15,16 @@
 			"label": "render qmd",
 			"type": "shell",
 			"command": "quarto render sandbox/information-theoretical-framework.qmd"
+		},
+		{
+			"label": "rerun benchmark million nadiv 20260330",
+			"type": "shell",
+			"command": "/Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/bin/Rscript",
+			"args": [
+				"--vanilla",
+				"sandbox/tests/benchmark_million_nadiv.R"
+			],
+			"isBackground": false
 		}
 	]
 }
