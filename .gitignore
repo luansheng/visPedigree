@@ -1,5 +1,6 @@
 # R 临时文件和编译产物
 .Rproj.user
+.vscode/
 .Rhistory
 .RData
 .Ruserdata
