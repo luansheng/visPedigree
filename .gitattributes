@@ -1,0 +1,6 @@
+# Keep GitHub language stats focused on source code
+# Mark rendered documentation outputs as generated
+
+docs/** linguist-generated=true
+doc/** linguist-generated=true
+vignettes/*.html linguist-generated=true
