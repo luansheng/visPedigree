@@ -3,7 +3,8 @@
 #' @importFrom utils modifyList
 #' @importFrom stats median
 #' @keywords internal
-plot_ped_igraph <- function(g, l, node_size, gen_info = NULL, genlab = FALSE, ...) {
+plot_ped_igraph <- function(g, l, node_size, gen_info = NULL, genlab = FALSE,
+                            genlabcex = NULL, ...) {
   genlab_margin <- 0.05
   genlab_color <- "#888888"
 
@@ -109,7 +110,11 @@ plot_ped_igraph <- function(g, l, node_size, gen_info = NULL, genlab = FALSE, ..
 
   # PASS 3: Draw generation labels on the left margin
   if (genlab && !is.null(gen_info) && nrow(gen_info) > 0) {
-    gen_label_cex <- max(0.5, min(1.5, scaling_ref * 0.3))
+    gen_label_cex <- if (is.null(genlabcex)) {
+      max(0.5, min(1.5, scaling_ref * 0.3))
+    } else {
+      genlabcex
+    }
     gen_label_x <- -margin - genlab_space * 0.5
     for (i in seq_len(nrow(gen_info))) {
       graphics::text(

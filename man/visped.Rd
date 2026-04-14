@@ -18,6 +18,7 @@ visped(
   symbolsize = 1,
   maxiter = 1000,
   genlab = FALSE,
+  genlabcex = NULL,
   ...
 )
 }
@@ -55,6 +56,8 @@ For example: \code{c("A", "B")} or \code{list(ids = c("A", "B"), frame.color = "
 \item{maxiter}{An integer specifying the maximum number of iterations for the Sugiyama layout algorithm to minimize edge crossings. Higher values (e.g., 2000 or 5000) may result in fewer crossed lines for complex pedigrees but will increase computation time. The default value is 1000.}
 
 \item{genlab}{A logical value indicating whether generation labels (G1, G2, ...) will be drawn on the left margin of the pedigree graph. This helps identify the generation of each row of nodes, especially in deep pedigrees with many generations. The default value is FALSE.}
+
+\item{genlabcex}{NULL or a numeric value controlling the size of generation labels shown when \code{genlab = TRUE}. If \code{NULL}, \code{visped()} uses an automatic size based on node scaling. Set a larger value to keep generation labels readable in deep pedigrees. The default value is NULL.}
 
 \item{...}{Additional arguments passed to \code{\link[igraph:plot.igraph]{plot.igraph}}.}
 }

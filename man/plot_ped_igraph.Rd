@@ -4,7 +4,15 @@
 \alias{plot_ped_igraph}
 \title{Render pedigree graph using Two-Pass strategy}
 \usage{
-plot_ped_igraph(g, l, node_size, gen_info = NULL, genlab = FALSE, ...)
+plot_ped_igraph(
+  g,
+  l,
+  node_size,
+  gen_info = NULL,
+  genlab = FALSE,
+  genlabcex = NULL,
+  ...
+)
 }
 \description{
 Render pedigree graph using Two-Pass strategy

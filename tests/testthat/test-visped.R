@@ -269,4 +269,27 @@ test_that("visped validates new parameters", {
   # Validate trace
   expect_error(visped(tidy_ped, trace = "left"), "'trace' must be TRUE, FALSE, 'up', 'down', or 'all'")
   expect_error(visped(tidy_ped, trace = 1), "'trace' must be TRUE, FALSE, 'up', 'down', or 'all'")
+
+  # Validate genlabcex
+  expect_error(visped(tidy_ped, genlabcex = 0), "'genlabcex' must be NULL or a single positive number")
+  expect_error(visped(tidy_ped, genlabcex = "large"), "'genlabcex' must be NULL or a single positive number")
+})
+
+test_that("visped parameter 'genlabcex' works independently of label cex", {
+  tidy_ped <- tidyped(simple_ped)
+  tmp <- tempfile(fileext = ".pdf")
+
+  expect_no_error(
+    visped(
+      tidy_ped,
+      showgraph = FALSE,
+      file = tmp,
+      genlab = TRUE,
+      genlabcex = 1.4,
+      cex = 0.4
+    )
+  )
+
+  expect_true(file.exists(tmp))
+  unlink(tmp)
 })

@@ -62,6 +62,13 @@ Generation labels can be added on the left margin of the pedigree graph by setti
 visped(tidy_simple_ped, cex = 0.3, symbolsize = 10, genlab = TRUE)
 ```
 
+In deep pedigrees the generation labels may appear small because their size is tied to the node scaling. The `genlabcex` parameter lets you set the generation-label size independently of the individual-label size (`cex`). For example, when `cex` is deliberately small to fit many individuals, you can still keep the generation labels readable:
+
+```{r vissimpleped_genlabcex, fig.show="hold"}
+# cex controls individual label size; genlabcex controls generation label size
+visped(tidy_simple_ped, cex = 0.3, symbolsize = 10, genlab = TRUE, genlabcex = 1.2)
+```
+
 Figures displayed in the RStudio Plots panel often have limited resolution. Individual IDs may overlap if the pedigree is large and the plot area is restricted. This can be resolved by saving the graph as a vector graphic in a PDF file. The **visped** function will suppress output to the default device if `showgraph = FALSE`.
 
 ```{r}
