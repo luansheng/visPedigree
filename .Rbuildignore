@@ -1,3 +1,5 @@
+^renv$
+^renv\.lock$
 # --- 开发工具配置 ---
 ^\.Rprofile$
 ^.*\.Rproj$

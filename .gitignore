@@ -27,6 +27,8 @@ pkgdown/
 
 # 数据包管理
 packrat/
+renv/library/
+renv/staging/
 
 # 临时测试 PDF
 *.pdf
