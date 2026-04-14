@@ -49,7 +49,7 @@ tidy_small_ped <-
   tidyped(ped = small_ped,
           cand = c("Y", "Z1", "Z2"))
 visped(tidy_small_ped, compact = TRUE, file = tempfile(fileext = ".pdf"))
-#> Pedigree saved to: /tmp/RtmpX0flxo/file20c18bc4de3.pdf
+#> Pedigree saved to: /tmp/RtmpTCs9Ya/file559b1e70bd0f.pdf
 #> Label cex: 0.65. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 ```
 
@@ -93,6 +93,21 @@ visped(tidy_simple_ped, cex = 0.3, symbolsize = 10, genlab = TRUE)
 ```
 
 ![](draw-pedigree_files/figure-html/vissimpleped_genlab-1.png)
+
+In deep pedigrees the generation labels may appear small because their
+size is tied to the node scaling. The `genlabcex` parameter lets you set
+the generation-label size independently of the individual-label size
+(`cex`). For example, when `cex` is deliberately small to fit many
+individuals, you can still keep the generation labels readable:
+
+``` r
+# cex controls individual label size; genlabcex controls generation label size
+visped(tidy_simple_ped, cex = 0.3, symbolsize = 10, genlab = TRUE, genlabcex = 1.2)
+#> Label cex: 0.3. Symbol size: 10. Adjust 'cex' and 'symbolsize' if labels are too large or small.
+#> Tip: Use 'file' to save as a legible vector PDF.
+```
+
+![](draw-pedigree_files/figure-html/vissimpleped_genlabcex-1.png)
 
 Figures displayed in the RStudio Plots panel often have limited
 resolution. Individual IDs may overlap if the pedigree is large and the
@@ -222,7 +237,7 @@ visped(
   showgraph = TRUE,
   file = tempfile(fileext = ".pdf")
 )
-#> Pedigree saved to: /tmp/RtmpX0flxo/file20c16ac16a8f.pdf
+#> Pedigree saved to: /tmp/RtmpTCs9Ya/file559b250bdddd.pdf
 #> Label cex: 0.08. Symbol size: 5.5. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 ```
 
@@ -253,7 +268,7 @@ visped(
   showgraph = FALSE,
   file = tempfile(fileext = ".pdf")
 )
-#> Pedigree saved to: /tmp/RtmpX0flxo/file20c1113c186a.pdf
+#> Pedigree saved to: /tmp/RtmpTCs9Ya/file559b6f9a364e.pdf
 #> Label cex: 0.83. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 ```
 

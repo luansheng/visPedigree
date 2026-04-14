@@ -37,7 +37,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Visualize a tidy pedigree</h1>
-      <small class="dont-index">Source: <a href="https://github.com/luansheng/visPedigree/blob/v1.8.1/R/visped.R" class="external-link"><code>R/visped.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/luansheng/visPedigree/blob/master/R/visped.R" class="external-link"><code>R/visped.R</code></a></small>
       <div class="d-none name"><code>visped.Rd</code></div>
     </div>
 
@@ -61,6 +61,7 @@
 <span>  symbolsize <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  maxiter <span class="op">=</span> <span class="fl">1000</span>,</span>
 <span>  genlab <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  genlabcex <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -124,6 +125,10 @@
 
 <dt id="arg-genlab">genlab<a class="anchor" aria-label="anchor" href="#arg-genlab"></a></dt>
 <dd><p>A logical value indicating whether generation labels (G1, G2, ...) will be drawn on the left margin of the pedigree graph. This helps identify the generation of each row of nodes, especially in deep pedigrees with many generations. The default value is FALSE.</p></dd>
+
+
+<dt id="arg-genlabcex">genlabcex<a class="anchor" aria-label="anchor" href="#arg-genlabcex"></a></dt>
+<dd><p>NULL or a numeric value controlling the size of generation labels shown when <code>genlab = TRUE</code>. If <code>NULL</code>, <code>visped()</code> uses an automatic size based on node scaling. Set a larger value to keep generation labels readable in deep pedigrees. The default value is NULL.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -206,7 +211,7 @@
 <span class="r-in"><span>       symbolsize<span class="op">=</span><span class="fl">5.5</span>, </span></span>
 <span class="r-in"><span>       pagewidth <span class="op">=</span> <span class="fl">100</span>, </span></span>
 <span class="r-in"><span>       file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".pdf"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Pedigree saved to: /tmp/RtmpraSYJ5/file1c8f685a5c0c.pdf</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Pedigree saved to: /tmp/Rtmp1nwWEX/file514862d140e7.pdf</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Label cex: 0.25. Symbol size: 5.5. Adjust 'cex' and 'symbolsize' if labels are too large or small.</span>
 <span class="r-plt img"><img src="visped-4.png" alt="" width="1800" height="1800"></span>
 <span class="r-in"><span></span></span>
@@ -236,7 +241,7 @@
 <span class="r-in"><span>       symbolsize<span class="op">=</span><span class="fl">5.5</span>, </span></span>
 <span class="r-in"><span>       file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".pdf"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Note: Removed 351 isolated individuals (no parents, no progeny) from the plot.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Pedigree saved to: /tmp/RtmpraSYJ5/file1c8f20e9e106.pdf</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Pedigree saved to: /tmp/Rtmp1nwWEX/file51483656d83.pdf</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Label cex: 0.08. Symbol size: 5.5. Adjust 'cex' and 'symbolsize' if labels are too large or small.</span>
 <span class="r-plt img"><img src="visped-6.png" alt="" width="1800" height="1800"></span>
 <span class="r-in"><span></span></span>
@@ -246,7 +251,7 @@
 <span class="r-in"><span>       outline <span class="op">=</span> <span class="cn">TRUE</span>, </span></span>
 <span class="r-in"><span>       file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".pdf"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Note: Removed 351 isolated individuals (no parents, no progeny) from the plot.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Pedigree saved to: /tmp/RtmpraSYJ5/file1c8f66642e52.pdf</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Pedigree saved to: /tmp/Rtmp1nwWEX/file5148ff309fe.pdf</span>
 <span class="r-plt img"><img src="visped-7.png" alt="" width="1800" height="1800"></span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>

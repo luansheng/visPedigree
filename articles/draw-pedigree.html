@@ -63,9 +63,9 @@
       <img src="../logo.png" class="logo" alt=""><h1>3. How to draw a pedigree</h1>
                         <h4 data-toc-skip class="author">Sheng Luan</h4>
             
-            <h4 data-toc-skip class="date">2026-04-02</h4>
+            <h4 data-toc-skip class="date">2026-04-14</h4>
       
-      <small class="dont-index">Source: <a href="https://github.com/luansheng/visPedigree/blob/v1.8.1/vignettes/draw-pedigree.Rmd" class="external-link"><code>vignettes/draw-pedigree.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/luansheng/visPedigree/blob/master/vignettes/draw-pedigree.Rmd" class="external-link"><code>vignettes/draw-pedigree.Rmd</code></a></small>
       <div class="d-none name"><code>draw-pedigree.Rmd</code></div>
     </div>
 
@@ -121,7 +121,7 @@ in a PDF file.</p>
 <span>  <span class="fu"><a href="../reference/tidyped.html">tidyped</a></span><span class="op">(</span>ped <span class="op">=</span> <span class="va">small_ped</span>,</span>
 <span>          cand <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Y"</span>, <span class="st">"Z1"</span>, <span class="st">"Z2"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/visped.html">visped</a></span><span class="op">(</span><span class="va">tidy_small_ped</span>, compact <span class="op">=</span> <span class="cn">TRUE</span>, file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".pdf"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Pedigree saved to: /tmp/RtmpX0flxo/file20c18bc4de3.pdf</span></span>
+<span><span class="co">#&gt; Pedigree saved to: /tmp/RtmpTCs9Ya/file559b1e70bd0f.pdf</span></span>
 <span><span class="co">#&gt; Label cex: 0.65. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.</span></span></code></pre></div>
 <p><img src="draw-pedigree_files/figure-html/smallped-1.png" class="r-plt" alt="" width="100%"></p>
 <p>In the above graph, two shapes and three colors are used. Circles
@@ -156,13 +156,25 @@ row.</p>
 <span><span class="co">#&gt; Label cex: 0.3. Symbol size: 10. Adjust 'cex' and 'symbolsize' if labels are too large or small.</span></span>
 <span><span class="co">#&gt; Tip: Use 'file' to save as a legible vector PDF.</span></span></code></pre></div>
 <p><img src="draw-pedigree_files/figure-html/vissimpleped_genlab-1.png" class="r-plt" alt="" width="100%"></p>
+<p>In deep pedigrees the generation labels may appear small because
+their size is tied to the node scaling. The <code>genlabcex</code>
+parameter lets you set the generation-label size independently of the
+individual-label size (<code>cex</code>). For example, when
+<code>cex</code> is deliberately small to fit many individuals, you can
+still keep the generation labels readable:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># cex controls individual label size; genlabcex controls generation label size</span></span>
+<span><span class="fu"><a href="../reference/visped.html">visped</a></span><span class="op">(</span><span class="va">tidy_simple_ped</span>, cex <span class="op">=</span> <span class="fl">0.3</span>, symbolsize <span class="op">=</span> <span class="fl">10</span>, genlab <span class="op">=</span> <span class="cn">TRUE</span>, genlabcex <span class="op">=</span> <span class="fl">1.2</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Label cex: 0.3. Symbol size: 10. Adjust 'cex' and 'symbolsize' if labels are too large or small.</span></span>
+<span><span class="co">#&gt; Tip: Use 'file' to save as a legible vector PDF.</span></span></code></pre></div>
+<p><img src="draw-pedigree_files/figure-html/vissimpleped_genlabcex-1.png" class="r-plt" alt="" width="100%"></p>
 <p>Figures displayed in the RStudio Plots panel often have limited
 resolution. Individual IDs may overlap if the pedigree is large and the
 plot area is restricted. This can be resolved by saving the graph as a
 vector graphic in a PDF file. The <strong>visped</strong> function will
 suppress output to the default device if
 <code>showgraph = FALSE</code>.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressMessages</a></span><span class="op">(</span><span class="fu"><a href="../reference/visped.html">visped</a></span><span class="op">(</span><span class="va">tidy_simple_ped</span>, showgraph <span class="op">=</span> <span class="cn">FALSE</span>, file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".pdf"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>By setting the <strong>file</strong> parameter, you can generate a
 high-definition PDF version of the pedigree.</p>
@@ -174,14 +186,14 @@ the <strong>highlight</strong> parameter. This is useful for marking
 candidates, founders, or any individuals of interest.</p>
 <p>You can provide a character vector of individual IDs to use the
 default highlight colors (purple border and light purple fill):</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/visped.html">visped</a></span><span class="op">(</span><span class="fu"><a href="../reference/tidyped.html">tidyped</a></span><span class="op">(</span><span class="va">small_ped</span><span class="op">)</span>, highlight <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Y"</span>, <span class="st">"Z1"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="draw-pedigree_files/figure-html/highlight1-1.png" class="r-plt" alt="" width="100%"></p>
 <pre><code><span><span class="co">#&gt; Label cex: 0.65. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.</span></span>
 <span><span class="co">#&gt; Tip: Use 'file' to save as a legible vector PDF.</span></span></code></pre>
 <p>You can also highlight an individual and its relatives (ancestors and
 descendants) by setting <code>trace = TRUE</code>:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Highlight individual "Y" and all its ancestors and descendants</span></span>
 <span><span class="fu"><a href="../reference/visped.html">visped</a></span><span class="op">(</span><span class="fu"><a href="../reference/tidyped.html">tidyped</a></span><span class="op">(</span><span class="va">small_ped</span><span class="op">)</span>, highlight <span class="op">=</span> <span class="st">"Y"</span>, trace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="draw-pedigree_files/figure-html/highlight_trace-1.png" class="r-plt" alt="" width="100%"></p>
@@ -190,7 +202,7 @@ descendants) by setting <code>trace = TRUE</code>:</p>
 <p>Alternatively, you can customize the colors by providing a list with
 <strong>ids</strong>, <strong>frame.color</strong>, and
 <strong>color</strong>:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/visped.html">visped</a></span><span class="op">(</span><span class="fu"><a href="../reference/tidyped.html">tidyped</a></span><span class="op">(</span><span class="va">small_ped</span><span class="op">)</span>, </span>
 <span>       highlight <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>ids <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Y"</span>, <span class="st">"Z1"</span><span class="op">)</span>, </span>
 <span>                        frame.color <span class="op">=</span> <span class="st">"#4caf50"</span>, </span>
@@ -208,7 +220,7 @@ the <strong>showf</strong> parameter in the <strong>visped</strong>
 function. This requires that the pedigree has been processed with
 inbreeding coefficients calculated using the <strong>inbreed</strong>
 parameter in the <strong>tidyped</strong> function.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span>
 <span><span class="va">test_ped</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a></span><span class="op">(</span></span>
 <span>  Ind <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span>, <span class="st">"D"</span>, <span class="st">"E"</span><span class="op">)</span>,</span>
@@ -228,7 +240,7 @@ parameter in the <strong>tidyped</strong> function.</p>
 </h3>
 <p>Warning messages will be shown when you try to draw the pedigree
 graph of the deep_ped dataset.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cand_J11_labels</span> <span class="op">&lt;-</span> <span class="va">deep_ped</span><span class="op">[</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/substr.html" class="external-link">substr</a></span><span class="op">(</span><span class="va">Ind</span>, <span class="fl">1</span>, <span class="fl">3</span><span class="op">)</span> <span class="op">==</span> <span class="st">"K11"</span><span class="op">)</span>, <span class="va">Ind</span><span class="op">]</span></span>
 <span><span class="fu"><a href="../reference/visped.html">visped</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="../reference/tidyped.html">tidyped</a></span><span class="op">(</span><span class="va">deep_ped</span>,</span>
@@ -248,7 +260,7 @@ parameters to simplify the pedigree.</p>
 <p>First, let’s try the <strong>compact</strong> parameter and output it
 to a PDF file. The plot on the default device may suffer from
 significant overlapping due to the high density of individuals.</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cand_J11_labels</span> <span class="op">&lt;-</span> <span class="va">deep_ped</span><span class="op">[</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/substr.html" class="external-link">substr</a></span><span class="op">(</span><span class="va">Ind</span>,<span class="fl">1</span>,<span class="fl">3</span><span class="op">)</span> <span class="op">==</span> <span class="st">"K11"</span><span class="op">)</span>,<span class="va">Ind</span><span class="op">]</span></span>
 <span><span class="fu"><a href="../reference/visped.html">visped</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="../reference/tidyped.html">tidyped</a></span><span class="op">(</span></span>
@@ -263,7 +275,7 @@ significant overlapping due to the high density of individuals.</p>
 <span>  showgraph <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".pdf"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; Pedigree saved to: /tmp/RtmpX0flxo/file20c16ac16a8f.pdf</span></span>
+<span><span class="co">#&gt; Pedigree saved to: /tmp/RtmpTCs9Ya/file559b250bdddd.pdf</span></span>
 <span><span class="co">#&gt; Label cex: 0.08. Symbol size: 5.5. Adjust 'cex' and 'symbolsize' if labels are too large or small.</span></span></code></pre></div>
 <p><img src="draw-pedigree_files/figure-html/reduceped1-1.png" class="r-plt" alt="" width="100%"></p>
 <p>You can open the generated PDF file to view the high-definition
@@ -278,7 +290,7 @@ labels larger, while decreasing it makes them smaller. The
 adjustments of 0.1 are usually sufficient. The <strong>visped</strong>
 function will output warning messages including the cex value which was
 used for drawing the pedigreed graph.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/visped.html">visped</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="../reference/tidyped.html">tidyped</a></span><span class="op">(</span></span>
 <span>    <span class="va">deep_ped</span>,</span>
@@ -291,7 +303,7 @@ used for drawing the pedigreed graph.</p>
 <span>  showgraph <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".pdf"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; Pedigree saved to: /tmp/RtmpX0flxo/file20c1113c186a.pdf</span></span>
+<span><span class="co">#&gt; Pedigree saved to: /tmp/RtmpTCs9Ya/file559b6f9a364e.pdf</span></span>
 <span><span class="co">#&gt; Label cex: 0.83. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.</span></span></code></pre></div>
 <p>You can open the generated PDF file to view the high-definition
 pedigree vectorgraph. The labels align better with the shapes compared
@@ -306,7 +318,7 @@ graph. Individual labels will not be shown in the graph. This is highly
 effective for large pedigrees with many individuals.</p>
 <p>The following code generates an outlined pedigree graph in a PDF
 file.</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressMessages</a></span><span class="op">(</span><span class="fu"><a href="../reference/visped.html">visped</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="../reference/tidyped.html">tidyped</a></span><span class="op">(</span></span>
 <span>    <span class="va">deep_ped</span>,</span>
@@ -332,7 +344,7 @@ hypothesis).</p>
 <p>We select the individual “K110550H” in the deep_ped dataset to
 visualize its pedigree. The following code generates the pedigree graph
 for a specific individual in a PDF file.</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings</a></span><span class="op">(</span></span>
 <span>  <span class="va">K110550H_ped</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tidyped.html">tidyped</a></span><span class="op">(</span><span class="va">deep_ped</span>, cand <span class="op">=</span> <span class="st">"K110550H"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
@@ -356,7 +368,7 @@ the contribution ratio of different families.</p>
 the nucleus breeding population in 2007. Setting
 <code>tracegen = 2</code> limits the graph to two generations (parents
 and grandparents).</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cand_2007_G8_labels</span> <span class="op">&lt;-</span></span>
 <span>  <span class="va">big_family_size_ped</span><span class="op">[</span><span class="op">(</span><span class="va">Year</span> <span class="op">==</span> <span class="fl">2007</span><span class="op">)</span> <span class="op">&amp;</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/substr.html" class="external-link">substr</a></span><span class="op">(</span><span class="va">Ind</span>, <span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span> <span class="op">==</span> <span class="st">"G8"</span><span class="op">)</span>, <span class="va">Ind</span><span class="op">]</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings</a></span><span class="op">(</span></span>
