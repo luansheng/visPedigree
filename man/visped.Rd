@@ -14,7 +14,7 @@ visped(
   highlight = NULL,
   trace = FALSE,
   showf = FALSE,
-       labelvar = NULL,
+  labelvar = NULL,
   pagewidth = 200,
   symbolsize = 1,
   maxiter = 1000,
@@ -34,7 +34,7 @@ visped(
 
 \item{showgraph}{A logical value indicating whether a plot will be shown in the default graphic device (e.g., the Plots panel in RStudio). This is useful for quick viewing without opening a PDF file. However, the graph on the default device may not be legible (e.g., overlapping labels or aliasing lines) due to size restrictions. It is recommended to set \code{showgraph = FALSE} for large pedigrees. The default value is TRUE.}
 
-\item{file}{NULL or a character value specifying whether the pedigree graph will be saved as a vector file. Files ending in \file{.svg} are written with the SVG device; all other file names use PDF output. The vector output is legible and avoids overlapping labels even with many individuals or long labels. It is recommended to save the pedigree graph as a vector file. The default value is NULL.}
+\item{file}{NULL or a character value specifying whether the pedigree graph will be saved as a vector file. Files ending in '.svg' are written with the SVG device; all other file names use PDF output. The vector output is legible and avoids overlapping labels even with many individuals or long labels. It is recommended to save the pedigree graph as a vector file. The default value is NULL.}
 
 \item{highlight}{NULL, a character vector of individual IDs, or a list specifying individuals to highlight. If a character vector is provided, individuals will be highlighted with a purple border while preserving their sex-based fill color. If a list is provided, it should contain:
 \itemize{

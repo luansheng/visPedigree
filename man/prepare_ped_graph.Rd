@@ -12,6 +12,7 @@ prepare_ped_graph(
   highlight = NULL,
   trace = FALSE,
   showf = FALSE,
+  labelvar = NULL,
   pagewidth = 200,
   symbolsize = 1,
   maxiter = 1000,

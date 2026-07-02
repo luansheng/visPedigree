@@ -4,7 +4,7 @@
 \alias{prepare_initial_nodes}
 \title{Prepare initial node table for igraph conversion}
 \usage{
-prepare_initial_nodes(ped)
+prepare_initial_nodes(ped, labelvar = NULL)
 }
 \arguments{
 \item{ped}{A data.table containing pedigree info.}
