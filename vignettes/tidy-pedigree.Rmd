@@ -252,3 +252,8 @@ summary(sub_pedigrees)
 **See Also:**
 - `vignette("draw-pedigree", package = "visPedigree")`
 - `vignette("relationship-matrix", package = "visPedigree")`
+
+## References
+
+- Meuwissen, T. H. E., & Luo, Z. (1992). Computing inbreeding coefficients in large populations. *Genetics Selection Evolution*, 24, 305-313.
+- Sargolzaei, M., Iwaisaki, H., & Colleau, J.-J. (2005). A fast algorithm for computing inbreeding coefficients in large populations. *Journal of Animal Breeding and Genetics*, 122, 325-331.

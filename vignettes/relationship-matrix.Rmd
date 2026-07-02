@@ -26,6 +26,7 @@ library(Matrix)
 1.1 [Supported Methods](#1-1)   
 1.2 [Basic Usage](#1-2)   
 1.3 [Sparse Matrix Representation](#1-3)   
+1.4 [Using Matrices in Downstream Linear Algebra](#1-4)
 2. [Inspecting the Matrix](#2)   
 2.1 [Summary Statistics](#2-1)   
 2.2 [Querying Specific Relationships](#2-2)   
@@ -42,7 +43,7 @@ Relationship matrices are fundamental tools in quantitative genetics and animal 
 
 ## 1. Calculating Relationship Matrices with `pedmat()` {#1}
 
-The `pedmat()` function is the primary tool for calculating relationship matrices. It supports both additive and dominance relationship matrices, as well as their inverses.
+The `pedmat()` function is the primary tool for calculating relationship matrices. It supports both additive and dominance relationship matrices, as well as their inverses. The inverse additive relationship matrix (`Ainv`) follows Henderson's rules (Henderson, 1976), while inbreeding coefficients use the same optimized recursive engine as `inbreed()`.
 
 ### 1.1 Supported Methods {#1-1}
 
@@ -82,6 +83,23 @@ By default, `pedmat()` returns a sparse matrix (class `dsCMatrix` from the `Matr
 ```{r sparse_check}
 class(mat_A)
 ```
+
+### 1.4 Using Matrices in Downstream Linear Algebra {#1-4}
+
+The matrices returned by `pedmat()` are ordinary matrix-like R objects, so they can be used directly in downstream matrix-vector or matrix-matrix operations. For example, a vector of candidate contributions or breeding values can be multiplied by the additive relationship matrix, and inverse matrices can be used in mixed-model or genetic-evaluation workflows.
+
+```{r linear_algebra}
+# A simple matrix-vector multiplication
+weights <- rep(1 / nrow(mat_A), nrow(mat_A))
+names(weights) <- rownames(mat_A)
+head(as.vector(mat_A %*% weights))
+
+# A small matrix-matrix cross-product example
+X <- model.matrix(~ factor(tped$Gen))
+head(crossprod(X, as.matrix(mat_A) %*% X))
+```
+
+For very large pedigrees, avoid expanding dense matrices unless it is necessary for the analysis. Use `Ainv`, compact matrices, or grouped summaries when the full relationship matrix would exceed available memory.
 
 ## 2. Inspecting the Matrix {#2}
 
@@ -276,3 +294,9 @@ compact matrix.
 **See Also:**
 - `vignette("tidy-pedigree", package = "visPedigree")`
 - `vignette("draw-pedigree", package = "visPedigree")`
+
+## References
+
+- Henderson, C. R. (1976). A simple method for computing the inverse of a numerator relationship matrix used in prediction of breeding values. *Biometrics*, 32(1), 69-83.
+- Meuwissen, T. H. E., & Luo, Z. (1992). Computing inbreeding coefficients in large populations. *Genetics Selection Evolution*, 24, 305-313.
+- Sargolzaei, M., Iwaisaki, H., & Colleau, J.-J. (2005). A fast algorithm for computing inbreeding coefficients in large populations. *Journal of Animal Breeding and Genetics*, 122, 325-331.

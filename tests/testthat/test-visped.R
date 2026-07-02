@@ -20,6 +20,37 @@ test_that("visped handles raw input by auto-tidying", {
   expect_gt(igraph::vcount(res$g), 0)
 })
 
+test_that("visped writes SVG output when requested", {
+  tidy_ped <- tidyped(simple_ped, addgen = TRUE, addnum = TRUE)
+  svg_file <- tempfile(fileext = ".svg")
+
+  res <- visped(tidy_ped, showgraph = FALSE, file = svg_file)
+
+  expect_s3_class(res$g, "igraph")
+  expect_true(file.exists(svg_file))
+  expect_gt(file.info(svg_file)$size, 0)
+})
+
+test_that("visped supports custom individual labels", {
+  tidy_ped <- tidyped(simple_ped, addgen = TRUE, addnum = TRUE)
+  tidy_ped[, DisplayID := paste0("node_", seq_len(.N))]
+
+  res <- visped(tidy_ped, labelvar = "DisplayID", showgraph = FALSE, file = tempfile())
+  real_labels <- igraph::V(res$g)[nodetype == "real"]$label
+
+  expect_true(any(grepl("^node_", real_labels)))
+  expect_false(any(tidy_ped$Ind %in% real_labels))
+})
+
+test_that("visped rejects missing custom label columns", {
+  tidy_ped <- tidyped(simple_ped, addgen = TRUE, addnum = TRUE)
+
+  expect_error(
+    visped(tidy_ped, labelvar = "MissingLabel", showgraph = FALSE, file = tempfile()),
+    "specified by 'labelvar' was not found"
+  )
+})
+
 test_that("visped parameter 'compact' works", {
   # Use a specific family known to have > 2 siblings
   # Sire="ZZ5", Dam="Z86" from big_family_size_ped

@@ -1,4 +1,13 @@
 
+# Changes in version 1.8.2 under development
+## New features
+1. **`visped()` SVG output**: `visped()` now writes SVG files when `file` ends in `.svg`; other file names continue to use PDF output by default.
+2. **`visped()` custom labels**: Added a `labelvar` argument to display labels from a user-selected pedigree column for individual nodes. Compact full-sib family nodes continue to show family size.
+
+## Improvements
+1. **`pedrel()` diagnostics for large or skipped groups**: `pedrel()` now returns `Status` and `Message` columns so users can identify groups that were skipped or failed without missing repeated warnings. A single summary warning points users to these diagnostic columns.
+2. **`pedrel()` explicit force option**: Added `force`, `max_dense`, and `max_compact` arguments. By default, large traced pedigrees are skipped with diagnostics before expensive calculations; `force = TRUE` lets advanced users attempt the calculation with a warning.
+
 # Changes in version 1.8.1 released on 28 Mar 2026
 ## New features
 1. **`visped()` generation labels**: Added a new `genlab` argument to `visped()` for drawing generation labels (`G1`, `G2`, ...) on the left margin of pedigree plots. This helps identify each row in deep pedigrees. The default is `FALSE`, so existing plots are unchanged unless `genlab = TRUE` is requested.

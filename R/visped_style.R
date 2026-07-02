@@ -269,6 +269,12 @@ finalize_graph <- function(ped_node, ped_edge, highlight_info, trace, showf) {
   
   # Ensure Ind column exists for layout matching (clean label before modification)
   ped_node[, Ind := label]
+
+  if ("DisplayLabel" %in% colnames(ped_node)) {
+    display_label <- ped_node[["DisplayLabel"]]
+    display_idx <- ped_node[["nodetype"]] == "real" & !is.na(display_label) & display_label != ""
+    set(ped_node, i = which(display_idx), j = "label", value = display_label[display_idx])
+  }
   
   if (showf && "f" %in% colnames(ped_node)) {
     ped_node[nodetype %in% c("real", "compact") & !is.na(f) & f > 0, 

@@ -9,7 +9,10 @@ pedrel(
   by = "Gen",
   reference = NULL,
   compact = FALSE,
-  scale = c("relationship", "coancestry")
+  scale = c("relationship", "coancestry"),
+  force = FALSE,
+  max_dense = 25000L,
+  max_compact = 200000L
 )
 }
 \arguments{
@@ -29,6 +32,17 @@ save memory. Recommended when pedigree size exceeds 25,000. Default is FALSE.}
 relationship (current \code{pedrel()} behavior). \code{"coancestry"}
 returns the corrected population mean coancestry used for pedigree-based
 diversity calculations.}
+
+\item{force}{Logical. If \code{FALSE} (default), large traced pedigrees are
+skipped with diagnostic messages before potentially expensive matrix
+calculations. If \code{TRUE}, size guards are bypassed and the calculation
+is attempted with a warning.}
+
+\item{max_dense}{Integer. Maximum traced pedigree size allowed for the
+non-compact calculation when \code{force = FALSE}. Default is 25,000.}
+
+\item{max_compact}{Integer. Maximum traced pedigree size allowed for compact
+matrix calculation when \code{force = FALSE}. Default is 200,000.}
 }
 \value{
 A \code{data.table} with columns:
@@ -41,6 +55,9 @@ A \code{data.table} with columns:
     (\eqn{a_{ij} = 2f_{ij}}).
   \item \code{MeanCoan}: Present when \code{scale = "coancestry"}; diagonal-corrected
     population mean coancestry for this group.
+  \item \code{Status}: \code{"ok"}, \code{"skipped"}, or \code{"failed"}.
+  \item \code{Message}: Empty for successful groups; otherwise a diagnostic
+    explaining why \code{NA} was returned.
 }
 }
 \description{

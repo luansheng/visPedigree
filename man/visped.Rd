@@ -14,6 +14,7 @@ visped(
   highlight = NULL,
   trace = FALSE,
   showf = FALSE,
+       labelvar = NULL,
   pagewidth = 200,
   symbolsize = 1,
   maxiter = 1000,
@@ -33,7 +34,7 @@ visped(
 
 \item{showgraph}{A logical value indicating whether a plot will be shown in the default graphic device (e.g., the Plots panel in RStudio). This is useful for quick viewing without opening a PDF file. However, the graph on the default device may not be legible (e.g., overlapping labels or aliasing lines) due to size restrictions. It is recommended to set \code{showgraph = FALSE} for large pedigrees. The default value is TRUE.}
 
-\item{file}{NULL or a character value specifying whether the pedigree graph will be saved as a PDF file. The PDF output is a legible vector drawing where labels do not overlap, even with many individuals or long labels. It is recommended to save the pedigree graph as a PDF file. The default value is NULL.}
+\item{file}{NULL or a character value specifying whether the pedigree graph will be saved as a vector file. Files ending in \file{.svg} are written with the SVG device; all other file names use PDF output. The vector output is legible and avoids overlapping labels even with many individuals or long labels. It is recommended to save the pedigree graph as a vector file. The default value is NULL.}
 
 \item{highlight}{NULL, a character vector of individual IDs, or a list specifying individuals to highlight. If a character vector is provided, individuals will be highlighted with a purple border while preserving their sex-based fill color. If a list is provided, it should contain:
 \itemize{
@@ -49,6 +50,8 @@ For example: \code{c("A", "B")} or \code{list(ids = c("A", "B"), frame.color = "
 
 \item{showf}{A logical value indicating whether inbreeding coefficients will be shown in the graph. If \code{showf = TRUE} and the column \strong{f} is missing, \code{visped()} will try to compute it automatically with \code{\link{inbreed}} on a structurally complete pedigree. If automatic computation is not possible, a warning is issued and labels are drawn without \strong{f}. The default value is FALSE.}
 
+\item{labelvar}{NULL or a character value naming a column in ped to use as the displayed label for individual nodes. Compact full-sib family nodes still show family size when compact = TRUE. Missing or empty values fall back to individual IDs. The default value is NULL.}
+
 \item{pagewidth}{A numeric value specifying the width of the PDF file in inches. This controls the horizontal scaling of the layout. The default value is 200.}
 
 \item{symbolsize}{A numeric value specifying the scaling factor for node size relative to the label size. Values greater than 1 increase the node size (adding padding around the label), while values less than 1 decrease it. This is useful for fine-tuning the whitespace and legibility of dense graphs. The default value is 1.}
@@ -62,13 +65,13 @@ For example: \code{c("A", "B")} or \code{list(ids = c("A", "B"), frame.color = "
 \item{...}{Additional arguments passed to \code{\link[igraph:plot.igraph]{plot.igraph}}.}
 }
 \value{
-The function mainly produces a plot on the current graphics device and/or a PDF file. It invisibly returns a list containing the graph object, layout coordinates, and node sizes.
+The function mainly produces a plot on the current graphics device and/or a vector file. It invisibly returns a list containing the graph object, layout coordinates, and node sizes.
 }
 \description{
 \code{visped} function draws a graph of a full or compact pedigree.
 }
 \details{
-This function takes a pedigree tidied by the \code{\link{tidyped}} function and outputs a hierarchical graph for all individuals in the pedigree. The graph can be shown on the default graphic device or saved as a PDF file. The PDF output is a legible vector drawing that is legible and avoids overlapping labels. It is especially useful when the number of individuals is large and individual labels are long.
+This function takes a pedigree tidied by the \code{\link{tidyped}} function and outputs a hierarchical graph for all individuals in the pedigree. The graph can be shown on the default graphic device or saved as a PDF or SVG file. The vector output is legible and avoids overlapping labels. It is especially useful when the number of individuals is large and individual labels are long.
 
 Rendering is performed using a Two-Pass strategy: edges are drawn first to ensure center-to-center connectivity, followed by nodes and labels. This ensures perfect visual alignment in high-resolution vector outputs. The function also supports real-time ancestry and descendant highlighting.
 

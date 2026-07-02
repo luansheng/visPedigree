@@ -24,6 +24,8 @@ test_that("pedrel calculates relation correctly and handles boundaries", {
   res_n1 <- suppressWarnings(pedrel(ped_n1, by = "Gen"))
   expect_equal(res_n1[Gen == 2, NUsed], 1)
   expect_true(is.na(res_n1[Gen == 2, MeanRel]))
+  expect_equal(res_n1[Gen == 2, Status], "skipped")
+  expect_match(res_n1[Gen == 2, Message], "less than 2 individuals")
   
   # For test_ped, group by Gen
   rel <- pedrel(test_ped, by = "Gen")
@@ -37,6 +39,7 @@ test_that("pedrel calculates relation correctly and handles boundaries", {
   # Test sample size behavior (less than 2 individuals after filtering)
   rel_sample <- suppressWarnings(pedrel(test_ped, by = "Gen", reference = c("A", "C")))
   expect_true(all(is.na(rel_sample$MeanRel)))
+  expect_true(all(rel_sample$Status == "skipped"))
   
   # Test with a different by parameter (e.g. BirthYear)
   test_ped$YearGroup <- c(1, 1, 2, 2, 3, 3) 
@@ -52,6 +55,7 @@ test_that("pedrel calculates relation correctly and handles boundaries", {
   expect_equal(rel_year_ref[YearGroup == 2, MeanRel], 0.5)
   expect_equal(rel_year_ref[YearGroup == 3, NUsed], 1)
   expect_true(is.na(rel_year_ref[YearGroup == 3, MeanRel]))
+  expect_equal(rel_year_ref[YearGroup == 3, Status], "skipped")
 
   coan <- pedrel(test_ped, by = "Gen", scale = "coancestry")
   expect_true("MeanCoan" %in% names(coan))
@@ -95,6 +99,17 @@ test_that("pedrel captures deep inbreeding and correct ancestor tracing", {
   expect_equal(coan_deep[Gen == 2, MeanCoan], 0.375)
   expect_equal(coan_deep[Gen == 3, MeanCoan], 0.5)
   expect_equal(coan_deep[Gen == 4, MeanCoan], 0.59375)
+})
+
+test_that("pedrel reports size guard diagnostics and supports force", {
+  guarded <- suppressWarnings(pedrel(test_ped, by = "Gen", max_dense = 1L))
+  expect_true(all(guarded$Status == "skipped"))
+  expect_true(all(is.na(guarded$MeanRel)))
+  expect_true(any(grepl("max_dense", guarded$Message, fixed = TRUE)))
+
+  forced <- suppressWarnings(pedrel(test_ped, by = "Gen", max_dense = 1L, force = TRUE))
+  expect_true(all(forced$Status == "ok"))
+  expect_equal(forced[Gen == 2, MeanRel], 0.5)
 })
 
 test_that("pedgenint computes Average from all parent-offspring pairs", {

@@ -15,7 +15,7 @@
 #' @param outline A logical value indicating whether shapes without labels will be shown. A graph of the pedigree without individual labels is shown when setting \code{outline = TRUE}. This is useful for viewing the pedigree outline and identifying immigrant individuals in each generation when the graph width exceeds the maximum PDF width (500 inches). The default value is FALSE.
 #' @param cex NULL or a numeric value changing the size of individual labels shown in the graph. \emph{cex} is an abbreviation for 'character expansion factor'. The \code{visped} function will attempt to estimate (\code{cex=NULL}) the appropriate cex value and report it in the messages. Based on the reported cex from a previous run, this parameter should be increased if labels are wider than their shapes in the PDF; conversely, it should be decreased if labels are narrower than their shapes. The default value is NULL.
 #' @param showgraph A logical value indicating whether a plot will be shown in the default graphic device (e.g., the Plots panel in RStudio). This is useful for quick viewing without opening a PDF file. However, the graph on the default device may not be legible (e.g., overlapping labels or aliasing lines) due to size restrictions. It is recommended to set \code{showgraph = FALSE} for large pedigrees. The default value is TRUE.
-#' @param file NULL or a character value specifying whether the pedigree graph will be saved as a PDF file. The PDF output is a legible vector drawing where labels do not overlap, even with many individuals or long labels. It is recommended to save the pedigree graph as a PDF file. The default value is NULL.
+#' @param file NULL or a character value specifying whether the pedigree graph will be saved as a vector file. Files ending in '.svg' are written with the SVG device; all other file names use PDF output. The vector output is legible and avoids overlapping labels even with many individuals or long labels. It is recommended to save the pedigree graph as a vector file. The default value is NULL.
 #' @param highlight NULL, a character vector of individual IDs, or a list specifying individuals to highlight. If a character vector is provided, individuals will be highlighted with a purple border while preserving their sex-based fill color. If a list is provided, it should contain:
 #' \itemize{
 #'   \item \code{ids}: (required) character vector of individual IDs to highlight.
@@ -27,6 +27,7 @@
 #' For example: \code{c("A", "B")} or \code{list(ids = c("A", "B"), frame.color = "#9c27b0")}. The function will check if the specified individuals exist in the pedigree and issue a warning for any missing IDs. The default value is NULL.
 #' @param trace A logical value or a character string. If TRUE, all ancestors and descendants of the individuals specified in \code{highlight} will be highlighted. If a character string, it specifies the tracing direction: "\strong{up}" (ancestors), "\strong{down}" (descendants), or "\strong{all}" (union of ancestors and descendants). This is useful for focusing on specific families within a large pedigree. The default value is FALSE.
 #' @param showf A logical value indicating whether inbreeding coefficients will be shown in the graph. If \code{showf = TRUE} and the column \strong{f} is missing, \code{visped()} will try to compute it automatically with \code{\link{inbreed}} on a structurally complete pedigree. If automatic computation is not possible, a warning is issued and labels are drawn without \strong{f}. The default value is FALSE.
+#' @param labelvar NULL or a character value naming a column in ped to use as the displayed label for individual nodes. Compact full-sib family nodes still show family size when compact = TRUE. Missing or empty values fall back to individual IDs. The default value is NULL.
 #' @param pagewidth A numeric value specifying the width of the PDF file in inches. This controls the horizontal scaling of the layout. The default value is 200.
 #' @param symbolsize A numeric value specifying the scaling factor for node size relative to the label size. Values greater than 1 increase the node size (adding padding around the label), while values less than 1 decrease it. This is useful for fine-tuning the whitespace and legibility of dense graphs. The default value is 1.
 #' @param maxiter An integer specifying the maximum number of iterations for the Sugiyama layout algorithm to minimize edge crossings. Higher values (e.g., 2000 or 5000) may result in fewer crossed lines for complex pedigrees but will increase computation time. The default value is 1000.
@@ -114,7 +115,7 @@
 #'
 #' @import data.table
 #' @import igraph
-#' @importFrom grDevices pdf dev.off dev.cur
+#' @importFrom grDevices pdf svg dev.off dev.cur
 #' @importFrom graphics strwidth
 #' @export
 visped <- function(
@@ -127,6 +128,7 @@ visped <- function(
   highlight = NULL,
   trace = FALSE,
   showf = FALSE,
+  labelvar = NULL,
   pagewidth = 200,
   symbolsize = 1,
   maxiter = 1000,
@@ -160,6 +162,17 @@ visped <- function(
 
   if (!isTRUE(showf) && !isFALSE(showf)) {
     stop("'showf' must be TRUE or FALSE.")
+  }
+
+  if (
+    !is.null(labelvar) &&
+      (!is.character(labelvar) || length(labelvar) != 1 || is.na(labelvar) || labelvar == "")
+  ) {
+    stop("'labelvar' must be NULL or a single non-empty character string.")
+  }
+
+  if (!is.null(labelvar) && !labelvar %in% names(ped)) {
+    stop(sprintf("Column '%s' specified by 'labelvar' was not found in the pedigree.", labelvar))
   }
 
   if (
@@ -303,6 +316,7 @@ visped <- function(
           highlight = highlight,
           trace = trace,
           showf = showf,
+          labelvar = labelvar,
           pagewidth = pagewidth,
           symbolsize = symbolsize,
           maxiter = maxiter,
@@ -322,6 +336,7 @@ visped <- function(
       highlight = highlight,
       trace = trace,
       showf = showf,
+      labelvar = labelvar,
       pagewidth = pagewidth,
       symbolsize = symbolsize,
       maxiter = maxiter,
@@ -347,7 +362,9 @@ visped <- function(
   }
 
   if (!is.null(file)) {
-    pdf(
+    file_ext <- tolower(tools::file_ext(file))
+    output_device <- if (identical(file_ext, "svg")) grDevices::svg else grDevices::pdf
+    output_device(
       file = file,
       width = graph_data$canvas_width,
       height = graph_data$canvas_height
@@ -385,7 +402,7 @@ visped <- function(
   }
 
   if ((showgraph || !is.null(file)) && is.null(file)) {
-    message("Tip: Use 'file' to save as a legible vector PDF.")
+    message("Tip: Use 'file' to save as a legible vector PDF or SVG.")
   }
 
   if (showf && "f" %in% colnames(ped) && any(ped$f == 0, na.rm = TRUE)) {
