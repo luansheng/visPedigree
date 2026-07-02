@@ -2,7 +2,7 @@
 #'
 #' \code{visped} function draws a graph of a full or compact pedigree.
 #'
-#' This function takes a pedigree tidied by the \code{\link{tidyped}} function and outputs a hierarchical graph for all individuals in the pedigree. The graph can be shown on the default graphic device or saved as a PDF file. The PDF output is a legible vector drawing that is legible and avoids overlapping labels. It is especially useful when the number of individuals is large and individual labels are long.
+#' This function takes a pedigree tidied by the \code{\link{tidyped}} function and outputs a hierarchical graph for all individuals in the pedigree. The graph can be shown on the default graphic device or saved as a PDF or SVG file. The vector output is legible and avoids overlapping labels. It is especially useful when the number of individuals is large and individual labels are long.
 #'
 #' Rendering is performed using a Two-Pass strategy: edges are drawn first to ensure center-to-center connectivity, followed by nodes and labels. This ensures perfect visual alignment in high-resolution vector outputs. The function also supports real-time ancestry and descendant highlighting.
 #'
@@ -34,7 +34,7 @@
 #' @param genlab A logical value indicating whether generation labels (G1, G2, ...) will be drawn on the left margin of the pedigree graph. This helps identify the generation of each row of nodes, especially in deep pedigrees with many generations. The default value is FALSE.
 #' @param genlabcex NULL or a numeric value controlling the size of generation labels shown when \code{genlab = TRUE}. If \code{NULL}, \code{visped()} uses an automatic size based on node scaling. Set a larger value to keep generation labels readable in deep pedigrees. The default value is NULL.
 #' @param ... Additional arguments passed to \code{\link[igraph:plot.igraph]{plot.igraph}}.
-#' @return The function mainly produces a plot on the current graphics device and/or a PDF file. It invisibly returns a list containing the graph object, layout coordinates, and node sizes.
+#' @return The function mainly produces a plot on the current graphics device and/or a vector file. It invisibly returns a list containing the graph object, layout coordinates, and node sizes.
 #'
 #' @seealso
 #' \code{\link{tidyped}} for tidying pedigree data (required input)
