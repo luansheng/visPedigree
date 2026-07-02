@@ -185,6 +185,11 @@ needed for downstream analysis, use `splitped()`.
 - retained genetic diversity (`GeneDiv`),
 - three effective population size estimates (`Ne`).
 
+The gene-origin summaries follow the classical founder/ancestor framework of
+Lacy (1989) and Boichard et al. (1997), while coancestry-based diversity and
+effective population size calculations follow Caballero & Toro (2000) and
+related pedigree-based estimators.
+
 All of these quantities depend on the definition of the **reference
 population**. In the present example, the reference population is defined as the
 most recent two generations in `deep_ped`.
@@ -592,9 +597,9 @@ coancestry across pedigree depth.
 
 ## 10. Inbreeding Trends with `inbreed()` and `pedfclass()`
 
-Wright's inbreeding coefficient $F$ is the probability that the two alleles of
-an individual are identical by descent. A practical starting point is to inspect
-the mean trend by generation.
+Wright's inbreeding coefficient $F$ (Wright, 1922, 1931) is the probability
+that the two alleles of an individual are identical by descent. A practical
+starting point is to inspect the mean trend by generation.
 
 ```{r inbreed-trend}
 tp_inbred_f <- inbreed(tp_inbred)

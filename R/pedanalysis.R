@@ -436,6 +436,14 @@ pedsubpop <- function(ped, by = NULL) {
 #'   relationship (current \code{pedrel()} behavior). \code{"coancestry"}
 #'   returns the corrected population mean coancestry used for pedigree-based
 #'   diversity calculations.
+#' @param force Logical. If \code{FALSE} (default), large traced pedigrees are
+#'   skipped with diagnostic messages before potentially expensive matrix
+#'   calculations. If \code{TRUE}, size guards are bypassed and the calculation
+#'   is attempted with a warning.
+#' @param max_dense Integer. Maximum traced pedigree size allowed for the
+#'   non-compact calculation when \code{force = FALSE}. Default is 25,000.
+#' @param max_compact Integer. Maximum traced pedigree size allowed for compact
+#'   matrix calculation when \code{force = FALSE}. Default is 200,000.
 #'
 #' @return A \code{data.table} with columns:
 #' \itemize{
@@ -447,6 +455,9 @@ pedsubpop <- function(ped, by = NULL) {
 #'     (\eqn{a_{ij} = 2f_{ij}}).
 #'   \item \code{MeanCoan}: Present when \code{scale = "coancestry"}; diagonal-corrected
 #'     population mean coancestry for this group.
+#'   \item \code{Status}: \code{"ok"}, \code{"skipped"}, or \code{"failed"}.
+#'   \item \code{Message}: Empty for successful groups; otherwise a diagnostic
+#'     explaining why \code{NA} was returned.
 #' }
 #' 
 #' @examples
@@ -476,14 +487,36 @@ pedsubpop <- function(ped, by = NULL) {
 #' 
 #' @export
 pedrel <- function(ped, by = "Gen", reference = NULL, compact = FALSE,
-                   scale = c("relationship", "coancestry")) {
+                   scale = c("relationship", "coancestry"), force = FALSE,
+                   max_dense = 25000L, max_compact = 200000L) {
   ped <- ensure_complete_tidyped(ped, "pedrel()")
   scale <- match.arg(scale)
   if (!by %in% names(ped)) stop(sprintf("Column '%s' not found.", by))
+  if (!isTRUE(force) && !isFALSE(force)) stop("'force' must be TRUE or FALSE.")
+  if (!is.numeric(max_dense) || length(max_dense) != 1 || is.na(max_dense) || max_dense < 1) {
+    stop("'max_dense' must be a single positive number.")
+  }
+  if (!is.numeric(max_compact) || length(max_compact) != 1 || is.na(max_compact) || max_compact < 1) {
+    stop("'max_compact' must be a single positive number.")
+  }
+  max_dense <- as.integer(max_dense)
+  max_compact <- as.integer(max_compact)
+
+  if (isTRUE(force)) {
+    warning(
+      "pedrel(force = TRUE): size guards are bypassed; calculations may take a long time or allocate substantial memory.",
+      call. = FALSE
+    )
+  }
 
   corrected_mean_coancestry <- function(mean_rel, mean_f, n_ref) {
     if (is.na(mean_rel) || is.na(mean_f) || n_ref < 1L) return(NA_real_)
     (n_ref - 1) / n_ref * mean_rel / 2 + (1 + mean_f) / (2 * n_ref)
+  }
+
+  make_row <- function(group, n_total, n_used, mean, status = "ok", message = "") {
+    data.table(Group = group, NTotal = n_total, NUsed = n_used,
+               Mean = mean, Status = status, Message = message)
   }
   
   groups <- unique(ped[[by]])
@@ -495,8 +528,8 @@ pedrel <- function(ped, by = "Gen", reference = NULL, compact = FALSE,
     n_total <- nrow(sub_ped_full)
     
     if (n_total < 2) {
-      warning(sprintf("Group '%s' has less than 2 individuals, returning NA_real_.", g))
-      return(data.table(Group = g, NTotal = n_total, NUsed = n_total, Mean = NA_real_))
+      msg <- "Group has less than 2 individuals."
+      return(make_row(g, n_total, n_total, NA_real_, "skipped", msg))
     }
     
     if (!is.null(reference)) {
@@ -507,9 +540,12 @@ pedrel <- function(ped, by = "Gen", reference = NULL, compact = FALSE,
     n_used <- nrow(sub_ped)
     
     if (n_used < 2) {
-      warning(sprintf("Group '%s' has less than 2 individuals after applying 'reference', returning NA_real_.", g))
-      return(data.table(Group = g, NTotal = n_total, NUsed = n_used, Mean = NA_real_))
+      msg <- "Group has less than 2 individuals after applying 'reference'."
+      return(make_row(g, n_total, n_used, NA_real_, "skipped", msg))
     }
+
+    status <- "ok"
+    diagnostic <- ""
     
     local_ped <- tryCatch({
       suppressMessages(tidyped(ped, cand = sub_ped$Ind, addnum = TRUE))
@@ -526,37 +562,32 @@ pedrel <- function(ped, by = "Gen", reference = NULL, compact = FALSE,
     } else {
       target_inds <- sub_ped$Ind
       
-      max_dense <- 25000L
-      if (!compact && nrow(local_ped) > max_dense) {
-        warning(sprintf(
-          paste0("Group '%s': pedigree too large (%d individuals including ancestors) ",
-                 "for dense A matrix (limit: %d). Returning NA.\n",
-                 "Hint: use 'reference' parameter to reduce group size, or set compact = TRUE."),
-          g, nrow(local_ped), max_dense))
-        return(data.table(Group = g, NTotal = n_total, NUsed = n_used, Mean = NA_real_))
+      if (!compact && nrow(local_ped) > max_dense && !force) {
+        msg <- sprintf(
+          paste0("Traced pedigree has %d individuals including ancestors, exceeding max_dense = %d. ",
+                 "Use 'reference' to reduce group size, set compact = TRUE, or set force = TRUE to attempt the calculation."),
+          nrow(local_ped), max_dense)
+        return(make_row(g, n_total, n_used, NA_real_, "skipped", msg))
       }
       
       if (isTRUE(compact)) {
-        if (nrow(local_ped) > 200000L) {
-          warning(sprintf(
-            paste0("Group '%s': traced pedigree too large (%d individuals) for matrix ",
-                   "computation (limit: 200,000). Returning NA.\n",
-                   "Hint: use 'reference' to limit the traced ancestry depth."),
-            g, nrow(local_ped)))
-          return(data.table(Group = g, NTotal = n_total, NUsed = n_used, Mean = NA_real_))
+        if (nrow(local_ped) > max_compact && !force) {
+          msg <- sprintf(
+            paste0("Traced pedigree has %d individuals, exceeding max_compact = %d for compact matrix computation. ",
+                   "Use 'reference' to limit traced ancestry, or set force = TRUE to attempt the calculation."),
+            nrow(local_ped), max_compact)
+          return(make_row(g, n_total, n_used, NA_real_, "skipped", msg))
         }
         A <- tryCatch({
           pedmat(local_ped, method = "A", sparse = FALSE, compact = TRUE)
         }, error = function(e) {
-          warning(sprintf(
-            paste0("Group '%s': %s\n",
-                   "Hint: subset with 'reference' or use 'compact = TRUE'."),
-            g, e$message))
+          diagnostic <<- paste0(e$message, " Hint: subset with 'reference' or use compact = TRUE.")
+          status <<- "failed"
           return(NULL)
         })
         
         if (is.null(A)) {
-          return(data.table(Group = g, NTotal = n_total, NUsed = n_used, Mean = NA_real_))
+          return(make_row(g, n_total, n_used, NA_real_, status, diagnostic))
         }
         
         c_map <- attr(A, "compact_map")
@@ -592,15 +623,14 @@ pedrel <- function(ped, by = "Gen", reference = NULL, compact = FALSE,
       } else {
         target_idx <- match(target_inds, local_ped$Ind)
         if (anyNA(target_idx)) {
-          return(data.table(Group = g, NTotal = n_total, NUsed = n_used, Mean = NA_real_))
+          msg <- "One or more target individuals were not found in the traced pedigree."
+          return(make_row(g, n_total, n_used, NA_real_, "failed", msg))
         }
         mean_rel <- tryCatch({
           cpp_mean_relationship(local_ped$SireNum, local_ped$DamNum, as.integer(target_idx))
         }, error = function(e) {
-          warning(sprintf(
-            paste0("Group '%s': %s\n",
-                   "Hint: subset with 'reference' or use 'compact = TRUE'."),
-            g, e$message))
+          diagnostic <<- paste0(e$message, " Hint: subset with 'reference' or use compact = TRUE.")
+          status <<- "failed"
           return(NA_real_)
         })
 
@@ -611,10 +641,10 @@ pedrel <- function(ped, by = "Gen", reference = NULL, compact = FALSE,
             f_traced <- cpp_calculate_inbreeding(local_ped$SireNum, local_ped$DamNum)$f
             mean(f_traced[target_idx], na.rm = TRUE)
           }, error = function(e) {
-            warning(sprintf(
-              paste0("Group '%s': %s\n",
-                     "Hint: subset with 'reference' or use 'compact = TRUE'."),
-              g, e$message))
+            if (scale == "coancestry") {
+              diagnostic <<- paste0(e$message, " Hint: subset with 'reference' or use compact = TRUE.")
+              status <<- "failed"
+            }
             NA_real_
           })
         }
@@ -627,13 +657,28 @@ pedrel <- function(ped, by = "Gen", reference = NULL, compact = FALSE,
       corrected_mean_coancestry(mean_rel, mean_f_s, n_used)
     }
 
-    data.table(Group = g, NTotal = n_total, NUsed = n_used, Mean = mean_value)
+    if (is.na(mean_value) && identical(status, "ok")) {
+      status <- "failed"
+      diagnostic <- "Calculation returned NA."
+    }
+
+    make_row(g, n_total, n_used, mean_value, status, diagnostic)
   })
   
   result <- rbindlist(res_list)
   setnames(result, "Group", by)
   setnames(result, "Mean", if (scale == "relationship") "MeanRel" else "MeanCoan")
   setorderv(result, cols = by)
+
+  problem_rows <- result[result[["Status"]] != "ok"]
+  if (nrow(problem_rows) > 0L) {
+    warning(sprintf(
+      paste0("pedrel(): %d of %d groups returned a non-ok status. ",
+             "Inspect the 'Status' and 'Message' columns. First issue: %s = %s; %s"),
+      nrow(problem_rows), nrow(result), by, as.character(problem_rows[[by]][1]), problem_rows$Message[1]
+    ), call. = FALSE)
+  }
+
   return(result[])
 }
 

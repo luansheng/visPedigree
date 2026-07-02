@@ -4,7 +4,7 @@
 #' @importFrom graphics strwidth
 #' @keywords internal
 prepare_ped_graph <- function(ped, compact = FALSE, outline = FALSE, cex = NULL, 
-                              highlight = NULL, trace = FALSE, showf = FALSE, pagewidth = 200, symbolsize = 1, maxiter = 1000, ...) {
+                              highlight = NULL, trace = FALSE, showf = FALSE, labelvar = NULL, pagewidth = 200, symbolsize = 1, maxiter = 1000, ...) {
   ped_new <- copy(ped)
 
   # Check and tidyped if necessary
@@ -27,7 +27,14 @@ prepare_ped_graph <- function(ped, compact = FALSE, outline = FALSE, cex = NULL,
   options(digits = 20)
   on.exit(options(digits = old_digits), add = TRUE)
 
-  ped_igraph_data <- ped2igraph(ped_new, compact, highlight, trace, showf)
+  ped_igraph_data <- ped2igraph(
+    ped_new,
+    compact = compact,
+    highlight = highlight,
+    trace = trace,
+    showf = showf,
+    labelvar = labelvar
+  )
   ped_igraph <- ped_igraph_data
   real_node <- ped_igraph$node[nodetype %in% c("real", "compact")]
   
