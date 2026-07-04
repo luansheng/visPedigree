@@ -83,6 +83,13 @@
 #'        pagewidth = 100, 
 #'        file = tempfile(fileext = ".pdf"))
 #'
+#' # Saving pedigree as SVG with larger labels and tighter symbols
+#' visped(simple_ped_tidy,
+#'        cex=0.8,
+#'        symbolsize=1,
+#'        pagewidth = 100,
+#'        file = tempfile(fileext = ".svg"))
+#'
 #' # Highlighting multiple individuals with custom colors
 #' visped(simple_ped_tidy,
 #'        highlight = list(ids = c("J3Y620", "J1X971"),
