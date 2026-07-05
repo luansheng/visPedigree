@@ -131,6 +131,10 @@ VISMAT_BLOCK_AGG_MIN_G  <- 100L    #   n > _MIN_N  AND  n_grp > _MIN_G
 #' The following automatic thresholds are defined as package-internal
 #' constants (\code{VISMAT_*}) at the top of \code{R/vismat.R}:
 #' \itemize{
+#'   \item Passing a \code{tidyped} object together with \code{by} uses
+#'         matrix-free additive relationship products to compute the grouped
+#'         heatmap directly, without constructing the full individual-level
+#'         relationship matrix.
 #'   \item \code{VISMAT_EXPAND_MAX} (5 000): compact matrices with original
 #'         N above this are shown in representative view instead of expanding.
 #'   \item \code{VISMAT_REORDER_MAX} (2 000): hierarchical clustering is
@@ -262,6 +266,18 @@ vismat <- function(mat, ped = NULL, type = "heatmap", ids = NULL, reorder = TRUE
   # Track original by label for axis labels (may be consumed early in compact path)
   by_label <- by
   grouping_main <- NULL
+
+  # A grouped additive heatmap only needs W' A W, where W is the group
+  # membership matrix. Compute that product directly from the pedigree rather
+  # than materializing the individual-level A matrix.
+  if (is_tidyped(mat) && !is.null(by)) {
+    ped <- mat
+    focal_ids <- if (!is.null(ids)) as.character(ids) else ped$Ind
+    mat <- aggregate_pedigree_by_group(ped, focal_ids, by)
+    grouping_main <- sprintf("Grouped Relationship Heatmap (%s)", by)
+    by <- NULL
+    ids <- NULL
+  }
   
   # 0a. Extract ped from pedmat object if available
   is_pedmat <- inherits(mat, "pedmat") || !is.null(attr(mat, "pedmat_S4"))
@@ -591,8 +607,6 @@ vismat <- function(mat, ped = NULL, type = "heatmap", ids = NULL, reorder = TRUE
 
     # Set default titles for later use in heatmap
     grouping_main <- sprintf("Grouped Relationship Heatmap (%s)", by)
-  } else {
-    grouping_main <- NULL
   }
 
   # 5. Rendering
@@ -680,6 +694,96 @@ vismat <- function(mat, ped = NULL, type = "heatmap", ids = NULL, reorder = TRUE
   } else {
     stop(sprintf("Visualization type '%s' is not supported. Use 'heatmap' or 'histogram'.", type))
   }
+}
+
+
+# --------------------------------------------------------------------------
+# Internal: compute G×G group means directly from a complete pedigree
+# --------------------------------------------------------------------------
+# For group membership matrix W, the raw group sums are W' A W. The
+# matrix-free product avoids constructing the dense individual-level A matrix.
+aggregate_pedigree_by_group <- function(ped, ids, by) {
+  if (!by %in% names(ped)) {
+    stop(sprintf("Column '%s' not found in pedigree.", by))
+  }
+
+  valid_ids <- intersect(as.character(ids), ped$Ind)
+  if (length(valid_ids) == 0L) {
+    stop("None of the specified 'ids' were found in the pedigree.")
+  }
+
+  focal <- data.table::as.data.table(ped)[
+    Ind %chin% valid_ids,
+    .(Ind, grp = get(by))
+  ]
+  focal[, grp := as.character(grp)]
+
+  if (anyNA(focal$grp)) {
+    n_na <- sum(is.na(focal$grp))
+    if (by == "Family") {
+      na_ids <- focal$Ind[is.na(focal$grp)]
+      message(sprintf(
+        "Note: Excluding %d founder(s) with no family assignment: %s%s",
+        n_na,
+        paste(utils::head(na_ids, 5L), collapse = ", "),
+        if (n_na > 5L) sprintf(" (and %d more)", n_na - 5L) else ""
+      ))
+      focal <- focal[!is.na(grp)]
+    } else {
+      message(sprintf(
+        "Note: %d individual(s) have NA in '%s' column. Assigning to 'Unknown' group.",
+        n_na, by
+      ))
+      focal[is.na(grp), grp := "Unknown"]
+    }
+  }
+
+  if (nrow(focal) == 0L) {
+    stop("No individuals remain after excluding missing group assignments.")
+  }
+
+  groups <- sort(unique(focal$grp))
+  group_factor <- factor(focal$grp, levels = groups)
+  group_sizes <- tabulate(group_factor, nbins = length(groups))
+  focal_rows <- match(focal$Ind, ped$Ind)
+
+  message(sprintf(
+    "Aggregating %d individuals into %d groups based on '%s'...",
+    nrow(focal), length(groups), by
+  ))
+
+  f_res <- cpp_calculate_inbreeding(ped$SireNum, ped$DamNum)
+  n <- nrow(ped)
+  n_groups <- length(groups)
+  bytes_per_column <- 2 * 8 * n
+  batch_size <- max(
+    1L,
+    min(32L, floor((256 * 1024^2) / max(1, bytes_per_column)))
+  )
+  group_sum <- matrix(0, nrow = n_groups, ncol = n_groups)
+
+  for (batch_start in seq.int(1L, n_groups, by = batch_size)) {
+    columns <- batch_start:min(batch_start + batch_size - 1L, n_groups)
+    rhs <- matrix(0, nrow = n, ncol = length(columns))
+    local_columns <- match(as.integer(group_factor), columns)
+    selected <- !is.na(local_columns)
+    rhs[cbind(focal_rows[selected], local_columns[selected])] <- 1
+
+    product <- cpp_multiply_A(
+      ped$SireNum, ped$DamNum, f_res$dii, rhs
+    )
+    group_sum[, columns] <- rowsum(
+      product[focal_rows, , drop = FALSE],
+      group_factor,
+      reorder = TRUE
+    )
+  }
+
+  result <- group_sum / outer(group_sizes, group_sizes)
+  result <- (result + t(result)) / 2
+  result[!is.finite(result)] <- 0
+  dimnames(result) <- list(groups, groups)
+  result
 }
 
 

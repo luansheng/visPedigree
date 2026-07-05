@@ -15,6 +15,14 @@
    `max_compact` remain accepted as backward-compatible no-op arguments.
    `Status` and `Message` continue to identify groups skipped because fewer
    than two individuals were selected or groups that failed during tracing.
+3. **Matrix-free coancestry analyses**: `pedne(method = "coancestry")` now
+   obtains sampled pair relationships from batched $AX$ products instead of
+   constructing a dense triangular relationship matrix. `pediv()` reuses the
+   same products for $N_e$ and founder genome equivalents, while
+   `pedhalflife()` requests only the $f_g$ statistic it needs.
+4. **Matrix-free grouped heatmaps**: `vismat(tidyped_object, by = ...)` now
+   computes grouped additive relationships as $W^\prime A W$ without first
+   constructing the full individual-level relationship matrix.
 
 ## Bug fixes
 1. **Selfing in `Ainv`**: Corrected the sire-dam diagonal cross-term in Henderson's inverse construction when the sire and dam are the same individual. `pedmat(method = "Ainv")` now remains the numerical inverse of `A` for pedigrees created with `selfing = TRUE`.

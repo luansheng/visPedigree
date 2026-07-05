@@ -78,8 +78,9 @@ genetic diversity is partitioned into three additive components:
 
 The function rolls over time points defined by \code{timevar}, computing
 \eqn{f_e} and \eqn{f_a} (via \code{\link{pedcontrib}}) and \eqn{f_g}
-(via the internal coancestry engine) for each time point.  No redundant
-Ne calculations are performed.
+(via the internal matrix-free coancestry engine) for each time point. Only
+the \eqn{f_g} statistic is requested; no redundant Ne calculations are
+performed.
 }
 \details{
 The mathematical identity underlying the cascade is:

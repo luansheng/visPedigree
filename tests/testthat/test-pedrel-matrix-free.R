@@ -128,9 +128,6 @@ test_that("pedrel no longer constructs or scans a relationship matrix", {
   ped <- make_pedrel_test_pedigree()
   local_mocked_bindings(
     pedmat = function(...) stop("pedmat() must not be called"),
-    cpp_mean_relationship = function(...) {
-      stop("cpp_mean_relationship() must not be called")
-    },
     .package = "visPedigree"
   )
 

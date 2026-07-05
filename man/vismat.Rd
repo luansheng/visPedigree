@@ -138,6 +138,10 @@ When \code{mat} is a compact \code{pedmat} object (created with
 The following automatic thresholds are defined as package-internal
 constants (\code{VISMAT_*}) at the top of \code{R/vismat.R}:
 \itemize{
+  \item Passing a \code{tidyped} object together with \code{by} uses
+        matrix-free additive relationship products to compute the grouped
+        heatmap directly, without constructing the full individual-level
+        relationship matrix.
   \item \code{VISMAT_EXPAND_MAX} (5 000): compact matrices with original
         N above this are shown in representative view instead of expanding.
   \item \code{VISMAT_REORDER_MAX} (2 000): hierarchical clustering is

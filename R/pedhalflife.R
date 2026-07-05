@@ -13,8 +13,9 @@
 #'
 #' The function rolls over time points defined by \code{timevar}, computing
 #' \eqn{f_e} and \eqn{f_a} (via \code{\link{pedcontrib}}) and \eqn{f_g}
-#' (via the internal coancestry engine) for each time point.  No redundant
-#' Ne calculations are performed.
+#' (via the internal matrix-free coancestry engine) for each time point. Only
+#' the \eqn{f_g} statistic is requested; no redundant Ne calculations are
+#' performed.
 #'
 #' @param ped A \code{tidyped} object.
 #' @param timevar Character.
@@ -97,13 +98,8 @@ pedhalflife <- function(ped, timevar = "Gen", at = NULL, nsamples = 1000,
     stop("At least two distinct time points are required to calculate half-life rates.")
   }
 
-  # ---- One-time pre-computation: ECG on full pedigree ----
   ped_dt <- data.table::copy(ped)
-  if (!"ECG" %in% names(ped_dt)) {
-    ecg_dt <- pedecg(ped_dt)
-    ped_dt <- merge(ped_dt, ecg_dt[, .(Ind, ECG)], by = "Ind", all.x = TRUE)
-  }
-  
+
   # Strip tidyped class from the working copy to avoid strict subsetting warnings
   data.table::setattr(ped_dt, "class", c("data.table", "data.frame"))
 
@@ -134,8 +130,10 @@ pedhalflife <- function(ped, timevar = "Gen", at = NULL, nsamples = 1000,
     fg_val <- NA_real_
     tryCatch({
       ped_subset <- as.data.table(ped_dt)[Ind %in% ref_ids]
-      raw <- calc_ne_coancestry(ped_subset, ped_dt, by_all, nsamples,
-                                seed = seed)
+      raw <- calc_ne_coancestry(
+        ped_subset, ped_dt, by_all, nsamples,
+        seed = seed, metrics = "fg"
+      )
       if (!is.null(raw) && nrow(raw) > 0 && "fg" %in% names(raw)) {
         fg_val <- raw$fg[1]
       }
