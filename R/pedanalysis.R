@@ -414,36 +414,40 @@ pedsubpop <- function(ped, by = NULL) {
 #' coefficients (\eqn{a_{ij}}) within cohorts, or the corrected population mean
 #' coancestry used for pedigree-based diversity summaries.
 #'
-#' When \code{scale = "relationship"}, the returned value is the mean of the
-#' off-diagonal additive relationship coefficients among the selected
-#' individuals. When \code{scale = "coancestry"}, the returned value is the
-#' diagonal-corrected population mean coancestry:
-#' \deqn{\bar{C} = \frac{N - 1}{N} \cdot \frac{\bar{a}_{off}}{2} + \frac{1 + \bar{F}}{2N}}
-#' where \eqn{\bar{a}_{off}} is the mean off-diagonal relationship, \eqn{\bar{F}}
-#' is the mean inbreeding coefficient of the selected individuals, and \eqn{N}
-#' is the number of selected individuals. This \eqn{\bar{C}} matches the
-#' internal coancestry quantity used to derive \eqn{f_g} in \code{\link{pediv}}.
+#' Let \eqn{g} be a zero-one indicator vector for the \eqn{N} selected
+#' individuals and let \eqn{S = g^\prime A g}. When
+#' \code{scale = "relationship"}, the returned value is
+#' \deqn{\bar{a}_{off} =
+#'   \frac{S - \sum_{i:g_i=1}(1 + F_i)}{N(N - 1)},}
+#' the mean of the off-diagonal additive relationship coefficients. When
+#' \code{scale = "coancestry"}, the returned value is
+#' \deqn{\bar{C} = \frac{S}{2N^2},}
+#' which includes both pairwise coancestry and diagonal self-coancestry. This
+#' is equivalent to
+#' \deqn{\bar{C} = \frac{N - 1}{N} \cdot
+#'   \frac{\bar{a}_{off}}{2} + \frac{1 + \bar{F}}{2N}.}
+#' The implementation computes \eqn{A g} directly from the pedigree and does
+#' not construct the dense relationship matrix \eqn{A}.
 #'
 #' @param ped A \code{tidyped} object.
 #' @param by Character. The column name to group by (e.g., "Year", "Breed", "Generation").
 #' @param reference Character vector. An optional vector of reference individual IDs to calculate
 #'   relationships for. If provided, only individuals matching these IDs in each group
 #'   will be used. Default is NULL (use all individuals in the group).
-#' @param compact Logical. Whether to use compact representation for large families to
-#'   save memory. Recommended when pedigree size exceeds 25,000. Default is FALSE.
+#' @param compact Logical. Retained for backward compatibility. It is ignored
+#'   because \code{pedrel()} now uses matrix-free pedigree products for all
+#'   calculations.
 #' @param scale Character. One of \code{"relationship"} or \code{"coancestry"}.
 #'   \code{"relationship"} returns the pairwise off-diagonal mean additive
 #'   relationship (current \code{pedrel()} behavior). \code{"coancestry"}
 #'   returns the corrected population mean coancestry used for pedigree-based
 #'   diversity calculations.
-#' @param force Logical. If \code{FALSE} (default), large traced pedigrees are
-#'   skipped with diagnostic messages before potentially expensive matrix
-#'   calculations. If \code{TRUE}, size guards are bypassed and the calculation
-#'   is attempted with a warning.
-#' @param max_dense Integer. Maximum traced pedigree size allowed for the
-#'   non-compact calculation when \code{force = FALSE}. Default is 25,000.
-#' @param max_compact Integer. Maximum traced pedigree size allowed for compact
-#'   matrix calculation when \code{force = FALSE}. Default is 200,000.
+#' @param force Logical. Retained for backward compatibility and ignored.
+#'   Matrix-free calculations do not use the former dense-matrix size guards.
+#' @param max_dense Positive number. Retained for backward compatibility and
+#'   ignored.
+#' @param max_compact Positive number. Retained for backward compatibility and
+#'   ignored.
 #'
 #' @return A \code{data.table} with columns:
 #' \itemize{
@@ -492,26 +496,15 @@ pedrel <- function(ped, by = "Gen", reference = NULL, compact = FALSE,
   ped <- ensure_complete_tidyped(ped, "pedrel()")
   scale <- match.arg(scale)
   if (!by %in% names(ped)) stop(sprintf("Column '%s' not found.", by))
+  if (!isTRUE(compact) && !isFALSE(compact)) stop("'compact' must be TRUE or FALSE.")
   if (!isTRUE(force) && !isFALSE(force)) stop("'force' must be TRUE or FALSE.")
-  if (!is.numeric(max_dense) || length(max_dense) != 1 || is.na(max_dense) || max_dense < 1) {
+  if (!is.numeric(max_dense) || length(max_dense) != 1 || is.na(max_dense) ||
+      !is.finite(max_dense) || max_dense < 1) {
     stop("'max_dense' must be a single positive number.")
   }
-  if (!is.numeric(max_compact) || length(max_compact) != 1 || is.na(max_compact) || max_compact < 1) {
+  if (!is.numeric(max_compact) || length(max_compact) != 1 || is.na(max_compact) ||
+      !is.finite(max_compact) || max_compact < 1) {
     stop("'max_compact' must be a single positive number.")
-  }
-  max_dense <- as.integer(max_dense)
-  max_compact <- as.integer(max_compact)
-
-  if (isTRUE(force)) {
-    warning(
-      "pedrel(force = TRUE): size guards are bypassed; calculations may take a long time or allocate substantial memory.",
-      call. = FALSE
-    )
-  }
-
-  corrected_mean_coancestry <- function(mean_rel, mean_f, n_ref) {
-    if (is.na(mean_rel) || is.na(mean_f) || n_ref < 1L) return(NA_real_)
-    (n_ref - 1) / n_ref * mean_rel / 2 + (1 + mean_f) / (2 * n_ref)
   }
 
   make_row <- function(group, n_total, n_used, mean, status = "ok", message = "") {
@@ -521,150 +514,194 @@ pedrel <- function(ped, by = "Gen", reference = NULL, compact = FALSE,
   
   groups <- unique(ped[[by]])
   groups <- groups[!is.na(groups)]
-  
-  res_list <- lapply(groups, function(g) {
+
+  res_list <- vector("list", length(groups))
+  group_specs <- vector("list", length(groups))
+
+  for (group_no in seq_along(groups)) {
+    g <- groups[group_no]
     row_idx <- which(ped[[by]] == g)
     sub_ped_full <- as.data.table(ped)[row_idx]
     n_total <- nrow(sub_ped_full)
-    
+
     if (n_total < 2) {
       msg <- "Group has less than 2 individuals."
-      return(make_row(g, n_total, n_total, NA_real_, "skipped", msg))
+      res_list[[group_no]] <- make_row(
+        g, n_total, n_total, NA_real_, "skipped", msg
+      )
+      next
     }
-    
+
     if (!is.null(reference)) {
       sub_ped <- sub_ped_full[Ind %in% reference]
     } else {
       sub_ped <- sub_ped_full
     }
     n_used <- nrow(sub_ped)
-    
+
     if (n_used < 2) {
       msg <- "Group has less than 2 individuals after applying 'reference'."
-      return(make_row(g, n_total, n_used, NA_real_, "skipped", msg))
+      res_list[[group_no]] <- make_row(
+        g, n_total, n_used, NA_real_, "skipped", msg
+      )
+      next
     }
 
-    status <- "ok"
-    diagnostic <- ""
-    
-    local_ped <- tryCatch({
-      suppressMessages(tidyped(ped, cand = sub_ped$Ind, addnum = TRUE))
-    }, error = function(e) {
-      if (all(is.na(sub_ped$Sire) & is.na(sub_ped$Dam))) {
-        return(NULL)
+    group_specs[[group_no]] <- list(
+      group = g,
+      n_total = n_total,
+      n_used = n_used,
+      target_inds = sub_ped$Ind
+    )
+  }
+
+  valid_groups <- which(!vapply(group_specs, is.null, logical(1)))
+
+  if (length(valid_groups) > 0L) {
+    all_targets <- unique(unlist(
+      lapply(group_specs[valid_groups], `[[`, "target_inds"),
+      use.names = FALSE
+    ))
+
+    traced <- tryCatch(
+      suppressMessages(
+        tidyped(ped, cand = all_targets, trace = "up", addnum = TRUE)
+      ),
+      error = identity
+    )
+
+    if (inherits(traced, "error")) {
+      msg <- paste0("Unable to trace the selected individuals: ", conditionMessage(traced))
+      for (group_no in valid_groups) {
+        spec <- group_specs[[group_no]]
+        res_list[[group_no]] <- make_row(
+          spec$group, spec$n_total, spec$n_used, NA_real_, "failed", msg
+        )
       }
-      stop(e)
-    })
-    
-    if (is.null(local_ped)) {
-      mean_rel <- 0.0
-      mean_f_s <- 0.0
     } else {
-      target_inds <- sub_ped$Ind
-      
-      if (!compact && nrow(local_ped) > max_dense && !force) {
-        msg <- sprintf(
-          paste0("Traced pedigree has %d individuals including ancestors, exceeding max_dense = %d. ",
-                 "Use 'reference' to reduce group size, set compact = TRUE, or set force = TRUE to attempt the calculation."),
-          nrow(local_ped), max_dense)
-        return(make_row(g, n_total, n_used, NA_real_, "skipped", msg))
-      }
-      
-      if (isTRUE(compact)) {
-        if (nrow(local_ped) > max_compact && !force) {
-          msg <- sprintf(
-            paste0("Traced pedigree has %d individuals, exceeding max_compact = %d for compact matrix computation. ",
-                   "Use 'reference' to limit traced ancestry, or set force = TRUE to attempt the calculation."),
-            nrow(local_ped), max_compact)
-          return(make_row(g, n_total, n_used, NA_real_, "skipped", msg))
+      f_res <- tryCatch(
+        cpp_calculate_inbreeding(traced$SireNum, traced$DamNum),
+        error = identity
+      )
+
+      if (inherits(f_res, "error")) {
+        msg <- paste0(
+          "Unable to calculate pedigree coefficients: ",
+          conditionMessage(f_res)
+        )
+        for (group_no in valid_groups) {
+          spec <- group_specs[[group_no]]
+          res_list[[group_no]] <- make_row(
+            spec$group, spec$n_total, spec$n_used, NA_real_, "failed", msg
+          )
         }
-        A <- tryCatch({
-          pedmat(local_ped, method = "A", sparse = FALSE, compact = TRUE)
-        }, error = function(e) {
-          diagnostic <<- paste0(e$message, " Hint: subset with 'reference' or use compact = TRUE.")
-          status <<- "failed"
-          return(NULL)
+      } else {
+        target_indices <- lapply(valid_groups, function(group_no) {
+          match(group_specs[[group_no]]$target_inds, traced$Ind)
         })
-        
-        if (is.null(A)) {
-          return(make_row(g, n_total, n_used, NA_real_, status, diagnostic))
-        }
-        
-        c_map <- attr(A, "compact_map")
-        c_map_target <- c_map[Ind %in% target_inds]
-        
-        freq_dt <- c_map_target[, .(W = .N), by = RepIndNum]
-        W_idx <- freq_dt$RepIndNum
-        W <- freq_dt$W
-        
-        A_rep <- A[W_idx, W_idx, drop = FALSE]
-        sum_total_rep <- as.numeric(t(W) %*% (A_rep %*% W))
-        sum_between <- sum_total_rep - sum(W^2 * diag(A_rep))
-        
-        sib_reps <- freq_dt[W > 1]
-        sum_within <- 0.0
-        
-        if (nrow(sib_reps) > 0) {
-          rep_parents <- unique(c_map_target[RepIndNum %in% sib_reps$RepIndNum,
-                                             .(RepIndNum, rep_sire = SireNum, rep_dam = DamNum)])
-          
-          for (i in seq_len(nrow(sib_reps))) {
-            w_i <- sib_reps$W[i]
-            r_idx <- sib_reps$RepIndNum[i]
-            sire_idx <- rep_parents[RepIndNum == r_idx, rep_sire]
-            dam_idx <- rep_parents[RepIndNum == r_idx, rep_dam]
-            A_sib <- 0.25 * (A[sire_idx, sire_idx] + A[dam_idx, dam_idx] + 2 * A[sire_idx, dam_idx])
-            sum_within <- sum_within + w_i * (w_i - 1) * A_sib
+        missing_targets <- vapply(target_indices, anyNA, logical(1))
+
+        if (any(missing_targets)) {
+          for (position in which(missing_targets)) {
+            group_no <- valid_groups[position]
+            spec <- group_specs[[group_no]]
+            res_list[[group_no]] <- make_row(
+              spec$group, spec$n_total, spec$n_used, NA_real_, "failed",
+              "One or more target individuals were not found in the traced pedigree."
+            )
           }
         }
-        
-        mean_rel <- (sum_between + sum_within) / (as.numeric(n_used) * (n_used - 1))
-        mean_f_s <- sum(W * (diag(A_rep) - 1)) / as.numeric(n_used)
-      } else {
-        target_idx <- match(target_inds, local_ped$Ind)
-        if (anyNA(target_idx)) {
-          msg <- "One or more target individuals were not found in the traced pedigree."
-          return(make_row(g, n_total, n_used, NA_real_, "failed", msg))
-        }
-        mean_rel <- tryCatch({
-          cpp_mean_relationship(local_ped$SireNum, local_ped$DamNum, as.integer(target_idx))
-        }, error = function(e) {
-          diagnostic <<- paste0(e$message, " Hint: subset with 'reference' or use compact = TRUE.")
-          status <<- "failed"
-          return(NA_real_)
-        })
 
-        mean_f_s <- if (is.na(mean_rel)) {
-          NA_real_
-        } else {
-          tryCatch({
-            f_traced <- cpp_calculate_inbreeding(local_ped$SireNum, local_ped$DamNum)$f
-            mean(f_traced[target_idx], na.rm = TRUE)
-          }, error = function(e) {
-            if (scale == "coancestry") {
-              diagnostic <<- paste0(e$message, " Hint: subset with 'reference' or use compact = TRUE.")
-              status <<- "failed"
+        calculable_positions <- which(!missing_targets)
+        if (length(calculable_positions) > 0L) {
+          # rhs and A-rhs coexist during each call. Keep their combined working
+          # storage near 256 MiB and cap batches to avoid wide temporary matrices.
+          bytes_per_column <- 2 * 8 * nrow(traced)
+          batch_size <- max(
+            1L,
+            min(32L, floor((256 * 1024^2) / max(1, bytes_per_column)))
+          )
+          batch_starts <- seq.int(1L, length(calculable_positions), by = batch_size)
+
+          for (batch_start in batch_starts) {
+            batch_positions <- calculable_positions[
+              batch_start:min(
+                batch_start + batch_size - 1L,
+                length(calculable_positions)
+              )
+            ]
+            rhs <- matrix(
+              0,
+              nrow = nrow(traced),
+              ncol = length(batch_positions)
+            )
+            for (column_no in seq_along(batch_positions)) {
+              rhs[target_indices[[batch_positions[column_no]]], column_no] <- 1
             }
-            NA_real_
-          })
+
+            product <- tryCatch(
+              cpp_multiply_A(
+                traced$SireNum, traced$DamNum, f_res$dii, rhs
+              ),
+              error = identity
+            )
+
+            if (inherits(product, "error")) {
+              msg <- paste0(
+                "Unable to apply the relationship matrix: ",
+                conditionMessage(product)
+              )
+              for (position in batch_positions) {
+                group_no <- valid_groups[position]
+                spec <- group_specs[[group_no]]
+                res_list[[group_no]] <- make_row(
+                  spec$group, spec$n_total, spec$n_used,
+                  NA_real_, "failed", msg
+                )
+              }
+              next
+            }
+
+            for (column_no in seq_along(batch_positions)) {
+              position <- batch_positions[column_no]
+              group_no <- valid_groups[position]
+              spec <- group_specs[[group_no]]
+              idx <- target_indices[[position]]
+              n_selected <- as.numeric(length(idx))
+              total_sum <- sum(product[idx, column_no])
+
+              if (scale == "relationship") {
+                diagonal_sum <- n_selected + sum(f_res$f[idx])
+                off_diagonal_sum <- total_sum - diagonal_sum
+                rounding_scale <- max(1, abs(total_sum), abs(diagonal_sum))
+                if (abs(off_diagonal_sum) <=
+                    64 * .Machine$double.eps * rounding_scale) {
+                  off_diagonal_sum <- 0
+                }
+                mean_value <- off_diagonal_sum /
+                  (n_selected * (n_selected - 1))
+              } else {
+                mean_value <- total_sum /
+                  (2 * n_selected * n_selected)
+              }
+
+              if (!is.finite(mean_value)) {
+                res_list[[group_no]] <- make_row(
+                  spec$group, spec$n_total, spec$n_used, NA_real_, "failed",
+                  "Calculation returned a non-finite value."
+                )
+              } else {
+                res_list[[group_no]] <- make_row(
+                  spec$group, spec$n_total, spec$n_used, mean_value
+                )
+              }
+            }
+          }
         }
       }
     }
+  }
 
-    mean_value <- if (scale == "relationship") {
-      mean_rel
-    } else {
-      corrected_mean_coancestry(mean_rel, mean_f_s, n_used)
-    }
-
-    if (is.na(mean_value) && identical(status, "ok")) {
-      status <- "failed"
-      diagnostic <- "Calculation returned NA."
-    }
-
-    make_row(g, n_total, n_used, mean_value, status, diagnostic)
-  })
-  
   result <- rbindlist(res_list)
   setnames(result, "Group", by)
   setnames(result, "Mean", if (scale == "relationship") "MeanRel" else "MeanCoan")
