@@ -84,22 +84,54 @@ By default, `pedmat()` returns a sparse matrix (class `dsCMatrix` from the `Matr
 class(mat_A)
 ```
 
-### 1.4 Using Matrices in Downstream Linear Algebra {#1-4}
+### 1.4 Matrix-Free Products for Downstream Analysis {#1-4}
 
-The matrices returned by `pedmat()` are ordinary matrix-like R objects, so they can be used directly in downstream matrix-vector or matrix-matrix operations. For example, a vector of candidate contributions or breeding values can be multiplied by the additive relationship matrix, and inverse matrices can be used in mixed-model or genetic-evaluation workflows.
+For small and moderate pedigrees, matrices returned by `pedmat()` are ordinary
+matrix-like R objects and can be used directly with R's `%*%`. For large
+pedigrees, however, forming the dense additive relationship matrix can be the
+dominant memory cost. `pedprod()` instead computes $Ax$, $AX$,
+$A^{-1}x$, or $A^{-1}X$ directly from the pedigree.
+
+The implementation uses the pedigree factorization $A = TDT'$ and the
+indirect traversal described by Colleau (2002). It requires linear storage for
+a vector right-hand side and never materializes the $n \times n$ matrix $A$.
 
 ```{r linear_algebra}
-# A simple matrix-vector multiplication
-weights <- rep(1 / nrow(mat_A), nrow(mat_A))
-names(weights) <- rownames(mat_A)
-head(as.vector(mat_A %*% weights))
+# Equal contributions from two candidates; other individuals have zero weight
+weights <- c(Z1 = 0.5, Z2 = 0.5)
 
-# A small matrix-matrix cross-product example
-X <- model.matrix(~ factor(tped$Gen))
-head(crossprod(X, as.matrix(mat_A) %*% X))
+# Relationship of every pedigree individual to the weighted candidate group
+Ax <- pedprod(tped, weights)
+head(Ax)
+
+# Average additive relationship c' A c and average coancestry
+mean_relationship <- sum(weights * Ax[names(weights)])
+mean_coancestry <- mean_relationship / 2
+c(mean_relationship = mean_relationship, mean_coancestry = mean_coancestry)
+
+# AX: compare two contribution schemes in one traversal
+schemes <- cbind(
+  Equal = c(Z1 = 0.5, Z2 = 0.5),
+  Z1_only = c(Z1 = 1, Z2 = 0)
+)
+head(pedprod(tped, schemes))
 ```
 
-For very large pedigrees, avoid expanding dense matrices unless it is necessary for the analysis. Use `Ainv`, compact matrices, or grouped summaries when the full relationship matrix would exceed available memory.
+The explicit and matrix-free calculations are numerically equivalent:
+
+```{r linear_algebra_equivalence}
+weights_full <- setNames(numeric(nrow(mat_A)), rownames(mat_A))
+weights_full[names(weights)] <- weights
+all.equal(
+  unname(Ax),
+  unname(as.vector(mat_A %*% weights_full)),
+  tolerance = 1e-12
+)
+```
+
+For very large pedigrees, use `pedprod()` whenever the analysis only requires a
+matrix product. Construct `Ainv`, compact matrices, or grouped summaries only
+when the corresponding matrix entries are themselves required.
 
 ## 2. Inspecting the Matrix {#2}
 
@@ -297,6 +329,8 @@ compact matrix.
 
 ## References
 
+- Colleau, J. J. (2002). An indirect approach to the extensive calculation of relationship coefficients. *Genetics Selection Evolution*, 34, 409-421.
+- Colleau, J. J., Palhière, I., Rodríguez-Ramilo, S. T., & Legarra, A. (2017). A fast indirect method to compute functions of genomic relationships concerning genotyped and ungenotyped individuals, for diversity management. *Genetics Selection Evolution*, 49, 87.
 - Henderson, C. R. (1976). A simple method for computing the inverse of a numerator relationship matrix used in prediction of breeding values. *Biometrics*, 32(1), 69-83.
 - Meuwissen, T. H. E., & Luo, Z. (1992). Computing inbreeding coefficients in large populations. *Genetics Selection Evolution*, 24, 305-313.
 - Sargolzaei, M., Iwaisaki, H., & Colleau, J.-J. (2005). A fast algorithm for computing inbreeding coefficients in large populations. *Journal of Animal Breeding and Genetics*, 122, 325-331.

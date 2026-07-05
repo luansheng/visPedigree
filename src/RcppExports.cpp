@@ -139,17 +139,31 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// cpp_solve_A
-arma::vec cpp_solve_A(IntegerVector sire, IntegerVector dam, NumericVector dii, arma::vec b);
-RcppExport SEXP _visPedigree_cpp_solve_A(SEXP sireSEXP, SEXP damSEXP, SEXP diiSEXP, SEXP bSEXP) {
+// cpp_multiply_A
+arma::mat cpp_multiply_A(IntegerVector sire, IntegerVector dam, NumericVector dii, const arma::mat& rhs);
+RcppExport SEXP _visPedigree_cpp_multiply_A(SEXP sireSEXP, SEXP damSEXP, SEXP diiSEXP, SEXP rhsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< IntegerVector >::type sire(sireSEXP);
     Rcpp::traits::input_parameter< IntegerVector >::type dam(damSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type dii(diiSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type b(bSEXP);
-    rcpp_result_gen = Rcpp::wrap(cpp_solve_A(sire, dam, dii, b));
+    Rcpp::traits::input_parameter< const arma::mat& >::type rhs(rhsSEXP);
+    rcpp_result_gen = Rcpp::wrap(cpp_multiply_A(sire, dam, dii, rhs));
+    return rcpp_result_gen;
+END_RCPP
+}
+// cpp_multiply_Ainv
+arma::mat cpp_multiply_Ainv(IntegerVector sire, IntegerVector dam, NumericVector dii, const arma::mat& rhs);
+RcppExport SEXP _visPedigree_cpp_multiply_Ainv(SEXP sireSEXP, SEXP damSEXP, SEXP diiSEXP, SEXP rhsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< IntegerVector >::type sire(sireSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type dam(damSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type dii(diiSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type rhs(rhsSEXP);
+    rcpp_result_gen = Rcpp::wrap(cpp_multiply_Ainv(sire, dam, dii, rhs));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -287,7 +301,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_visPedigree_cpp_invert_dense", (DL_FUNC) &_visPedigree_cpp_invert_dense, 1},
     {"_visPedigree_cpp_invert_sympd", (DL_FUNC) &_visPedigree_cpp_invert_sympd, 1},
     {"_visPedigree_cpp_invert_auto", (DL_FUNC) &_visPedigree_cpp_invert_auto, 1},
-    {"_visPedigree_cpp_solve_A", (DL_FUNC) &_visPedigree_cpp_solve_A, 4},
+    {"_visPedigree_cpp_multiply_A", (DL_FUNC) &_visPedigree_cpp_multiply_A, 4},
+    {"_visPedigree_cpp_multiply_Ainv", (DL_FUNC) &_visPedigree_cpp_multiply_Ainv, 4},
     {"_visPedigree_cpp_assign_generations_top", (DL_FUNC) &_visPedigree_cpp_assign_generations_top, 3},
     {"_visPedigree_cpp_calculate_partial_inbreeding", (DL_FUNC) &_visPedigree_cpp_calculate_partial_inbreeding, 4},
     {"_visPedigree_cpp_assign_generations_bottom", (DL_FUNC) &_visPedigree_cpp_assign_generations_bottom, 3},

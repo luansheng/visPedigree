@@ -251,7 +251,12 @@ List cpp_build_ainv_triplets(IntegerVector sire, IntegerVector dam, NumericVecto
             if (s > 0 && d > 0) {
                 int r = (s > d) ? s : d;
                 int c = (s > d) ? d : s;
-                row.push_back(r); col.push_back(c); val.push_back(0.25 * alpha);
+                // Matrix::sparseMatrix(symmetric=TRUE) mirrors an off-diagonal
+                // triplet, accounting for both cross-products. With selfing
+                // s == d, the interaction is diagonal and must include both
+                // cross-products explicitly.
+                double cross = (s == d) ? 0.5 * alpha : 0.25 * alpha;
+                row.push_back(r); col.push_back(c); val.push_back(cross);
             }
         }
         
@@ -310,7 +315,8 @@ List cpp_build_ainv_triplets(IntegerVector sire, IntegerVector dam, NumericVecto
             if (s > 0 && d > 0) {
                 int r = (s > d) ? s : d;
                 int c = (s > d) ? d : s;
-                thread_row[tid].push_back(r); thread_col[tid].push_back(c); thread_val[tid].push_back(0.25 * alpha);
+                double cross = (s == d) ? 0.5 * alpha : 0.25 * alpha;
+                thread_row[tid].push_back(r); thread_col[tid].push_back(c); thread_val[tid].push_back(cross);
             }
         }
     }
@@ -579,28 +585,111 @@ arma::mat cpp_invert_auto(const arma::mat& M) {
     }
 }
 
-// Solve A*x = b using Path Logic
-// [[Rcpp::export]]
-arma::vec cpp_solve_A(IntegerVector sire, IntegerVector dam, NumericVector dii, arma::vec b) {
-    int n = sire.size();
-    if (dam.size() != n || dii.size() != n || b.size() != n) {
-        stop("sire, dam, dii, and b vectors must have the same length");
+// ============================================================================
+// Matrix-free products with the additive relationship matrix
+// ============================================================================
+// For an ordered pedigree, A = T D T', where T is the lower-triangular
+// transmission matrix and D contains Mendelian sampling variances.  These
+// routines apply A or A^-1 to one or more right-hand sides without forming
+// either square matrix.
+//
+// Complexity: O(n * p) time and O(n * p) output/workspace for p columns.
+// Reference: Colleau (2002), Genet Sel Evol 34:409-421.
+// ============================================================================
+
+static void validate_pedigree_product_inputs(
+        const IntegerVector& sire,
+        const IntegerVector& dam,
+        const NumericVector& dii,
+        const arma::mat& rhs) {
+    const int n = sire.size();
+    if (dam.size() != n || dii.size() != n ||
+        rhs.n_rows != static_cast<arma::uword>(n)) {
+        stop("sire, dam, dii, and rhs must have compatible dimensions");
     }
-    
-    arma::vec x = b;
-    for (int i = n - 1; i >= 0; --i) {
-        int s = sire[i] - 1; int d = dam[i] - 1;
-        if (s >= n || d >= n) stop("Parent index out of bounds");
-        if (s >= 0) x[s] -= 0.5 * x[i];
-        if (d >= 0) x[d] -= 0.5 * x[i];
-    }
-    for (int i = 0; i < n; ++i) x[i] *= dii[i];
+
     for (int i = 0; i < n; ++i) {
-        int s = sire[i] - 1; int d = dam[i] - 1;
-        if (s >= 0) x[i] += 0.5 * x[s];
-        if (d >= 0) x[i] += 0.5 * x[d];
+        const int s = sire[i] - 1;
+        const int d = dam[i] - 1;
+        if (s >= n || d >= n) {
+            stop("Parent index out of bounds");
+        }
+        if (s >= i || d >= i) {
+            stop("Pedigree must be ordered with parents before offspring");
+        }
     }
-    return x;
+}
+
+// Compute A * rhs from A = T D T' without materializing A.
+// [[Rcpp::export]]
+arma::mat cpp_multiply_A(
+        IntegerVector sire,
+        IntegerVector dam,
+        NumericVector dii,
+        const arma::mat& rhs) {
+    validate_pedigree_product_inputs(sire, dam, dii, rhs);
+    const int n = sire.size();
+    arma::mat out = rhs;
+
+    // Solve T^{-T} z = rhs, giving z = T' rhs.
+    for (int i = n - 1; i >= 0; --i) {
+        const int s = sire[i] - 1;
+        const int d = dam[i] - 1;
+        if (s >= 0) out.row(s) += 0.5 * out.row(i);
+        if (d >= 0) out.row(d) += 0.5 * out.row(i);
+    }
+
+    // Apply D.
+    for (int i = 0; i < n; ++i) {
+        out.row(i) *= dii[i];
+    }
+
+    // Solve T^{-1} y = D z, giving y = T D T' rhs.
+    for (int i = 0; i < n; ++i) {
+        const int s = sire[i] - 1;
+        const int d = dam[i] - 1;
+        if (s >= 0) out.row(i) += 0.5 * out.row(s);
+        if (d >= 0) out.row(i) += 0.5 * out.row(d);
+    }
+
+    return out;
+}
+
+// Compute A^-1 * rhs from A^-1 = T^-T D^-1 T^-1.
+// [[Rcpp::export]]
+arma::mat cpp_multiply_Ainv(
+        IntegerVector sire,
+        IntegerVector dam,
+        NumericVector dii,
+        const arma::mat& rhs) {
+    validate_pedigree_product_inputs(sire, dam, dii, rhs);
+    const int n = sire.size();
+    arma::mat transformed(rhs.n_rows, rhs.n_cols, arma::fill::zeros);
+
+    // Apply T^-1 = I - P. Read parent values from the unchanged rhs.
+    for (int i = 0; i < n; ++i) {
+        const int s = sire[i] - 1;
+        const int d = dam[i] - 1;
+        transformed.row(i) = rhs.row(i);
+        if (s >= 0) transformed.row(i) -= 0.5 * rhs.row(s);
+        if (d >= 0) transformed.row(i) -= 0.5 * rhs.row(d);
+
+        if (!R_finite(dii[i]) || dii[i] <= 0.0) {
+            stop("Mendelian sampling variance must be finite and positive for Ainv products");
+        }
+        transformed.row(i) /= dii[i];
+    }
+
+    // Apply T^-T = (I - P)' while retaining transformed as the read-only input.
+    arma::mat out = transformed;
+    for (int i = 0; i < n; ++i) {
+        const int s = sire[i] - 1;
+        const int d = dam[i] - 1;
+        if (s >= 0) out.row(s) -= 0.5 * transformed.row(i);
+        if (d >= 0) out.row(d) -= 0.5 * transformed.row(i);
+    }
+
+    return out;
 }
 
 // Generations Top-down
