@@ -6,8 +6,15 @@
 3. **Matrix-free relationship products**: Added `pedprod()` to compute $Ax$, $AX$, $A^{-1}x$, and $A^{-1}X$ directly from a complete pedigree. The implementation uses the $A = TDT'$ factorization and avoids materializing the dense additive relationship matrix.
 
 ## Improvements
-1. **`pedrel()` diagnostics for large or skipped groups**: `pedrel()` now returns `Status` and `Message` columns so users can identify groups that were skipped or failed without missing repeated warnings. A single summary warning points users to these diagnostic columns.
-2. **`pedrel()` explicit force option**: Added `force`, `max_dense`, and `max_compact` arguments. By default, large traced pedigrees are skipped with diagnostics before expensive calculations; `force = TRUE` lets advanced users attempt the calculation with a warning.
+1. **Matrix-free `pedrel()` summaries**: `pedrel()` now computes grouped mean
+   relationships and coancestries from batched $Ag$ products. It traces the
+   union of selected ancestors once and no longer constructs or scans a dense
+   relationship matrix for each group.
+2. **Large-group support in `pedrel()`**: The former dense and compact matrix
+   size guards are no longer needed. `compact`, `force`, `max_dense`, and
+   `max_compact` remain accepted as backward-compatible no-op arguments.
+   `Status` and `Message` continue to identify groups skipped because fewer
+   than two individuals were selected or groups that failed during tracing.
 
 ## Bug fixes
 1. **Selfing in `Ainv`**: Corrected the sire-dam diagonal cross-term in Henderson's inverse construction when the sire and dam are the same individual. `pedmat(method = "Ainv")` now remains the numerical inverse of `A` for pedigrees created with `selfing = TRUE`.

@@ -545,6 +545,13 @@ coancestry (kinship coefficient) between individuals $i$ and $j$.
 A higher `MeanRel` means that individuals within the group are, on average,
 more related by descent.
 
+Internally, `pedrel()` creates an indicator vector $g$ for each group and
+computes $Ag$ directly from the pedigree. The off-diagonal sum is obtained
+from $g^\mathsf{T}Ag$ after subtracting
+$\sum_{i:g_i=1}(1 + F_i)$. The dense relationship matrix is never
+materialized, so `compact`, `force`, `max_dense`, and `max_compact` are now
+retained only for backward compatibility.
+
 ```{r pedrel-example}
 tp_small$BirthYear <- 2010 + tp_small$Gen
 
@@ -567,12 +574,15 @@ When `scale = "coancestry"`, `pedrel()` returns the diagonal-corrected
 population mean coancestry following Caballero & Toro (2000):
 
 $$
-\bar{C} = \frac{N - 1}{N} \cdot \frac{\bar{a}_{off}}{2} + \frac{1 + \bar{F}}{2N}
+\bar{C} = \frac{g^\mathsf{T}Ag}{2N^2}
+        = \frac{N - 1}{N} \cdot \frac{\bar{a}_{off}}{2}
+          + \frac{1 + \bar{F}}{2N}
 $$
 
 where $\bar{a}_{off}$ is the mean off-diagonal relationship, $\bar{F}$ is the
 mean inbreeding coefficient of the group, and $N$ is the group size. This
-$\bar{C}$ accounts for self-coancestry within the group and matches the
+$\bar{C}$ includes both off-diagonal pairwise coancestry and diagonal
+self-coancestry. It matches the
 internal coancestry quantity used by `pediv()` to derive $f_g$.
 
 ```{r pedrel-coancestry}
