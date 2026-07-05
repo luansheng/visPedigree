@@ -59,7 +59,9 @@ The effective population size can be calculated using one of three methods:
   \deqn{\Delta c_{ij} = 1 - (1 - c_{ij})^{1/(\frac{ECG_i + ECG_j}{2})}}
   \deqn{N_e = \frac{1}{2 \overline{\Delta c}}}
   To handle large populations, this method samples \code{nsamples} individuals per cohort 
-  and computes the mean rate of coancestry among them.
+  and computes the mean rate of coancestry among them. Sampled relationship
+  coefficients are obtained from batched matrix-free \eqn{AX} products, so
+  the full additive relationship matrix is not constructed.
   
   \item \strong{"inbreeding"}: Based on the individual rate of inbreeding ($F_i$) (Gutiérrez et al., 2008, 2009).
   \deqn{\Delta F_i = 1 - (1 - F_i)^{1/(ECG_i - 1)}}

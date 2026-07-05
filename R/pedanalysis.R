@@ -1014,7 +1014,9 @@ print.pedstats <- function(x, ...) {
 #'   \deqn{\Delta c_{ij} = 1 - (1 - c_{ij})^{1/(\frac{ECG_i + ECG_j}{2})}}
 #'   \deqn{N_e = \frac{1}{2 \overline{\Delta c}}}
 #'   To handle large populations, this method samples \code{nsamples} individuals per cohort 
-#'   and computes the mean rate of coancestry among them.
+#'   and computes the mean rate of coancestry among them. Sampled relationship
+#'   coefficients are obtained from batched matrix-free \eqn{AX} products, so
+#'   the full additive relationship matrix is not constructed.
 #'   
 #'   \item \strong{"inbreeding"}: Based on the individual rate of inbreeding ($F_i$) (Gutiérrez et al., 2008, 2009).
 #'   \deqn{\Delta F_i = 1 - (1 - F_i)^{1/(ECG_i - 1)}}
@@ -1116,7 +1118,10 @@ pedne <- function(ped, method = c("coancestry", "inbreeding", "demographic"),
   res <- switch(method,
     "inbreeding"  = calc_ne_inbreeding(ped_subset, by),
     "coancestry"  = {
-      raw <- calc_ne_coancestry(ped_subset, ped_dt, by, nsamples, seed = seed)
+      raw <- calc_ne_coancestry(
+        ped_subset, ped_dt, by, nsamples,
+        seed = seed, metrics = "ne"
+      )
       # Strip fg/MeanCoan/NSampledCoan: exposed only via pediv(), not pedne()
       cols_to_drop <- intersect(names(raw), c("fg", "MeanCoan", "NSampledCoan"))
       if (length(cols_to_drop) > 0) raw[, (cols_to_drop) := NULL]
@@ -1199,13 +1204,122 @@ calc_ne_demographic <- function(ped, by) {
   return(result[])
 }
 
-calc_ne_coancestry <- function(ped_subset, ped_full, by, nsamples,
-                               seed = NULL, max_trace = 25000L) {
-  # ECG is already merged into ped_subset from ped_full by the caller function.
-  # Returns extended table with fg/MeanCoan/NSampledCoan columns.
-  # NOTE: pedne() strips fg columns before exposing its public output;
-  #       pediv() calls this function directly to access fg without duplication.
+calc_sampled_relationship_stats <- function(sire, dam, dii, f, target_idx,
+                                            ecg = NULL,
+                                            need_delta = TRUE,
+                                            need_mean = TRUE,
+                                            batch_size = NULL) {
+  target_idx <- unique(as.integer(target_idx))
+  n <- length(sire)
+  n_target <- length(target_idx)
 
+  if (n_target < 2L) {
+    return(list(
+      DeltaC = NA_real_,
+      MeanRelOff = NA_real_,
+      MeanF = if (n_target == 1L) f[target_idx] else NA_real_
+    ))
+  }
+
+  if (need_delta && is.null(ecg)) {
+    stop("'ecg' is required when calculating DeltaC.", call. = FALSE)
+  }
+
+  mean_f <- if (need_mean) mean(f[target_idx], na.rm = TRUE) else NA_real_
+  lower_sum <- 0
+  delta_sum <- 0
+  delta_pairs <- 0
+
+  if (!need_delta && need_mean) {
+    rhs <- matrix(0, nrow = n, ncol = 1L)
+    rhs[target_idx, 1L] <- 1
+    product <- cpp_multiply_A(sire, dam, dii, rhs)
+    total_sum <- sum(product[target_idx, 1L])
+    diagonal_sum <- n_target + sum(f[target_idx])
+    off_diagonal_sum <- total_sum - diagonal_sum
+    rounding_scale <- max(1, abs(total_sum), abs(diagonal_sum))
+    if (abs(off_diagonal_sum) <=
+        64 * .Machine$double.eps * rounding_scale) {
+      off_diagonal_sum <- 0
+    }
+
+    return(list(
+      DeltaC = NA_real_,
+      MeanRelOff = off_diagonal_sum / (n_target * (n_target - 1)),
+      MeanF = mean_f
+    ))
+  }
+
+  if (is.null(batch_size)) {
+    # rhs and A-rhs coexist during each call. Keep their combined working
+    # storage near 256 MiB and cap batches to avoid wide temporary matrices.
+    bytes_per_column <- 2 * 8 * n
+    batch_size <- max(
+      1L,
+      min(32L, floor((256 * 1024^2) / max(1, bytes_per_column)))
+    )
+  }
+
+  target_ecg <- if (need_delta) ecg[target_idx] else NULL
+  batch_starts <- seq.int(1L, n_target, by = batch_size)
+
+  for (batch_start in batch_starts) {
+    columns <- batch_start:min(batch_start + batch_size - 1L, n_target)
+    rhs <- matrix(0, nrow = n, ncol = length(columns))
+    rhs[cbind(target_idx[columns], seq_along(columns))] <- 1
+    product <- cpp_multiply_A(sire, dam, dii, rhs)
+    target_product <- product[target_idx, , drop = FALSE]
+
+    for (local_column in seq_along(columns)) {
+      target_column <- columns[local_column]
+      if (target_column <= 1L) next
+
+      previous <- seq_len(target_column - 1L)
+      relationships <- target_product[previous, local_column]
+
+      if (need_mean) {
+        lower_sum <- lower_sum + sum(relationships)
+      }
+
+      if (need_delta) {
+        pair_ecg <- (target_ecg[previous] + target_ecg[target_column]) / 2
+        valid <- pair_ecg > 0
+        if (any(valid)) {
+          coancestry <- relationships[valid] / 2
+          delta_sum <- delta_sum + sum(
+            1 - (1 - coancestry)^(1 / pair_ecg[valid])
+          )
+          delta_pairs <- delta_pairs + sum(valid)
+        }
+      }
+    }
+  }
+
+  list(
+    DeltaC = if (need_delta && delta_pairs > 0) {
+      delta_sum / delta_pairs
+    } else {
+      NA_real_
+    },
+    MeanRelOff = if (need_mean) {
+      2 * lower_sum / (n_target * (n_target - 1))
+    } else {
+      NA_real_
+    },
+    MeanF = mean_f
+  )
+}
+
+calc_ne_coancestry <- function(ped_subset, ped_full, by, nsamples,
+                               seed = NULL, max_trace = 25000L,
+                               metrics = c("ne", "fg")) {
+  # ECG is already merged into ped_subset from ped_full by the caller function.
+  # Returns a stable extended schema for all metric selections. pedne() requests
+  # only Ne and strips the fg columns; pediv() requests both metrics.
+
+  metrics <- match.arg(metrics, c("ne", "fg"), several.ok = TRUE)
+  need_ne <- "ne" %in% metrics
+  need_fg <- "fg" %in% metrics
   ped_subset <- as.data.table(ped_subset)
 
   ped_subset[, CohortLabel := get(by)]
@@ -1248,57 +1362,63 @@ calc_ne_coancestry <- function(ped_subset, ped_full, by, nsamples,
     # Re-identify target numeric IDs (1-based)
     target_nums <- trace_ped[Ind %in% sampled_inds, IndNum]
 
-    # Ensure ECG is present (propagate from full pedigree if missing after trace)
-    if (!"ECG" %in% names(trace_ped)) {
-      ecg_map <- ped_full[Ind %in% trace_ped$Ind, .(Ind, ECG)]
-      trace_ped <- merge(trace_ped, ecg_map, by = "Ind", all.x = TRUE)
-      setorder(trace_ped, IndNum)
+    # DeltaC needs ECG; fg-only consumers can skip this preprocessing entirely.
+    if (need_ne) {
+      if (!"ECG" %in% names(trace_ped)) {
+        ecg_map <- ped_full[Ind %in% trace_ped$Ind, .(Ind, ECG)]
+        trace_ped <- merge(trace_ped, ecg_map, by = "Ind", all.x = TRUE)
+        setorder(trace_ped, IndNum)
+      }
+      trace_ped[is.na(ECG), ECG := 0]
     }
-    trace_ped[is.na(ECG), ECG := 0]
 
-    # ---- 1. DeltaC / Ne ----
-    avg_delta_c <- tryCatch({
-      cpp_calculate_sampled_coancestry_delta(
-        trace_ped$SireNum,
-        trace_ped$DamNum,
-        target_nums,
-        trace_ped$ECG
-      )
-    }, error = function(e) {
-      warning(paste("Error in coancestry calculation for cohort", coh, ":", e$message))
-      NA_real_
-    })
-
-    ne_val <- if (!is.na(avg_delta_c) && avg_delta_c > 0) 1 / (2 * avg_delta_c) else NA_real_
-
-    # ---- 2. fg: founder genome equivalents (Caballero & Toro 2000) ----
-    # Reuses the same traced pedigree — zero extra tidyped() cost.
-    # Corrected mean coancestry:
-    #   C_bar = (N-1)/N * rbar_off/2 + (1 + mean_F_s) / (2N)
-    # where N = full reference cohort size (NOT sample size).
+    avg_delta_c <- NA_real_
+    ne_val <- NA_real_
     fg_val     <- NA_real_
     mean_coan  <- NA_real_
 
     tryCatch({
-      # Off-diagonal mean relationship (cpp returns off-diagonal only)
-      rbar_off <- cpp_mean_relationship(
+      f_res <- cpp_calculate_inbreeding(
         trace_ped$SireNum,
-        trace_ped$DamNum,
-        target_nums
+        trace_ped$DamNum
+      )
+      stats <- calc_sampled_relationship_stats(
+        sire = trace_ped$SireNum,
+        dam = trace_ped$DamNum,
+        dii = f_res$dii,
+        f = f_res$f,
+        target_idx = target_nums,
+        ecg = if (need_ne) trace_ped$ECG else NULL,
+        need_delta = need_ne,
+        need_mean = need_fg
       )
 
-      # Inbreeding for diagonal correction (on traced pedigree — fast)
-      f_traced  <- cpp_calculate_inbreeding(trace_ped$SireNum, trace_ped$DamNum)$f
-      mean_f_s  <- mean(f_traced[target_nums], na.rm = TRUE)
+      if (need_ne) {
+        avg_delta_c <- stats$DeltaC
+        ne_val <- if (!is.na(avg_delta_c) && avg_delta_c > 0) {
+          1 / (2 * avg_delta_c)
+        } else {
+          NA_real_
+        }
+      }
 
-      # Diagonal-corrected mean coancestry weighted by full N
-      N_ref     <- n_total
-      mean_coan <- (N_ref - 1) / N_ref * rbar_off / 2 +
-                   (1 + mean_f_s) / (2 * N_ref)
-
-      fg_val    <- if (!is.na(mean_coan) && mean_coan > 0) 1 / (2 * mean_coan) else NA_real_
+      if (need_fg) {
+        # Diagonal-corrected mean coancestry:
+        #   C_bar = (N-1)/N * rbar_off/2 + (1 + mean_F_s) / (2N)
+        # where N is the full reference cohort size.
+        mean_coan <- (n_total - 1) / n_total * stats$MeanRelOff / 2 +
+                     (1 + stats$MeanF) / (2 * n_total)
+        fg_val <- if (!is.na(mean_coan) && mean_coan > 0) {
+          1 / (2 * mean_coan)
+        } else {
+          NA_real_
+        }
+      }
     }, error = function(e) {
-      warning(paste("Error in fg calculation for cohort", coh, ":", e$message))
+      warning(paste(
+        "Error in matrix-free coancestry calculation for cohort",
+        coh, ":", e$message
+      ))
     })
 
     results_list[[as.character(coh)]] <- data.table(
@@ -1309,7 +1429,7 @@ calc_ne_coancestry <- function(ped_subset, ped_full, by, nsamples,
       Ne           = ne_val,
       MeanCoan     = mean_coan,
       fg           = fg_val,
-      NSampledCoan = length(sampled_inds)
+      NSampledCoan = if (need_fg) length(sampled_inds) else NA_integer_
     )
   }
 
@@ -1982,7 +2102,8 @@ print.pedcontrib <- function(x, ...) {
 #' Internally calls \code{\link{pedcontrib}} for \eqn{f_e} and \eqn{f_a}.
 #' The coancestry method is called via the internal \code{calc_ne_coancestry()}
 #' function directly so that \eqn{f_g} and the Ne estimate can be obtained from
-#' the same traced pedigree without duplication.
+#' the same traced pedigree and the same batched matrix-free relationship
+#' products without duplication.
 #' The inbreeding and demographic Ne methods are obtained via \code{\link{pedne}}.
 #' All calculations use the same \code{reference} population.
 #' If any method fails (e.g., insufficient pedigree depth), its value is \code{NA}
@@ -2044,7 +2165,10 @@ pediv <- function(ped, reference = NULL, top = 20, nsamples = 1000, ncores = 1,
   # so both Ne and fg are computed from the same single traced pedigree.
   message("Calculating Ne (coancestry) and fg...")
   raw_coan <- tryCatch(
-    calc_ne_coancestry(ped_subset, ped_dt, by_all, nsamples, seed = seed),
+    calc_ne_coancestry(
+      ped_subset, ped_dt, by_all, nsamples,
+      seed = seed, metrics = c("ne", "fg")
+    ),
     error = function(e) NULL
   )
 

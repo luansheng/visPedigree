@@ -56,7 +56,8 @@ size estimates (Ne) from three methods into a single summary object.
 Internally calls \code{\link{pedcontrib}} for \eqn{f_e} and \eqn{f_a}.
 The coancestry method is called via the internal \code{calc_ne_coancestry()}
 function directly so that \eqn{f_g} and the Ne estimate can be obtained from
-the same traced pedigree without duplication.
+the same traced pedigree and the same batched matrix-free relationship
+products without duplication.
 The inbreeding and demographic Ne methods are obtained via \code{\link{pedne}}.
 All calculations use the same \code{reference} population.
 If any method fails (e.g., insufficient pedigree depth), its value is \code{NA}

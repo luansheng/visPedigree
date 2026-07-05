@@ -84,6 +84,34 @@ test_that("vismat by groups by generation", {
   expect_true(inherits(p, "trellis"))
 })
 
+test_that("matrix-free pedigree grouping matches explicit A aggregation", {
+  tp <- tidyped(small_ped)
+  A <- as.matrix(pedmat(tp, method = "A", sparse = FALSE))
+  groups <- as.character(tp$Gen)
+  levels <- sort(unique(groups))
+  sizes <- tabulate(factor(groups, levels = levels), nbins = length(levels))
+
+  row_agg <- rowsum(A, groups, reorder = TRUE)
+  expected_sum <- t(rowsum(t(row_agg), groups, reorder = TRUE))
+  expected <- expected_sum / outer(sizes, sizes)
+
+  actual <- aggregate_pedigree_by_group(tp, tp$Ind, "Gen")
+  expect_equal(actual, expected, tolerance = 1e-12)
+})
+
+test_that("vismat grouped tidyped path does not construct A", {
+  tp <- tidyped(small_ped)
+  testthat::local_mocked_bindings(
+    pedmat = function(...) stop("pedmat() must not be called"),
+    .package = "visPedigree"
+  )
+
+  expect_s3_class(
+    suppressMessages(vismat(tp, by = "Gen", reorder = FALSE)),
+    "trellis"
+  )
+})
+
 test_that("vismat by errors without ped", {
   tp <- tidyped(small_ped)
   A <- as.matrix(pedmat(tp, method = "A"))

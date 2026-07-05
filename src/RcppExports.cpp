@@ -69,19 +69,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// cpp_mean_relationship
-double cpp_mean_relationship(IntegerVector sire, IntegerVector dam, IntegerVector target_idx);
-RcppExport SEXP _visPedigree_cpp_mean_relationship(SEXP sireSEXP, SEXP damSEXP, SEXP target_idxSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< IntegerVector >::type sire(sireSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type dam(damSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type target_idx(target_idxSEXP);
-    rcpp_result_gen = Rcpp::wrap(cpp_mean_relationship(sire, dam, target_idx));
-    return rcpp_result_gen;
-END_RCPP
-}
 // cpp_calculate_D
 arma::mat cpp_calculate_D(IntegerVector sire, IntegerVector dam, const arma::mat& A);
 RcppExport SEXP _visPedigree_cpp_calculate_D(SEXP sireSEXP, SEXP damSEXP, SEXP ASEXP) {
@@ -207,20 +194,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// cpp_calculate_sampled_coancestry_delta
-double cpp_calculate_sampled_coancestry_delta(IntegerVector sire, IntegerVector dam, IntegerVector target_idx, NumericVector ecg);
-RcppExport SEXP _visPedigree_cpp_calculate_sampled_coancestry_delta(SEXP sireSEXP, SEXP damSEXP, SEXP target_idxSEXP, SEXP ecgSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< IntegerVector >::type sire(sireSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type dam(damSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type target_idx(target_idxSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type ecg(ecgSEXP);
-    rcpp_result_gen = Rcpp::wrap(cpp_calculate_sampled_coancestry_delta(sire, dam, target_idx, ecg));
-    return rcpp_result_gen;
-END_RCPP
-}
 // cpp_pedcontrib
 List cpp_pedcontrib(IntegerVector sire, IntegerVector dam, IntegerVector cohort_pos, int mode);
 RcppExport SEXP _visPedigree_cpp_pedcontrib(SEXP sireSEXP, SEXP damSEXP, SEXP cohort_posSEXP, SEXP modeSEXP) {
@@ -295,7 +268,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_visPedigree_cpp_calculate_inbreeding", (DL_FUNC) &_visPedigree_cpp_calculate_inbreeding, 2},
     {"_visPedigree_cpp_build_ainv_triplets", (DL_FUNC) &_visPedigree_cpp_build_ainv_triplets, 3},
     {"_visPedigree_cpp_calculate_A", (DL_FUNC) &_visPedigree_cpp_calculate_A, 2},
-    {"_visPedigree_cpp_mean_relationship", (DL_FUNC) &_visPedigree_cpp_mean_relationship, 3},
     {"_visPedigree_cpp_calculate_D", (DL_FUNC) &_visPedigree_cpp_calculate_D, 3},
     {"_visPedigree_cpp_calculate_AA", (DL_FUNC) &_visPedigree_cpp_calculate_AA, 1},
     {"_visPedigree_cpp_invert_dense", (DL_FUNC) &_visPedigree_cpp_invert_dense, 1},
@@ -306,7 +278,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_visPedigree_cpp_assign_generations_top", (DL_FUNC) &_visPedigree_cpp_assign_generations_top, 3},
     {"_visPedigree_cpp_calculate_partial_inbreeding", (DL_FUNC) &_visPedigree_cpp_calculate_partial_inbreeding, 4},
     {"_visPedigree_cpp_assign_generations_bottom", (DL_FUNC) &_visPedigree_cpp_assign_generations_bottom, 3},
-    {"_visPedigree_cpp_calculate_sampled_coancestry_delta", (DL_FUNC) &_visPedigree_cpp_calculate_sampled_coancestry_delta, 4},
     {"_visPedigree_cpp_pedcontrib", (DL_FUNC) &_visPedigree_cpp_pedcontrib, 4},
     {"_visPedigree_cpp_calculate_ancestry", (DL_FUNC) &_visPedigree_cpp_calculate_ancestry, 3},
     {"_visPedigree_cpp_trace_ancestors", (DL_FUNC) &_visPedigree_cpp_trace_ancestors, 4},
