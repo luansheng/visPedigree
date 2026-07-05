@@ -11,6 +11,7 @@
 - **Pedigree Standardization**: Standardizes pedigree records, handles selfing and pedigrees in which the same individual can appear as both sire and dam, detects pedigree loops, prepares pedigrees for downstream analysis, and efficiently splits disconnected sub-populations.
 - **Comprehensive Pedigree Analysis**: Computes pedigree summaries, equivalent complete generations, generation intervals, effective population size, founder and ancestor contributions, partial inbreeding, relationship matrices, and inbreeding coefficients.
 - **High-Throughput Matrix Calculation**: Calculates Additive (A), Dominance (D), and Additive-by-Additive (AA) relationship matrices and their inverses.
+- **Matrix-Free Relationship Products**: Computes $Ax$, $AX$, $A^{-1}x$, and $A^{-1}X$ directly from an ordered pedigree with `pedprod()`, avoiding construction of the dense additive relationship matrix.
 - **Advanced Visualization**: Renders scalable pedigree graphs via `igraph` with compact representations for large full-sib families, plus heatmap displays for relationship matrices.
 - **High Performance**: Core algorithms — ancestry tracing, topological sorting, inbreeding calculation, and matrix construction — are implemented in C++ (Rcpp/RcppArmadillo) with `data.table` for tabular operations, scaling to pedigrees with over one million individuals.
 
@@ -64,6 +65,11 @@ small_ped |>
 mat_a <- simple_ped |> tidyped() |> pedmat(method = "A", compact = TRUE)
 # Visualize the relationship matrix as a heatmap with histograms
 vismat(mat_a)
+
+# Apply A to candidate contribution weights without constructing A
+tp_simple <- tidyped(simple_ped)
+candidate_weights <- c(J5X804 = 0.5, J3Y620 = 0.5)
+weighted_relationship <- pedprod(tp_simple, candidate_weights)
 
 # Example 3: Inbreeding & Highlighting
 # Calculate inbreeding coefficients (f) and display them on the graph (e.g., "ID (0.05)").

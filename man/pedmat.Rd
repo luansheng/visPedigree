@@ -188,6 +188,7 @@ Biometrics, 32(1), 69-83.
 }
 \seealso{
 \code{\link{tidyped}} for preparing pedigree data,
+\code{\link{pedprod}} for matrix-free products with A or Ainv,
 \code{\link{query_relationship}} for querying individual pairs,
 \code{\link{expand_pedmat}} for restoring full dimensions,
 \code{\link{vismat}} for visualization,

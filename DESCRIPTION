@@ -1,7 +1,7 @@
 Package: visPedigree
 Type: Package
 Title: Tidying, Analysis, and Fast Visualization of Animal and Plant Pedigrees
-Version: 1.8.1
+Version: 1.8.2
 Authors@R: person("Sheng","Luan", email="luansheng@gmail.com", role = c("aut","cre"))
 Description: Provides tools for the analysis and visualization of animal and
     plant pedigrees. Analytical methods include equivalent complete generations,
@@ -11,11 +11,13 @@ Description: Provides tools for the analysis and visualization of animal and
     epistatic (AA) relationship matrices. Core algorithms — ancestry tracing,
     topological sorting, inbreeding coefficients, and matrix construction — are
     implemented in C++ ('Rcpp', 'RcppArmadillo') and 'data.table', scaling to
-    pedigrees with over one million individuals. Pedigree graphs are rendered
-    via 'igraph' with support for compact full-sib family display; relationship
-    matrices can be visualized as heatmaps. Supports complex mating systems,
-    including selfing and pedigrees in which the same individual can appear as
-    both sire and dam.
+    pedigrees with over one million individuals. Matrix-free pedigree
+    traversals apply additive relationship matrices or their inverses to
+    vectors and matrices without materializing dense square matrices. Pedigree
+    graphs are rendered via 'igraph' with support for compact full-sib family
+    display; relationship matrices can be visualized as heatmaps. Supports
+    complex mating systems, including selfing and pedigrees in which the same
+    individual can appear as both sire and dam.
 License: GPL-3
 Encoding: UTF-8
 LazyData: true

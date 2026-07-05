@@ -3,10 +3,14 @@
 ## New features
 1. **`visped()` SVG output**: `visped()` now writes SVG files when `file` ends in `.svg`; other file names continue to use PDF output by default.
 2. **`visped()` custom labels**: Added a `labelvar` argument to display labels from a user-selected pedigree column for individual nodes. Compact full-sib family nodes continue to show family size.
+3. **Matrix-free relationship products**: Added `pedprod()` to compute $Ax$, $AX$, $A^{-1}x$, and $A^{-1}X$ directly from a complete pedigree. The implementation uses the $A = TDT'$ factorization and avoids materializing the dense additive relationship matrix.
 
 ## Improvements
 1. **`pedrel()` diagnostics for large or skipped groups**: `pedrel()` now returns `Status` and `Message` columns so users can identify groups that were skipped or failed without missing repeated warnings. A single summary warning points users to these diagnostic columns.
 2. **`pedrel()` explicit force option**: Added `force`, `max_dense`, and `max_compact` arguments. By default, large traced pedigrees are skipped with diagnostics before expensive calculations; `force = TRUE` lets advanced users attempt the calculation with a warning.
+
+## Bug fixes
+1. **Selfing in `Ainv`**: Corrected the sire-dam diagonal cross-term in Henderson's inverse construction when the sire and dam are the same individual. `pedmat(method = "Ainv")` now remains the numerical inverse of `A` for pedigrees created with `selfing = TRUE`.
 
 # Changes in version 1.8.1 released on 28 Mar 2026
 ## New features
@@ -475,4 +479,3 @@ This release marks the first stable version 1.0.0, polished for CRAN.
 # Changes in version 0.2.1 released on 17 Nov 2018
 ## Bug fixes
 1. Repel the overlapping nodes due to very small differences (digits > 7) among x positions of nodes
-

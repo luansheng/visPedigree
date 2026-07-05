@@ -45,8 +45,12 @@ cpp_invert_auto <- function(M) {
     .Call(`_visPedigree_cpp_invert_auto`, M)
 }
 
-cpp_solve_A <- function(sire, dam, dii, b) {
-    .Call(`_visPedigree_cpp_solve_A`, sire, dam, dii, b)
+cpp_multiply_A <- function(sire, dam, dii, rhs) {
+    .Call(`_visPedigree_cpp_multiply_A`, sire, dam, dii, rhs)
+}
+
+cpp_multiply_Ainv <- function(sire, dam, dii, rhs) {
+    .Call(`_visPedigree_cpp_multiply_Ainv`, sire, dam, dii, rhs)
 }
 
 cpp_assign_generations_top <- function(sire, dam, topo_order) {
