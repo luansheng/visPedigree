@@ -442,12 +442,6 @@ pedsubpop <- function(ped, by = NULL) {
 #'   relationship (current \code{pedrel()} behavior). \code{"coancestry"}
 #'   returns the corrected population mean coancestry used for pedigree-based
 #'   diversity calculations.
-#' @param force Logical. Retained for backward compatibility and ignored.
-#'   Matrix-free calculations do not use the former dense-matrix size guards.
-#' @param max_dense Positive number. Retained for backward compatibility and
-#'   ignored.
-#' @param max_compact Positive number. Retained for backward compatibility and
-#'   ignored.
 #'
 #' @return A \code{data.table} with columns:
 #' \itemize{
@@ -491,21 +485,11 @@ pedsubpop <- function(ped, by = NULL) {
 #' 
 #' @export
 pedrel <- function(ped, by = "Gen", reference = NULL, compact = FALSE,
-                   scale = c("relationship", "coancestry"), force = FALSE,
-                   max_dense = 25000L, max_compact = 200000L) {
+                   scale = c("relationship", "coancestry")) {
   ped <- ensure_complete_tidyped(ped, "pedrel()")
   scale <- match.arg(scale)
   if (!by %in% names(ped)) stop(sprintf("Column '%s' not found.", by))
   if (!isTRUE(compact) && !isFALSE(compact)) stop("'compact' must be TRUE or FALSE.")
-  if (!isTRUE(force) && !isFALSE(force)) stop("'force' must be TRUE or FALSE.")
-  if (!is.numeric(max_dense) || length(max_dense) != 1 || is.na(max_dense) ||
-      !is.finite(max_dense) || max_dense < 1) {
-    stop("'max_dense' must be a single positive number.")
-  }
-  if (!is.numeric(max_compact) || length(max_compact) != 1 || is.na(max_compact) ||
-      !is.finite(max_compact) || max_compact < 1) {
-    stop("'max_compact' must be a single positive number.")
-  }
 
   make_row <- function(group, n_total, n_used, mean, status = "ok", message = "") {
     data.table(Group = group, NTotal = n_total, NUsed = n_used,

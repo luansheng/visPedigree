@@ -157,11 +157,8 @@ test_that("pedrel processes more groups than one product batch", {
   expect_true(all(coan$Status == "ok"))
 })
 
-test_that("pedrel validates legacy logical controls", {
+test_that("pedrel validates compact", {
   ped <- make_pedrel_test_pedigree()
 
   expect_error(pedrel(ped, by = "Cohort", compact = NA), "compact")
-  expect_error(pedrel(ped, by = "Cohort", force = NA), "force")
-  expect_error(pedrel(ped, by = "Cohort", max_dense = Inf), "max_dense")
-  expect_error(pedrel(ped, by = "Cohort", max_compact = Inf), "max_compact")
 })

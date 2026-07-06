@@ -11,8 +11,9 @@
    union of selected ancestors once and no longer constructs or scans a dense
    relationship matrix for each group.
 2. **Large-group support in `pedrel()`**: The former dense and compact matrix
-   size guards are no longer needed. `compact`, `force`, `max_dense`, and
-   `max_compact` remain accepted as backward-compatible no-op arguments.
+   size guards are no longer needed. The development-only `force`,
+   `max_dense`, and `max_compact` no-op arguments were removed before release,
+   while `compact` remains as a backward-compatible no-op argument.
    `Status` and `Message` continue to identify groups skipped because fewer
    than two individuals were selected or groups that failed during tracing.
 3. **Matrix-free coancestry analyses**: `pedne(method = "coancestry")` now

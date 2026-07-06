@@ -9,10 +9,7 @@ pedrel(
   by = "Gen",
   reference = NULL,
   compact = FALSE,
-  scale = c("relationship", "coancestry"),
-  force = FALSE,
-  max_dense = 25000L,
-  max_compact = 200000L
+  scale = c("relationship", "coancestry")
 )
 }
 \arguments{
@@ -33,15 +30,6 @@ calculations.}
 relationship (current \code{pedrel()} behavior). \code{"coancestry"}
 returns the corrected population mean coancestry used for pedigree-based
 diversity calculations.}
-
-\item{force}{Logical. Retained for backward compatibility and ignored.
-Matrix-free calculations do not use the former dense-matrix size guards.}
-
-\item{max_dense}{Positive number. Retained for backward compatibility and
-ignored.}
-
-\item{max_compact}{Positive number. Retained for backward compatibility and
-ignored.}
 }
 \value{
 A \code{data.table} with columns:
