@@ -1,3 +1,51 @@
+#' Normalize custom labels before pedigree tidying
+#' @keywords internal
+prepare_visped_labels <- function(ped, labelvar) {
+  if (is.null(labelvar)) {
+    return(list(ped = ped, label_column = NULL))
+  }
+
+  if (!is.character(labelvar)) {
+    stop(
+      "'labelvar' must be NULL, a single non-empty column name, ",
+      "or a character vector with one label per pedigree row."
+    )
+  }
+
+  if (length(labelvar) == 1L) {
+    if (is.na(labelvar) || labelvar == "") {
+      stop(
+        "'labelvar' must be NULL, a single non-empty column name, ",
+        "or a character vector with one label per pedigree row."
+      )
+    }
+    return(list(ped = ped, label_column = labelvar))
+  }
+
+  if (!is.data.frame(ped)) {
+    stop("A 'labelvar' vector requires 'ped' to be a data.frame or data.table.")
+  }
+
+  if (length(labelvar) != nrow(ped)) {
+    stop(
+      sprintf(
+        "A 'labelvar' vector must have one label per pedigree row (%d), not %d.",
+        nrow(ped),
+        length(labelvar)
+      )
+    )
+  }
+
+  ped <- copy(ped)
+  label_column <- ".visped_label"
+  while (label_column %in% names(ped)) {
+    label_column <- paste0(label_column, "_")
+  }
+  set(ped, j = label_column, value = labelvar)
+
+  list(ped = ped, label_column = label_column)
+}
+
 #' Visualize a tidy pedigree
 #'
 #' \code{visped} function draws a graph of a full or compact pedigree.
@@ -27,7 +75,12 @@
 #' For example: \code{c("A", "B")} or \code{list(ids = c("A", "B"), frame.color = "#9c27b0")}. The function will check if the specified individuals exist in the pedigree and issue a warning for any missing IDs. The default value is NULL.
 #' @param trace A logical value or a character string. If TRUE, all ancestors and descendants of the individuals specified in \code{highlight} will be highlighted. If a character string, it specifies the tracing direction: "\strong{up}" (ancestors), "\strong{down}" (descendants), or "\strong{all}" (union of ancestors and descendants). This is useful for focusing on specific families within a large pedigree. The default value is FALSE.
 #' @param showf A logical value indicating whether inbreeding coefficients will be shown in the graph. If \code{showf = TRUE} and the column \strong{f} is missing, \code{visped()} will try to compute it automatically with \code{\link{inbreed}} on a structurally complete pedigree. If automatic computation is not possible, a warning is issued and labels are drawn without \strong{f}. The default value is FALSE.
-#' @param labelvar NULL or a character value naming a column in ped to use as the displayed label for individual nodes. Compact full-sib family nodes still show family size when compact = TRUE. Missing or empty values fall back to individual IDs. The default value is NULL.
+#' @param labelvar NULL, a single non-empty character value naming a column in
+#'   \code{ped}, or a character vector with one displayed label per input
+#'   pedigree row. Row-aligned vectors are attached before any internal
+#'   tidying or reordering. Compact full-sib family nodes still show family
+#'   size when \code{compact = TRUE}. Missing or empty values fall back to
+#'   individual IDs. The default value is NULL.
 #' @param pagewidth A numeric value specifying the width of the PDF file in inches. This controls the horizontal scaling of the layout. The default value is 200.
 #' @param symbolsize A numeric value specifying the scaling factor for node size relative to the label size. Values greater than 1 increase the node size (adding padding around the label), while values less than 1 decrease it. This is useful for fine-tuning the whitespace and legibility of dense graphs. The default value is 1.
 #' @param maxiter An integer specifying the maximum number of iterations for the Sugiyama layout algorithm to minimize edge crossings. Higher values (e.g., 2000 or 5000) may result in fewer crossed lines for complex pedigrees but will increase computation time. The default value is 1000.
@@ -143,6 +196,10 @@ visped <- function(
   genlabcex = NULL,
   ...
 ) {
+  label_info <- prepare_visped_labels(ped, labelvar)
+  ped <- label_info$ped
+  label_column <- label_info$label_column
+
   # Automatically convert raw data to tidyped object if needed.
   # If the object already looks like a tidyped pedigree but only lost its class,
   # restore/validate it instead of rebuilding from raw input.
@@ -171,15 +228,8 @@ visped <- function(
     stop("'showf' must be TRUE or FALSE.")
   }
 
-  if (
-    !is.null(labelvar) &&
-      (!is.character(labelvar) || length(labelvar) != 1 || is.na(labelvar) || labelvar == "")
-  ) {
-    stop("'labelvar' must be NULL or a single non-empty character string.")
-  }
-
-  if (!is.null(labelvar) && !labelvar %in% names(ped)) {
-    stop(sprintf("Column '%s' specified by 'labelvar' was not found in the pedigree.", labelvar))
+  if (!is.null(label_column) && !label_column %in% names(ped)) {
+    stop(sprintf("Column '%s' specified by 'labelvar' was not found in the pedigree.", label_column))
   }
 
   if (
@@ -323,7 +373,7 @@ visped <- function(
           highlight = highlight,
           trace = trace,
           showf = showf,
-          labelvar = labelvar,
+          labelvar = label_column,
           pagewidth = pagewidth,
           symbolsize = symbolsize,
           maxiter = maxiter,
@@ -343,7 +393,7 @@ visped <- function(
       highlight = highlight,
       trace = trace,
       showf = showf,
-      labelvar = labelvar,
+      labelvar = label_column,
       pagewidth = pagewidth,
       symbolsize = symbolsize,
       maxiter = maxiter,

@@ -50,7 +50,12 @@ For example: \code{c("A", "B")} or \code{list(ids = c("A", "B"), frame.color = "
 
 \item{showf}{A logical value indicating whether inbreeding coefficients will be shown in the graph. If \code{showf = TRUE} and the column \strong{f} is missing, \code{visped()} will try to compute it automatically with \code{\link{inbreed}} on a structurally complete pedigree. If automatic computation is not possible, a warning is issued and labels are drawn without \strong{f}. The default value is FALSE.}
 
-\item{labelvar}{NULL or a character value naming a column in ped to use as the displayed label for individual nodes. Compact full-sib family nodes still show family size when compact = TRUE. Missing or empty values fall back to individual IDs. The default value is NULL.}
+\item{labelvar}{NULL, a single non-empty character value naming a column in
+\code{ped}, or a character vector with one displayed label per input
+pedigree row. Row-aligned vectors are attached before any internal
+tidying or reordering. Compact full-sib family nodes still show family
+size when \code{compact = TRUE}. Missing or empty values fall back to
+individual IDs. The default value is NULL.}
 
 \item{pagewidth}{A numeric value specifying the width of the PDF file in inches. This controls the horizontal scaling of the layout. The default value is 200.}
 
