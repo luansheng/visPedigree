@@ -2,6 +2,9 @@
 ^renv\.lock$
 # --- 开发工具配置 ---
 ^\.Rprofile$
+^\.Renviron$
+^Makefile$
+^scripts$
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^\.vscode$
@@ -43,7 +46,7 @@
 ^man/figures/.*\.png$
 ^sandbox$
 ^Positron\.md$
-^Agents\.md$
+^AGENTS\.md$
 
 # --- 协议文件 (GitHub 展示专用) ---
 ^LICENSE\.md$

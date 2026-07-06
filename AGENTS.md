@@ -2,6 +2,42 @@
 
 This document outlines the coding standards, naming conventions, and design principles for the `visPedigree` package. All contributors (human and AI) are expected to follow these guidelines to ensure consistency.
 
+## 0. Development Environment
+
+The Git and renv project root is this directory (`visPedigree/`), not its
+parent `visPedigree-submission/`. Run all development commands from this
+directory so that `.Rprofile` activates the project environment.
+
+The single setup entry point is:
+
+```bash
+make bootstrap
+```
+
+It restores every runtime and development package recorded in `renv.lock` and
+fails if the resulting library is not synchronized. The project keeps renv's
+library and cache under `renv/` by default so restricted Agents can write them.
+The renv system-library sandbox is disabled because its repeated regeneration
+is slow in this project location; set `RENV_CONFIG_SANDBOX_ENABLED=TRUE` before
+starting R to opt back in. Externally supplied `RENV_PATHS_*` values still take
+precedence. A restricted execution sandbox that blocks localhost sockets may
+require one-time approval during the first restore; synchronized runs do not.
+
+After bootstrapping, use these commands:
+
+```bash
+make status
+make test
+make check
+make docs
+```
+
+Do not use `Rscript --vanilla` for project commands because it bypasses
+`.Rprofile` and therefore renv activation. renv manages R packages only; R
+itself, compilers, system libraries, Pandoc, and LaTeX remain system
+prerequisites. R-hub and CRAN-oriented CI intentionally test current
+dependencies across platforms instead of restoring `renv.lock`.
+
 ## 1. Naming Conventions
 
 ### 1.1 Exported Functions (User-Facing)

@@ -1,7 +1,13 @@
+binary/
+cache/
+index/
 library/
 local/
 cellar/
 lock/
+p3m/
+projects
 python/
 sandbox/
+source/
 staging/

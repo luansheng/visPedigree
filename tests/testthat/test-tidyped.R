@@ -1,6 +1,5 @@
 library(testthat)
 library(data.table)
-library(igraph)
 
 # Load package functions if not available (for standalone testing)
 if (!exists("tidyped")) {
