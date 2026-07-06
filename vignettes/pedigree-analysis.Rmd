@@ -549,8 +549,8 @@ Internally, `pedrel()` creates an indicator vector $g$ for each group and
 computes $Ag$ directly from the pedigree. The off-diagonal sum is obtained
 from $g^\mathsf{T}Ag$ after subtracting
 $\sum_{i:g_i=1}(1 + F_i)$. The dense relationship matrix is never
-materialized, so `compact`, `force`, `max_dense`, and `max_compact` are now
-retained only for backward compatibility.
+materialized, so `compact` is now retained only as a backward-compatible
+no-op argument.
 
 ```{r pedrel-example}
 tp_small$BirthYear <- 2010 + tp_small$Gen
