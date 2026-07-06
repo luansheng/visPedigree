@@ -35,7 +35,10 @@ Suggests:
     nadiv (>= 2.18.0),
     testthat (>= 3.0.0),
     knitr,
-    rmarkdown
+    rmarkdown,
+    devtools,
+    roxygen2,
+    pkgdown
 URL: https://github.com/luansheng/visPedigree, https://luansheng.github.io/visPedigree/
 BugReports: https://github.com/luansheng/visPedigree/issues
 VignetteBuilder: knitr

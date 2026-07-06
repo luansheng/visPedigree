@@ -2,11 +2,13 @@
 
 ## Working commands
 
-- Full test suite: `Rscript -e 'devtools::test()'`
-- Single test file or pattern: `Rscript -e 'devtools::test(filter = "visped-layout")'`  
+- First-time environment setup: `make bootstrap`
+- Environment consistency check: `make status`
+- Full test suite: `make test`
+- Single test file or pattern: `make test TEST_FILTER=visped-layout`
   Replace `visped-layout` with another file stem such as `tidyped-alignment`, `pedmat-compact`, or `pedanalysis`.
-- CRAN-like local check: `Rscript -e 'devtools::check(cran = TRUE, manual = TRUE, error_on = "never")'`
-- Pkgdown site build: `Rscript -e 'pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)'`
+- CRAN-like local check: `make check`
+- Pkgdown site build: `make docs`
 
 ## High-level architecture
 
