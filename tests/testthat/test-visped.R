@@ -36,10 +36,39 @@ test_that("visped supports custom individual labels", {
   tidy_ped[, DisplayID := paste0("node_", seq_len(.N))]
 
   res <- visped(tidy_ped, labelvar = "DisplayID", showgraph = FALSE, file = tempfile())
-  real_labels <- igraph::V(res$g)[nodetype == "real"]$label
+  vertices <- as.data.table(igraph::as_data_frame(res$g, what = "vertices"))
+  real_nodes <- vertices[nodetype == "real"]
 
-  expect_true(any(grepl("^node_", real_labels)))
-  expect_false(any(tidy_ped$Ind %in% real_labels))
+  expected <- tidy_ped$DisplayID[match(real_nodes$Ind, tidy_ped$Ind)]
+  expect_equal(real_nodes$label, expected)
+})
+
+test_that("visped accepts row-aligned labels without losing ID alignment", {
+  raw_ped <- copy(as.data.table(simple_ped))
+  raw_ped <- raw_ped[rev(seq_len(nrow(raw_ped)))]
+  original_names <- names(raw_ped)
+  raw_ids <- as.character(raw_ped[[1L]])
+  display_labels <- paste0("node_", raw_ids)
+  display_labels[1:2] <- c(NA_character_, "")
+  focal <- "J5X804"
+
+  res <- visped(
+    raw_ped,
+    labelvar = display_labels,
+    highlight = focal,
+    trace = "all",
+    showgraph = FALSE,
+    file = tempfile()
+  )
+  vertices <- as.data.table(igraph::as_data_frame(res$g, what = "vertices"))
+  real_nodes <- vertices[nodetype == "real"]
+  expected <- display_labels[match(real_nodes$Ind, raw_ids)]
+  expected[is.na(expected) | expected == ""] <-
+    real_nodes$Ind[is.na(expected) | expected == ""]
+
+  expect_equal(real_nodes$label, expected)
+  expect_true(real_nodes[Ind == focal, highlighted])
+  expect_identical(names(raw_ped), original_names)
 })
 
 test_that("visped rejects missing custom label columns", {
@@ -48,6 +77,14 @@ test_that("visped rejects missing custom label columns", {
   expect_error(
     visped(tidy_ped, labelvar = "MissingLabel", showgraph = FALSE, file = tempfile()),
     "specified by 'labelvar' was not found"
+  )
+  expect_error(
+    visped(tidy_ped, labelvar = c("one", "two")),
+    "one label per pedigree row"
+  )
+  expect_error(
+    visped(tidy_ped, labelvar = seq_len(nrow(tidy_ped))),
+    "must be NULL"
   )
 })
 
@@ -70,11 +107,21 @@ test_that("visped parameter 'compact' works", {
   res_full <- visped(tidy_fam, compact = FALSE, showgraph = FALSE, file = tempfile())
   
   # With compact
-  res_compact <- visped(tidy_fam, compact = TRUE, showgraph = FALSE, file = tempfile())
+  res_compact <- visped(
+    tidy_fam,
+    compact = TRUE,
+    labelvar = paste0("node_", tidy_fam$Ind),
+    showgraph = FALSE,
+    file = tempfile()
+  )
   
   # Check if "compact" nodes exist
   node_types <- igraph::V(res_compact$g)$nodetype
   expect_true("compact" %in% node_types)
+  compact_labels <- igraph::V(res_compact$g)[nodetype == "compact"]$label
+  real_labels <- igraph::V(res_compact$g)[nodetype == "real"]$label
+  expect_true(all(grepl("^[0-9]+$", compact_labels)))
+  expect_true(all(grepl("^node_", real_labels)))
   
   # Compact graph should have fewer nodes (real id nodes replaced by one compact node)
   expect_lt(igraph::vcount(res_compact$g), igraph::vcount(res_full$g))

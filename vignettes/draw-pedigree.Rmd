@@ -83,11 +83,15 @@ SVG output is also supported by using a file name ending in `.svg`. This is usef
 suppressMessages(visped(tidy_simple_ped, showgraph = FALSE, file = tempfile(fileext = ".svg")))
 ```
 
-Custom node labels can be displayed from any column in the tidied pedigree using `labelvar`. This keeps the underlying individual IDs available for tracing and highlighting, while changing the text shown on individual nodes. Compact full-sib family nodes still show family size when `compact = TRUE`.
+Custom node labels can be displayed either from a selected pedigree column or from a character vector with one value per input row using `labelvar`. Row-aligned vectors remain attached to the correct individuals if the pedigree is internally tidied or reordered. Both forms keep the underlying individual IDs available for tracing and highlighting, while changing the text shown on individual nodes. Compact full-sib family nodes still show family size when `compact = TRUE`.
 
 ```{r custom-labels, fig.show="hold"}
 tidy_simple_ped[, ShortLabel := paste0("N", seq_len(.N))]
 visped(tidy_simple_ped, labelvar = "ShortLabel", cex = 0.3, symbolsize = 10)
+
+# A row-aligned vector is also accepted
+visped(tidy_simple_ped, labelvar = rep("1x", nrow(tidy_simple_ped)),
+       cex = 0.3, symbolsize = 10)
 ```
 
 #### 1.1.1 Highlighting specific individuals {#1-1-1}

@@ -2,7 +2,7 @@
 # Changes in version 1.8.2 under development
 ## New features
 1. **`visped()` SVG output**: `visped()` now writes SVG files when `file` ends in `.svg`; other file names continue to use PDF output by default.
-2. **`visped()` custom labels**: Added a `labelvar` argument to display labels from a user-selected pedigree column for individual nodes. Compact full-sib family nodes continue to show family size.
+2. **`visped()` custom labels**: Added a `labelvar` argument to display labels from either a user-selected pedigree column or a row-aligned character vector. Compact full-sib family nodes continue to show family size.
 3. **Matrix-free relationship products**: Added `pedprod()` to compute $Ax$, $AX$, $A^{-1}x$, and $A^{-1}X$ directly from a complete pedigree. The implementation uses the $A = TDT'$ factorization and avoids materializing the dense additive relationship matrix.
 
 ## Improvements
