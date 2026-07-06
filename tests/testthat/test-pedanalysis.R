@@ -101,19 +101,11 @@ test_that("pedrel captures deep inbreeding and correct ancestor tracing", {
   expect_equal(coan_deep[Gen == 4, MeanCoan], 0.59375)
 })
 
-test_that("pedrel accepts legacy matrix-control arguments as no-ops", {
+test_that("pedrel retains compact as a backward-compatible no-op", {
   baseline <- pedrel(test_ped, by = "Gen")
-  legacy_dense <- pedrel(test_ped, by = "Gen", max_dense = 1L)
-  legacy_compact <- pedrel(
-    test_ped, by = "Gen", compact = TRUE, max_compact = 1L
-  )
-  legacy_force <- pedrel(
-    test_ped, by = "Gen", force = TRUE, max_dense = 1L
-  )
+  legacy_compact <- pedrel(test_ped, by = "Gen", compact = TRUE)
 
-  expect_equal(legacy_dense, baseline)
   expect_equal(legacy_compact, baseline)
-  expect_equal(legacy_force, baseline)
 })
 
 test_that("pedgenint computes Average from all parent-offspring pairs", {
