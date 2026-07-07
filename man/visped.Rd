@@ -97,12 +97,12 @@ By default, \code{shapeby = "sex"} encodes individual sex with node shape:
 females are circles, males are squares, individuals of unknown sex are
 diamonds, and monoecious individuals are hexagons. Set
 \code{shapeby = "role"} to use the legacy role-based scheme, where circles
-represent individual records and neutral-grey rectangles represent compact
-full-sib family summaries. Compact family summaries remain neutral-grey
+represent individual records and green-grey rectangles represent compact
+full-sib family summaries. Compact family summaries remain green-grey
 rectangles in both modes. Dark sky blue indicates males, dark goldenrod
-indicates females, teal indicates monoecious individuals, and dark olive
-green indicates unknown sex. Purple borders indicate highlighted individuals
-rather than sex.
+indicates females, teal indicates monoecious individuals, and neutral grey
+indicates unknown sex. Purple borders indicate highlighted individuals rather
+than sex.
 }
 \note{
 Isolated individuals (those with no parents and no progeny, assigned Gen 0) are automatically filtered out and not shown in the plot. A message will be issued if any such individuals are removed.

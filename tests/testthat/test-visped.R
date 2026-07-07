@@ -135,7 +135,10 @@ test_that("visped parameter 'compact' works", {
   expect_true(all(grepl("^node_", real_labels)))
   expect_true(all(igraph::V(res_compact$g)[nodetype == "compact"]$shape == "rectangle"))
   expect_true(all(
-    igraph::V(res_compact$g)[nodetype == "compact"]$color == "#d9d9d9"
+    igraph::V(res_compact$g)[nodetype == "compact"]$color == "#9cb383"
+  ))
+  expect_true(all(
+    igraph::V(res_compact$g)[nodetype == "compact"]$frame.color == "#5f7650"
   ))
   
   # Compact graph should have fewer nodes (real id nodes replaced by one compact node)
@@ -162,7 +165,8 @@ test_that("visped shapeby sex is the default and preserves sex colors", {
   expect_equal(sex_nodes[Ind == "M", color], "#119ecc")
   expect_equal(sex_nodes[Ind == "F", color], "#f4b131")
   expect_equal(sex_nodes[Ind == "H", color], "#26a69a")
-  expect_equal(sex_nodes[Ind == "U", color], "#9cb383")
+  expect_equal(sex_nodes[Ind == "U", color], "#d9d9d9")
+  expect_equal(sex_nodes[Ind == "U", frame.color], "#777777")
 })
 
 test_that("visped shapeby role keeps individual records as circles", {
@@ -179,7 +183,8 @@ test_that("visped shapeby role keeps individual records as circles", {
   expect_equal(nodes[Ind == "M", color], "#119ecc")
   expect_equal(nodes[Ind == "F", color], "#f4b131")
   expect_equal(nodes[Ind == "H", color], "#26a69a")
-  expect_equal(nodes[Ind == "U", color], "#9cb383")
+  expect_equal(nodes[Ind == "U", color], "#d9d9d9")
+  expect_equal(nodes[Ind == "U", frame.color], "#777777")
 })
 
 test_that("visped shapeby sex maps all supported sex classes", {

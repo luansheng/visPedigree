@@ -60,12 +60,12 @@ prepare_visped_labels <- function(ped, labelvar) {
 #' females are circles, males are squares, individuals of unknown sex are
 #' diamonds, and monoecious individuals are hexagons. Set
 #' \code{shapeby = "role"} to use the legacy role-based scheme, where circles
-#' represent individual records and neutral-grey rectangles represent compact
-#' full-sib family summaries. Compact family summaries remain neutral-grey
+#' represent individual records and green-grey rectangles represent compact
+#' full-sib family summaries. Compact family summaries remain green-grey
 #' rectangles in both modes. Dark sky blue indicates males, dark goldenrod
-#' indicates females, teal indicates monoecious individuals, and dark olive
-#' green indicates unknown sex. Purple borders indicate highlighted individuals
-#' rather than sex.
+#' indicates females, teal indicates monoecious individuals, and neutral grey
+#' indicates unknown sex. Purple borders indicate highlighted individuals rather
+#' than sex.
 #'
 #' @param ped A \code{tidyped} object (which inherits from \code{data.table}). It is recommended that the pedigree is tidied and pruned by candidates using the \code{\link{tidyped}} function with the non-null parameter \code{cand}.
 #' @param compact A logical value indicating whether terminal, non-parent

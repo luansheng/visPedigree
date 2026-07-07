@@ -1,4 +1,4 @@
-# visPedigree: Tidying, Analysis, and Fast Visualization of Animal and Plant Pedigrees <img src="man/figures/logo.png" align="right" height="138" alt="" />
+# visPedigree: Tidying, Analysis, and Fast Visualization of Animal and Plant Pedigrees
 
 `visPedigree` provides tools for the analysis and visualization of animal and plant pedigrees. Analytical methods cover equivalent complete generations, generation intervals, effective population size, founder and ancestor contributions, partial inbreeding, genetic diversity indices, and relationship matrices (A, D, AA). Core algorithms — ancestry tracing, topological sorting, inbreeding coefficients, and matrix construction — are implemented in C++ (Rcpp/RcppArmadillo) and `data.table`, scaling to pedigrees with over one million individuals. Pedigree graphs are rendered via `igraph`; relationship matrices can be visualized as heatmaps. Complex mating systems are supported, including selfing and pedigrees in which the same individual can appear as both sire and dam.
 
@@ -52,7 +52,7 @@ Recommended reading order:
 library(visPedigree)
 
 # Example 1: Tidy and visualize a small pedigree
-# Use compact = TRUE to condense eligible full-sib groups into a grey
+# Use compact = TRUE to condense eligible full-sib groups into a green-grey
 # family-summary rectangle labelled FS×N.
 cands <- c("Y", "Z1", "Z2")
 small_ped |>

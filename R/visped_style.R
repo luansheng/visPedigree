@@ -31,9 +31,10 @@ VISPED_COLORS <- c(
   male = "#119ecc",
   female = "#f4b131",
   monoecious = "#26a69a",
-  unknown = "#9cb383",
-  family_fill = "#d9d9d9",
-  family_frame = "#666666",
+  unknown = "#d9d9d9",
+  unknown_frame = "#777777",
+  family_fill = "#9cb383",
+  family_frame = "#5f7650",
   focal_frame = "#9c27b0",
   relative_frame = "#ab47bc"
 )
@@ -201,7 +202,7 @@ apply_node_styles <- function(ped_node, highlight_info, shapeby = "sex") {
   # Default styles (set all at once)
   ped_node[, `:=`(
     shape = "circle", 
-    frame.color = VISPED_COLORS[["unknown"]],
+    frame.color = VISPED_COLORS[["unknown_frame"]],
     color = VISPED_COLORS[["unknown"]],
     size = 15, 
     label.color = "#0d0312", 
@@ -223,7 +224,7 @@ apply_node_styles <- function(ped_node, highlight_info, shapeby = "sex") {
     color = VISPED_COLORS[["monoecious"]]
   )]
   ped_node[is.na(sex) | sex == "unknown", `:=`(
-    frame.color = VISPED_COLORS[["unknown"]],
+    frame.color = VISPED_COLORS[["unknown_frame"]],
     color = VISPED_COLORS[["unknown"]]
   )]
 
