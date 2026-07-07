@@ -62,7 +62,8 @@ corresponding male, female, or monoecious color.
 Set `shapeby = "role"` to use the legacy role-based symbol scheme, where
 individual records are circles and compact full-sib family summaries are
 green-grey rectangles. Compact family summaries remain green-grey
-rectangles in both modes.
+rectangles in both modes. In `shapeby = "role"` mode, real individuals remain
+circles, but their fill colors still encode sex.
 
 ```{r symbol-schemes, fig.show="hold"}
 visped(tidy_small_ped, compact = TRUE)

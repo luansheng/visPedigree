@@ -66,7 +66,8 @@ individual IDs. The default value is NULL.}
 \code{"sex"} (default) uses circles for females, squares for males,
 diamonds for unknown sex, and hexagons for monoecious individuals.
 \code{"role"} distinguishes individual records from compact family
-summaries. Compact family summaries are rectangles in both modes.}
+summaries by shape while keeping sex-based fill colors for real
+individuals. Compact family summaries are rectangles in both modes.}
 
 \item{pagewidth}{A numeric value specifying the width of the PDF file in inches. This controls the horizontal scaling of the layout. The default value is 200.}
 
@@ -99,10 +100,11 @@ diamonds, and monoecious individuals are hexagons. Set
 \code{shapeby = "role"} to use the legacy role-based scheme, where circles
 represent individual records and green-grey rectangles represent compact
 full-sib family summaries. Compact family summaries remain green-grey
-rectangles in both modes. Dark sky blue indicates males, dark goldenrod
-indicates females, teal indicates monoecious individuals, and neutral grey
-indicates unknown sex. Purple borders indicate highlighted individuals rather
-than sex.
+rectangles in both modes. In \code{shapeby = "role"} mode, real individuals
+remain circles, but their fill colors still encode sex. Dark sky blue
+indicates males, dark goldenrod indicates females, teal indicates monoecious
+individuals, and neutral grey indicates unknown sex. Purple borders indicate
+highlighted individuals rather than sex.
 }
 \note{
 Isolated individuals (those with no parents and no progeny, assigned Gen 0) are automatically filtered out and not shown in the plot. A message will be issued if any such individuals are removed.
