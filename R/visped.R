@@ -62,10 +62,11 @@ prepare_visped_labels <- function(ped, labelvar) {
 #' \code{shapeby = "role"} to use the legacy role-based scheme, where circles
 #' represent individual records and green-grey rectangles represent compact
 #' full-sib family summaries. Compact family summaries remain green-grey
-#' rectangles in both modes. Dark sky blue indicates males, dark goldenrod
-#' indicates females, teal indicates monoecious individuals, and neutral grey
-#' indicates unknown sex. Purple borders indicate highlighted individuals rather
-#' than sex.
+#' rectangles in both modes. In \code{shapeby = "role"} mode, real individuals
+#' remain circles, but their fill colors still encode sex. Dark sky blue
+#' indicates males, dark goldenrod indicates females, teal indicates monoecious
+#' individuals, and neutral grey indicates unknown sex. Purple borders indicate
+#' highlighted individuals rather than sex.
 #'
 #' @param ped A \code{tidyped} object (which inherits from \code{data.table}). It is recommended that the pedigree is tidied and pruned by candidates using the \code{\link{tidyped}} function with the non-null parameter \code{cand}.
 #' @param compact A logical value indicating whether terminal, non-parent
@@ -98,7 +99,8 @@ prepare_visped_labels <- function(ped, labelvar) {
 #'   \code{"sex"} (default) uses circles for females, squares for males,
 #'   diamonds for unknown sex, and hexagons for monoecious individuals.
 #'   \code{"role"} distinguishes individual records from compact family
-#'   summaries. Compact family summaries are rectangles in both modes.
+#'   summaries by shape while keeping sex-based fill colors for real
+#'   individuals. Compact family summaries are rectangles in both modes.
 #' @param pagewidth A numeric value specifying the width of the PDF file in inches. This controls the horizontal scaling of the layout. The default value is 200.
 #' @param symbolsize A numeric value specifying the scaling factor for node size relative to the label size. Values greater than 1 increase the node size (adding padding around the label), while values less than 1 decrease it. This is useful for fine-tuning the whitespace and legibility of dense graphs. The default value is 1.
 #' @param maxiter An integer specifying the maximum number of iterations for the Sugiyama layout algorithm to minimize edge crossings. Higher values (e.g., 2000 or 5000) may result in fewer crossed lines for complex pedigrees but will increase computation time. The default value is 1000.

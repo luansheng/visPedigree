@@ -3,7 +3,8 @@
 ## New features
 1. **`visped()` SVG output**: `visped()` now writes SVG files when `file` ends in `.svg`; other file names continue to use PDF output by default.
 2. **`visped()` custom labels**: Added a `labelvar` argument to display labels from either a user-selected pedigree column or a row-aligned character vector. Compact full-sib family nodes continue to show family size.
-3. **Matrix-free relationship products**: Added `pedprod()` to compute $Ax$, $AX$, $A^{-1}x$, and $A^{-1}X$ directly from a complete pedigree. The implementation uses the $A = TDT'$ factorization and avoids materializing the dense additive relationship matrix.
+3. **`visped()` symbol schemes**: Added a `shapeby` argument for choosing how node shapes are encoded. The default `shapeby = "sex"` uses circles for females, squares for males, diamonds for unknown sex, and hexagons for monoecious individuals. Set `shapeby = "role"` to keep the legacy role-based symbol scheme in which real individuals are circles and compact full-sib family summaries are rectangles.
+4. **Matrix-free relationship products**: Added `pedprod()` to compute $Ax$, $AX$, $A^{-1}x$, and $A^{-1}X$ directly from a complete pedigree. The implementation uses the $A = TDT'$ factorization and avoids materializing the dense additive relationship matrix.
 
 ## Improvements
 1. **Matrix-free `pedrel()` summaries**: `pedrel()` now computes grouped mean
@@ -24,6 +25,11 @@
 4. **Matrix-free grouped heatmaps**: `vismat(tidyped_object, by = ...)` now
    computes grouped additive relationships as $W^\prime A W$ without first
    constructing the full individual-level relationship matrix.
+5. **Clearer compact full-sib family summaries in `visped()`**: Compact
+   full-sib family labels now use the explicit `FS×N` form instead of a bare
+   number, avoiding confusion with an individual ID. Compact family summaries
+   use a green-grey fill with a darker frame, while unknown-sex individuals use
+   a neutral-grey fill with a grey frame.
 
 ## Bug fixes
 1. **Selfing in `Ainv`**: Corrected the sire-dam diagonal cross-term in Henderson's inverse construction when the sire and dam are the same individual. `pedmat(method = "Ainv")` now remains the numerical inverse of `A` for pedigrees created with `selfing = TRUE`.
