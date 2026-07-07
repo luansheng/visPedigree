@@ -51,7 +51,7 @@ By default, `shapeby = "sex"` encodes individual sex by shape. Females are
 circles, males are squares, individuals of unknown sex are diamonds, and
 monoecious individuals are hexagons. Node color also identifies sex: dark sky
 blue indicates males, dark goldenrod indicates females, teal indicates
-monoecious individuals, and dark olive green indicates unknown sex. Purple is
+monoecious individuals, and neutral grey indicates unknown sex. Purple is
 reserved for highlighting. A compact family label such as `FS×10` means that
 the rectangle represents 10 terminal, non-parent full siblings; it is not an
 individual identifier. The ancestors are drawn at the top and descendants at
@@ -61,7 +61,7 @@ corresponding male, female, or monoecious color.
 
 Set `shapeby = "role"` to use the legacy role-based symbol scheme, where
 individual records are circles and compact full-sib family summaries are
-neutral-grey rectangles. Compact family summaries remain neutral-grey
+green-grey rectangles. Compact family summaries remain green-grey
 rectangles in both modes.
 
 ```{r symbol-schemes, fig.show="hold"}
