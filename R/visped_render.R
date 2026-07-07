@@ -62,6 +62,7 @@ plot_ped_igraph <- function(g, l, node_size, gen_info = NULL, genlab = FALSE,
     edge.arrow.mode = e_arrow_mode,
     # Hide nodes
     vertex.size = 0,
+    vertex.size2 = 0,
     vertex.label = NA,
     vertex.color = NA,
     vertex.frame.color = NA,
@@ -74,6 +75,7 @@ plot_ped_igraph <- function(g, l, node_size, gen_info = NULL, genlab = FALSE,
     plot_args_edges <- utils::modifyList(plot_args_edges, safe_user_args)
     # Re-enforce node hiding for pass 1
     plot_args_edges$vertex.size <- 0
+    plot_args_edges$vertex.size2 <- 0
     plot_args_edges$vertex.label <- NA
   }
   
@@ -87,6 +89,7 @@ plot_ped_igraph <- function(g, l, node_size, gen_info = NULL, genlab = FALSE,
     layout = l, asp = 0, add = TRUE,
     # Node styles
     vertex.size = if (!is.null(v_attrs$size)) v_attrs$size else 15,
+    vertex.size2 = if (!is.null(v_attrs$size2)) v_attrs$size2 else 15,
     vertex.shape = if (!is.null(v_attrs$shape)) v_attrs$shape else "circle",
     vertex.color = if (!is.null(v_attrs$color)) v_attrs$color else "#9cb383",
     vertex.frame.color = if (!is.null(v_attrs$frame.color)) v_attrs$frame.color else "#7fae59",
@@ -129,4 +132,3 @@ plot_ped_igraph <- function(g, l, node_size, gen_info = NULL, genlab = FALSE,
     }
   }
 }
-

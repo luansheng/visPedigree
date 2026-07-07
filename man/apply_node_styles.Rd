@@ -4,7 +4,7 @@
 \alias{apply_node_styles}
 \title{Apply node styles (color, shape, highlighting)}
 \usage{
-apply_node_styles(ped_node, highlight_info)
+apply_node_styles(ped_node, highlight_info, shapeby = "sex")
 }
 \description{
 Apply node styles (color, shape, highlighting)

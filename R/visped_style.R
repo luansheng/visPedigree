@@ -27,6 +27,106 @@ fade_cols <- function(x) {
   }, character(1), USE.NAMES = FALSE)
 }
 
+VISPED_COLORS <- c(
+  male = "#119ecc",
+  female = "#f4b131",
+  monoecious = "#26a69a",
+  unknown = "#9cb383",
+  family_fill = "#d9d9d9",
+  family_frame = "#666666",
+  focal_frame = "#9c27b0",
+  relative_frame = "#ab47bc"
+)
+
+#' Create a vectorized regular-polygon igraph shape
+#' @param sides Number of polygon sides.
+#' @return An igraph shape plotting function.
+#' @keywords internal
+#' @noRd
+make_visped_polygon <- function(sides) {
+  force(sides)
+
+  function(coords, v = NULL, params) {
+    get_param <- function(name) {
+      value <- params("vertex", name)
+      if (length(value) != 1L && !is.null(v)) {
+        value <- value[v]
+      }
+      rep(value, length.out = nrow(coords))
+    }
+
+    if (nrow(coords) == 0L) {
+      return(invisible(NULL))
+    }
+
+    fill <- get_param("color")
+    frame <- get_param("frame.color")
+    frame_width <- get_param("frame.width")
+    size <- get_param("size")
+    drawable <- is.finite(size) & size > 0
+    if (!any(drawable)) {
+      return(invisible(NULL))
+    }
+
+    coords <- coords[drawable, , drop = FALSE]
+    fill <- fill[drawable]
+    frame <- frame[drawable]
+    frame_width <- frame_width[drawable]
+    size <- size[drawable]
+    frame[frame_width <= 0] <- NA_character_
+    frame_width[frame_width <= 0] <- 1
+    stars <- matrix(rep(size, each = sides), nrow = nrow(coords), byrow = TRUE)
+
+    # A small number of frame widths is typical; batching keeps polygon drawing vectorized.
+    width_groups <- split(seq_len(nrow(coords)), frame_width)
+    for (idx in width_groups) {
+      graphics::symbols(
+        x = coords[idx, 1],
+        y = coords[idx, 2],
+        stars = stars[idx, , drop = FALSE],
+        inches = FALSE,
+        add = TRUE,
+        bg = fill[idx],
+        fg = frame[idx],
+        lwd = frame_width[idx[1L]]
+      )
+    }
+
+    invisible(NULL)
+  }
+}
+
+#' Register visPedigree shapes required by sex-based symbol coding
+#' @param needed Character vector containing "diamond" and/or "hexagon".
+#' @return Invisibly returns NULL.
+#' @keywords internal
+#' @noRd
+register_visped_shapes <- function(needed) {
+  shape_names <- c(
+    diamond = "visped_diamond",
+    hexagon = "visped_hexagon"
+  )
+  needed <- intersect(needed, names(shape_names))
+  available <- igraph::shapes()
+
+  for (shape in needed) {
+    name <- shape_names[[shape]]
+    if (name %in% available) {
+      next
+    }
+
+    sides <- if (shape == "diamond") 4L else 6L
+    igraph::add_shape(
+      name,
+      clip = igraph::shapes("circle")$clip,
+      plot = make_visped_polygon(sides)
+    )
+    available <- c(available, name)
+  }
+
+  invisible(NULL)
+}
+
 #' Styling and finalizing pedigree graph
 #' @import data.table
 #' @keywords internal
@@ -37,9 +137,9 @@ get_highlight_ids <- function(ped, highlight, trace) {
   
   # Default colors
   colors <- list(
-    focal_frame = "#9c27b0",
+    focal_frame = VISPED_COLORS[["focal_frame"]],
     focal_fill = NULL,
-    rel_frame = "#ab47bc",
+    rel_frame = VISPED_COLORS[["relative_frame"]],
     rel_fill = NULL
   )
   
@@ -95,14 +195,14 @@ get_highlight_ids <- function(ped, highlight, trace) {
 #' Apply node styles (color, shape, highlighting)
 #' @import data.table
 #' @keywords internal
-apply_node_styles <- function(ped_node, highlight_info) {
+apply_node_styles <- function(ped_node, highlight_info, shapeby = "sex") {
   shape = frame.color = color = size = label.color = frame.width = label.font = highlighted = NULL
   
   # Default styles (set all at once)
   ped_node[, `:=`(
     shape = "circle", 
-    frame.color = "#7fae59", 
-    color = "#9cb383", 
+    frame.color = VISPED_COLORS[["unknown"]],
+    color = VISPED_COLORS[["unknown"]],
     size = 15, 
     label.color = "#0d0312", 
     frame.width = 0.2, 
@@ -110,12 +210,47 @@ apply_node_styles <- function(ped_node, highlight_info) {
     highlighted = FALSE
   )]
   
-  # Using sub-selections is faster than multiple := lines
-  ped_node[nodetype == "compact", shape := "square"]
-  ped_node[sex == "male", `:=`(frame.color = "#119ecc", color = "#119ecc")]
-  ped_node[sex == "female", `:=`(frame.color = "#f4b131", color = "#f4b131")]
-  ped_node[sex == "monoecious", `:=`(frame.color = "#26a69a", color = "#26a69a")]
-  ped_node[is.na(sex) | sex == "unknown", `:=`(frame.color = "#9cb383", color = "#9cb383")]
+  ped_node[sex == "male", `:=`(
+    frame.color = VISPED_COLORS[["male"]],
+    color = VISPED_COLORS[["male"]]
+  )]
+  ped_node[sex == "female", `:=`(
+    frame.color = VISPED_COLORS[["female"]],
+    color = VISPED_COLORS[["female"]]
+  )]
+  ped_node[sex == "monoecious", `:=`(
+    frame.color = VISPED_COLORS[["monoecious"]],
+    color = VISPED_COLORS[["monoecious"]]
+  )]
+  ped_node[is.na(sex) | sex == "unknown", `:=`(
+    frame.color = VISPED_COLORS[["unknown"]],
+    color = VISPED_COLORS[["unknown"]]
+  )]
+
+  if (shapeby == "sex") {
+    real_nodes <- ped_node$nodetype == "real"
+    needed <- character()
+    if (any(real_nodes & (is.na(ped_node$sex) | ped_node$sex == "unknown"))) {
+      needed <- c(needed, "diamond")
+    }
+    if (any(real_nodes & ped_node$sex == "monoecious", na.rm = TRUE)) {
+      needed <- c(needed, "hexagon")
+    }
+    register_visped_shapes(needed)
+
+    ped_node[nodetype == "real" & sex == "male", shape := "square"]
+    ped_node[nodetype == "real" & (is.na(sex) | sex == "unknown"),
+             shape := "visped_diamond"]
+    ped_node[nodetype == "real" & sex == "monoecious",
+             shape := "visped_hexagon"]
+  }
+
+  # Family summaries are not individuals and therefore have no sex.
+  ped_node[nodetype == "compact", `:=`(
+    shape = "rectangle",
+    frame.color = VISPED_COLORS[["family_frame"]],
+    color = VISPED_COLORS[["family_fill"]]
+  )]
   
   # Virtual nodes: circle with tiny size and transparency to fix edge gaps
   ped_node[nodetype == "virtual", `:=`(
@@ -193,9 +328,9 @@ finalize_graph <- function(ped_node, ped_edge, highlight_info, trace, showf) {
   trace_edges <- highlight_info$trace_edges
   
   # Role-based edge coloring for family→parent edges
-  ped_edge[role == "sire", color := "#119ecc"]
-  ped_edge[role == "dam", color := "#f4b131"]
-  ped_edge[role == "selfing", color := "#26a69a"]
+  ped_edge[role == "sire", color := VISPED_COLORS[["male"]]]
+  ped_edge[role == "dam", color := VISPED_COLORS[["female"]]]
+  ped_edge[role == "selfing", color := VISPED_COLORS[["monoecious"]]]
   
   # If highlighting is active, fade edges based on endpoint highlight status
   if (length(h_ids) > 0) {

@@ -56,10 +56,23 @@ prepare_visped_labels <- function(ped, labelvar) {
 #'
 #' This function can draw the graph of a very large pedigree (> 10,000 individuals per generation) by compacting full-sib individuals. It is highly effective for aquatic animal pedigrees, which usually include many full-sib families per generation in nucleus breeding populations. The outline of a pedigree without individual labels is still shown if the width of a pedigree graph exceeds the maximum width (500 inches) of the PDF file.
 #'
-#' In the graph, two shapes and four colors are used. Circles represent individuals, and squares represent families. Dark sky blue indicates males, dark goldenrod indicates females, purple indicates monoecious individuals (common in plant breeding, where the same individual serves as both male and female parent), and dark olive green indicates unknown sex. For example, a dark sky blue circle represents a male individual; a dark goldenrod square represents all female individuals in a full-sib family when \code{compact = TRUE}.
+#' By default, \code{shapeby = "sex"} encodes individual sex with node shape:
+#' females are circles, males are squares, individuals of unknown sex are
+#' diamonds, and monoecious individuals are hexagons. Set
+#' \code{shapeby = "role"} to use the legacy role-based scheme, where circles
+#' represent individual records and neutral-grey rectangles represent compact
+#' full-sib family summaries. Compact family summaries remain neutral-grey
+#' rectangles in both modes. Dark sky blue indicates males, dark goldenrod
+#' indicates females, teal indicates monoecious individuals, and dark olive
+#' green indicates unknown sex. Purple borders indicate highlighted individuals
+#' rather than sex.
 #'
 #' @param ped A \code{tidyped} object (which inherits from \code{data.table}). It is recommended that the pedigree is tidied and pruned by candidates using the \code{\link{tidyped}} function with the non-null parameter \code{cand}.
-#' @param compact A logical value indicating whether IDs of full-sib individuals in one generation will be removed and replaced with the number of full-sib individuals. For example, if there are 100 full-sib individuals in one generation, they will be replaced with a single label "100" when \code{compact = TRUE}. The default value is FALSE.
+#' @param compact A logical value indicating whether terminal, non-parent
+#'   full-sib individuals will be replaced by one family display node. For
+#'   example, 100 eligible full siblings are shown as \code{"FS×100"} when
+#'   \code{compact = TRUE}. Highlighted individuals are not compacted, and the
+#'   underlying pedigree is unchanged. The default value is FALSE.
 #' @param outline A logical value indicating whether shapes without labels will be shown. A graph of the pedigree without individual labels is shown when setting \code{outline = TRUE}. This is useful for viewing the pedigree outline and identifying immigrant individuals in each generation when the graph width exceeds the maximum PDF width (500 inches). The default value is FALSE.
 #' @param cex NULL or a numeric value changing the size of individual labels shown in the graph. \emph{cex} is an abbreviation for 'character expansion factor'. The \code{visped} function will attempt to estimate (\code{cex=NULL}) the appropriate cex value and report it in the messages. Based on the reported cex from a previous run, this parameter should be increased if labels are wider than their shapes in the PDF; conversely, it should be decreased if labels are narrower than their shapes. The default value is NULL.
 #' @param showgraph A logical value indicating whether a plot will be shown in the default graphic device (e.g., the Plots panel in RStudio). This is useful for quick viewing without opening a PDF file. However, the graph on the default device may not be legible (e.g., overlapping labels or aliasing lines) due to size restrictions. It is recommended to set \code{showgraph = FALSE} for large pedigrees. The default value is TRUE.
@@ -81,6 +94,11 @@ prepare_visped_labels <- function(ped, labelvar) {
 #'   tidying or reordering. Compact full-sib family nodes still show family
 #'   size when \code{compact = TRUE}. Missing or empty values fall back to
 #'   individual IDs. The default value is NULL.
+#' @param shapeby Character string controlling what node shapes encode.
+#'   \code{"sex"} (default) uses circles for females, squares for males,
+#'   diamonds for unknown sex, and hexagons for monoecious individuals.
+#'   \code{"role"} distinguishes individual records from compact family
+#'   summaries. Compact family summaries are rectangles in both modes.
 #' @param pagewidth A numeric value specifying the width of the PDF file in inches. This controls the horizontal scaling of the layout. The default value is 200.
 #' @param symbolsize A numeric value specifying the scaling factor for node size relative to the label size. Values greater than 1 increase the node size (adding padding around the label), while values less than 1 decrease it. This is useful for fine-tuning the whitespace and legibility of dense graphs. The default value is 1.
 #' @param maxiter An integer specifying the maximum number of iterations for the Sugiyama layout algorithm to minimize edge crossings. Higher values (e.g., 2000 or 5000) may result in fewer crossed lines for complex pedigrees but will increase computation time. The default value is 1000.
@@ -124,6 +142,12 @@ prepare_visped_labels <- function(ped, labelvar) {
 #' # visped() will automatically compute inbreeding coefficients if 'f' is missing
 #' visped(simple_ped_tidy,
 #'        showf = TRUE,
+#'        cex=0.25,
+#'        symbolsize=5.5)
+#'
+#' # Use the role-based legacy symbol scheme
+#' visped(simple_ped_tidy,
+#'        shapeby = "role",
 #'        cex=0.25,
 #'        symbolsize=5.5)
 #'
@@ -189,6 +213,7 @@ visped <- function(
   trace = FALSE,
   showf = FALSE,
   labelvar = NULL,
+  shapeby = c("sex", "role"),
   pagewidth = 200,
   symbolsize = 1,
   maxiter = 1000,
@@ -211,6 +236,7 @@ visped <- function(
   }
 
   ped <- validate_tidyped(ped)
+  shapeby <- match.arg(shapeby)
 
   if (!isTRUE(compact) && !isFALSE(compact)) {
     stop("'compact' must be TRUE or FALSE.")
@@ -374,6 +400,7 @@ visped <- function(
           trace = trace,
           showf = showf,
           labelvar = label_column,
+          shapeby = shapeby,
           pagewidth = pagewidth,
           symbolsize = symbolsize,
           maxiter = maxiter,
@@ -394,6 +421,7 @@ visped <- function(
       trace = trace,
       showf = showf,
       labelvar = label_column,
+      shapeby = shapeby,
       pagewidth = pagewidth,
       symbolsize = symbolsize,
       maxiter = maxiter,
