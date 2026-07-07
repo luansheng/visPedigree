@@ -1,7 +1,8 @@
 #' Convert pedigree to igraph structure
 #' @import data.table
 #' @keywords internal
-ped2igraph <- function(ped, compact = FALSE, highlight = NULL, trace = FALSE, showf = FALSE, labelvar = NULL) {
+ped2igraph <- function(ped, compact = FALSE, highlight = NULL, trace = FALSE,
+                       showf = FALSE, labelvar = NULL, shapeby = "sex") {
   if (nrow(ped) == 0) {
     return(list(
       node = data.table(id = integer(), nodetype = character(), gen = integer(), layer = numeric(), label = character()),
@@ -28,7 +29,7 @@ ped2igraph <- function(ped, compact = FALSE, highlight = NULL, trace = FALSE, sh
   ped_edge <- graph_struct$edge
   
   # 6. Apply styles (colors, shapes, highlighting)
-  ped_node <- apply_node_styles(ped_node, highlight_info)
+  ped_node <- apply_node_styles(ped_node, highlight_info, shapeby)
   
   # 7. Finalize graph (reindex IDs, set edge colors)
   result <- finalize_graph(ped_node, ped_edge, highlight_info, trace, showf)
@@ -165,7 +166,7 @@ compact_pedigree <- function(ped_node, compact, h_ids) {
       # Take one representative from each family
       compact_family <- unique(fullsib_id_DT, by = c("familylabel"))
       compact_family[, `:=`(
-        label = as.character(familysize),
+        label = paste0("FS\u00d7", familysize),
         nodetype = "compact",
         sex = NA_character_
       )]

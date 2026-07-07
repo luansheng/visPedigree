@@ -2,6 +2,17 @@ library(testthat)
 library(data.table)
 library(visPedigree)
 
+make_sex_shape_ped <- function() {
+  tidyped(
+    data.table(
+      Ind = c("M", "F", "H", "U", "HC"),
+      Sire = c(NA, NA, NA, "M", "H"),
+      Dam = c(NA, NA, NA, "F", "H")
+    ),
+    selfing = TRUE
+  )
+}
+
 test_that("visped works with basic tidy input", {
   tidy_ped <- tidyped(simple_ped, addgen = TRUE, addnum = TRUE)
   # Check return structure
@@ -120,11 +131,150 @@ test_that("visped parameter 'compact' works", {
   expect_true("compact" %in% node_types)
   compact_labels <- igraph::V(res_compact$g)[nodetype == "compact"]$label
   real_labels <- igraph::V(res_compact$g)[nodetype == "real"]$label
-  expect_true(all(grepl("^[0-9]+$", compact_labels)))
+  expect_true(all(grepl("^FS\u00d7[0-9]+$", compact_labels)))
   expect_true(all(grepl("^node_", real_labels)))
+  expect_true(all(igraph::V(res_compact$g)[nodetype == "compact"]$shape == "rectangle"))
+  expect_true(all(
+    igraph::V(res_compact$g)[nodetype == "compact"]$color == "#d9d9d9"
+  ))
   
   # Compact graph should have fewer nodes (real id nodes replaced by one compact node)
   expect_lt(igraph::vcount(res_compact$g), igraph::vcount(res_full$g))
+})
+
+test_that("visped shapeby sex is the default and preserves sex colors", {
+  tidy_ped <- make_sex_shape_ped()
+  res_default <- visped(tidy_ped, showgraph = FALSE, file = tempfile())
+  res_sex <- visped(
+    tidy_ped,
+    shapeby = "sex",
+    showgraph = FALSE,
+    file = tempfile()
+  )
+
+  default_nodes <- as.data.table(igraph::as_data_frame(res_default$g, what = "vertices"))
+  sex_nodes <- as.data.table(igraph::as_data_frame(res_sex$g, what = "vertices"))
+  expect_equal(default_nodes$shape, sex_nodes$shape)
+  expect_equal(sex_nodes[Ind == "F", shape], "circle")
+  expect_equal(sex_nodes[Ind == "M", shape], "square")
+  expect_equal(sex_nodes[Ind == "U", shape], "visped_diamond")
+  expect_equal(sex_nodes[Ind == "H", shape], "visped_hexagon")
+  expect_equal(sex_nodes[Ind == "M", color], "#119ecc")
+  expect_equal(sex_nodes[Ind == "F", color], "#f4b131")
+  expect_equal(sex_nodes[Ind == "H", color], "#26a69a")
+  expect_equal(sex_nodes[Ind == "U", color], "#9cb383")
+})
+
+test_that("visped shapeby role keeps individual records as circles", {
+  tidy_ped <- make_sex_shape_ped()
+  res <- visped(
+    tidy_ped,
+    shapeby = "role",
+    showgraph = FALSE,
+    file = tempfile()
+  )
+  nodes <- as.data.table(igraph::as_data_frame(res$g, what = "vertices"))
+
+  expect_true(all(nodes[nodetype == "real", shape] == "circle"))
+  expect_equal(nodes[Ind == "M", color], "#119ecc")
+  expect_equal(nodes[Ind == "F", color], "#f4b131")
+  expect_equal(nodes[Ind == "H", color], "#26a69a")
+  expect_equal(nodes[Ind == "U", color], "#9cb383")
+})
+
+test_that("visped shapeby sex maps all supported sex classes", {
+  tidy_ped <- make_sex_shape_ped()
+  res <- visped(
+    tidy_ped,
+    shapeby = "sex",
+    showgraph = FALSE,
+    file = tempfile()
+  )
+  nodes <- as.data.table(igraph::as_data_frame(res$g, what = "vertices"))
+
+  expect_equal(nodes[Ind == "F", shape], "circle")
+  expect_equal(nodes[Ind == "M", shape], "square")
+  expect_equal(nodes[Ind == "U", shape], "visped_diamond")
+  expect_equal(nodes[Ind == "H", shape], "visped_hexagon")
+  expect_true(all(c("visped_diamond", "visped_hexagon") %in% igraph::shapes()))
+  expect_silent(visPedigree:::register_visped_shapes(c("diamond", "hexagon")))
+  expect_error(
+    visped(tidy_ped, shapeby = "unsupported"),
+    "'arg' should be one of"
+  )
+})
+
+test_that("custom shapes skip zero-size edge-only rendering pass", {
+  zero_params <- function(type, name) {
+    switch(
+      name,
+      color = "#000000",
+      frame.color = "#000000",
+      frame.width = 0,
+      size = 0
+    )
+  }
+  coords <- matrix(c(0.5, 0.5), nrow = 1L)
+
+  expect_silent(visPedigree:::make_visped_polygon(4L)(coords, params = zero_params))
+  expect_silent(visPedigree:::make_visped_polygon(6L)(coords, params = zero_params))
+})
+
+test_that("compact labels cannot be confused with numeric individual IDs", {
+  sibling_ids <- paste0("S", seq_len(10L))
+  raw_ped <- data.table(
+    Ind = c("10", "F", "P1", "P2", sibling_ids, "C"),
+    Sire = c(NA, NA, NA, NA, rep("P1", 10L), "10"),
+    Dam = c(NA, NA, NA, NA, rep("P2", 10L), "F")
+  )
+  res <- visped(
+    tidyped(raw_ped),
+    compact = TRUE,
+    showgraph = FALSE,
+    file = tempfile()
+  )
+  nodes <- as.data.table(igraph::as_data_frame(res$g, what = "vertices"))
+
+  expect_true("10" %in% nodes[nodetype == "real", label])
+  expect_true("FS\u00d710" %in% nodes[nodetype == "compact", label])
+  expect_equal(nodes[label == "FS\u00d710", shape], "rectangle")
+})
+
+test_that("highlighted and parent individuals are not compacted", {
+  raw_ped <- data.table(
+    Ind = c("P1", "P2", "A", "B", "C", "D"),
+    Sire = c(NA, NA, "P1", "P1", "P1", "A"),
+    Dam = c(NA, NA, "P2", "P2", "P2", "B")
+  )
+  tidy_ped <- tidyped(raw_ped)
+  res <- visped(
+    tidy_ped,
+    compact = TRUE,
+    highlight = "C",
+    showgraph = FALSE,
+    file = tempfile()
+  )
+  nodes <- as.data.table(igraph::as_data_frame(res$g, what = "vertices"))
+
+  expect_true(all(c("A", "B", "C") %in% nodes[nodetype == "real", Ind]))
+  expect_false(any(nodes[nodetype == "compact", label] == "FS\u00d73"))
+})
+
+test_that("sex-based custom shapes render to PDF and SVG", {
+  tidy_ped <- make_sex_shape_ped()
+  for (extension in c(".pdf", ".svg")) {
+    output <- tempfile(fileext = extension)
+    expect_silent(
+      suppressMessages(visped(
+        tidy_ped,
+        shapeby = "sex",
+        showgraph = FALSE,
+        file = output
+      ))
+    )
+    expect_true(file.exists(output))
+    expect_gt(file.info(output)$size, 0)
+  }
 })
 
 test_that("visped parameter 'outline' works", {

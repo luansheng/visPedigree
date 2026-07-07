@@ -15,6 +15,7 @@ visped(
   trace = FALSE,
   showf = FALSE,
   labelvar = NULL,
+  shapeby = c("sex", "role"),
   pagewidth = 200,
   symbolsize = 1,
   maxiter = 1000,
@@ -26,7 +27,11 @@ visped(
 \arguments{
 \item{ped}{A \code{tidyped} object (which inherits from \code{data.table}). It is recommended that the pedigree is tidied and pruned by candidates using the \code{\link{tidyped}} function with the non-null parameter \code{cand}.}
 
-\item{compact}{A logical value indicating whether IDs of full-sib individuals in one generation will be removed and replaced with the number of full-sib individuals. For example, if there are 100 full-sib individuals in one generation, they will be replaced with a single label "100" when \code{compact = TRUE}. The default value is FALSE.}
+\item{compact}{A logical value indicating whether terminal, non-parent
+full-sib individuals will be replaced by one family display node. For
+example, 100 eligible full siblings are shown as \code{"FS×100"} when
+\code{compact = TRUE}. Highlighted individuals are not compacted, and the
+underlying pedigree is unchanged. The default value is FALSE.}
 
 \item{outline}{A logical value indicating whether shapes without labels will be shown. A graph of the pedigree without individual labels is shown when setting \code{outline = TRUE}. This is useful for viewing the pedigree outline and identifying immigrant individuals in each generation when the graph width exceeds the maximum PDF width (500 inches). The default value is FALSE.}
 
@@ -57,6 +62,12 @@ tidying or reordering. Compact full-sib family nodes still show family
 size when \code{compact = TRUE}. Missing or empty values fall back to
 individual IDs. The default value is NULL.}
 
+\item{shapeby}{Character string controlling what node shapes encode.
+\code{"sex"} (default) uses circles for females, squares for males,
+diamonds for unknown sex, and hexagons for monoecious individuals.
+\code{"role"} distinguishes individual records from compact family
+summaries. Compact family summaries are rectangles in both modes.}
+
 \item{pagewidth}{A numeric value specifying the width of the PDF file in inches. This controls the horizontal scaling of the layout. The default value is 200.}
 
 \item{symbolsize}{A numeric value specifying the scaling factor for node size relative to the label size. Values greater than 1 increase the node size (adding padding around the label), while values less than 1 decrease it. This is useful for fine-tuning the whitespace and legibility of dense graphs. The default value is 1.}
@@ -82,7 +93,16 @@ Rendering is performed using a Two-Pass strategy: edges are drawn first to ensur
 
 This function can draw the graph of a very large pedigree (> 10,000 individuals per generation) by compacting full-sib individuals. It is highly effective for aquatic animal pedigrees, which usually include many full-sib families per generation in nucleus breeding populations. The outline of a pedigree without individual labels is still shown if the width of a pedigree graph exceeds the maximum width (500 inches) of the PDF file.
 
-In the graph, two shapes and four colors are used. Circles represent individuals, and squares represent families. Dark sky blue indicates males, dark goldenrod indicates females, purple indicates monoecious individuals (common in plant breeding, where the same individual serves as both male and female parent), and dark olive green indicates unknown sex. For example, a dark sky blue circle represents a male individual; a dark goldenrod square represents all female individuals in a full-sib family when \code{compact = TRUE}.
+By default, \code{shapeby = "sex"} encodes individual sex with node shape:
+females are circles, males are squares, individuals of unknown sex are
+diamonds, and monoecious individuals are hexagons. Set
+\code{shapeby = "role"} to use the legacy role-based scheme, where circles
+represent individual records and neutral-grey rectangles represent compact
+full-sib family summaries. Compact family summaries remain neutral-grey
+rectangles in both modes. Dark sky blue indicates males, dark goldenrod
+indicates females, teal indicates monoecious individuals, and dark olive
+green indicates unknown sex. Purple borders indicate highlighted individuals
+rather than sex.
 }
 \note{
 Isolated individuals (those with no parents and no progeny, assigned Gen 0) are automatically filtered out and not shown in the plot. A message will be issued if any such individuals are removed.
@@ -113,6 +133,12 @@ visped(simple_ped_tidy_inbreed,
 # visped() will automatically compute inbreeding coefficients if 'f' is missing
 visped(simple_ped_tidy,
        showf = TRUE,
+       cex=0.25,
+       symbolsize=5.5)
+
+# Use the role-based legacy symbol scheme
+visped(simple_ped_tidy,
+       shapeby = "role",
        cex=0.25,
        symbolsize=5.5)
 

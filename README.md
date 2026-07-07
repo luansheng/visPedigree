@@ -52,8 +52,8 @@ Recommended reading order:
 library(visPedigree)
 
 # Example 1: Tidy and visualize a small pedigree
-# Use compact = TRUE to condense full-sib groups into a single family node (square) 
-# labeled with the group size (e.g., "2"), keeping the graph clean and legible.
+# Use compact = TRUE to condense eligible full-sib groups into a grey
+# family-summary rectangle labelled FS×N.
 cands <- c("Y", "Z1", "Z2")
 small_ped |>
   tidyped(cand = cands) |>
