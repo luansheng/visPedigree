@@ -82,6 +82,7 @@ if (getRversion() >= "2.15.1") {
       "i.x",
       "i.y",
       "size",
+      "size2",
       "y",
       "..cols",
       "..new_names_edge",
