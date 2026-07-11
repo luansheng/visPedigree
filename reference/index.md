@@ -62,6 +62,8 @@ Functions for genealogical and genetic computations.
   : Calculate Effective Population Size
 - [`pedpartial()`](https://luansheng.github.io/visPedigree/reference/pedpartial.md)
   : Calculate Partial Inbreeding
+- [`pedprod()`](https://luansheng.github.io/visPedigree/reference/pedprod.md)
+  : Matrix-Free Pedigree Relationship Products
 - [`pedrel()`](https://luansheng.github.io/visPedigree/reference/pedrel.md)
   : Calculate Mean Relationship or Coancestry Within Groups
 - [`pedstats()`](https://luansheng.github.io/visPedigree/reference/pedstats.md)

@@ -13,8 +13,9 @@ rate of genetic diversity is partitioned into three additive components:
 The function rolls over time points defined by `timevar`, computing
 \\f_e\\ and \\f_a\\ (via
 [`pedcontrib`](https://luansheng.github.io/visPedigree/reference/pedcontrib.md))
-and \\f_g\\ (via the internal coancestry engine) for each time point. No
-redundant Ne calculations are performed.
+and \\f_g\\ (via the internal matrix-free coancestry engine) for each
+time point. Only the \\f_g\\ statistic is requested; no redundant Ne
+calculations are performed.
 
 ## Usage
 

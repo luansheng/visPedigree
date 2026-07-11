@@ -30,6 +30,10 @@ visPedigree](reference/figures/ped_example.png)
 - **High-Throughput Matrix Calculation**: Calculates Additive (A),
   Dominance (D), and Additive-by-Additive (AA) relationship matrices and
   their inverses.
+- **Matrix-Free Relationship Products**: Computes $`Ax`$, $`AX`$,
+  $`A^{-1}x`$, and $`A^{-1}X`$ directly from an ordered pedigree with
+  [`pedprod()`](https://luansheng.github.io/visPedigree/reference/pedprod.md),
+  avoiding construction of the dense additive relationship matrix.
 - **Advanced Visualization**: Renders scalable pedigree graphs via
   `igraph` with compact representations for large full-sib families,
   plus heatmap displays for relationship matrices.
@@ -43,12 +47,14 @@ visPedigree](reference/figures/ped_example.png)
 ### Stable version from CRAN
 
 ``` r
+
 install.packages("visPedigree")
 ```
 
 ### Development version from GitHub
 
 ``` r
+
 # install.packages("devtools")
 devtools::install_github("luansheng/visPedigree", build_vignettes = TRUE)
 ```
@@ -78,11 +84,12 @@ Recommended reading order:
 ## Quick Start
 
 ``` r
+
 library(visPedigree)
 
 # Example 1: Tidy and visualize a small pedigree
-# Use compact = TRUE to condense full-sib groups into a single family node (square) 
-# labeled with the group size (e.g., "2"), keeping the graph clean and legible.
+# Use compact = TRUE to condense eligible full-sib groups into a green-grey
+# family-summary rectangle labelled FS×N.
 cands <- c("Y", "Z1", "Z2")
 small_ped |>
   tidyped(cand = cands) |>
@@ -94,6 +101,11 @@ small_ped |>
 mat_a <- simple_ped |> tidyped() |> pedmat(method = "A", compact = TRUE)
 # Visualize the relationship matrix as a heatmap with histograms
 vismat(mat_a)
+
+# Apply A to candidate contribution weights without constructing A
+tp_simple <- tidyped(simple_ped)
+candidate_weights <- c(J5X804 = 0.5, J3Y620 = 0.5)
+weighted_relationship <- pedprod(tp_simple, candidate_weights)
 
 # Example 3: Inbreeding & Highlighting
 # Calculate inbreeding coefficients (f) and display them on the graph (e.g., "ID (0.05)").
@@ -123,5 +135,5 @@ summary(split_list[[1]])
 ## Citation
 
 Luan Sheng (2026). visPedigree: Tidying, Analysis, and Fast
-Visualization of Animal and Plant Pedigrees. R package version 1.8.1,
+Visualization of Animal and Plant Pedigrees. R package version 1.9.0,
 <https://github.com/luansheng/visPedigree>.

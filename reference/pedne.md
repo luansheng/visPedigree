@@ -85,6 +85,9 @@ methods:
   ECG_j}{2})}\$\$ \$\$N_e = \frac{1}{2 \overline{\Delta c}}\$\$ To
   handle large populations, this method samples `nsamples` individuals
   per cohort and computes the mean rate of coancestry among them.
+  Sampled relationship coefficients are obtained from batched
+  matrix-free \\AX\\ products, so the full additive relationship matrix
+  is not constructed.
 
 - **"inbreeding"**: Based on the individual rate of inbreeding (\$F_i\$)
   (Gutiérrez et al., 2008, 2009). \$\$\Delta F_i = 1 - (1 -

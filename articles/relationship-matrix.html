@@ -7,8 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>5. Calculation and visualization of relationship matrix • visPedigree</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="5. Calculation and visualization of relationship matrix">
 </head>
@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">visPedigree</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.8.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -63,7 +63,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>5. Calculation and visualization of relationship matrix</h1>
                         <h4 data-toc-skip class="author">Sheng Luan</h4>
             
-            <h4 data-toc-skip class="date">2026-04-14</h4>
+            <h4 data-toc-skip class="date">2026-07-11</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/luansheng/visPedigree/blob/master/vignettes/relationship-matrix.Rmd" class="external-link"><code>vignettes/relationship-matrix.Rmd</code></a></small>
       <div class="d-none name"><code>relationship-matrix.Rmd</code></div>
@@ -80,24 +80,33 @@ pedmat()</a><br>
 1.3 <a href="#id_1-3">Sparse Matrix Representation</a><br>
 </li>
 <li>
-<a href="#id_2">Inspecting the Matrix</a><br>
-2.1 <a href="#id_2-1">Summary Statistics</a><br>
-2.2 <a href="#id_2-2">Querying Specific Relationships</a><br>
+<a href="#id_2">Matrix-Free Products with pedprod()</a><br>
+2.1 <a href="#id_2-1">When to Use pedprod vs pedmat</a><br>
+2.2 <a href="#id_2-2">Basic Usage — A x (vector)</a><br>
+2.3 <a href="#id_2-3">Products with A^{-1}</a><br>
+2.4 <a href="#id_2-4">Multiple Contribution Schemes — A X</a><br>
+2.5 <a href="#id_2-5">Practical Use Cases</a><br>
+2.6 <a href="#id_2-6">Performance and Scalability</a><br>
 </li>
 <li>
-<a href="#id_3">Compact Mode for Large Pedigrees</a><br>
-3.1 <a href="#id_3-1">Using compact = TRUE</a><br>
-3.2 <a href="#id_3-2">Expanding and Querying Compacted
+<a href="#id_3">Inspecting the Matrix</a><br>
+3.1 <a href="#id_3-1">Summary Statistics</a><br>
+3.2 <a href="#id_3-2">Querying Specific Relationships</a><br>
+</li>
+<li>
+<a href="#id_4">Compact Mode for Large Pedigrees</a><br>
+4.1 <a href="#id_4-1">Using compact = TRUE</a><br>
+4.2 <a href="#id_4-2">Expanding and Querying Compacted
 Matrices</a><br>
-3.3 <a href="#id_3-3">When to Use Compact Mode</a><br>
+4.3 <a href="#id_4-3">When to Use Compact Mode</a><br>
 </li>
 <li>
-<a href="#id_4">Visualizing Relationship Matrices with
+<a href="#id_5">Visualizing Relationship Matrices with
 vismat()</a><br>
-4.1 <a href="#id_4-1">Relationship Heatmaps</a><br>
-4.2 <a href="#id_4-2">Inbreeding and Kinship Histograms</a><br>
+5.1 <a href="#id_5-1">Relationship Heatmaps</a><br>
+5.2 <a href="#id_5-2">Inbreeding and Kinship Histograms</a><br>
 </li>
-<li><a href="#id_5">Performance Considerations</a></li>
+<li><a href="#id_6">Performance Considerations</a></li>
 </ol>
 <p>Relationship matrices are fundamental tools in quantitative genetics
 and animal breeding. They quantify the genetic similarity between
@@ -111,7 +120,10 @@ heatmaps and histograms.</p>
 </h2>
 <p>The <code><a href="../reference/pedmat.html">pedmat()</a></code> function is the primary tool for
 calculating relationship matrices. It supports both additive and
-dominance relationship matrices, as well as their inverses.</p>
+dominance relationship matrices, as well as their inverses. The inverse
+additive relationship matrix (<code>Ainv</code>) follows Henderson’s
+rules (Henderson, 1976), while inbreeding coefficients use the same
+optimized recursive engine as <code><a href="../reference/inbreed.html">inbreed()</a></code>.</p>
 <div class="section level3">
 <h3 id="id_1-1">1.1 Supported Methods<a class="anchor" aria-label="anchor" href="#id_1-1"></a>
 </h3>
@@ -174,26 +186,450 @@ pedigrees where many individuals are unrelated.</p>
 </div>
 </div>
 <div class="section level2">
-<h2 id="id_2">2. Inspecting the Matrix<a class="anchor" aria-label="anchor" href="#id_2"></a>
+<h2 id="id_2">2. Matrix-Free Products with <code>pedprod()</code><a class="anchor" aria-label="anchor" href="#id_2"></a>
+</h2>
+<p>For small and moderate pedigrees, matrices returned by
+<code><a href="../reference/pedmat.html">pedmat()</a></code> are ordinary matrix-like R objects and can be used
+directly with R’s <code>%*%</code>. For large pedigrees, however,
+forming the dense additive relationship matrix can be the dominant
+memory cost. <code><a href="../reference/pedprod.html">pedprod()</a></code> instead computes
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mi>x</mi></mrow><annotation encoding="application/x-tex">Ax</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mi>X</mi></mrow><annotation encoding="application/x-tex">AX</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>A</mi><mrow><mi>−</mi><mn>1</mn></mrow></msup><mi>x</mi></mrow><annotation encoding="application/x-tex">A^{-1}x</annotation></semantics></math>,
+or
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>A</mi><mrow><mi>−</mi><mn>1</mn></mrow></msup><mi>X</mi></mrow><annotation encoding="application/x-tex">A^{-1}X</annotation></semantics></math>
+directly from the pedigree — without ever constructing the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>×</mo><mi>n</mi></mrow><annotation encoding="application/x-tex">n \times n</annotation></semantics></math>
+relationship matrix.</p>
+<p>The implementation uses the pedigree factorization
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mo>=</mo><mi>T</mi><mi>D</mi><msup><mi>T</mi><mo>′</mo></msup></mrow><annotation encoding="application/x-tex">A = TDT'</annotation></semantics></math>
+(Colleau, 2002), where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>T</mi><annotation encoding="application/x-tex">T</annotation></semantics></math>
+is the transmission matrix and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>D</mi><annotation encoding="application/x-tex">D</annotation></semantics></math>
+is the diagonal matrix of Mendelian sampling variances. The product is
+computed through backward and forward pedigree traversals in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mi>p</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(np)</annotation></semantics></math>
+time for an
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>×</mo><mi>p</mi></mrow><annotation encoding="application/x-tex">n \times p</annotation></semantics></math>
+right-hand side, with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mi>p</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(np)</annotation></semantics></math>
+working memory — a fraction of the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>n</mi><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(n^2)</annotation></semantics></math>
+storage that a dense
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math>
+would require.</p>
+<div class="section level3">
+<h3 id="id_2-1">2.1 When to Use <code>pedprod</code> vs <code>pedmat</code><a class="anchor" aria-label="anchor" href="#id_2-1"></a>
+</h3>
+<table class="table">
+<colgroup>
+<col width="50%">
+<col width="50%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">Use <code><a href="../reference/pedprod.html">pedprod()</a></code> when …</th>
+<th align="left">Use <code><a href="../reference/pedmat.html">pedmat()</a></code> when …</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">You only need matrix-vector products
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mi>x</mi></mrow><annotation encoding="application/x-tex">Ax</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>A</mi><mrow><mi>−</mi><mn>1</mn></mrow></msup><mi>x</mi></mrow><annotation encoding="application/x-tex">A^{-1}x</annotation></semantics></math>)</td>
+<td align="left">You need individual relationship coefficients</td>
+</tr>
+<tr class="even">
+<td align="left">The pedigree has &gt;10 000 individuals</td>
+<td align="left">The pedigree is small enough that
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math>
+fits in memory</td>
+</tr>
+<tr class="odd">
+<td align="left">You are iterating (e.g., BLUP, OCS, MCMC)</td>
+<td align="left">You need the matrix for visualization or
+inspection</td>
+</tr>
+<tr class="even">
+<td align="left">Memory is the bottleneck</td>
+<td align="left">You need
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>D</mi><annotation encoding="application/x-tex">D</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mi>A</mi></mrow><annotation encoding="application/x-tex">AA</annotation></semantics></math>,
+or dominance matrices</td>
+</tr>
+<tr class="odd">
+<td align="left">You are working with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>A</mi><mrow><mi>−</mi><mn>1</mn></mrow></msup><annotation encoding="application/x-tex">A^{-1}</annotation></semantics></math>
+products for mixed models</td>
+<td align="left">You need to query specific pairwise relationships</td>
+</tr>
+</tbody>
+</table>
+<p>The two functions are complementary: <code><a href="../reference/pedmat.html">pedmat()</a></code> gives you
+the full matrix when you need to examine it; <code><a href="../reference/pedprod.html">pedprod()</a></code>
+applies the matrix implicitly when you only need its action on
+vectors.</p>
+</div>
+<div class="section level3">
+<h3 id="id_2-2">2.2 Basic Usage —
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mi>x</mi></mrow><annotation encoding="application/x-tex">A x</annotation></semantics></math>
+(vector)<a class="anchor" aria-label="anchor" href="#id_2-2"></a>
+</h3>
+<p>The most common use is computing the additive relationship of every
+individual to a weighted group — for example, a set of selection
+candidates.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Load example pedigree and tidy it</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">small_ped</span><span class="op">)</span></span>
+<span><span class="va">tped</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tidyped.html">tidyped</a></span><span class="op">(</span><span class="va">small_ped</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Equal contributions from two candidates; other individuals have zero weight</span></span>
+<span><span class="va">weights</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>Z1 <span class="op">=</span> <span class="fl">0.5</span>, Z2 <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Relationship of every pedigree individual to the weighted candidate group</span></span>
+<span><span class="va">Ax</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pedprod.html">pedprod</a></span><span class="op">(</span><span class="va">tped</span>, <span class="va">weights</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">Ax</span><span class="op">)</span></span>
+<span><span class="co">#&gt;       A       B       F       I      J1      J2 </span></span>
+<span><span class="co">#&gt; 0.09375 0.09375 0.06250 0.00000 0.06250 0.12500</span></span>
+<span></span>
+<span><span class="co"># Average additive relationship c' A c and average coancestry</span></span>
+<span><span class="va">mean_relationship</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">weights</span> <span class="op">*</span> <span class="va">Ax</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">weights</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="va">mean_coancestry</span> <span class="op">&lt;-</span> <span class="va">mean_relationship</span> <span class="op">/</span> <span class="fl">2</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>mean_relationship <span class="op">=</span> <span class="va">mean_relationship</span>, mean_coancestry <span class="op">=</span> <span class="va">mean_coancestry</span><span class="op">)</span></span>
+<span><span class="co">#&gt; mean_relationship   mean_coancestry </span></span>
+<span><span class="co">#&gt;         0.7910156         0.3955078</span></span></code></pre></div>
+<p><strong>Named vs unnamed vectors.</strong> When <code>x</code> is
+named, individuals not listed automatically receive value zero — you do
+not need to pad the vector yourself. An unnamed vector must have exactly
+one entry per pedigree individual in <code>IndNum</code> order:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Named: only listed individuals get non-zero values</span></span>
+<span><span class="va">named_x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>Z1 <span class="op">=</span> <span class="fl">0.3</span>, Z2 <span class="op">=</span> <span class="fl">0.4</span>, A <span class="op">=</span> <span class="fl">0.3</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/pedprod.html">pedprod</a></span><span class="op">(</span><span class="va">tped</span>, <span class="va">named_x</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span>  <span class="co"># B, C, etc. are automatically zero</span></span>
+<span><span class="co">#&gt;        A        B        F        I       J1       J2 </span></span>
+<span><span class="co">#&gt; 0.365625 0.065625 0.043750 0.000000 0.043750 0.087500</span></span>
+<span></span>
+<span><span class="co"># Unnamed: must match the pedigree size</span></span>
+<span><span class="va">unnamed_x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">tped</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="../reference/pedprod.html">pedprod</a></span><span class="op">(</span><span class="va">tped</span>, <span class="va">unnamed_x</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 28</span></span></code></pre></div>
+<p>Input validation catches common mistakes: duplicate or unknown IDs,
+missing values, and non-finite entries are all rejected with informative
+messages.</p>
+</div>
+<div class="section level3">
+<h3 id="id_2-3">2.3 Products with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>A</mi><mrow><mi>−</mi><mn>1</mn></mrow></msup><annotation encoding="application/x-tex">A^{-1}</annotation></semantics></math><a class="anchor" aria-label="anchor" href="#id_2-3"></a>
+</h3>
+<p>The inverse additive relationship matrix
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>A</mi><mrow><mi>−</mi><mn>1</mn></mrow></msup><annotation encoding="application/x-tex">A^{-1}</annotation></semantics></math>
+is fundamental in mixed model equations (Henderson’s BLUP).
+<code><a href="../reference/pedprod.html">pedprod()</a></code> computes
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>A</mi><mrow><mi>−</mi><mn>1</mn></mrow></msup><mi>x</mi></mrow><annotation encoding="application/x-tex">A^{-1}x</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>A</mi><mrow><mi>−</mi><mn>1</mn></mrow></msup><mi>X</mi></mrow><annotation encoding="application/x-tex">A^{-1}X</annotation></semantics></math>
+efficiently using Henderson’s rules without forming the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>×</mo><mi>n</mi></mrow><annotation encoding="application/x-tex">n \times n</annotation></semantics></math>
+matrix:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Ainv * vector</span></span>
+<span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">tped</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">Ainv_x</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pedprod.html">pedprod</a></span><span class="op">(</span><span class="va">tped</span>, <span class="va">x</span>, method <span class="op">=</span> <span class="st">"Ainv"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">Ainv_x</span><span class="op">)</span></span>
+<span><span class="co">#&gt;           A           B           F           I          J1          J2 </span></span>
+<span><span class="co">#&gt; -2.90971042 -1.25434985 -2.89496064 -1.67763900  0.05803645  2.47858892</span></span>
+<span></span>
+<span><span class="co"># Verify against explicit computation (small pedigree only)</span></span>
+<span><span class="va">A</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pedmat.html">pedmat</a></span><span class="op">(</span><span class="va">tped</span>, method <span class="op">=</span> <span class="st">"A"</span>, sparse <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">Ainv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pedmat.html">pedmat</a></span><span class="op">(</span><span class="va">tped</span>, method <span class="op">=</span> <span class="st">"Ainv"</span>, sparse <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/all.equal.html" class="external-link">all.equal</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/unname.html" class="external-link">unname</a></span><span class="op">(</span><span class="va">Ainv_x</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/unname.html" class="external-link">unname</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/drop.html" class="external-link">drop</a></span><span class="op">(</span><span class="va">Ainv</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="va">x</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  tolerance <span class="op">=</span> <span class="fl">1e-12</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
+<p>For large pedigrees where explicit inversion is impossible,
+<code>pedprod(tped, x, method = "Ainv")</code> remains computationally
+feasible. The numerical equivalence with the full matrix can be verified
+on a small pedigree:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Ainv * (A * x) should recover x (to machine precision)</span></span>
+<span><span class="va">A_x</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pedprod.html">pedprod</a></span><span class="op">(</span><span class="va">tped</span>, <span class="va">x</span>, method <span class="op">=</span> <span class="st">"A"</span><span class="op">)</span></span>
+<span><span class="va">Ainv_Ax</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pedprod.html">pedprod</a></span><span class="op">(</span><span class="va">tped</span>, <span class="va">A_x</span>, method <span class="op">=</span> <span class="st">"Ainv"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/all.equal.html" class="external-link">all.equal</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unname.html" class="external-link">unname</a></span><span class="op">(</span><span class="va">Ainv_Ax</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/unname.html" class="external-link">unname</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, tolerance <span class="op">=</span> <span class="fl">1e-12</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="id_2-4">2.4 Multiple Contribution Schemes —
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mi>X</mi></mrow><annotation encoding="application/x-tex">A X</annotation></semantics></math><a class="anchor" aria-label="anchor" href="#id_2-4"></a>
+</h3>
+<p>When <code>x</code> is a matrix, <code><a href="../reference/pedprod.html">pedprod()</a></code> computes all
+columns in a single backward/ forward traversal of the pedigree. This is
+significantly more efficient than calling <code><a href="../reference/pedprod.html">pedprod()</a></code>
+repeatedly for each column.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Three ways to weight the SAME two candidates (Z1 and Z2 are full sibs)</span></span>
+<span><span class="va">schemes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span></span>
+<span>  Equal      <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>Z1 <span class="op">=</span> <span class="fl">0.5</span>, Z2 <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span>,</span>
+<span>  Z1_only    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>Z1 <span class="op">=</span> <span class="fl">1.0</span>, Z2 <span class="op">=</span> <span class="fl">0.0</span><span class="op">)</span>,</span>
+<span>  Weighted   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>Z1 <span class="op">=</span> <span class="fl">0.7</span>, Z2 <span class="op">=</span> <span class="fl">0.3</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">AX</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pedprod.html">pedprod</a></span><span class="op">(</span><span class="va">tped</span>, <span class="va">schemes</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># The schemes diverge at the candidates themselves (and their descendants);</span></span>
+<span><span class="co"># a shared ancestor is equally related to any weighting of two full sibs.</span></span>
+<span><span class="va">AX</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Z1"</span>, <span class="st">"Z2"</span><span class="op">)</span>, <span class="op">]</span></span>
+<span><span class="co">#&gt;        Equal   Z1_only  Weighted</span></span>
+<span><span class="co">#&gt; Z1 0.7910156 1.0312500 0.8871094</span></span>
+<span><span class="co">#&gt; Z2 0.7910156 0.5507812 0.6949219</span></span>
+<span></span>
+<span><span class="co"># Expected average relationship within each contributing group, 0.5 * c'A c.</span></span>
+<span><span class="co"># Under random mating this equals the mean inbreeding of the resulting progeny.</span></span>
+<span><span class="va">group_coancestry</span> <span class="op">&lt;-</span> <span class="fl">0.5</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colSums</a></span><span class="op">(</span><span class="va">schemes</span> <span class="op">*</span> <span class="va">AX</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">schemes</span><span class="op">)</span>, <span class="op">]</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">group_coancestry</span>, <span class="fl">5</span><span class="op">)</span></span>
+<span><span class="co">#&gt;    Equal  Z1_only Weighted </span></span>
+<span><span class="co">#&gt;  0.39551  0.51562  0.41473</span></span></code></pre></div>
+<p>The three schemes draw on the same two full sibs, yet the genetic
+consequence differs sharply. Concentrating all contribution on a single
+animal (<code>Z1_only</code>) exposes its full, partly inbred genome and
+inflates the group’s expected progeny inbreeding to 0.516, whereas
+spreading contribution evenly (<code>Equal</code>) drives it down to
+0.396. Trading a little short-term gain for a lower average relationship
+is exactly the balance struck by optimal contribution selection.
+<code><a href="../reference/pedprod.html">pedprod()</a></code> supplies the underlying
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>c</mi><mo>′</mo></msup><mi>A</mi><mi>c</mi></mrow><annotation encoding="application/x-tex">c'A c</annotation></semantics></math>
+evaluation for every candidate column in a single
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mi>p</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(np)</annotation></semantics></math>
+traversal — compared to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>p</mi><mo>⋅</mo><msup><mi>n</mi><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(p \cdot n^2)</annotation></semantics></math>
+for explicit products with a precomputed
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math>
+— and never forms
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math>
+itself.</p>
+</div>
+<div class="section level3">
+<h3 id="id_2-5">2.5 Practical Use Cases<a class="anchor" aria-label="anchor" href="#id_2-5"></a>
+</h3>
+<div class="section level4">
+<h4 id="optimal-contribution-selection-ocs">Optimal Contribution Selection (OCS)<a class="anchor" aria-label="anchor" href="#optimal-contribution-selection-ocs"></a>
+</h4>
+<p>OCS maximizes genetic gain while constraining inbreeding. The core
+computation repeatedly evaluates
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>c</mi><mo>′</mo></msup><mi>A</mi><mi>c</mi></mrow><annotation encoding="application/x-tex">c'A c</annotation></semantics></math>
+for candidate contribution vectors
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>c</mi><annotation encoding="application/x-tex">c</annotation></semantics></math>:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Weighted candidate contributions</span></span>
+<span><span class="va">candidates</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/setNames.html" class="external-link">setNames</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.25</span>, <span class="fl">0.25</span>, <span class="fl">0.25</span>, <span class="fl">0.25</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Z1"</span>, <span class="st">"Z2"</span>, <span class="st">"A"</span>, <span class="st">"B"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">Ac</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pedprod.html">pedprod</a></span><span class="op">(</span><span class="va">tped</span>, <span class="va">candidates</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Average coancestry of the selected group: 0.5 * c' A c</span></span>
+<span><span class="va">c_accepted</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">candidates</span> <span class="op">*</span> <span class="va">Ac</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">candidates</span><span class="op">)</span><span class="op">]</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span></span>
+<span><span class="va">c_accepted</span></span>
+<span><span class="co">#&gt; [1] 0.1848145</span></span></code></pre></div>
+<p>With <code><a href="../reference/pedprod.html">pedprod()</a></code>, this evaluation is fast enough to be
+embedded inside an iterative optimization loop over thousands of
+candidate configurations.</p>
+</div>
+<div class="section level4">
+<h4 id="mixed-model-equations">Mixed Model Equations<a class="anchor" aria-label="anchor" href="#mixed-model-equations"></a>
+</h4>
+<p>The mixed model equations for BLUP require products
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>A</mi><mrow><mi>−</mi><mn>1</mn></mrow></msup><mi>u</mi></mrow><annotation encoding="application/x-tex">A^{-1} u</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>A</mi><mrow><mi>−</mi><mn>1</mn></mrow></msup><mi>Z</mi></mrow><annotation encoding="application/x-tex">A^{-1} Z</annotation></semantics></math>.
+For an
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>×</mo><mi>p</mi></mrow><annotation encoding="application/x-tex">n \times p</annotation></semantics></math>
+design matrix
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Z</mi><annotation encoding="application/x-tex">Z</annotation></semantics></math>,
+use:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Simulated breeding values as a matrix right-hand side</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">20260704</span><span class="op">)</span></span>
+<span><span class="va">Z_design</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span></span>
+<span>  trait1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">tped</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  trait2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">tped</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">Z_design</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">tped</span><span class="op">$</span><span class="va">Ind</span></span>
+<span></span>
+<span><span class="co"># Ainv * Z in one traversal — no Ainv ever stored</span></span>
+<span><span class="va">Ainv_Z</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pedprod.html">pedprod</a></span><span class="op">(</span><span class="va">tped</span>, <span class="va">Z_design</span>, method <span class="op">=</span> <span class="st">"Ainv"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">Ainv_Z</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 28  2</span></span>
+<span><span class="va">Ainv_Z</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="op">]</span></span>
+<span><span class="co">#&gt;       trait1     trait2</span></span>
+<span><span class="co">#&gt; A  -2.731207 -1.7418085</span></span>
+<span><span class="co">#&gt; B  -1.352460 -1.5616321</span></span>
+<span><span class="co">#&gt; F   4.209353 -2.7144441</span></span>
+<span><span class="co">#&gt; I  -1.330313  0.4133992</span></span>
+<span><span class="co">#&gt; J1 -2.663064 -0.7030142</span></span></code></pre></div>
+</div>
+<div class="section level4">
+<h4 id="founder-contribution-analysis">Founder Contribution Analysis<a class="anchor" aria-label="anchor" href="#founder-contribution-analysis"></a>
+</h4>
+<p>Isolating one founder at a time turns <code><a href="../reference/pedprod.html">pedprod()</a></code> into a
+founder-origin decomposition: the product
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><msub><mi>e</mi><mi>f</mi></msub></mrow><annotation encoding="application/x-tex">A e_f</annotation></semantics></math>
+(a unit vector on founder
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>f</mi><annotation encoding="application/x-tex">f</annotation></semantics></math>)
+returns that founder’s expected genetic contribution to every
+individual. Stacking the unit vectors into a matrix decomposes the whole
+population in one traversal, exposing which founders dominate the
+current gene pool and which have been lost:</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># One unit contribution vector per founder: column f isolates founder f</span></span>
+<span><span class="va">founder_ids</span> <span class="op">&lt;-</span> <span class="va">tped</span><span class="op">[</span><span class="va">Gen</span> <span class="op">==</span> <span class="fl">1</span>, <span class="va">Ind</span><span class="op">]</span></span>
+<span><span class="va">founder_design</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">founder_ids</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/dimnames.html" class="external-link">dimnames</a></span><span class="op">(</span><span class="va">founder_design</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">founder_ids</span>, <span class="va">founder_ids</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># A %*% e_f is founder f's expected genetic contribution to every individual</span></span>
+<span><span class="va">footprint</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pedprod.html">pedprod</a></span><span class="op">(</span><span class="va">tped</span>, <span class="va">founder_design</span>, method <span class="op">=</span> <span class="st">"A"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Founder composition of one candidate: contributions sum to one</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">footprint</span><span class="op">[</span><span class="st">"Z1"</span>, <span class="op">]</span>, <span class="fl">4</span><span class="op">)</span></span>
+<span><span class="co">#&gt;      A      B      F      I     J1     J2      N      O      R </span></span>
+<span><span class="co">#&gt; 0.0938 0.0938 0.0625 0.0000 0.0625 0.1250 0.5312 0.0312 0.0000</span></span>
+<span></span>
+<span><span class="co"># Average founder contribution to the youngest generation, ranked</span></span>
+<span><span class="va">young</span> <span class="op">&lt;-</span> <span class="va">tped</span><span class="op">[</span><span class="va">Gen</span> <span class="op">==</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">Gen</span><span class="op">)</span>, <span class="va">Ind</span><span class="op">]</span></span>
+<span><span class="va">founder_share</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colMeans</a></span><span class="op">(</span><span class="va">footprint</span><span class="op">[</span><span class="va">young</span>, , drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span><span class="op">)</span>, decreasing <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">founder_share</span>, <span class="fl">4</span><span class="op">)</span></span>
+<span><span class="co">#&gt;      N     J2      A      B      F     J1      O      I      R </span></span>
+<span><span class="co">#&gt; 0.5312 0.1250 0.0938 0.0938 0.0625 0.0625 0.0312 0.0000 0.0000</span></span></code></pre></div>
+<p>Reading across a row (<code>footprint["Z1", ]</code>) decomposes an
+individual’s genome into founder origins that sum to one; reading down a
+column isolates a single founder’s footprint across the pedigree. Here
+founder <strong>N</strong> accounts for more than half of the youngest
+generation, while founders <strong>I</strong> and <strong>R</strong>
+have already fallen to zero — their founder genomes are lost. Such
+imbalance lowers the effective number of founders and erodes genetic
+diversity faster than the census size implies. Because
+<code><a href="../reference/pedprod.html">pedprod()</a></code> never forms
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math>,
+the same decomposition scales to pedigrees with millions of individuals,
+where it underpins the monitoring of founder representation and
+effective population size.</p>
+</div>
+</div>
+<div class="section level3">
+<h3 id="id_2-6">2.6 Performance and Scalability<a class="anchor" aria-label="anchor" href="#id_2-6"></a>
+</h3>
+<p>The key advantage of <code><a href="../reference/pedprod.html">pedprod()</a></code> is scalability. The table
+below summarizes the computational cost for a pedigree with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+individuals and a right-hand side with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>
+columns:</p>
+<table class="table">
+<colgroup>
+<col width="20%">
+<col width="20%">
+<col width="20%">
+<col width="20%">
+<col width="20%">
+</colgroup>
+<thead><tr class="header">
+<th align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math></th>
+<th align="right"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math></th>
+<th align="left">
+<code>pedmat("A")</code> memory</th>
+<th align="left">
+<code><a href="../reference/pedprod.html">pedprod()</a></code> memory</th>
+<th align="left">Feasible with <code>pedmat</code>?</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>10</mn><mn>3</mn></msup><annotation encoding="application/x-tex">10^3</annotation></semantics></math></td>
+<td align="right">1</td>
+<td align="left">~8 MB</td>
+<td align="left">~8 KB</td>
+<td align="left">Yes</td>
+</tr>
+<tr class="even">
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>10</mn><mn>4</mn></msup><annotation encoding="application/x-tex">10^4</annotation></semantics></math></td>
+<td align="right">1</td>
+<td align="left">~800 MB</td>
+<td align="left">~80 KB</td>
+<td align="left">Marginal</td>
+</tr>
+<tr class="odd">
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>10</mn><mn>4</mn></msup><annotation encoding="application/x-tex">10^4</annotation></semantics></math></td>
+<td align="right">10</td>
+<td align="left">~800 MB</td>
+<td align="left">~800 KB</td>
+<td align="left">Marginal</td>
+</tr>
+<tr class="even">
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>10</mn><mn>5</mn></msup><annotation encoding="application/x-tex">10^5</annotation></semantics></math></td>
+<td align="right">1</td>
+<td align="left">~80 GB</td>
+<td align="left">~800 KB</td>
+<td align="left"><strong>No</strong></td>
+</tr>
+<tr class="odd">
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>10</mn><mn>5</mn></msup><annotation encoding="application/x-tex">10^5</annotation></semantics></math></td>
+<td align="right">100</td>
+<td align="left">~80 GB</td>
+<td align="left">~8 MB</td>
+<td align="left"><strong>No</strong></td>
+</tr>
+<tr class="even">
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>10</mn><mn>6</mn></msup><annotation encoding="application/x-tex">10^6</annotation></semantics></math></td>
+<td align="right">1</td>
+<td align="left">~8 TB</td>
+<td align="left">~8 MB</td>
+<td align="left"><strong>No</strong></td>
+</tr>
+</tbody>
+</table>
+<p>For pedigrees exceeding ~25 000 individuals,
+<code>pedmat(method = "A")</code> will refuse to construct a dense
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math>
+matrix. <code><a href="../reference/pedprod.html">pedprod()</a></code> has no such limit — it continues to work
+as long as the pedigree and right-hand side fit in memory:</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Pedigrees beyond the dense-A guard still work with pedprod()</span></span>
+<span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">50000L</span></span>
+<span><span class="va">ids</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"I"</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">raw</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  Ind  <span class="op">=</span> <span class="va">ids</span>,</span>
+<span>  Sire <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA_character_</span>, <span class="va">ids</span><span class="op">[</span><span class="op">-</span><span class="va">n</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>  Dam  <span class="op">=</span> <span class="cn">NA_character_</span>,</span>
+<span>  stringsAsFactors <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">tped_large</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tidyped.html">tidyped</a></span><span class="op">(</span><span class="va">raw</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># pedprod works; pedmat would error</span></span>
+<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pedprod.html">pedprod</a></span><span class="op">(</span><span class="va">tped_large</span>, <span class="fu"><a href="https://rdrr.io/r/stats/setNames.html" class="external-link">setNames</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="va">ids</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span>  <span class="co"># 50000</span></span></code></pre></div>
+<p><strong>Rule of thumb:</strong> Use <code><a href="../reference/pedprod.html">pedprod()</a></code> whenever
+the analysis only requires a matrix product. Construct
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math>,
+compact matrices, or grouped summaries only when the corresponding
+matrix entries are themselves required.</p>
+</div>
+</div>
+<div class="section level2">
+<h2 id="id_3">3. Inspecting the Matrix<a class="anchor" aria-label="anchor" href="#id_3"></a>
 </h2>
 <div class="section level3">
-<h3 id="id_2-1">2.1 Summary Statistics<a class="anchor" aria-label="anchor" href="#id_2-1"></a>
+<h3 id="id_3-1">3.1 Summary Statistics<a class="anchor" aria-label="anchor" href="#id_3-1"></a>
 </h3>
 <p>Use the <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> method to get an overview of the
 calculated matrix, including size, density, and average
 relationship.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">mat_A</span><span class="op">)</span>,<span class="fl">10</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    Length     Class      Mode </span></span>
 <span><span class="co">#&gt;       784 dgeMatrix        S4</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="id_2-2">2.2 Querying Specific Relationships<a class="anchor" aria-label="anchor" href="#id_2-2"></a>
+<h3 id="id_3-2">3.2 Querying Specific Relationships<a class="anchor" aria-label="anchor" href="#id_3-2"></a>
 </h3>
 <p>Instead of manually indexing the matrix, you can use
 <code><a href="../reference/query_relationship.html">query_relationship()</a></code> to retrieve coefficients by individual
 IDs.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Query relationship between Z1 and Z2</span></span>
 <span><span class="fu"><a href="../reference/query_relationship.html">query_relationship</a></span><span class="op">(</span><span class="va">mat_A</span>, <span class="st">"Z1"</span>, <span class="st">"Z2"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 0.5507812</span></span>
@@ -207,17 +643,17 @@ IDs.</p>
 </div>
 </div>
 <div class="section level2">
-<h2 id="id_3">3. Compact Mode for Large Pedigrees<a class="anchor" aria-label="anchor" href="#id_3"></a>
+<h2 id="id_4">4. Compact Mode for Large Pedigrees<a class="anchor" aria-label="anchor" href="#id_4"></a>
 </h2>
 <p>For large pedigrees with many full-sibling families (common in
 aquatic breeding populations), <code><a href="../reference/pedmat.html">pedmat()</a></code> can merge full
 siblings into representative nodes to save memory and time.</p>
 <div class="section level3">
-<h3 id="id_3-1">3.1 Using <code>compact = TRUE</code><a class="anchor" aria-label="anchor" href="#id_3-1"></a>
+<h3 id="id_4-1">4.1 Using <code>compact = TRUE</code><a class="anchor" aria-label="anchor" href="#id_4-1"></a>
 </h3>
 <p>When <code>compact = TRUE</code>, the matrix is calculated for unique
 representative individuals from each full-sib family.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Calculate compacted A matrix</span></span>
 <span><span class="va">mat_compact</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pedmat.html">pedmat</a></span><span class="op">(</span><span class="va">tped</span>, method <span class="op">=</span> <span class="st">"A"</span>, compact <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
@@ -237,13 +673,13 @@ representative individuals from each full-sib family.</p>
 <span><span class="co">#&gt; S 0.00 0.00 0.25 0.5 0.000 0.000 0.000 0.000 0.000 1.00</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="id_3-2">3.2 Expanding and Querying Compacted Matrices<a class="anchor" aria-label="anchor" href="#id_3-2"></a>
+<h3 id="id_4-2">4.2 Expanding and Querying Compacted Matrices<a class="anchor" aria-label="anchor" href="#id_4-2"></a>
 </h3>
 <p>If you need the full matrix after a compact calculation, use
 <code><a href="../reference/expand_pedmat.html">expand_pedmat()</a></code>. For retrieving specific values,
 <code><a href="../reference/query_relationship.html">query_relationship()</a></code> handles both standard and compact
 objects transparently.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Expand to full 28x28 matrix</span></span>
 <span><span class="va">mat_full</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/expand_pedmat.html">expand_pedmat</a></span><span class="op">(</span><span class="va">mat_compact</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">mat_full</span><span class="op">)</span></span>
@@ -254,7 +690,7 @@ objects transparently.</p>
 <span><span class="co">#&gt; [1] 0.5507812</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="id_3-3">3.3 When to Use Compact Mode<a class="anchor" aria-label="anchor" href="#id_3-3"></a>
+<h3 id="id_4-3">4.3 When to Use Compact Mode<a class="anchor" aria-label="anchor" href="#id_4-3"></a>
 </h3>
 <p>Compact mode is highly recommended for:</p>
 <ul>
@@ -296,13 +732,13 @@ exceeds available RAM.</li>
 </div>
 </div>
 <div class="section level2">
-<h2 id="id_4">4. Visualizing Relationship Matrices with <code>vismat()</code><a class="anchor" aria-label="anchor" href="#id_4"></a>
+<h2 id="id_5">5. Visualizing Relationship Matrices with <code>vismat()</code><a class="anchor" aria-label="anchor" href="#id_5"></a>
 </h2>
 <p>Visualization helps in understanding population structure, detecting
 family clusters, and checking the distribution of genetic
 relationships.</p>
 <div class="section level3">
-<h3 id="id_4-1">4.1 Relationship Heatmaps<a class="anchor" aria-label="anchor" href="#id_4-1"></a>
+<h3 id="id_5-1">5.1 Relationship Heatmaps<a class="anchor" aria-label="anchor" href="#id_5-1"></a>
 </h3>
 <p>The <code>"heatmap"</code> type (default) uses a Nature Genetics
 style color palette (White–Orange–Red) to display relationships. Rows
@@ -310,7 +746,7 @@ and columns are reordered by hierarchical clustering (Ward.D2) by
 default, bringing closely related individuals into contiguous blocks —
 full-sibs cluster tightly because they share nearly identical
 relationship profiles with the rest of the population.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Heatmap of the A matrix (with default clustering reorder)</span></span>
 <span><span class="fu"><a href="../reference/vismat.html">vismat</a></span><span class="op">(</span><span class="va">mat_A</span>, labelcex <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></code></pre></div>
 <p><img src="relationship-matrix_files/figure-html/heatmap-1.png" class="r-plt" alt="" width="100%"></p>
@@ -320,7 +756,7 @@ relationship profiles with the rest of the population.</p>
 <p>A compact <code>pedmat</code> object can be passed directly to
 <code><a href="../reference/vismat.html">vismat()</a></code>. It is automatically expanded to full dimensions
 before rendering.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Compact matrix: expanded automatically (message printed)</span></span>
 <span><span class="fu"><a href="../reference/vismat.html">vismat</a></span><span class="op">(</span><span class="va">mat_compact</span>,labelcex<span class="op">=</span><span class="fl">0.5</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Expanding compact matrix (27 -&gt; 28 individuals) for visualization.</span></span></code></pre></div>
@@ -331,7 +767,7 @@ before rendering.</p>
 </h4>
 <p>Set <code>reorder = FALSE</code> to keep the original pedigree order
 instead of re-sorting by clustering.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/vismat.html">vismat</a></span><span class="op">(</span><span class="va">mat_A</span>, reorder <span class="op">=</span> <span class="cn">FALSE</span>, labelcex <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></code></pre></div>
 <p><img src="relationship-matrix_files/figure-html/heatmap_no_reorder-1.png" class="r-plt" alt="" width="100%"></p>
 </div>
@@ -339,7 +775,7 @@ instead of re-sorting by clustering.</p>
 <h4 id="display-a-subset-of-individuals">Display a Subset of Individuals<a class="anchor" aria-label="anchor" href="#display-a-subset-of-individuals"></a>
 </h4>
 <p>Use <code>ids</code> to focus on specific individuals.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">target_ids</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">mat_A</span><span class="op">)</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">8</span><span class="op">]</span></span>
 <span><span class="fu"><a href="../reference/vismat.html">vismat</a></span><span class="op">(</span><span class="va">mat_A</span>, ids <span class="op">=</span> <span class="va">target_ids</span>,</span>
 <span>       main <span class="op">=</span> <span class="st">"Relationship Heatmap — First 8 Individuals"</span><span class="op">)</span></span></code></pre></div>
@@ -351,13 +787,13 @@ instead of re-sorting by clustering.</p>
 <p>For large populations, aggregate relationships to a group-level view
 using the <code>by</code> parameter. The matrix is reduced to mean
 coefficients between groups.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Mean relationship between generations</span></span>
 <span><span class="fu"><a href="../reference/vismat.html">vismat</a></span><span class="op">(</span><span class="va">mat_A</span>, ped <span class="op">=</span> <span class="va">tped</span>, by <span class="op">=</span> <span class="st">"Gen"</span>,</span>
 <span>       main <span class="op">=</span> <span class="st">"Mean Relationship Between Generations"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Aggregating 28 individuals into 6 groups based on 'Gen'...</span></span></code></pre></div>
 <p><img src="relationship-matrix_files/figure-html/heatmap_group-1.png" class="r-plt" alt="" width="100%"></p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Mean relationship between full-sib families</span></span>
 <span><span class="co"># (founders without a family assignment are excluded automatically)</span></span>
 <span><span class="fu"><a href="../reference/vismat.html">vismat</a></span><span class="op">(</span><span class="va">mat_A</span>, ped <span class="op">=</span> <span class="va">tped</span>, by <span class="op">=</span> <span class="st">"Family"</span>,</span>
@@ -368,18 +804,18 @@ coefficients between groups.</p>
 </div>
 </div>
 <div class="section level3">
-<h3 id="id_4-2">4.2 Inbreeding and Kinship Histograms<a class="anchor" aria-label="anchor" href="#id_4-2"></a>
+<h3 id="id_5-2">5.2 Inbreeding and Kinship Histograms<a class="anchor" aria-label="anchor" href="#id_5-2"></a>
 </h3>
 <p>The “histogram” type displays the distribution of relationship
 coefficients (lower triangle) or inbreeding coefficients.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Distribution of relationship coefficients</span></span>
 <span><span class="fu"><a href="../reference/vismat.html">vismat</a></span><span class="op">(</span><span class="va">mat_A</span>, type <span class="op">=</span> <span class="st">"histogram"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="relationship-matrix_files/figure-html/histogram-1.png" class="r-plt" alt="" width="100%"></p>
 </div>
 </div>
 <div class="section level2">
-<h2 id="id_5">5. Performance Considerations<a class="anchor" aria-label="anchor" href="#id_5"></a>
+<h2 id="id_6">6. Performance Considerations<a class="anchor" aria-label="anchor" href="#id_6"></a>
 </h2>
 <p>Calculation and visualization of large matrices can be
 resource-intensive. <code><a href="../reference/vismat.html">vismat()</a></code> applies the following
@@ -437,7 +873,7 @@ individuals, compact to 2 626) and displays the mean additive
 relationship among <strong>all</strong> full-sib families in the latest
 generation — a computation that would be infeasible with full
 expansion.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">big_family_size_ped</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">tp_big</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tidyped.html">tidyped</a></span><span class="op">(</span><span class="va">big_family_size_ped</span><span class="op">)</span></span>
@@ -468,6 +904,29 @@ compact matrix.</p>
 <code><a href="../articles/tidy-pedigree.html">vignette("tidy-pedigree", package = "visPedigree")</a></code> -
 <code><a href="../articles/draw-pedigree.html">vignette("draw-pedigree", package = "visPedigree")</a></code></p>
 </div>
+<div class="section level2">
+<h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+</h2>
+<ul>
+<li>Colleau, J. J. (2002). An indirect approach to the extensive
+calculation of relationship coefficients. <em>Genetics Selection
+Evolution</em>, 34, 409-421.</li>
+<li>Colleau, J. J., Palhière, I., Rodríguez-Ramilo, S. T., &amp;
+Legarra, A. (2017). A fast indirect method to compute functions of
+genomic relationships concerning genotyped and ungenotyped individuals,
+for diversity management. <em>Genetics Selection Evolution</em>, 49,
+87.</li>
+<li>Henderson, C. R. (1976). A simple method for computing the inverse
+of a numerator relationship matrix used in prediction of breeding
+values. <em>Biometrics</em>, 32(1), 69-83.</li>
+<li>Meuwissen, T. H. E., &amp; Luo, Z. (1992). Computing inbreeding
+coefficients in large populations. <em>Genetics Selection
+Evolution</em>, 24, 305-313.</li>
+<li>Sargolzaei, M., Iwaisaki, H., &amp; Colleau, J.-J. (2005). A fast
+algorithm for computing inbreeding coefficients in large populations.
+<em>Journal of Animal Breeding and Genetics</em>, 122, 325-331.</li>
+</ul>
+</div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
 </div>
@@ -479,7 +938,7 @@ compact matrix.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

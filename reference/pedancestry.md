@@ -41,6 +41,11 @@ A `data.table` with columns:
 ``` r
 # \donttest{
 library(data.table)
+#> 
+#> Attaching package: ‘data.table’
+#> The following object is masked from ‘package:base’:
+#> 
+#>     %notin%
 # Create dummy labels for founders
 tp <- tidyped(small_ped)
 tp_dated <- copy(tp)

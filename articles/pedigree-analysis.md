@@ -26,8 +26,14 @@ Different package datasets are used for different analytical tasks.
 - `inbred_ped` is convenient for inbreeding and classification examples.
 
 ``` r
+
 library(visPedigree)
 library(data.table)
+#> 
+#> Attaching package: 'data.table'
+#> The following object is masked from 'package:base':
+#> 
+#>     %notin%
 
 data(deep_ped, package = "visPedigree")
 data(big_family_size_ped, package = "visPedigree")
@@ -54,6 +60,7 @@ Here `deep_ped` has no explicit birth-date column. Accordingly,
 returns `$summary` and `$ecg`, whereas `$gen_intervals` remains `NULL`.
 
 ``` r
+
 stats_deep <- pedstats(tp_deep)
 
 stats_deep$summary
@@ -89,10 +96,12 @@ whereas the latter is addressed by
 Equivalent complete generations (ECG) summarize the amount of ancestral
 information available for each individual:
 
-$$ECG_{i} = \sum\limits_{j}\left( \frac{1}{2} \right)^{g_{ij}}$$
+``` math
+ECG_i = \sum_j \left(\frac{1}{2}\right)^{g_{ij}}
+```
 
-where $g_{ij}$ is the number of generations between individual $i$ and
-ancestor $j$. ECG increases with both pedigree depth and pedigree
+where $`g_{ij}`$ is the number of generations between individual $`i`$
+and ancestor $`j`$. ECG increases with both pedigree depth and pedigree
 completeness.
 
 In practice:
@@ -106,6 +115,7 @@ required by realized effective population size estimators based on
 inbreeding or coancestry.
 
 ``` r
+
 ecg_deep <- pedecg(tp_deep)
 
 ecg_deep[order(-ECG)][1:10]
@@ -128,7 +138,9 @@ ecg_deep[order(-ECG)][1:10]
 Generation interval is the age of a parent at the birth of its
 offspring:
 
-$$L = t_{offspring} - t_{parent}$$
+``` math
+L = t_{offspring} - t_{parent}
+```
 
 [`pedgenint()`](https://luansheng.github.io/visPedigree/reference/pedgenint.md)
 estimates this quantity for seven pathway summaries:
@@ -142,6 +154,7 @@ years. When only an integer year is available, it is converted
 internally to `YYYY-07-01` as a mid-year approximation.
 
 ``` r
+
 tp_time <- tidyped(big_family_size_ped)
 
 genint_year <- pedgenint(tp_time, timevar = "Year", unit = "year")
@@ -167,12 +180,15 @@ plot(genint_year)
 The optional `cycle` parameter adds `GenEquiv`, which compares the
 observed mean interval with a target breeding cycle:
 
-$$GenEquiv_{i} = \frac{{\bar{L}}_{i}}{L_{cycle}}$$
+``` math
+GenEquiv_i = \frac{\bar{L}_i}{L_{cycle}}
+```
 
 Values larger than 1 indicate that the realized generation interval
 exceeds the target cycle.
 
 ``` r
+
 genint_cycle <- pedgenint(tp_time, timevar = "Year", unit = "year", cycle = 1.2)
 #> Numeric time column detected. Converting to Date (YYYY-07-01). For finer precision, convert to Date beforehand.
 
@@ -199,6 +215,7 @@ has two modes:
 - `by = "..."`: summarize the pedigree by an existing grouping variable.
 
 ``` r
+
 ped_demo <- data.table(
   Ind = c("A", "B", "C", "D", "E", "F", "G", "H"),
   Sire = c(NA, NA, "A", NA, NA, "E", NA, NA),
@@ -237,17 +254,24 @@ is the integrated diversity summary. It combines:
 - retained genetic diversity (`GeneDiv`),
 - three effective population size estimates (`Ne`).
 
+The gene-origin summaries follow the classical founder/ancestor
+framework of Lacy (1989) and Boichard et al. (1997), while
+coancestry-based diversity and effective population size calculations
+follow Caballero & Toro (2000) and related pedigree-based estimators.
+
 All of these quantities depend on the definition of the **reference
 population**. In the present example, the reference population is
 defined as the most recent two generations in `deep_ped`.
 
 ``` r
+
 ref_pop <- tp_deep[Gen >= max(Gen) - 1, Ind]
 length(ref_pop)
 #> [1] 3471
 ```
 
 ``` r
+
 div_res <- pediv(tp_deep, reference = ref_pop, top = 10, seed = 42L)
 #> Calculating founder and ancestor contributions...
 #> Calculating founder contributions...
@@ -285,9 +309,11 @@ angles.
 
 #### Effective number of founders (`fe`)
 
-$$f_{e} = \frac{1}{\sum\limits_{i = 1}^{f}p_{i}^{2}}$$
+``` math
+f_e = \frac{1}{\sum_{i=1}^{f} p_i^2}
+```
 
-where $p_{i}$ is the expected contribution of founder $i$ to the
+where $`p_i`$ is the expected contribution of founder $`i`$ to the
 reference population. `fe` answers the question: if all founders had
 contributed equally, how many founders would generate the same
 diversity?
@@ -296,9 +322,11 @@ Use `fe` when the main concern is **unequal founder representation**.
 
 #### Effective number of ancestors (`fa`)
 
-$$f_{a} = \frac{1}{\sum\limits_{j = 1}^{a}q_{j}^{2}}$$
+``` math
+f_a = \frac{1}{\sum_{j=1}^{a} q_j^2}
+```
 
-where $q_{j}$ is the **marginal** contribution of ancestor $j$ after
+where $`q_j`$ is the **marginal** contribution of ancestor $`j`$ after
 removing the contributions already explained by more influential
 ancestors. `fa` is usually smaller than `fe` when bottlenecks occurred.
 
@@ -309,19 +337,26 @@ limited set of influential ancestors**.
 
 In its simplest interpretation,
 
-$$f_{g} = \frac{1}{2\bar{C}}$$
+``` math
+f_g = \frac{1}{2\bar{C}}
+```
 
-where $\bar{C}$ is the mean coancestry of the reference population. In
+where $`\bar{C}`$ is the mean coancestry of the reference population. In
 `visPedigree`, `fg` is estimated from a diagonal-corrected mean
 coancestry:
 
-$$\widehat{\bar{C}} = \frac{N - 1}{N} \cdot \frac{{\bar{a}}_{off}}{2} + \frac{1 + \bar{F}}{2N}$$
+``` math
+\hat{\bar{C}} = \frac{N-1}{N}\cdot\frac{\bar{a}_{off}}{2} + \frac{1 + \bar{F}}{2N}
+```
 
-$$f_{g} = \frac{1}{2\widehat{\bar{C}}}$$
+``` math
+f_g = \frac{1}{2\hat{\bar{C}}}
+```
 
-where $N$ is the size of the full reference population,
-${\bar{a}}_{off}$ is the mean off-diagonal additive relationship among
-sampled individuals, and $\bar{F}$ is their mean inbreeding coefficient.
+where $`N`$ is the size of the full reference population,
+$`\bar{a}_{off}`$ is the mean off-diagonal additive relationship among
+sampled individuals, and $`\bar{F}`$ is their mean inbreeding
+coefficient.
 
 Use `fg` when the main concern is **the amount of founder genome still
 surviving after unequal use, bottlenecks, and drift**. In practice, `fg`
@@ -332,22 +367,25 @@ is often the most conservative diversity indicator.
 `GeneDiv` is the pedigree-based retained genetic diversity of the
 reference population:
 
-$$GeneDiv = 1 - \bar{C}$$
+``` math
+GeneDiv = 1 - \bar{C}
+```
 
-where $\bar{C}$ is the same diagonal-corrected mean coancestry used to
-compute $f_{g}$. Because coancestry increases as individuals become more
-related by descent, $GeneDiv$ decreases towards 0 as the population
+where $`\bar{C}`$ is the same diagonal-corrected mean coancestry used to
+compute $`f_g`$. Because coancestry increases as individuals become more
+related by descent, $`GeneDiv`$ decreases towards 0 as the population
 becomes more uniform. An unrelated, non-inbred population has
-$GeneDiv = 1$; a population of full sibs from two unrelated founders has
-$GeneDiv \approx 0.75$.
+$`GeneDiv = 1`$; a population of full sibs from two unrelated founders
+has $`GeneDiv \approx 0.75`$.
 
-`GeneDiv` and `fg` are both derived from $\bar{C}$, but they answer
+`GeneDiv` and `fg` are both derived from $`\bar{C}`$, but they answer
 different questions. `fg` is measured in “equivalent number of founders”
 and is most useful for between-programme comparisons. `GeneDiv` is a
 dimensionless proportion and is easiest to communicate to managers and
 stakeholders who need a single intuitive index of diversity retention.
 
 ``` r
+
 # GeneDiv is in the summary alongside MeanCoan
 div_res$summary[, .(fg, MeanCoan, GeneDiv)]
 #>          fg  MeanCoan   GeneDiv
@@ -357,46 +395,50 @@ div_res$summary[, .(fg, MeanCoan, GeneDiv)]
 
 ### 6.2 Shannon-entropy effective numbers: `feH` and `faH`
 
-The classical `fe` and `fa` are based on $\sum p_{i}^{2}$ (Hill number
-order $q = 2$), which is disproportionately influenced by a few large
+The classical `fe` and `fa` are based on $`\sum p_i^2`$ (Hill number
+order $`q = 2`$), which is disproportionately influenced by a few large
 contributions. `visPedigree` also reports the information-theoretic
-counterpart at order $q = 1$, derived from Shannon entropy:
+counterpart at order $`q = 1`$, derived from Shannon entropy:
 
-\$\$ f_e^{(H)} = \exp\\\Bigl(-\sum\_{i=1}^{f} p_i \ln p_i\Bigr), \qquad
-f_a^{(H)} = \exp\\\Bigl(-\sum\_{j=1}^{a} q_j \ln q_j\Bigr) \$\$
+``` math
+f_e^{(H)} = \exp\!\Bigl(-\sum_{i=1}^{f} p_i \ln p_i\Bigr), \qquad
+f_a^{(H)} = \exp\!\Bigl(-\sum_{j=1}^{a} q_j \ln q_j\Bigr)
+```
 
 All four metrics satisfy a strict monotone ordering:
 
-$$N_{f} \geq f_{e}^{(H)} \geq f_{e},\qquad K \geq f_{a}^{(H)} \geq f_{a}$$
+``` math
+N_f \ge f_e^{(H)} \ge f_e, \qquad K \ge f_a^{(H)} \ge f_a
+```
 
-where $N_{f}$ is the total number of founders and $K$ is the number of
+where $`N_f`$ is the total number of founders and $`K`$ is the number of
 ancestors considered.
 
 #### Metric guide
 
-| Metric    | Order   | Sensitivity                           | What it measures                                                                                                                                                                     |
-|-----------|---------|---------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `fe`      | $q = 2$ | Dominated by common founders          | Effective number of founders if contributions were equalized. Dominated by the largest contributions; many rare founders with small $p_{i}$ have negligible influence on the metric. |
-| `feH`     | $q = 1$ | Balanced; sensitive to rare founders  | Shannon-entropy effective founders. Counts rare founders more equitably than $q = 2$; always $\geq$`fe`.                                                                             |
-| `fa`      | $q = 2$ | Dominated by common ancestors         | Effective number of ancestors accounting for bottleneck structure. Typically lower than `fe`.                                                                                        |
-| `faH`     | $q = 1$ | Balanced; sensitive to rare ancestors | Shannon-entropy effective ancestors. Less dominated by the single most influential ancestor.                                                                                         |
-| `fg`      | —       | Realized coancestry                   | Founder genome equivalents; the most conservative indicator because it captures drift as well.                                                                                       |
-| `GeneDiv` | —       | Retained diversity                    | Pedigree-based retained genetic diversity: $1 - \bar{C}$. Values on the $\lbrack 0,1\rbrack$ scale; higher values indicate more diversity retained relative to the base population.  |
+| Metric | Order | Sensitivity | What it measures |
+|----|----|----|----|
+| `fe` | $`q = 2`$ | Dominated by common founders | Effective number of founders if contributions were equalized. Dominated by the largest contributions; many rare founders with small $`p_i`$ have negligible influence on the metric. |
+| `feH` | $`q = 1`$ | Balanced; sensitive to rare founders | Shannon-entropy effective founders. Counts rare founders more equitably than $`q = 2`$; always $`\ge`$`fe`. |
+| `fa` | $`q = 2`$ | Dominated by common ancestors | Effective number of ancestors accounting for bottleneck structure. Typically lower than `fe`. |
+| `faH` | $`q = 1`$ | Balanced; sensitive to rare ancestors | Shannon-entropy effective ancestors. Less dominated by the single most influential ancestor. |
+| `fg` | — | Realized coancestry | Founder genome equivalents; the most conservative indicator because it captures drift as well. |
+| `GeneDiv` | — | Retained diversity | Pedigree-based retained genetic diversity: $`1 - \bar{C}`$. Values on the $`[0, 1]`$ scale; higher values indicate more diversity retained relative to the base population. |
 
-#### Interpreting the ratio $f_{e}^{(H)}/f_{e}$
+#### Interpreting the ratio $`f_e^{(H)} / f_e`$
 
-The ratio $\rho = f_{e}^{(H)}/f_{e}$ is a **long-tail signal**:
+The ratio $`\rho = f_e^{(H)} / f_e`$ is a **long-tail signal**:
 
-- $\rho \approx 1$: founder contributions are already concentrated in a
-  small number of individuals; there is no meaningful “hidden” diversity
-  from minor founders.
-- $\rho \gg 1$: many minor founders still carry genetic material into
+- $`\rho \approx 1`$: founder contributions are already concentrated in
+  a small number of individuals; there is no meaningful “hidden”
+  diversity from minor founders.
+- $`\rho \gg 1`$: many minor founders still carry genetic material into
   the reference population but are effectively invisible to the
-  classical $f_{e}$ metric because their contributions are small. This
+  classical $`f_e`$ metric because their contributions are small. This
   situation is common early in a breeding programme when the pedigree is
   still shallow.
 
-The analogous ratio $f_{a}^{(H)}/f_{a}$ diagnoses the same effect at the
+The analogous ratio $`f_a^{(H)} / f_a`$ diagnoses the same effect at the
 **ancestor** level: a large ratio means that the bottleneck signal from
 the dominant ancestor is masking genuine contributions from many
 secondary ancestors.
@@ -405,16 +447,17 @@ secondary ancestors.
 
 Use the two ratios together to set priorities:
 
-1.  If $f_{e}^{(H)}/f_{e}$ is large but $f_{e}$ itself is already high,
+1.  If $`f_e^{(H)} / f_e`$ is large but $`f_e`$ itself is already high,
     the programme has good founder coverage; no immediate action needed.
-2.  If $f_{e}^{(H)}/f_{e}$ is large and $f_{e}$ is low, minor founders
+2.  If $`f_e^{(H)} / f_e`$ is large and $`f_e`$ is low, minor founders
     carry material that could be mobilized — consider deliberately
     increasing their representation in the next generation.
-3.  If $f_{a}^{(H)}/f_{a}$ is large, secondary ancestors are still
+3.  If $`f_a^{(H)} / f_a`$ is large, secondary ancestors are still
     present but marginalized; diversifying sire selection could
     rebalance the gene pool before their lineages are lost entirely.
 
 ``` r
+
 # Shannon metrics are included in pediv() output
 div_res$summary[, .(NFounder, feH, fe, NAncestor, faH, fa)]
 #>    NFounder     feH       fe NAncestor     faH       fa
@@ -429,6 +472,7 @@ div_res$summary[, .(rho_founder = feH / fe, rho_ancestor = faH / fa)]
 ```
 
 ``` r
+
 # pedcontrib() provides the same metrics via its summary
 contrib_res <- pedcontrib(tp_deep, reference = ref_pop, mode = "both")
 #> Calculating founder contributions...
@@ -459,22 +503,26 @@ contrib_res$summary[c("n_founder", "f_e_H", "f_e", "n_ancestor", "f_a_H", "f_a")
 provides a static snapshot of diversity. When multiple time points
 (generations, years, etc.) are available,
 [`pedhalflife()`](https://luansheng.github.io/visPedigree/reference/pedhalflife.md)
-tracks how $f_{e}$, $f_{a}$, and $f_{g}$ evolve and fits a log-linear
+tracks how $`f_e`$, $`f_a`$, and $`f_g`$ evolve and fits a log-linear
 decay model to quantify the **rate of diversity loss**.
 
-The total loss rate $\lambda_{total}$ is decomposed into three additive
-components that each have a distinct biological meaning:
+The total loss rate $`\lambda_{total}`$ is decomposed into three
+additive components that each have a distinct biological meaning:
 
 | Component  | Symbol        | Source of loss                |
 |------------|---------------|-------------------------------|
-| Foundation | $\lambda_{e}$ | Unequal founder contributions |
-| Bottleneck | $\lambda_{b}$ | Overuse of key ancestors      |
-| Drift      | $\lambda_{d}$ | Random sampling loss          |
+| Foundation | $`\lambda_e`$ | Unequal founder contributions |
+| Bottleneck | $`\lambda_b`$ | Overuse of key ancestors      |
+| Drift      | $`\lambda_d`$ | Random sampling loss          |
 
-The **diversity half-life** is the number of time units for $f_{g}$ to
-halve: $$T_{1/2} = \frac{\ln 2}{\lambda_{total}}$$
+The **diversity half-life** is the number of time units for $`f_g`$ to
+halve:
+``` math
+T_{1/2} = \frac{\ln 2}{\lambda_{total}}
+```
 
 ``` r
+
 hl <- pedhalflife(tp_deep, timevar = "Gen")
 #> Calculating diversity across 13 time points...
 print(hl)
@@ -503,64 +551,69 @@ three components:
 
 The cascade rests on a simple algebraic identity:
 
-$$\ln f_{g} = \underset{\texttt{𝚕𝚗𝚏𝚎}}{\underbrace{\ln f_{e}}} + \underset{\texttt{𝚕𝚗𝚏𝚊𝚏𝚎}}{\underbrace{\ln\!\left( \frac{f_{a}}{f_{e}} \right)}} + \underset{\texttt{𝚕𝚗𝚏𝚐𝚏𝚊}}{\underbrace{\ln\!\left( \frac{f_{g}}{f_{a}} \right)}}$$
+``` math
+\ln f_g = \underbrace{\ln f_e}_{\texttt{lnfe}}
+         + \underbrace{\ln\!\left(\frac{f_a}{f_e}\right)}_{\texttt{lnfafe}}
+         + \underbrace{\ln\!\left(\frac{f_g}{f_a}\right)}_{\texttt{lnfgfa}}
+```
 
-Because OLS is linear, the slope of $\ln f_{g}$ versus time equals the
+Because OLS is linear, the slope of $`\ln f_g`$ versus time equals the
 sum of the slopes of the three right-hand terms. This guarantees exact
-additivity: $\lambda_{total} = \lambda_{e} + \lambda_{b} + \lambda_{d}$.
+additivity: $`\lambda_{total} = \lambda_e + \lambda_b + \lambda_d`$.
 
-| Column     | Formula                         | What it measures                                                                                                                                                                           |
-|------------|---------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `lnfe`     | $\ln f_{e}$                     | Log effective-founder diversity. Declines when founder contributions become more unequal over time.                                                                                        |
-| `lnfa`     | $\ln f_{a}$                     | Log effective-ancestor diversity. Lies below `lnfe` whenever bottleneck ancestors have been over-used.                                                                                     |
-| `lnfg`     | $\ln f_{g}$                     | Log founder-genome equivalents. The most comprehensive diversity signal; integrates founder use, bottlenecks, and drift.                                                                   |
-| `lnfafe`   | $\ln\left( f_{a}/f_{e} \right)$ | **Bottleneck gap.** When this ratio decreases over time, a small number of ancestors dominate the gene pool even beyond what unequal founder use would predict.                            |
-| `lnfgfa`   | $\ln\left( f_{g}/f_{a} \right)$ | **Drift gap.** Captures random allele loss due to finite population size. Because $f_{g} \leq f_{a}$ always, this term is $\leq 0$ and becomes more negative as genetic drift accumulates. |
-| `TimeStep` | numeric                         | OLS time axis (same as `Time` for numeric `timevar`; sequential indices otherwise).                                                                                                        |
+| Column | Formula | What it measures |
+|----|----|----|
+| `lnfe` | $`\ln f_e`$ | Log effective-founder diversity. Declines when founder contributions become more unequal over time. |
+| `lnfa` | $`\ln f_a`$ | Log effective-ancestor diversity. Lies below `lnfe` whenever bottleneck ancestors have been over-used. |
+| `lnfg` | $`\ln f_g`$ | Log founder-genome equivalents. The most comprehensive diversity signal; integrates founder use, bottlenecks, and drift. |
+| `lnfafe` | $`\ln(f_a/f_e)`$ | **Bottleneck gap.** When this ratio decreases over time, a small number of ancestors dominate the gene pool even beyond what unequal founder use would predict. |
+| `lnfgfa` | $`\ln(f_g/f_a)`$ | **Drift gap.** Captures random allele loss due to finite population size. Because $`f_g \le f_a`$ always, this term is $`\le 0`$ and becomes more negative as genetic drift accumulates. |
+| `TimeStep` | numeric | OLS time axis (same as `Time` for numeric `timevar`; sequential indices otherwise). |
 
-### 7.2 Interpreting the $\lambda$ components
+### 7.2 Interpreting the $`\lambda`$ components
 
 The negative OLS slope of each log column gives the corresponding loss
 rate. All three terms have a distinct policy implication:
 
-**$\lambda_{e}$ (Foundation)** — rate of increase in
-founder-contribution inequality. A large $\lambda_{e}$ suggests that
+**$`\lambda_e`$ (Foundation)** — rate of increase in
+founder-contribution inequality. A large $`\lambda_e`$ suggests that
 founder representation is still diverging, possibly because some
 founders are reaching later generations through many more breeding
 pathways than others. Remedy: broaden founder use in the breeding
 programme.
 
-**$\lambda_{b}$ (Bottleneck)** — rate at which a few key ancestors
+**$`\lambda_b`$ (Bottleneck)** — rate at which a few key ancestors
 capture an ever-larger share of the gene pool beyond what founder
-inequality alone explains. A large $\lambda_{b}$ points to systematic
+inequality alone explains. A large $`\lambda_b`$ points to systematic
 over-selection of certain families or sires. Remedy: restrict the number
 of offspring per high-ranking animal; rotate breeding males.
 
-**$\lambda_{d}$ (Drift)** — rate of random allele loss in finite
+**$`\lambda_d`$ (Drift)** — rate of random allele loss in finite
 populations. This component is always present and increases with small
 effective population size. It is the only component that cannot be
 reversed by changing selection decisions; it can only be slowed by
 maintaining a larger breeding population or by cryopreservation of
 genetic material.
 
-When $\lambda_{d} \gg \lambda_{e} + \lambda_{b}$ (as in the example
-above), drift is the dominant driver of diversity loss and should be the
-primary management target.
+When $`\lambda_d \gg \lambda_e + \lambda_b`$ (as in the example above),
+drift is the dominant driver of diversity loss and should be the primary
+management target.
 
-### 7.3 Interpreting $T_{1/2}$
+### 7.3 Interpreting $`T_{1/2}`$
 
-$T_{1/2}$ is the number of time units (generations, years, etc.)
-required for $f_{g}$ to fall to half its current value, assuming the
+$`T_{1/2}`$ is the number of time units (generations, years, etc.)
+required for $`f_g`$ to fall to half its current value, assuming the
 observed decay rate continues. It is a single headline figure that
 combines all three loss channels.
 
 As a rough benchmark: a half-life shorter than five to ten generations
 is generally considered a cause for concern in conservation and
 aquaculture genetics. Breed registries and conservation programmes often
-use $T_{1/2}$ as a threshold indicator for triggering corrective
+use $`T_{1/2}`$ as a threshold indicator for triggering corrective
 management.
 
 ``` r
+
 hl$timeseries
 #>      Time  NRef        fe        fa         fg     lnfe     lnfa     lnfg
 #>     <int> <int>     <num>     <num>      <num>    <num>    <num>    <num>
@@ -598,6 +651,7 @@ To focus on a specific time window, pass the desired values to the `at`
 argument:
 
 ``` r
+
 hl_recent <- pedhalflife(tp_deep, timevar = "Gen",
                          at = tail(sort(unique(tp_deep$Gen)), 4))
 #> Calculating diversity across 4 time points...
@@ -617,6 +671,7 @@ print(hl_recent)
 Plotting the object shows the log-linear decay of each diversity metric:
 
 ``` r
+
 plot(hl, type = "log")
 ```
 
@@ -626,6 +681,7 @@ A `type = "raw"` plot shows the equivalent numbers on the original
 scale:
 
 ``` r
+
 plot(hl, type = "raw")
 ```
 
@@ -639,18 +695,24 @@ addresses a distinct biological question.
 
 ### 8.1 Demographic `Ne`
 
-$$N_{e} = \frac{4N_{m}N_{f}}{N_{m} + N_{f}}$$
+``` math
+N_e = \frac{4 N_m N_f}{N_m + N_f}
+```
 
-where $N_{m}$ and $N_{f}$ are the numbers of contributing males and
+where $`N_m`$ and $`N_f`$ are the numbers of contributing males and
 females. This is the easiest estimate to understand, but it ignores
 realized pedigree structure, inbreeding, and drift. It is therefore
 often optimistic.
 
 ### 8.2 Inbreeding `Ne`
 
-$$\Delta F_{i} = 1 - \left( 1 - F_{i} \right)^{1/{(ECG_{i} - 1)}}$$
+``` math
+\Delta F_i = 1 - (1 - F_i)^{1/(ECG_i - 1)}
+```
 
-$$N_{e} = \frac{1}{2\overline{\Delta F}}$$
+``` math
+N_e = \frac{1}{2\overline{\Delta F}}
+```
 
 This estimator uses the realized rate of inbreeding. `ECG` standardizes
 individuals with different pedigree depths. Use this estimate when the
@@ -658,9 +720,13 @@ primary concern is **the rate of inbreeding accumulation**.
 
 ### 8.3 Coancestry `Ne`
 
-$$\Delta c_{ij} = 1 - \left( 1 - c_{ij} \right)^{1/{(\frac{ECG_{i} + ECG_{j}}{2})}}$$
+``` math
+\Delta c_{ij} = 1 - (1 - c_{ij})^{1/(\frac{ECG_i + ECG_j}{2})}
+```
 
-$$N_{e} = \frac{1}{2\overline{\Delta c}}$$
+``` math
+N_e = \frac{1}{2\overline{\Delta c}}
+```
 
 This estimator is based on the rate of coancestry among members of the
 reference population. Because it captures the accumulation of
@@ -678,51 +744,66 @@ are available via the `scale` argument.
 
 The default scale returns the mean off-diagonal additive relationship:
 
-$$MeanRel = \frac{1}{n(n - 1)}\sum\limits_{i \neq j}a_{ij}$$
+``` math
+MeanRel = \frac{1}{n(n-1)} \sum_{i \ne j} a_{ij}
+```
 
-where $a_{ij} = 2c_{ij}$ is the additive relationship and $c_{ij}$ is
-the coancestry (kinship coefficient) between individuals $i$ and $j$. A
-higher `MeanRel` means that individuals within the group are, on
-average, more related by descent.
+where $`a_{ij} = 2c_{ij}`$ is the additive relationship and $`c_{ij}`$
+is the coancestry (kinship coefficient) between individuals $`i`$ and
+$`j`$. A higher `MeanRel` means that individuals within the group are,
+on average, more related by descent.
+
+Internally,
+[`pedrel()`](https://luansheng.github.io/visPedigree/reference/pedrel.md)
+creates an indicator vector $`g`$ for each group and computes $`Ag`$
+directly from the pedigree. The off-diagonal sum is obtained from
+$`g^\mathsf{T}Ag`$ after subtracting $`\sum_{i:g_i=1}(1 + F_i)`$. The
+dense relationship matrix is never materialized, so `compact` is now
+retained only as a backward-compatible no-op argument.
 
 ``` r
+
 tp_small$BirthYear <- 2010 + tp_small$Gen
 
 rel_by_gen <- pedrel(tp_small, by = "Gen")
 rel_by_gen
-#>      Gen NTotal NUsed   MeanRel
-#>    <int>  <int> <int>     <num>
-#> 1:     1      9     9 0.0000000
-#> 2:     2      5     5 0.2000000
-#> 3:     3      7     7 0.1547619
-#> 4:     4      3     3 0.1145833
-#> 5:     5      2     2 0.0468750
-#> 6:     6      2     2 0.5507812
+#>      Gen NTotal NUsed   MeanRel Status Message
+#>    <int>  <int> <int>     <num> <char>  <char>
+#> 1:     1      9     9 0.0000000     ok        
+#> 2:     2      5     5 0.2000000     ok        
+#> 3:     3      7     7 0.1547619     ok        
+#> 4:     4      3     3 0.1145833     ok        
+#> 5:     5      2     2 0.0468750     ok        
+#> 6:     6      2     2 0.5507812     ok
 ```
 
 The `reference` argument lets you focus on a subset of interest inside
 each group, such as candidate breeders.
 
 ``` r
+
 ref_ids <- c("Z1", "Z2", "X", "Y")
 
 pedrel(tp_small, by = "Gen", reference = ref_ids)
-#> Warning in FUN(X[[i]], ...): Group '1' has less than 2 individuals after
-#> applying 'reference', returning NA_real_.
-#> Warning in FUN(X[[i]], ...): Group '2' has less than 2 individuals after
-#> applying 'reference', returning NA_real_.
-#> Warning in FUN(X[[i]], ...): Group '3' has less than 2 individuals after
-#> applying 'reference', returning NA_real_.
-#> Warning in FUN(X[[i]], ...): Group '4' has less than 2 individuals after
-#> applying 'reference', returning NA_real_.
-#>      Gen NTotal NUsed   MeanRel
-#>    <int>  <int> <int>     <num>
-#> 1:     1      9     0        NA
-#> 2:     2      5     0        NA
-#> 3:     3      7     0        NA
-#> 4:     4      3     0        NA
-#> 5:     5      2     2 0.0468750
-#> 6:     6      2     2 0.5507812
+#> Warning: pedrel(): 4 of 6 groups returned a non-ok status. Inspect the 'Status'
+#> and 'Message' columns. First issue: Gen = 1; Group has less than 2 individuals
+#> after applying 'reference'.
+#>      Gen NTotal NUsed   MeanRel  Status
+#>    <int>  <int> <int>     <num>  <char>
+#> 1:     1      9     0        NA skipped
+#> 2:     2      5     0        NA skipped
+#> 3:     3      7     0        NA skipped
+#> 4:     4      3     0        NA skipped
+#> 5:     5      2     2 0.0468750      ok
+#> 6:     6      2     2 0.5507812      ok
+#>                                                          Message
+#>                                                           <char>
+#> 1: Group has less than 2 individuals after applying 'reference'.
+#> 2: Group has less than 2 individuals after applying 'reference'.
+#> 3: Group has less than 2 individuals after applying 'reference'.
+#> 4: Group has less than 2 individuals after applying 'reference'.
+#> 5:                                                              
+#> 6:
 ```
 
 ### 9.2 Corrected mean coancestry (`scale = "coancestry"`)
@@ -732,26 +813,32 @@ When `scale = "coancestry"`,
 returns the diagonal-corrected population mean coancestry following
 Caballero & Toro (2000):
 
-$$\bar{C} = \frac{N - 1}{N} \cdot \frac{{\bar{a}}_{off}}{2} + \frac{1 + \bar{F}}{2N}$$
+``` math
+\bar{C} = \frac{g^\mathsf{T}Ag}{2N^2}
+        = \frac{N - 1}{N} \cdot \frac{\bar{a}_{off}}{2}
+          + \frac{1 + \bar{F}}{2N}
+```
 
-where ${\bar{a}}_{off}$ is the mean off-diagonal relationship, $\bar{F}$
-is the mean inbreeding coefficient of the group, and $N$ is the group
-size. This $\bar{C}$ accounts for self-coancestry within the group and
-matches the internal coancestry quantity used by
+where $`\bar{a}_{off}`$ is the mean off-diagonal relationship,
+$`\bar{F}`$ is the mean inbreeding coefficient of the group, and $`N`$
+is the group size. This $`\bar{C}`$ includes both off-diagonal pairwise
+coancestry and diagonal self-coancestry. It matches the internal
+coancestry quantity used by
 [`pediv()`](https://luansheng.github.io/visPedigree/reference/pediv.md)
-to derive $f_{g}$.
+to derive $`f_g`$.
 
 ``` r
+
 coan_by_gen <- pedrel(tp_small, by = "Gen", scale = "coancestry")
 coan_by_gen
-#>      Gen NTotal NUsed   MeanCoan
-#>    <int>  <int> <int>      <num>
-#> 1:     1      9     9 0.05555556
-#> 2:     2      5     5 0.18000000
-#> 3:     3      7     7 0.13775510
-#> 4:     4      3     3 0.20833333
-#> 5:     5      2     2 0.27148438
-#> 6:     6      2     2 0.39550781
+#>      Gen NTotal NUsed   MeanCoan Status Message
+#>    <int>  <int> <int>      <num> <char>  <char>
+#> 1:     1      9     9 0.05555556     ok        
+#> 2:     2      5     5 0.18000000     ok        
+#> 3:     3      7     7 0.13775510     ok        
+#> 4:     4      3     3 0.20833333     ok        
+#> 5:     5      2     2 0.27148438     ok        
+#> 6:     6      2     2 0.39550781     ok
 ```
 
 Use `scale = "relationship"` to track mean pairwise relatedness trends.
@@ -775,11 +862,13 @@ from the *rate of increase* in coancestry across pedigree depth.
 
 ## 10. Inbreeding Trends with `inbreed()` and `pedfclass()`
 
-Wright’s inbreeding coefficient $F$ is the probability that the two
-alleles of an individual are identical by descent. A practical starting
-point is to inspect the mean trend by generation.
+Wright’s inbreeding coefficient $`F`$ (Wright, 1922, 1931) is the
+probability that the two alleles of an individual are identical by
+descent. A practical starting point is to inspect the mean trend by
+generation.
 
 ``` r
+
 tp_inbred_f <- inbreed(tp_inbred)
 
 f_trend <- tp_inbred_f[, .(MeanF = mean(f, na.rm = TRUE)), by = Gen]
@@ -799,6 +888,7 @@ can be applied directly to the pedigree object. If the inbreeding
 coefficient is not yet present, the function computes it internally.
 
 ``` r
+
 pedfclass(tp_inbred)
 #> Calculating inbreeding coefficients...
 #> Key: <FClass>
@@ -814,6 +904,7 @@ pedfclass(tp_inbred)
 Custom reporting thresholds can be supplied through `breaks`.
 
 ``` r
+
 pedfclass(tp_inbred, breaks = c(0.03125, 0.0625, 0.125, 0.25))
 #> Calculating inbreeding coefficients...
 #> Key: <FClass>
@@ -830,9 +921,9 @@ pedfclass(tp_inbred, breaks = c(0.03125, 0.0625, 0.125, 0.25))
 The default thresholds correspond approximately to familiar pedigree
 scenarios:
 
-- $F = 0.0625$: half-sib mating.
-- $F = 0.125$: avuncular or grandparent-grandchild mating.
-- $F = 0.25$: full-sib or parent-offspring mating.
+- $`F = 0.0625`$: half-sib mating.
+- $`F = 0.125`$: avuncular or grandparent-grandchild mating.
+- $`F = 0.25`$: full-sib or parent-offspring mating.
 
 ## 11. Gene Flow and Partial Inbreeding
 
@@ -843,6 +934,7 @@ tracks how founder groups contribute to later descendants. This is
 useful when founders are labeled by line, strain, or geographic origin.
 
 ``` r
+
 ped_line <- data.table(
   Ind = c("A", "B", "C", "D", "E", "F", "G"),
   Sire = c(NA, NA, NA, NA, "A", "C", "E"),
@@ -874,6 +966,7 @@ It is useful for identifying which ancestors are most responsible for
 the observed inbreeding.
 
 ``` r
+
 partial_f <- pedpartial(tp_inbred, ancestors = c("A", "B"))
 #> Calculating partial inbreeding for 2 ancestors...
 partial_f
@@ -899,12 +992,12 @@ One useful interpretation order is:
 3.  Quantify static diversity with `fe`, `fa`, `fg`, and `GeneDiv` via
     [`pediv()`](https://luansheng.github.io/visPedigree/reference/pediv.md);
     compare with `feH` and `faH` to assess long-tail founder value. Use
-    `GeneDiv` (= $1 - \bar{C}$) as the headline retained-diversity index
-    for management reporting.
+    `GeneDiv` (= $`1 - \bar{C}`$) as the headline retained-diversity
+    index for management reporting.
 4.  Track diversity dynamics over time with
     [`pedhalflife()`](https://luansheng.github.io/visPedigree/reference/pedhalflife.md).
-    Inspect $\lambda_{e}$, $\lambda_{b}$, and $\lambda_{d}$ to identify
-    the dominant driver of loss; use $T_{1/2}$ as a headline indicator
+    Inspect $`\lambda_e`$, $`\lambda_b`$, and $`\lambda_d`$ to identify
+    the dominant driver of loss; use $`T_{1/2}`$ as a headline indicator
     for management reporting.
 5.  Compare demographic, inbreeding, and coancestry-based `Ne`.
 6.  Monitor `MeanRel` and `MeanF` over time.

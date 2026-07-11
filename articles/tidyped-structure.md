@@ -10,6 +10,7 @@ in visPedigree 1.8.0. It is intended for maintenance and extension work.
 Expected class vector:
 
 ``` r
+
 c("tidyped", "data.table", "data.frame")
 ```
 
@@ -89,13 +90,13 @@ R and C++.
 
 ### 4.3 Other common columns
 
-| Column       | Description                                                                                                   |
-|--------------|---------------------------------------------------------------------------------------------------------------|
-| `Gen`        | Generation number                                                                                             |
-| `Family`     | Family group code                                                                                             |
-| `FamilySize` | Number of offspring in the family                                                                             |
-| `Cand`       | `TRUE` for candidate individuals                                                                              |
-| `f`          | Inbreeding coefficient (added by [`inbreed()`](https://luansheng.github.io/visPedigree/reference/inbreed.md)) |
+| Column | Description |
+|----|----|
+| `Gen` | Generation number |
+| `Family` | Family group code |
+| `FamilySize` | Number of offspring in the family |
+| `Cand` | `TRUE` for candidate individuals |
+| `f` | Inbreeding coefficient (added by [`inbreed()`](https://luansheng.github.io/visPedigree/reference/inbreed.md)) |
 
 ### 4.4 Column naming convention
 
@@ -107,6 +108,7 @@ matching the core column style.
 Pedigree-level metadata is stored in a single attribute:
 
 ``` r
+
 attr(x, "ped_meta")
 ```
 
@@ -187,6 +189,7 @@ The fast path is the preferred workflow for repeated local tracing from
 a previously validated master pedigree:
 
 ``` r
+
 tp_master <- tidyped(raw_ped)
 tp_local  <- tidyped(tp_master, cand = ids, trace = "up", tracegen = 3)
 ```
@@ -259,11 +262,11 @@ guard levels, chosen based on what each function needs.
 
 ### 8.4 Choosing the right guard
 
-| Guard                                                                                                       | Recovers class? | Requires completeness? | When to use                   |
-|-------------------------------------------------------------------------------------------------------------|:---------------:|:----------------------:|-------------------------------|
-| [`validate_tidyped()`](https://luansheng.github.io/visPedigree/reference/validate_tidyped.md)               |       yes       |           no           | Visualization                 |
-| [`ensure_tidyped()`](https://luansheng.github.io/visPedigree/reference/ensure_tidyped.md)                   |       yes       |           no           | Summaries on existing columns |
-| [`ensure_complete_tidyped()`](https://luansheng.github.io/visPedigree/reference/ensure_complete_tidyped.md) |       yes       |        **yes**         | Pedigree recursion in C++     |
+| Guard | Recovers class? | Requires completeness? | When to use |
+|----|:--:|:--:|----|
+| [`validate_tidyped()`](https://luansheng.github.io/visPedigree/reference/validate_tidyped.md) | yes | no | Visualization |
+| [`ensure_tidyped()`](https://luansheng.github.io/visPedigree/reference/ensure_tidyped.md) | yes | no | Summaries on existing columns |
+| [`ensure_complete_tidyped()`](https://luansheng.github.io/visPedigree/reference/ensure_complete_tidyped.md) | yes | **yes** | Pedigree recursion in C++ |
 
 Some functions are **conditionally guarded**: they use
 [`ensure_tidyped()`](https://luansheng.github.io/visPedigree/reference/ensure_tidyped.md)
@@ -309,27 +312,27 @@ where a graph object is still the simplest representation.
 
 ### 10.1 C++ — core computation path
 
-| Task                          | C++ function                                                  |
-|-------------------------------|---------------------------------------------------------------|
-| Ancestry / descendant tracing | `cpp_trace_ancestors`, `cpp_trace_descendants`                |
-| Topological sorting           | `cpp_topo_order`                                              |
-| Generation assignment         | `cpp_assign_generations_top`, `cpp_assign_generations_bottom` |
-| Inbreeding coefficients       | `cpp_calculate_inbreeding` (Meuwissen & Luo)                  |
-| Relationship matrices         | `cpp_addmat`, `cpp_dommat`, `cpp_aamat`, `cpp_ainv`           |
+| Task | C++ function |
+|----|----|
+| Ancestry / descendant tracing | `cpp_trace_ancestors`, `cpp_trace_descendants` |
+| Topological sorting | `cpp_topo_order` |
+| Generation assignment | `cpp_assign_generations_top`, `cpp_assign_generations_bottom` |
+| Inbreeding coefficients | `cpp_calculate_inbreeding` (Meuwissen & Luo) |
+| Relationship matrices | `cpp_addmat`, `cpp_dommat`, `cpp_aamat`, `cpp_ainv` |
 
 All C++ functions consume `SireNum` / `DamNum` integer vectors and
 assume the head invariant (§3).
 
 ### 10.2 igraph — graph-specific tasks
 
-| Task                   | Where                                                                                      | igraph functions                                               |
-|------------------------|--------------------------------------------------------------------------------------------|----------------------------------------------------------------|
-| Pedigree visualization | [`visped()`](https://luansheng.github.io/visPedigree/reference/visped.md) pipeline         | `graph_from_data_frame`, `layout_with_sugiyama`, `plot.igraph` |
-| Connected components   | [`splitped()`](https://luansheng.github.io/visPedigree/reference/splitped.md)              | `graph_from_edgelist`, `components`                            |
-| Loop detection         | [`tidyped()`](https://luansheng.github.io/visPedigree/reference/tidyped.md) raw-input path | `graph_from_edgelist`, `is_dag`                                |
-| Loop diagnosis         | [`tidyped()`](https://luansheng.github.io/visPedigree/reference/tidyped.md) error path     | `which_loop`, `shortest_paths`, `neighbors`, `components`      |
-| Candidate tracing      | [`tidyped()`](https://luansheng.github.io/visPedigree/reference/tidyped.md) raw-input path | `neighborhood`                                                 |
-| Topological sorting    | [`tidyped()`](https://luansheng.github.io/visPedigree/reference/tidyped.md) raw-input path | `topo_sort`                                                    |
+| Task | Where | igraph functions |
+|----|----|----|
+| Pedigree visualization | [`visped()`](https://luansheng.github.io/visPedigree/reference/visped.md) pipeline | `graph_from_data_frame`, `layout_with_sugiyama`, `plot.igraph` |
+| Connected components | [`splitped()`](https://luansheng.github.io/visPedigree/reference/splitped.md) | `graph_from_edgelist`, `components` |
+| Loop detection | [`tidyped()`](https://luansheng.github.io/visPedigree/reference/tidyped.md) raw-input path | `graph_from_edgelist`, `is_dag` |
+| Loop diagnosis | [`tidyped()`](https://luansheng.github.io/visPedigree/reference/tidyped.md) error path | `which_loop`, `shortest_paths`, `neighbors`, `components` |
+| Candidate tracing | [`tidyped()`](https://luansheng.github.io/visPedigree/reference/tidyped.md) raw-input path | `neighborhood` |
+| Topological sorting | [`tidyped()`](https://luansheng.github.io/visPedigree/reference/tidyped.md) raw-input path | `topo_sort` |
 
 igraph is not used in the core numerical pedigree analysis routines such
 as
@@ -414,6 +417,7 @@ Before merging a structural change to `tidyped`, check:
 For large pedigrees, the intended usage pattern is:
 
 ``` r
+
 # build one validated master pedigree
 tp_master <- tidyped(raw_ped)
 

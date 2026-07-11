@@ -45,26 +45,58 @@ also demonstrates how to save the graph as a high-quality vector graphic
 in a PDF file.
 
 ``` r
+
 tidy_small_ped <-
   tidyped(ped = small_ped,
           cand = c("Y", "Z1", "Z2"))
-visped(tidy_small_ped, compact = TRUE, file = tempfile(fileext = ".pdf"))
-#> Pedigree saved to: /tmp/RtmpTCs9Ya/file559b1e70bd0f.pdf
-#> Label cex: 0.65. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.
+visped(tidy_small_ped, 
+        compact = TRUE, 
+        cex=0.5, 
+        symbolsize=10, 
+        file = tempfile(fileext = ".pdf"))
+#> Pedigree saved to: /tmp/RtmpxA4qP1/file6ce046f91ebf.pdf
+#> Label cex: 0.5. Symbol size: 10. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 ```
 
 ![](draw-pedigree_files/figure-html/smallped-1.png)
 
-In the above graph, two shapes and three colors are used. Circles
-represent individuals, while squares represent families. Dark sky blue
-indicates males, dark goldenrod indicates females, and dark olive green
-indicates unknown sex. For example, a dark sky blue circle represents a
-male individual, while a dark goldenrod square represents all female
-individuals in a full-sib family when `compact = TRUE`. The ancestors
-are drawn at the top and descendants are drawn at the bottom in the
-pedigree graph. Parents and offspring are connected via dummy nodes.
-Lines from offspring to dummy nodes are dark grey, while lines from
-dummy nodes to parents match the parents’ respective colors.
+By default, `shapeby = "sex"` encodes individual sex by shape. Females
+are circles, males are squares, individuals of unknown sex are diamonds,
+and monoecious individuals are hexagons. Node color also identifies sex:
+dark sky blue indicates males, dark goldenrod indicates females, teal
+indicates monoecious individuals, and neutral grey indicates unknown
+sex. Purple is reserved for highlighting. A compact family label such as
+`FS×10` means that the rectangle represents 10 terminal, non-parent full
+siblings; it is not an individual identifier. The ancestors are drawn at
+the top and descendants at the bottom. Parents and offspring are
+connected via virtual nodes. Lines from offspring to virtual nodes are
+dark grey, while parental edges use the corresponding male, female, or
+monoecious color.
+
+Set `shapeby = "role"` to use the legacy role-based symbol scheme, where
+individual records are circles and compact full-sib family summaries are
+green-grey rectangles. Compact family summaries remain green-grey
+rectangles in both modes. In `shapeby = "role"` mode, real individuals
+remain circles, but their fill colors still encode sex.
+
+``` r
+
+visped(tidy_small_ped, 
+      compact = TRUE,
+      cex=0.5, 
+      symbolsize=10)
+#> Label cex: 0.5. Symbol size: 10. Adjust 'cex' and 'symbolsize' if labels are too large or small.
+#> Tip: Use 'file' to save as a legible vector PDF or SVG.
+visped(tidy_small_ped, 
+        compact = TRUE, 
+        shapeby = "role",
+        cex=0.5, 
+        symbolsize=10)
+#> Label cex: 0.5. Symbol size: 10. Adjust 'cex' and 'symbolsize' if labels are too large or small.
+#> Tip: Use 'file' to save as a legible vector PDF or SVG.
+```
+
+![](draw-pedigree_files/figure-html/symbol-schemes-1.png)![](draw-pedigree_files/figure-html/symbol-schemes-2.png)
 
 ### 1.1 A simple pedigree graph
 
@@ -74,10 +106,11 @@ to be set to TRUE when tidying the pedigree using the **tidyped**
 function.
 
 ``` r
+
 tidy_simple_ped <- tidyped(simple_ped)
 visped(tidy_simple_ped, cex=0.3, symbolsize=10)
 #> Label cex: 0.3. Symbol size: 10. Adjust 'cex' and 'symbolsize' if labels are too large or small.
-#> Tip: Use 'file' to save as a legible vector PDF.
+#> Tip: Use 'file' to save as a legible vector PDF or SVG.
 ```
 
 ![](draw-pedigree_files/figure-html/vissimpleped-1.png)
@@ -87,9 +120,10 @@ by setting `genlab = TRUE`. This is useful for deep pedigrees when you
 want to quickly identify the generation of each row.
 
 ``` r
+
 visped(tidy_simple_ped, cex = 0.3, symbolsize = 10, genlab = TRUE)
 #> Label cex: 0.3. Symbol size: 10. Adjust 'cex' and 'symbolsize' if labels are too large or small.
-#> Tip: Use 'file' to save as a legible vector PDF.
+#> Tip: Use 'file' to save as a legible vector PDF or SVG.
 ```
 
 ![](draw-pedigree_files/figure-html/vissimpleped_genlab-1.png)
@@ -101,10 +135,11 @@ the generation-label size independently of the individual-label size
 individuals, you can still keep the generation labels readable:
 
 ``` r
+
 # cex controls individual label size; genlabcex controls generation label size
 visped(tidy_simple_ped, cex = 0.3, symbolsize = 10, genlab = TRUE, genlabcex = 1.2)
 #> Label cex: 0.3. Symbol size: 10. Adjust 'cex' and 'symbolsize' if labels are too large or small.
-#> Tip: Use 'file' to save as a legible vector PDF.
+#> Tip: Use 'file' to save as a legible vector PDF or SVG.
 ```
 
 ![](draw-pedigree_files/figure-html/vissimpleped_genlabcex-1.png)
@@ -116,11 +151,46 @@ vector graphic in a PDF file. The **visped** function will suppress
 output to the default device if `showgraph = FALSE`.
 
 ``` r
+
 suppressMessages(visped(tidy_simple_ped, showgraph = FALSE, file = tempfile(fileext = ".pdf")))
 ```
 
 By setting the **file** parameter, you can generate a high-definition
 PDF version of the pedigree.
+
+SVG output is also supported by using a file name ending in `.svg`. This
+is useful when the pedigree graph needs to be edited in vector-graphics
+software or embedded in web documents.
+
+``` r
+
+suppressMessages(visped(tidy_simple_ped, showgraph = FALSE, file = tempfile(fileext = ".svg")))
+```
+
+Custom node labels can be displayed either from a selected pedigree
+column or from a character vector with one value per input row using
+`labelvar`. Row-aligned vectors remain attached to the correct
+individuals if the pedigree is internally tidied or reordered. Both
+forms keep the underlying individual IDs available for tracing and
+highlighting, while changing the text shown on individual nodes. Compact
+full-sib family nodes still use the explicit `FS×N` family-size label
+when `compact = TRUE`.
+
+``` r
+
+tidy_simple_ped[, ShortLabel := paste0("N", seq_len(.N))]
+visped(tidy_simple_ped, labelvar = "ShortLabel", cex = 0.3, symbolsize = 10)
+#> Label cex: 0.3. Symbol size: 10. Adjust 'cex' and 'symbolsize' if labels are too large or small.
+#> Tip: Use 'file' to save as a legible vector PDF or SVG.
+
+# A row-aligned vector is also accepted
+visped(tidy_simple_ped, labelvar = rep("1x", nrow(tidy_simple_ped)),
+       cex = 0.3, symbolsize = 10)
+#> Label cex: 0.3. Symbol size: 10. Adjust 'cex' and 'symbolsize' if labels are too large or small.
+#> Tip: Use 'file' to save as a legible vector PDF or SVG.
+```
+
+![](draw-pedigree_files/figure-html/custom-labels-1.png)![](draw-pedigree_files/figure-html/custom-labels-2.png)
 
 #### 1.1.1 Highlighting specific individuals
 
@@ -132,18 +202,20 @@ You can provide a character vector of individual IDs to use the default
 highlight colors (purple border and light purple fill):
 
 ``` r
+
 visped(tidyped(small_ped), highlight = c("Y", "Z1"))
 ```
 
 ![](draw-pedigree_files/figure-html/highlight1-1.png)
 
     #> Label cex: 0.65. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.
-    #> Tip: Use 'file' to save as a legible vector PDF.
+    #> Tip: Use 'file' to save as a legible vector PDF or SVG.
 
 You can also highlight an individual and its relatives (ancestors and
 descendants) by setting `trace = TRUE`:
 
 ``` r
+
 # Highlight individual "Y" and all its ancestors and descendants
 visped(tidyped(small_ped), highlight = "Y", trace = TRUE)
 ```
@@ -151,12 +223,13 @@ visped(tidyped(small_ped), highlight = "Y", trace = TRUE)
 ![](draw-pedigree_files/figure-html/highlight_trace-1.png)
 
     #> Label cex: 0.65. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.
-    #> Tip: Use 'file' to save as a legible vector PDF.
+    #> Tip: Use 'file' to save as a legible vector PDF or SVG.
 
 Alternatively, you can customize the colors by providing a list with
 **ids**, **frame.color**, and **color**:
 
 ``` r
+
 visped(tidyped(small_ped), 
        highlight = list(ids = c("Y", "Z1"), 
                         frame.color = "#4caf50", 
@@ -166,7 +239,7 @@ visped(tidyped(small_ped),
 ![](draw-pedigree_files/figure-html/highlight2-1.png)
 
     #> Label cex: 0.65. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.
-    #> Tip: Use 'file' to save as a legible vector PDF.
+    #> Tip: Use 'file' to save as a legible vector PDF or SVG.
 
 ### 1.1.2 Showing inbreeding coefficients
 
@@ -176,7 +249,13 @@ pedigree has been processed with inbreeding coefficients calculated
 using the **inbreed** parameter in the **tidyped** function.
 
 ``` r
+
 library(data.table)
+#> 
+#> Attaching package: 'data.table'
+#> The following object is masked from 'package:base':
+#> 
+#>     %notin%
 test_ped <- data.table(
   Ind = c("A", "B", "C", "D", "E"),
   Sire = c(NA, NA, "A", "C", "C"),
@@ -190,7 +269,7 @@ visped(tidy_test_ped_inbreed, showf = TRUE)
 ![](draw-pedigree_files/figure-html/showinbreed-1.png)
 
     #> Label cex: 0.65. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.
-    #> Tip: Use 'file' to save as a legible vector PDF.
+    #> Tip: Use 'file' to save as a legible vector PDF or SVG.
     #> Note: Inbreeding coefficients of 0 are not shown in the graph.
 
 ### 1.2 A reduced pedigree graph
@@ -199,6 +278,7 @@ Warning messages will be shown when you try to draw the pedigree graph
 of the deep_ped dataset.
 
 ``` r
+
 cand_J11_labels <- deep_ped[(substr(Ind, 1, 3) == "K11"), Ind]
 visped(
   tidyped(deep_ped,
@@ -223,6 +303,7 @@ The plot on the default device may suffer from significant overlapping
 due to the high density of individuals.
 
 ``` r
+
 cand_J11_labels <- deep_ped[(substr(Ind,1,3) == "K11"),Ind]
 visped(
   tidyped(
@@ -237,25 +318,26 @@ visped(
   showgraph = TRUE,
   file = tempfile(fileext = ".pdf")
 )
-#> Pedigree saved to: /tmp/RtmpTCs9Ya/file559b250bdddd.pdf
+#> Pedigree saved to: /tmp/RtmpxA4qP1/file6ce024304ae2.pdf
 #> Label cex: 0.08. Symbol size: 5.5. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 ```
 
 ![](draw-pedigree_files/figure-html/reduceped1-1.png)
 
 You can open the generated PDF file to view the high-definition pedigree
-vectorgraph. Most of shapes are square at bottom, and the internal
-numbers are the total number of male or female individuals for each
-family. Individual labels may be shorter than the shapes and might not
-align perfectly. Individual labels can be resized using the `cex`
-parameter. The `cex` parameter controls the font size of individual IDs.
-Increasing `cex` makes the labels larger, while decreasing it makes them
-smaller. The `cex` value typically ranges from 0 to 1, but can be
-larger; adjustments of 0.1 are usually sufficient. The **visped**
-function will output warning messages including the cex value which was
-used for drawing the pedigreed graph.
+vector graph. Most rectangles at the bottom are compact family
+summaries, and labels such as `FS×10` report the number of represented
+full-sib individuals. The summary is sex-neutral because a compacted
+family may contain individuals of different or unknown sex. Individual
+labels may be shorter than their shapes and might not align perfectly.
+Labels can be resized using `cex`; increasing it makes labels larger,
+while decreasing it makes them smaller. The value typically ranges from
+0 to 1, but can be larger, and adjustments of 0.1 are usually
+sufficient. The **visped** function reports the `cex` value used to draw
+the graph.
 
 ``` r
+
 visped(
   tidyped(
     deep_ped,
@@ -268,7 +350,7 @@ visped(
   showgraph = FALSE,
   file = tempfile(fileext = ".pdf")
 )
-#> Pedigree saved to: /tmp/RtmpTCs9Ya/file559b6f9a364e.pdf
+#> Pedigree saved to: /tmp/RtmpxA4qP1/file6ce0f97191f.pdf
 #> Label cex: 0.83. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 ```
 
@@ -286,6 +368,7 @@ large pedigrees with many individuals.
 The following code generates an outlined pedigree graph in a PDF file.
 
 ``` r
+
 suppressMessages(visped(
   tidyped(
     deep_ped,
@@ -314,6 +397,7 @@ its pedigree. The following code generates the pedigree graph for a
 specific individual in a PDF file.
 
 ``` r
+
 suppressWarnings(
   K110550H_ped <- tidyped(deep_ped, cand = "K110550H")
 )
@@ -339,6 +423,7 @@ the nucleus breeding population in 2007. Setting `tracegen = 2` limits
 the graph to two generations (parents and grandparents).
 
 ``` r
+
 cand_2007_G8_labels <-
   big_family_size_ped[(Year == 2007) & (substr(Ind, 1, 2) == "G8"), Ind]
 suppressWarnings(

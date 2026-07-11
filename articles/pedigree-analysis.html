@@ -7,8 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>4. Pedigree Analysis and Population Genetics • visPedigree</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="4. Pedigree Analysis and Population Genetics">
 </head>
@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">visPedigree</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.8.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -104,6 +104,11 @@ classification examples.</li>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/luansheng/visPedigree" class="external-link">visPedigree</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Attaching package: 'data.table'</span></span>
+<span><span class="co">#&gt; The following object is masked from 'package:base':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     %notin%</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">deep_ped</span>, package <span class="op">=</span> <span class="st">"visPedigree"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">big_family_size_ped</span>, package <span class="op">=</span> <span class="st">"visPedigree"</span><span class="op">)</span></span>
@@ -322,6 +327,11 @@ combines:</p>
 <li>retained genetic diversity (<code>GeneDiv</code>),</li>
 <li>three effective population size estimates (<code>Ne</code>).</li>
 </ul>
+<p>The gene-origin summaries follow the classical founder/ancestor
+framework of Lacy (1989) and Boichard et al. (1997), while
+coancestry-based diversity and effective population size calculations
+follow Caballero &amp; Toro (2000) and related pedigree-based
+estimators.</p>
 <p>All of these quantities depend on the definition of the
 <strong>reference population</strong>. In the present example, the
 reference population is defined as the most recent two generations in
@@ -477,12 +487,12 @@ which is disproportionately influenced by a few large contributions.
 counterpart at order
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">q = 1</annotation></semantics></math>,
 derived from Shannon entropy:</p>
-<p><span class="math display">$$
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>f</mi><mi>e</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>H</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo>=</mo><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mspace width="-0.167em"></mspace><mo minsize="180%" maxsize="180%" stretchy="true" form="prefix">(</mo><mo>−</mo><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>f</mi></munderover><msub><mi>p</mi><mi>i</mi></msub><mrow><mi mathvariant="normal">ln</mi><mo>⁡</mo></mrow><msub><mi>p</mi><mi>i</mi></msub><mo minsize="180%" maxsize="180%" stretchy="true" form="postfix">)</mo><mo>,</mo><mspace width="2.0em"></mspace><msubsup><mi>f</mi><mi>a</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>H</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo>=</mo><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mspace width="-0.167em"></mspace><mo minsize="180%" maxsize="180%" stretchy="true" form="prefix">(</mo><mo>−</mo><munderover><mo>∑</mo><mrow><mi>j</mi><mo>=</mo><mn>1</mn></mrow><mi>a</mi></munderover><msub><mi>q</mi><mi>j</mi></msub><mrow><mi mathvariant="normal">ln</mi><mo>⁡</mo></mrow><msub><mi>q</mi><mi>j</mi></msub><mo minsize="180%" maxsize="180%" stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
 f_e^{(H)} = \exp\!\Bigl(-\sum_{i=1}^{f} p_i \ln p_i\Bigr), \qquad
 f_a^{(H)} = \exp\!\Bigl(-\sum_{j=1}^{a} q_j \ln q_j\Bigr)
-$$</span></p>
+</annotation></semantics></math></p>
 <p>All four metrics satisfy a strict monotone ordering:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>N</mi><mi>f</mi></msub><mo>≥</mo><msubsup><mi>f</mi><mi>e</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>H</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>≥</mo><msub><mi>f</mi><mi>e</mi></msub><mo>,</mo><mspace width="2.0em"></mspace><mi>K</mi><mo>≥</mo><msubsup><mi>f</mi><mi>a</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>H</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>≥</mo><msub><mi>f</mi><mi>a</mi></msub></mrow><annotation encoding="application/x-tex">
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>N</mi><mi>f</mi></msub><mo>≥</mo><msubsup><mi>f</mi><mi>e</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>H</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo>≥</mo><msub><mi>f</mi><mi>e</mi></msub><mo>,</mo><mspace width="2.0em"></mspace><mi>K</mi><mo>≥</mo><msubsup><mi>f</mi><mi>a</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>H</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo>≥</mo><msub><mi>f</mi><mi>a</mi></msub></mrow><annotation encoding="application/x-tex">
 N_f \ge f_e^{(H)} \ge f_e, \qquad K \ge f_a^{(H)} \ge f_a
 </annotation></semantics></math></p>
 <p>where
@@ -554,7 +564,7 @@ it captures drift as well.</td>
 <td>Pedigree-based retained genetic diversity:
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>−</mo><mover><mi>C</mi><mo accent="true">‾</mo></mover></mrow><annotation encoding="application/x-tex">1 - \bar{C}</annotation></semantics></math>.
 Values on the
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">[</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[0, 1]</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[0, 1]</annotation></semantics></math>
 scale; higher values indicate more diversity retained relative to the
 base population.</td>
 </tr>
@@ -563,10 +573,10 @@ base population.</td>
 </div>
 <div class="section level4">
 <h4 id="interpreting-the-ratio-f_eh-f_e">Interpreting the ratio
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>f</mi><mi>e</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>H</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mi>/</mi><msub><mi>f</mi><mi>e</mi></msub></mrow><annotation encoding="application/x-tex">f_e^{(H)} / f_e</annotation></semantics></math><a class="anchor" aria-label="anchor" href="#interpreting-the-ratio-f_eh-f_e"></a>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>f</mi><mi>e</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>H</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mi>/</mi><msub><mi>f</mi><mi>e</mi></msub></mrow><annotation encoding="application/x-tex">f_e^{(H)} / f_e</annotation></semantics></math><a class="anchor" aria-label="anchor" href="#interpreting-the-ratio-f_eh-f_e"></a>
 </h4>
 <p>The ratio
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ρ</mi><mo>=</mo><msubsup><mi>f</mi><mi>e</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>H</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mi>/</mi><msub><mi>f</mi><mi>e</mi></msub></mrow><annotation encoding="application/x-tex">\rho = f_e^{(H)} / f_e</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ρ</mi><mo>=</mo><msubsup><mi>f</mi><mi>e</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>H</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mi>/</mi><msub><mi>f</mi><mi>e</mi></msub></mrow><annotation encoding="application/x-tex">\rho = f_e^{(H)} / f_e</annotation></semantics></math>
 is a <strong>long-tail signal</strong>:</p>
 <ul>
 <li>
@@ -583,7 +593,7 @@ metric because their contributions are small. This situation is common
 early in a breeding programme when the pedigree is still shallow.</li>
 </ul>
 <p>The analogous ratio
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>f</mi><mi>a</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>H</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mi>/</mi><msub><mi>f</mi><mi>a</mi></msub></mrow><annotation encoding="application/x-tex">f_a^{(H)} / f_a</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>f</mi><mi>a</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>H</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mi>/</mi><msub><mi>f</mi><mi>a</mi></msub></mrow><annotation encoding="application/x-tex">f_a^{(H)} / f_a</annotation></semantics></math>
 diagnoses the same effect at the <strong>ancestor</strong> level: a
 large ratio means that the bottleneck signal from the dominant ancestor
 is masking genuine contributions from many secondary ancestors.</p>
@@ -594,20 +604,20 @@ is masking genuine contributions from many secondary ancestors.</p>
 <p>Use the two ratios together to set priorities:</p>
 <ol style="list-style-type: decimal">
 <li>If
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>f</mi><mi>e</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>H</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mi>/</mi><msub><mi>f</mi><mi>e</mi></msub></mrow><annotation encoding="application/x-tex">f_e^{(H)} / f_e</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>f</mi><mi>e</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>H</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mi>/</mi><msub><mi>f</mi><mi>e</mi></msub></mrow><annotation encoding="application/x-tex">f_e^{(H)} / f_e</annotation></semantics></math>
 is large but
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>f</mi><mi>e</mi></msub><annotation encoding="application/x-tex">f_e</annotation></semantics></math>
 itself is already high, the programme has good founder coverage; no
 immediate action needed.</li>
 <li>If
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>f</mi><mi>e</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>H</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mi>/</mi><msub><mi>f</mi><mi>e</mi></msub></mrow><annotation encoding="application/x-tex">f_e^{(H)} / f_e</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>f</mi><mi>e</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>H</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mi>/</mi><msub><mi>f</mi><mi>e</mi></msub></mrow><annotation encoding="application/x-tex">f_e^{(H)} / f_e</annotation></semantics></math>
 is large and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>f</mi><mi>e</mi></msub><annotation encoding="application/x-tex">f_e</annotation></semantics></math>
 is low, minor founders carry material that could be mobilized — consider
 deliberately increasing their representation in the next
 generation.</li>
 <li>If
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>f</mi><mi>a</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>H</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mi>/</mi><msub><mi>f</mi><mi>a</mi></msub></mrow><annotation encoding="application/x-tex">f_a^{(H)} / f_a</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>f</mi><mi>a</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>H</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mi>/</mi><msub><mi>f</mi><mi>a</mi></msub></mrow><annotation encoding="application/x-tex">f_a^{(H)} / f_a</annotation></semantics></math>
 is large, secondary ancestors are still present but marginalized;
 diversifying sire selection could rebalance the gene pool before their
 lineages are lost entirely.</li>
@@ -694,7 +704,7 @@ biological meaning:</p>
 for
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>f</mi><mi>g</mi></msub><annotation encoding="application/x-tex">f_g</annotation></semantics></math>
 to halve:
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>T</mi><mrow><mn>1</mn><mi>/</mi><mn>2</mn></mrow></msub><mo>=</mo><mfrac><mrow><mo>ln</mo><mn>2</mn></mrow><msub><mi>λ</mi><mrow><mi>t</mi><mi>o</mi><mi>t</mi><mi>a</mi><mi>l</mi></mrow></msub></mfrac></mrow><annotation encoding="application/x-tex">T_{1/2} = \frac{\ln 2}{\lambda_{total}}</annotation></semantics></math></p>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>T</mi><mrow><mn>1</mn><mi>/</mi><mn>2</mn></mrow></msub><mo>=</mo><mfrac><mrow><mrow><mi mathvariant="normal">ln</mi><mo>⁡</mo></mrow><mn>2</mn></mrow><msub><mi>λ</mi><mrow><mi>t</mi><mi>o</mi><mi>t</mi><mi>a</mi><mi>l</mi></mrow></msub></mfrac></mrow><annotation encoding="application/x-tex">T_{1/2} = \frac{\ln 2}{\lambda_{total}}</annotation></semantics></math></p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">hl</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pedhalflife.html">pedhalflife</a></span><span class="op">(</span><span class="va">tp_deep</span>, timevar <span class="op">=</span> <span class="st">"Gen"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Calculating diversity across 13 time points...</span></span>
@@ -728,13 +738,13 @@ the call.</li>
 <h3 id="column-guide-for-timeseries">7.1 Column guide for <code>$timeseries</code><a class="anchor" aria-label="anchor" href="#column-guide-for-timeseries"></a>
 </h3>
 <p>The cascade rests on a simple algebraic identity:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>ln</mo><msub><mi>f</mi><mi>g</mi></msub><mo>=</mo><munder><munder><mrow><mo>ln</mo><msub><mi>f</mi><mi>e</mi></msub></mrow><mo accent="true">⏟</mo></munder><mtext mathvariant="monospace">𝚕𝚗𝚏𝚎</mtext></munder><mo>+</mo><munder><munder><mrow><mo>ln</mo><mspace width="-0.167em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><msub><mi>f</mi><mi>a</mi></msub><msub><mi>f</mi><mi>e</mi></msub></mfrac><mo stretchy="true" form="postfix">)</mo></mrow></mrow><mo accent="true">⏟</mo></munder><mtext mathvariant="monospace">𝚕𝚗𝚏𝚊𝚏𝚎</mtext></munder><mo>+</mo><munder><munder><mrow><mo>ln</mo><mspace width="-0.167em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><msub><mi>f</mi><mi>g</mi></msub><msub><mi>f</mi><mi>a</mi></msub></mfrac><mo stretchy="true" form="postfix">)</mo></mrow></mrow><mo accent="true">⏟</mo></munder><mtext mathvariant="monospace">𝚕𝚗𝚏𝚐𝚏𝚊</mtext></munder></mrow><annotation encoding="application/x-tex">
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">ln</mi><mo>⁡</mo></mrow><msub><mi>f</mi><mi>g</mi></msub><mo>=</mo><munder><munder><mrow><mrow><mi mathvariant="normal">ln</mi><mo>⁡</mo></mrow><msub><mi>f</mi><mi>e</mi></msub></mrow><mo accent="true">⏟</mo></munder><mtext mathvariant="monospace">𝚕𝚗𝚏𝚎</mtext></munder><mo>+</mo><munder><munder><mrow><mrow><mi mathvariant="normal">ln</mi><mo>⁡</mo></mrow><mspace width="-0.167em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><msub><mi>f</mi><mi>a</mi></msub><msub><mi>f</mi><mi>e</mi></msub></mfrac><mo stretchy="true" form="postfix">)</mo></mrow></mrow><mo accent="true">⏟</mo></munder><mtext mathvariant="monospace">𝚕𝚗𝚏𝚊𝚏𝚎</mtext></munder><mo>+</mo><munder><munder><mrow><mrow><mi mathvariant="normal">ln</mi><mo>⁡</mo></mrow><mspace width="-0.167em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><msub><mi>f</mi><mi>g</mi></msub><msub><mi>f</mi><mi>a</mi></msub></mfrac><mo stretchy="true" form="postfix">)</mo></mrow></mrow><mo accent="true">⏟</mo></munder><mtext mathvariant="monospace">𝚕𝚗𝚏𝚐𝚏𝚊</mtext></munder></mrow><annotation encoding="application/x-tex">
 \ln f_g = \underbrace{\ln f_e}_{\texttt{lnfe}}
          + \underbrace{\ln\!\left(\frac{f_a}{f_e}\right)}_{\texttt{lnfafe}}
          + \underbrace{\ln\!\left(\frac{f_g}{f_a}\right)}_{\texttt{lnfgfa}}
 </annotation></semantics></math></p>
 <p>Because OLS is linear, the slope of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>ln</mo><msub><mi>f</mi><mi>g</mi></msub></mrow><annotation encoding="application/x-tex">\ln f_g</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">ln</mi><mo>⁡</mo></mrow><msub><mi>f</mi><mi>g</mi></msub></mrow><annotation encoding="application/x-tex">\ln f_g</annotation></semantics></math>
 versus time equals the sum of the slopes of the three right-hand terms.
 This guarantees exact additivity:
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>λ</mi><mrow><mi>t</mi><mi>o</mi><mi>t</mi><mi>a</mi><mi>l</mi></mrow></msub><mo>=</mo><msub><mi>λ</mi><mi>e</mi></msub><mo>+</mo><msub><mi>λ</mi><mi>b</mi></msub><mo>+</mo><msub><mi>λ</mi><mi>d</mi></msub></mrow><annotation encoding="application/x-tex">\lambda_{total} = \lambda_e + \lambda_b + \lambda_d</annotation></semantics></math>.</p>
@@ -752,25 +762,25 @@ This guarantees exact additivity:
 <tbody>
 <tr class="odd">
 <td><code>lnfe</code></td>
-<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>ln</mo><msub><mi>f</mi><mi>e</mi></msub></mrow><annotation encoding="application/x-tex">\ln f_e</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">ln</mi><mo>⁡</mo></mrow><msub><mi>f</mi><mi>e</mi></msub></mrow><annotation encoding="application/x-tex">\ln f_e</annotation></semantics></math></td>
 <td>Log effective-founder diversity. Declines when founder contributions
 become more unequal over time.</td>
 </tr>
 <tr class="even">
 <td><code>lnfa</code></td>
-<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>ln</mo><msub><mi>f</mi><mi>a</mi></msub></mrow><annotation encoding="application/x-tex">\ln f_a</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">ln</mi><mo>⁡</mo></mrow><msub><mi>f</mi><mi>a</mi></msub></mrow><annotation encoding="application/x-tex">\ln f_a</annotation></semantics></math></td>
 <td>Log effective-ancestor diversity. Lies below <code>lnfe</code>
 whenever bottleneck ancestors have been over-used.</td>
 </tr>
 <tr class="odd">
 <td><code>lnfg</code></td>
-<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>ln</mo><msub><mi>f</mi><mi>g</mi></msub></mrow><annotation encoding="application/x-tex">\ln f_g</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">ln</mi><mo>⁡</mo></mrow><msub><mi>f</mi><mi>g</mi></msub></mrow><annotation encoding="application/x-tex">\ln f_g</annotation></semantics></math></td>
 <td>Log founder-genome equivalents. The most comprehensive diversity
 signal; integrates founder use, bottlenecks, and drift.</td>
 </tr>
 <tr class="even">
 <td><code>lnfafe</code></td>
-<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>ln</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>f</mi><mi>a</mi></msub><mi>/</mi><msub><mi>f</mi><mi>e</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\ln(f_a/f_e)</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">ln</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>f</mi><mi>a</mi></msub><mi>/</mi><msub><mi>f</mi><mi>e</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\ln(f_a/f_e)</annotation></semantics></math></td>
 <td>
 <strong>Bottleneck gap.</strong> When this ratio decreases over
 time, a small number of ancestors dominate the gene pool even beyond
@@ -778,7 +788,7 @@ what unequal founder use would predict.</td>
 </tr>
 <tr class="odd">
 <td><code>lnfgfa</code></td>
-<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>ln</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>f</mi><mi>g</mi></msub><mi>/</mi><msub><mi>f</mi><mi>a</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\ln(f_g/f_a)</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">ln</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>f</mi><mi>g</mi></msub><mi>/</mi><msub><mi>f</mi><mi>a</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\ln(f_g/f_a)</annotation></semantics></math></td>
 <td>
 <strong>Drift gap.</strong> Captures random allele loss due to
 finite population size. Because
@@ -931,10 +941,10 @@ inbreeding, and drift. It is therefore often optimistic.</p>
 <div class="section level3">
 <h3 id="inbreeding-ne">8.2 Inbreeding <code>Ne</code><a class="anchor" aria-label="anchor" href="#inbreeding-ne"></a>
 </h3>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Δ</mi><msub><mi>F</mi><mi>i</mi></msub><mo>=</mo><mn>1</mn><mo>−</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><msub><mi>F</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mn>1</mn><mi>/</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>E</mi><mi>C</mi><msub><mi>G</mi><mi>i</mi></msub><mo>−</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow></msup></mrow><annotation encoding="application/x-tex">
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Δ</mi><msub><mi>F</mi><mi>i</mi></msub><mo>=</mo><mn>1</mn><mo>−</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><msub><mi>F</mi><mi>i</mi></msub><msup><mo stretchy="false" form="postfix">)</mo><mrow><mn>1</mn><mi>/</mi><mo stretchy="false" form="prefix">(</mo><mi>E</mi><mi>C</mi><msub><mi>G</mi><mi>i</mi></msub><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup></mrow><annotation encoding="application/x-tex">
 \Delta F_i = 1 - (1 - F_i)^{1/(ECG_i - 1)}
 </annotation></semantics></math></p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>N</mi><mi>e</mi></msub><mo>=</mo><mfrac><mn>1</mn><mrow><mn>2</mn><mover><mrow><mi>Δ</mi><mi>F</mi></mrow><mo accent="true">¯</mo></mover></mrow></mfrac></mrow><annotation encoding="application/x-tex">
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>N</mi><mi>e</mi></msub><mo>=</mo><mfrac><mn>1</mn><mrow><mn>2</mn><mover><mrow><mi mathvariant="normal">Δ</mi><mi>F</mi></mrow><mo accent="true">¯</mo></mover></mrow></mfrac></mrow><annotation encoding="application/x-tex">
 N_e = \frac{1}{2\overline{\Delta F}}
 </annotation></semantics></math></p>
 <p>This estimator uses the realized rate of inbreeding. <code>ECG</code>
@@ -945,10 +955,10 @@ accumulation</strong>.</p>
 <div class="section level3">
 <h3 id="coancestry-ne">8.3 Coancestry <code>Ne</code><a class="anchor" aria-label="anchor" href="#coancestry-ne"></a>
 </h3>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Δ</mi><msub><mi>c</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo>=</mo><mn>1</mn><mo>−</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><msub><mi>c</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mn>1</mn><mi>/</mi><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mrow><mi>E</mi><mi>C</mi><msub><mi>G</mi><mi>i</mi></msub><mo>+</mo><mi>E</mi><mi>C</mi><msub><mi>G</mi><mi>j</mi></msub></mrow><mn>2</mn></mfrac><mo stretchy="true" form="postfix">)</mo></mrow></mrow></msup></mrow><annotation encoding="application/x-tex">
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Δ</mi><msub><mi>c</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo>=</mo><mn>1</mn><mo>−</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><msub><mi>c</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><msup><mo stretchy="false" form="postfix">)</mo><mrow><mn>1</mn><mi>/</mi><mo stretchy="false" form="prefix">(</mo><mfrac><mrow><mi>E</mi><mi>C</mi><msub><mi>G</mi><mi>i</mi></msub><mo>+</mo><mi>E</mi><mi>C</mi><msub><mi>G</mi><mi>j</mi></msub></mrow><mn>2</mn></mfrac><mo stretchy="false" form="postfix">)</mo></mrow></msup></mrow><annotation encoding="application/x-tex">
 \Delta c_{ij} = 1 - (1 - c_{ij})^{1/(\frac{ECG_i + ECG_j}{2})}
 </annotation></semantics></math></p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>N</mi><mi>e</mi></msub><mo>=</mo><mfrac><mn>1</mn><mrow><mn>2</mn><mover><mrow><mi>Δ</mi><mi>c</mi></mrow><mo accent="true">¯</mo></mover></mrow></mfrac></mrow><annotation encoding="application/x-tex">
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>N</mi><mi>e</mi></msub><mo>=</mo><mfrac><mn>1</mn><mrow><mn>2</mn><mover><mrow><mi mathvariant="normal">Δ</mi><mi>c</mi></mrow><mo accent="true">¯</mo></mover></mrow></mfrac></mrow><annotation encoding="application/x-tex">
 N_e = \frac{1}{2\overline{\Delta c}}
 </annotation></semantics></math></p>
 <p>This estimator is based on the rate of coancestry among members of
@@ -970,7 +980,7 @@ argument.</p>
 </h3>
 <p>The default scale returns the mean off-diagonal additive
 relationship:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi><mi>e</mi><mi>a</mi><mi>n</mi><mi>R</mi><mi>e</mi><mi>l</mi><mo>=</mo><mfrac><mn>1</mn><mrow><mi>n</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>n</mi><mo>−</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow></mfrac><munder><mo>∑</mo><mrow><mi>i</mi><mo>≠</mo><mi>j</mi></mrow></munder><msub><mi>a</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub></mrow><annotation encoding="application/x-tex">
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi><mi>e</mi><mi>a</mi><mi>n</mi><mi>R</mi><mi>e</mi><mi>l</mi><mo>=</mo><mfrac><mn>1</mn><mrow><mi>n</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></mfrac><munder><mo>∑</mo><mrow><mi>i</mi><mo>≠</mo><mi>j</mi></mrow></munder><msub><mi>a</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub></mrow><annotation encoding="application/x-tex">
 MeanRel = \frac{1}{n(n-1)} \sum_{i \ne j} a_{ij}
 </annotation></semantics></math></p>
 <p>where
@@ -983,41 +993,55 @@ and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math>.
 A higher <code>MeanRel</code> means that individuals within the group
 are, on average, more related by descent.</p>
+<p>Internally, <code><a href="../reference/pedrel.html">pedrel()</a></code> creates an indicator vector
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>g</mi><annotation encoding="application/x-tex">g</annotation></semantics></math>
+for each group and computes
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mi>g</mi></mrow><annotation encoding="application/x-tex">Ag</annotation></semantics></math>
+directly from the pedigree. The off-diagonal sum is obtained from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>g</mi><mi>𝖳</mi></msup><mi>A</mi><mi>g</mi></mrow><annotation encoding="application/x-tex">g^\mathsf{T}Ag</annotation></semantics></math>
+after subtracting
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mo>∑</mo><mrow><mi>i</mi><mo>:</mo><msub><mi>g</mi><mi>i</mi></msub><mo>=</mo><mn>1</mn></mrow></msub><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><msub><mi>F</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\sum_{i:g_i=1}(1 + F_i)</annotation></semantics></math>.
+The dense relationship matrix is never materialized, so
+<code>compact</code> is now retained only as a backward-compatible no-op
+argument.</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tp_small</span><span class="op">$</span><span class="va">BirthYear</span> <span class="op">&lt;-</span> <span class="fl">2010</span> <span class="op">+</span> <span class="va">tp_small</span><span class="op">$</span><span class="va">Gen</span></span>
 <span></span>
 <span><span class="va">rel_by_gen</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pedrel.html">pedrel</a></span><span class="op">(</span><span class="va">tp_small</span>, by <span class="op">=</span> <span class="st">"Gen"</span><span class="op">)</span></span>
 <span><span class="va">rel_by_gen</span></span>
-<span><span class="co">#&gt;      Gen NTotal NUsed   MeanRel</span></span>
-<span><span class="co">#&gt;    &lt;int&gt;  &lt;int&gt; &lt;int&gt;     &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:     1      9     9 0.0000000</span></span>
-<span><span class="co">#&gt; 2:     2      5     5 0.2000000</span></span>
-<span><span class="co">#&gt; 3:     3      7     7 0.1547619</span></span>
-<span><span class="co">#&gt; 4:     4      3     3 0.1145833</span></span>
-<span><span class="co">#&gt; 5:     5      2     2 0.0468750</span></span>
-<span><span class="co">#&gt; 6:     6      2     2 0.5507812</span></span></code></pre></div>
+<span><span class="co">#&gt;      Gen NTotal NUsed   MeanRel Status Message</span></span>
+<span><span class="co">#&gt;    &lt;int&gt;  &lt;int&gt; &lt;int&gt;     &lt;num&gt; &lt;char&gt;  &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1:     1      9     9 0.0000000     ok        </span></span>
+<span><span class="co">#&gt; 2:     2      5     5 0.2000000     ok        </span></span>
+<span><span class="co">#&gt; 3:     3      7     7 0.1547619     ok        </span></span>
+<span><span class="co">#&gt; 4:     4      3     3 0.1145833     ok        </span></span>
+<span><span class="co">#&gt; 5:     5      2     2 0.0468750     ok        </span></span>
+<span><span class="co">#&gt; 6:     6      2     2 0.5507812     ok</span></span></code></pre></div>
 <p>The <code>reference</code> argument lets you focus on a subset of
 interest inside each group, such as candidate breeders.</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ref_ids</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Z1"</span>, <span class="st">"Z2"</span>, <span class="st">"X"</span>, <span class="st">"Y"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/pedrel.html">pedrel</a></span><span class="op">(</span><span class="va">tp_small</span>, by <span class="op">=</span> <span class="st">"Gen"</span>, reference <span class="op">=</span> <span class="va">ref_ids</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in FUN(X[[i]], ...): Group '1' has less than 2 individuals after</span></span>
-<span><span class="co">#&gt; applying 'reference', returning NA_real_.</span></span>
-<span><span class="co">#&gt; Warning in FUN(X[[i]], ...): Group '2' has less than 2 individuals after</span></span>
-<span><span class="co">#&gt; applying 'reference', returning NA_real_.</span></span>
-<span><span class="co">#&gt; Warning in FUN(X[[i]], ...): Group '3' has less than 2 individuals after</span></span>
-<span><span class="co">#&gt; applying 'reference', returning NA_real_.</span></span>
-<span><span class="co">#&gt; Warning in FUN(X[[i]], ...): Group '4' has less than 2 individuals after</span></span>
-<span><span class="co">#&gt; applying 'reference', returning NA_real_.</span></span>
-<span><span class="co">#&gt;      Gen NTotal NUsed   MeanRel</span></span>
-<span><span class="co">#&gt;    &lt;int&gt;  &lt;int&gt; &lt;int&gt;     &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:     1      9     0        NA</span></span>
-<span><span class="co">#&gt; 2:     2      5     0        NA</span></span>
-<span><span class="co">#&gt; 3:     3      7     0        NA</span></span>
-<span><span class="co">#&gt; 4:     4      3     0        NA</span></span>
-<span><span class="co">#&gt; 5:     5      2     2 0.0468750</span></span>
-<span><span class="co">#&gt; 6:     6      2     2 0.5507812</span></span></code></pre></div>
+<span><span class="co">#&gt; Warning: pedrel(): 4 of 6 groups returned a non-ok status. Inspect the 'Status'</span></span>
+<span><span class="co">#&gt; and 'Message' columns. First issue: Gen = 1; Group has less than 2 individuals</span></span>
+<span><span class="co">#&gt; after applying 'reference'.</span></span>
+<span><span class="co">#&gt;      Gen NTotal NUsed   MeanRel  Status</span></span>
+<span><span class="co">#&gt;    &lt;int&gt;  &lt;int&gt; &lt;int&gt;     &lt;num&gt;  &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1:     1      9     0        NA skipped</span></span>
+<span><span class="co">#&gt; 2:     2      5     0        NA skipped</span></span>
+<span><span class="co">#&gt; 3:     3      7     0        NA skipped</span></span>
+<span><span class="co">#&gt; 4:     4      3     0        NA skipped</span></span>
+<span><span class="co">#&gt; 5:     5      2     2 0.0468750      ok</span></span>
+<span><span class="co">#&gt; 6:     6      2     2 0.5507812      ok</span></span>
+<span><span class="co">#&gt;                                                          Message</span></span>
+<span><span class="co">#&gt;                                                           &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1: Group has less than 2 individuals after applying 'reference'.</span></span>
+<span><span class="co">#&gt; 2: Group has less than 2 individuals after applying 'reference'.</span></span>
+<span><span class="co">#&gt; 3: Group has less than 2 individuals after applying 'reference'.</span></span>
+<span><span class="co">#&gt; 4: Group has less than 2 individuals after applying 'reference'.</span></span>
+<span><span class="co">#&gt; 5:                                                              </span></span>
+<span><span class="co">#&gt; 6:</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="corrected-mean-coancestry-scale-coancestry">9.2 Corrected mean coancestry
@@ -1026,8 +1050,10 @@ interest inside each group, such as candidate breeders.</p>
 <p>When <code>scale = "coancestry"</code>, <code><a href="../reference/pedrel.html">pedrel()</a></code> returns
 the diagonal-corrected population mean coancestry following Caballero
 &amp; Toro (2000):</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi>C</mi><mo accent="true">‾</mo></mover><mo>=</mo><mfrac><mrow><mi>N</mi><mo>−</mo><mn>1</mn></mrow><mi>N</mi></mfrac><mo>⋅</mo><mfrac><msub><mover><mi>a</mi><mo accent="true">‾</mo></mover><mrow><mi>o</mi><mi>f</mi><mi>f</mi></mrow></msub><mn>2</mn></mfrac><mo>+</mo><mfrac><mrow><mn>1</mn><mo>+</mo><mover><mi>F</mi><mo accent="true">‾</mo></mover></mrow><mrow><mn>2</mn><mi>N</mi></mrow></mfrac></mrow><annotation encoding="application/x-tex">
-\bar{C} = \frac{N - 1}{N} \cdot \frac{\bar{a}_{off}}{2} + \frac{1 + \bar{F}}{2N}
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi>C</mi><mo accent="true">‾</mo></mover><mo>=</mo><mfrac><mrow><msup><mi>g</mi><mi>𝖳</mi></msup><mi>A</mi><mi>g</mi></mrow><mrow><mn>2</mn><msup><mi>N</mi><mn>2</mn></msup></mrow></mfrac><mo>=</mo><mfrac><mrow><mi>N</mi><mo>−</mo><mn>1</mn></mrow><mi>N</mi></mfrac><mo>⋅</mo><mfrac><msub><mover><mi>a</mi><mo accent="true">‾</mo></mover><mrow><mi>o</mi><mi>f</mi><mi>f</mi></mrow></msub><mn>2</mn></mfrac><mo>+</mo><mfrac><mrow><mn>1</mn><mo>+</mo><mover><mi>F</mi><mo accent="true">‾</mo></mover></mrow><mrow><mn>2</mn><mi>N</mi></mrow></mfrac></mrow><annotation encoding="application/x-tex">
+\bar{C} = \frac{g^\mathsf{T}Ag}{2N^2}
+        = \frac{N - 1}{N} \cdot \frac{\bar{a}_{off}}{2}
+          + \frac{1 + \bar{F}}{2N}
 </annotation></semantics></math></p>
 <p>where
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mover><mi>a</mi><mo accent="true">‾</mo></mover><mrow><mi>o</mi><mi>f</mi><mi>f</mi></mrow></msub><annotation encoding="application/x-tex">\bar{a}_{off}</annotation></semantics></math>
@@ -1037,20 +1063,21 @@ is the mean inbreeding coefficient of the group, and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>N</mi><annotation encoding="application/x-tex">N</annotation></semantics></math>
 is the group size. This
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>C</mi><mo accent="true">‾</mo></mover><annotation encoding="application/x-tex">\bar{C}</annotation></semantics></math>
-accounts for self-coancestry within the group and matches the internal
-coancestry quantity used by <code><a href="../reference/pediv.html">pediv()</a></code> to derive
+includes both off-diagonal pairwise coancestry and diagonal
+self-coancestry. It matches the internal coancestry quantity used by
+<code><a href="../reference/pediv.html">pediv()</a></code> to derive
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>f</mi><mi>g</mi></msub><annotation encoding="application/x-tex">f_g</annotation></semantics></math>.</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">coan_by_gen</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pedrel.html">pedrel</a></span><span class="op">(</span><span class="va">tp_small</span>, by <span class="op">=</span> <span class="st">"Gen"</span>, scale <span class="op">=</span> <span class="st">"coancestry"</span><span class="op">)</span></span>
 <span><span class="va">coan_by_gen</span></span>
-<span><span class="co">#&gt;      Gen NTotal NUsed   MeanCoan</span></span>
-<span><span class="co">#&gt;    &lt;int&gt;  &lt;int&gt; &lt;int&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:     1      9     9 0.05555556</span></span>
-<span><span class="co">#&gt; 2:     2      5     5 0.18000000</span></span>
-<span><span class="co">#&gt; 3:     3      7     7 0.13775510</span></span>
-<span><span class="co">#&gt; 4:     4      3     3 0.20833333</span></span>
-<span><span class="co">#&gt; 5:     5      2     2 0.27148438</span></span>
-<span><span class="co">#&gt; 6:     6      2     2 0.39550781</span></span></code></pre></div>
+<span><span class="co">#&gt;      Gen NTotal NUsed   MeanCoan Status Message</span></span>
+<span><span class="co">#&gt;    &lt;int&gt;  &lt;int&gt; &lt;int&gt;      &lt;num&gt; &lt;char&gt;  &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1:     1      9     9 0.05555556     ok        </span></span>
+<span><span class="co">#&gt; 2:     2      5     5 0.18000000     ok        </span></span>
+<span><span class="co">#&gt; 3:     3      7     7 0.13775510     ok        </span></span>
+<span><span class="co">#&gt; 4:     4      3     3 0.20833333     ok        </span></span>
+<span><span class="co">#&gt; 5:     5      2     2 0.27148438     ok        </span></span>
+<span><span class="co">#&gt; 6:     6      2     2 0.39550781     ok</span></span></code></pre></div>
 <p>Use <code>scale = "relationship"</code> to track mean pairwise
 relatedness trends. Use <code>scale = "coancestry"</code> when you need
 a population-level coancestry consistent with diversity metrics from
@@ -1075,9 +1102,9 @@ increase</em> in coancestry across pedigree depth.</p>
 </h2>
 <p>Wright’s inbreeding coefficient
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>F</mi><annotation encoding="application/x-tex">F</annotation></semantics></math>
-is the probability that the two alleles of an individual are identical
-by descent. A practical starting point is to inspect the mean trend by
-generation.</p>
+(Wright, 1922, 1931) is the probability that the two alleles of an
+individual are identical by descent. A practical starting point is to
+inspect the mean trend by generation.</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tp_inbred_f</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/inbreed.html">inbreed</a></span><span class="op">(</span><span class="va">tp_inbred</span><span class="op">)</span></span>
 <span></span>
@@ -1262,7 +1289,7 @@ Biology</em>, 8(2), 111-123.</li>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

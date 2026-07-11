@@ -7,12 +7,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Tidying, Analysis, and Fast Visualization of Animal and Plant Pedigrees • visPedigree</title>
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Tidying, Analysis, and Fast Visualization of Animal and Plant Pedigrees">
-<meta name="description" content="Provides tools for the analysis and visualization of animal and plant pedigrees. Analytical methods include equivalent complete generations, generation intervals, effective population size (via inbreeding, coancestry, and demographic approaches), founder and ancestor contributions, partial inbreeding, genetic diversity indices, and additive (A), dominance (D), and epistatic (AA) relationship matrices. Core algorithms — ancestry tracing, topological sorting, inbreeding coefficients, and matrix construction — are implemented in C++ (Rcpp, RcppArmadillo) and data.table, scaling to pedigrees with over one million individuals. Pedigree graphs are rendered via igraph with support for compact full-sib family display; relationship matrices can be visualized as heatmaps. Supports complex mating systems, including selfing and pedigrees in which the same individual can appear as both sire and dam.">
-<meta property="og:description" content="Provides tools for the analysis and visualization of animal and plant pedigrees. Analytical methods include equivalent complete generations, generation intervals, effective population size (via inbreeding, coancestry, and demographic approaches), founder and ancestor contributions, partial inbreeding, genetic diversity indices, and additive (A), dominance (D), and epistatic (AA) relationship matrices. Core algorithms — ancestry tracing, topological sorting, inbreeding coefficients, and matrix construction — are implemented in C++ (Rcpp, RcppArmadillo) and data.table, scaling to pedigrees with over one million individuals. Pedigree graphs are rendered via igraph with support for compact full-sib family display; relationship matrices can be visualized as heatmaps. Supports complex mating systems, including selfing and pedigrees in which the same individual can appear as both sire and dam.">
+<meta name="description" content="Provides tools for the analysis and visualization of animal and plant pedigrees. Analytical methods include equivalent complete generations, generation intervals, effective population size (via inbreeding, coancestry, and demographic approaches), founder and ancestor contributions, partial inbreeding, genetic diversity indices, and additive (A), dominance (D), and epistatic (AA) relationship matrices. Core algorithms — ancestry tracing, topological sorting, inbreeding coefficients, and matrix construction — are implemented in C++ (Rcpp, RcppArmadillo) and data.table, scaling to pedigrees with over one million individuals. Matrix-free pedigree traversals apply additive relationship matrices or their inverses to vectors and matrices without materializing dense square matrices. Pedigree graphs are rendered via igraph with support for compact full-sib family display; relationship matrices can be visualized as heatmaps. Supports complex mating systems, including selfing and pedigrees in which the same individual can appear as both sire and dam.">
+<meta property="og:description" content="Provides tools for the analysis and visualization of animal and plant pedigrees. Analytical methods include equivalent complete generations, generation intervals, effective population size (via inbreeding, coancestry, and demographic approaches), founder and ancestor contributions, partial inbreeding, genetic diversity indices, and additive (A), dominance (D), and epistatic (AA) relationship matrices. Core algorithms — ancestry tracing, topological sorting, inbreeding coefficients, and matrix construction — are implemented in C++ (Rcpp, RcppArmadillo) and data.table, scaling to pedigrees with over one million individuals. Matrix-free pedigree traversals apply additive relationship matrices or their inverses to vectors and matrices without materializing dense square matrices. Pedigree graphs are rendered via igraph with support for compact full-sib family display; relationship matrices can be visualized as heatmaps. Supports complex mating systems, including selfing and pedigrees in which the same individual can appear as both sire and dam.">
 <meta property="og:image" content="https://luansheng.github.io/visPedigree/logo.png">
 </head>
 <body>
@@ -23,7 +23,7 @@
 
     <a class="navbar-brand me-2" href="index.html">visPedigree</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.8.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -77,6 +77,8 @@
 <li>
 <strong>High-Throughput Matrix Calculation</strong>: Calculates Additive (A), Dominance (D), and Additive-by-Additive (AA) relationship matrices and their inverses.</li>
 <li>
+<strong>Matrix-Free Relationship Products</strong>: Computes <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mi>x</mi></mrow><annotation encoding="application/x-tex">Ax</annotation></semantics></math>, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mi>X</mi></mrow><annotation encoding="application/x-tex">AX</annotation></semantics></math>, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>A</mi><mrow><mi>−</mi><mn>1</mn></mrow></msup><mi>x</mi></mrow><annotation encoding="application/x-tex">A^{-1}x</annotation></semantics></math>, and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>A</mi><mrow><mi>−</mi><mn>1</mn></mrow></msup><mi>X</mi></mrow><annotation encoding="application/x-tex">A^{-1}X</annotation></semantics></math> directly from an ordered pedigree with <code><a href="reference/pedprod.html">pedprod()</a></code>, avoiding construction of the dense additive relationship matrix.</li>
+<li>
 <strong>Advanced Visualization</strong>: Renders scalable pedigree graphs via <code>igraph</code> with compact representations for large full-sib families, plus heatmap displays for relationship matrices.</li>
 <li>
 <strong>High Performance</strong>: Core algorithms — ancestry tracing, topological sorting, inbreeding calculation, and matrix construction — are implemented in C++ (Rcpp/RcppArmadillo) with <code>data.table</code> for tabular operations, scaling to pedigrees with over one million individuals.</li>
@@ -96,7 +98,7 @@
 </h3>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
-<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"luansheng/visPedigree"</span>, build_vignettes <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/install-deprecated.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"luansheng/visPedigree"</span>, build_vignettes <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -129,8 +131,8 @@
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/luansheng/visPedigree" class="external-link">visPedigree</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Example 1: Tidy and visualize a small pedigree</span></span>
-<span><span class="co"># Use compact = TRUE to condense full-sib groups into a single family node (square) </span></span>
-<span><span class="co"># labeled with the group size (e.g., "2"), keeping the graph clean and legible.</span></span>
+<span><span class="co"># Use compact = TRUE to condense eligible full-sib groups into a green-grey</span></span>
+<span><span class="co"># family-summary rectangle labelled FS×N.</span></span>
 <span><span class="va">cands</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Y"</span>, <span class="st">"Z1"</span>, <span class="st">"Z2"</span><span class="op">)</span></span>
 <span><span class="va">small_ped</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="reference/tidyped.html">tidyped</a></span><span class="op">(</span>cand <span class="op">=</span> <span class="va">cands</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -142,6 +144,11 @@
 <span><span class="va">mat_a</span> <span class="op">&lt;-</span> <span class="va">simple_ped</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/tidyped.html">tidyped</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/pedmat.html">pedmat</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"A"</span>, compact <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co"># Visualize the relationship matrix as a heatmap with histograms</span></span>
 <span><span class="fu"><a href="reference/vismat.html">vismat</a></span><span class="op">(</span><span class="va">mat_a</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Apply A to candidate contribution weights without constructing A</span></span>
+<span><span class="va">tp_simple</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/tidyped.html">tidyped</a></span><span class="op">(</span><span class="va">simple_ped</span><span class="op">)</span></span>
+<span><span class="va">candidate_weights</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>J5X804 <span class="op">=</span> <span class="fl">0.5</span>, J3Y620 <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span>
+<span><span class="va">weighted_relationship</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/pedprod.html">pedprod</a></span><span class="op">(</span><span class="va">tp_simple</span>, <span class="va">candidate_weights</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Example 3: Inbreeding &amp; Highlighting</span></span>
 <span><span class="co"># Calculate inbreeding coefficients (f) and display them on the graph (e.g., "ID (0.05)").</span></span>
@@ -170,7 +177,7 @@
 <div class="section level2">
 <h2 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a>
 </h2>
-<p>Luan Sheng (2026). visPedigree: Tidying, Analysis, and Fast Visualization of Animal and Plant Pedigrees. R package version 1.8.1, <a href="https://github.com/luansheng/visPedigree" class="external-link uri">https://github.com/luansheng/visPedigree</a>.</p>
+<p>Luan Sheng (2026). visPedigree: Tidying, Analysis, and Fast Visualization of Animal and Plant Pedigrees. R package version 1.9.0, <a href="https://github.com/luansheng/visPedigree" class="external-link uri">https://github.com/luansheng/visPedigree</a>.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
@@ -216,7 +223,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

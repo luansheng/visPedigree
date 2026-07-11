@@ -15,8 +15,14 @@ For basic tidying, see `tidy-pedigree`. For downstream statistics, see
 ## 1. Load packages and example data
 
 ``` r
+
 library(visPedigree)
 library(data.table)
+#> 
+#> Attaching package: 'data.table'
+#> The following object is masked from 'package:base':
+#> 
+#>     %notin%
 
 data(simple_ped, package = "visPedigree")
 ```
@@ -27,6 +33,7 @@ The most efficient workflow is to create a master `tidyped` object once
 and reuse it for plotting, tracing, inbreeding, and matrix calculations.
 
 ``` r
+
 tp_master <- tidyped(simple_ped)
 
 class(tp_master)
@@ -55,6 +62,7 @@ now uses a fast path. It skips the expensive global preprocessing steps
 and directly traces the requested candidates.
 
 ``` r
+
 tp_up <- tidyped(tp_master, cand = "J5X804", trace = "up", tracegen = 2)
 tp_down <- tidyped(tp_master, cand = "J0Z990", trace = "down")
 
@@ -76,6 +84,7 @@ tp_up[, .(Ind, Sire, Dam, Cand)]
 Recommended pattern:
 
 ``` r
+
 # expensive once
 # tp_master <- tidyped(raw_ped)
 
@@ -93,6 +102,7 @@ remain available.
 ### 4.1 Adding new columns is safe
 
 ``` r
+
 tp_work <- copy(tp_master)
 tp_work[, phenotype := seq_len(.N)]
 
@@ -118,6 +128,7 @@ complete pedigree. In that case the object is downgraded to a plain
 `data.table` with a warning.
 
 ``` r
+
 ped_year <- data.table(
   Ind = c("A", "B", "C", "D"),
   Sire = c(NA, NA, "A", "C"),
@@ -147,6 +158,7 @@ reaching C++ code.
 Completeness-sensitive analyses now fail fast on such truncated subsets:
 
 ``` r
+
 inbreed(sub_dt)
 #> Error:
 #> ! inbreed() requires a structurally complete pedigree. This input appears to be a row-truncated subset with missing parent records.
@@ -159,6 +171,7 @@ If the goal is to keep a structurally valid pedigree around focal
 individuals, use candidate tracing instead of ad hoc row filtering.
 
 ``` r
+
 valid_sub_tp <- tidyped(tp_year, cand = "D", trace = "up")
 
 class(valid_sub_tp)
@@ -177,6 +190,7 @@ Then compute on the valid sub-pedigree and, if needed, filter the final
 result back to the focal individuals:
 
 ``` r
+
 inbreed(valid_sub_tp)[Ind == "D", .(Ind, f)]
 #>       Ind     f
 #>    <char> <num>
@@ -193,6 +207,7 @@ These two functions serve different purposes.
   returns a summary table.
 
 ``` r
+
 sub_tps <- splitped(tp_master)
 length(sub_tps)
 #> [1] 2
@@ -217,6 +232,7 @@ when you only need the component summary.
 The updated accessors are the preferred way to inspect object state.
 
 ``` r
+
 tp_f <- inbreed(tp_master)
 
 is_tidyped(tp_f)
@@ -244,6 +260,7 @@ or manual attribute access scattered throughout user code.
 A practical pattern for large pedigrees is:
 
 ``` r
+
 # 1. build one validated master object
 # tp_master <- tidyped(raw_ped)
 

@@ -5,7 +5,7 @@ Prepare initial node table for igraph conversion
 ## Usage
 
 ``` r
-prepare_initial_nodes(ped)
+prepare_initial_nodes(ped, labelvar = NULL)
 ```
 
 ## Arguments

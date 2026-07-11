@@ -177,6 +177,11 @@ When `mat` is a compact `pedmat` object (created with
 The following automatic thresholds are defined as package-internal
 constants (`VISMAT_*`) at the top of `R/vismat.R`:
 
+- Passing a `tidyped` object together with `by` uses matrix-free
+  additive relationship products to compute the grouped heatmap
+  directly, without constructing the full individual-level relationship
+  matrix.
+
 - `VISMAT_EXPAND_MAX` (5 000): compact matrices with original N above
   this are shown in representative view instead of expanding.
 

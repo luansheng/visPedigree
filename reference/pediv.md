@@ -75,8 +75,9 @@ Internally calls
 [`pedcontrib`](https://luansheng.github.io/visPedigree/reference/pedcontrib.md)
 for \\f_e\\ and \\f_a\\. The coancestry method is called via the
 internal `calc_ne_coancestry()` function directly so that \\f_g\\ and
-the Ne estimate can be obtained from the same traced pedigree without
-duplication. The inbreeding and demographic Ne methods are obtained via
+the Ne estimate can be obtained from the same traced pedigree and the
+same batched matrix-free relationship products without duplication. The
+inbreeding and demographic Ne methods are obtained via
 [`pedne`](https://luansheng.github.io/visPedigree/reference/pedne.md).
 All calculations use the same `reference` population. If any method
 fails (e.g., insufficient pedigree depth), its value is `NA` rather than

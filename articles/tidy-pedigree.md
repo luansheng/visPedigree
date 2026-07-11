@@ -51,12 +51,14 @@ The main contents of this guide are as follows:
 The visPedigree package can be installed from CRAN:
 
 ``` r
+
 install.packages("visPedigree")
 ```
 
 Or from GitHub:
 
 ``` r
+
 # install.packages("devtools")
 devtools::install_github("luansheng/visPedigree")
 ```
@@ -103,6 +105,7 @@ The visPedigree package comes with multiple datasets. You can check
 through the following command.
 
 ``` r
+
 data(package="visPedigree")
 ```
 
@@ -112,6 +115,7 @@ denoted by `'NA'`, `'0'`, or `*`. Founders are not explicitly listed,
 and some parents appear after their offspring in the original data.
 
 ``` r
+
 head(simple_ped)
 #>        ID   Sire    Dam    Sex
 #>    <char> <char> <char> <char>
@@ -149,6 +153,7 @@ Example: If we incorrectly set the female `J0Z167` as the sire of
 will detect this bisexual conflict.
 
 ``` r
+
 x <- data.table::copy(simple_ped)
 x[ID == "J2F588", Sire := "J0Z167"]
 y <- tidyped(x)
@@ -162,6 +167,7 @@ function sorts the pedigree, replaces missing parents with `NA`, ensures
 parents precede their offspring, and adds missing founders.
 
 ``` r
+
 tidy_simple_ped <- tidyped(simple_ped)
 head(tidy_simple_ped)
 #> Tidy Pedigree Object
@@ -211,6 +217,7 @@ If the input dataset lacks a `Sex` column, it will be automatically
 added to the tidied output.
 
 ``` r
+
 tidy_simple_ped_no_gen_num <-
   tidyped(simple_ped, addgen = FALSE, addnum = FALSE)
     head(tidy_simple_ped_no_gen_num)
@@ -244,6 +251,7 @@ The following code demonstrates what happens when a pedigree with loops
 is processed:
 
 ``` r
+
 # loop_ped contains cycles (e.g., V -> T -> R -> P -> M -> V)
 # Attempting to tidy it will result in an error
 try(tidyped(loop_ped))
@@ -259,6 +267,7 @@ When saving the pedigree, missing parents should typically be replaced
 with `0`.
 
 ``` r
+
 saved_ped <- data.table::copy(tidy_simple_ped)
 saved_ped[is.na(Sire), Sire := "0"]
 saved_ped[is.na(Dam), Dam := "0"]
@@ -278,6 +287,7 @@ candidates. If `cand` is provided, only the candidates and their
 ancestors/descendants are retained.
 
 ``` r
+
 tidy_simple_ped_J5X804_ancestors <-
   tidyped(ped = tidy_simple_ped_no_gen_num, cand = "J5X804")
   tail(tidy_simple_ped_J5X804_ancestors)
@@ -306,6 +316,7 @@ generations using `tracegen`. If `tracegen` is `NULL`, all available
 generations are traced.
 
 ``` r
+
 tidy_simple_ped_J5X804_ancestors_2 <-
   tidyped(ped = tidy_simple_ped_no_gen_num,
   cand = "J5X804",
@@ -344,6 +355,7 @@ There are three options for the **trace** parameter:
   simultaneously.
 
 ``` r
+
 tidy_simple_ped_J0Z990_offspring <-
   tidyped(ped = tidy_simple_ped_no_gen_num, cand = "J0Z990", trace = "down")
   print(tidy_simple_ped_J0Z990_offspring)
@@ -380,6 +392,7 @@ adds `IndNum`, `SireNum`, and `DamNum` columns. This can be disabled
 with `addnum = FALSE`.
 
 ``` r
+
 tidy_simple_ped_with_int <-
   tidyped(ped = tidy_simple_ped_no_gen_num, addnum = TRUE)
 head(tidy_simple_ped_with_int)
@@ -413,8 +426,14 @@ Both options use the same high-performance engine as
 `pedmat(method = "f")`, ensuring consistent results across the package.
 
 ``` r
+
 # Create a simple inbred pedigree
 library(data.table)
+#> 
+#> Attaching package: 'data.table'
+#> The following object is masked from 'package:base':
+#> 
+#>     %notin%
 test_ped <- data.table(
   Ind = c("A", "B", "C", "D", "E"),
   Sire = c(NA, NA, "A", "C", "C"),
@@ -462,6 +481,7 @@ provides two methods for assigning generation numbers via the
   when introducing unrelated exogenous parents in later years.
 
 ``` r
+
 # Default behavior (Top-Down): J2Y434 is at Gen 3
 tidy_top <- tidyped(simple_ped, genmethod = "top")
 tidy_top[Ind == "J2Y434"]
@@ -496,6 +516,7 @@ inbreeding coefficients have been calculated (column `f`), the summary
 will also include descriptive statistics of inbreeding.
 
 ``` r
+
 # Summarize the tidied pedigree
 summary(tidy_simple_ped)
 #> Pedigree Summary
@@ -550,6 +571,7 @@ share no ancestors) and splits the pedigree into a list of smaller
 `tidyped` objects.
 
 ``` r
+
 # Split the pedigree into components
 sub_pedigrees <- splitped(tidy_simple_ped)
 
@@ -579,3 +601,12 @@ summary(sub_pedigrees)
 **See Also:** -
 [`vignette("draw-pedigree", package = "visPedigree")`](https://luansheng.github.io/visPedigree/articles/draw-pedigree.md) -
 [`vignette("relationship-matrix", package = "visPedigree")`](https://luansheng.github.io/visPedigree/articles/relationship-matrix.md)
+
+## References
+
+- Meuwissen, T. H. E., & Luo, Z. (1992). Computing inbreeding
+  coefficients in large populations. *Genetics Selection Evolution*, 24,
+  305-313.
+- Sargolzaei, M., Iwaisaki, H., & Colleau, J.-J. (2005). A fast
+  algorithm for computing inbreeding coefficients in large populations.
+  *Journal of Animal Breeding and Genetics*, 122, 325-331.

@@ -186,6 +186,8 @@ Biometrics, 32(1), 69-83.
 
 [`tidyped`](https://luansheng.github.io/visPedigree/reference/tidyped.md)
 for preparing pedigree data,
+[`pedprod`](https://luansheng.github.io/visPedigree/reference/pedprod.md)
+for matrix-free products with A or Ainv,
 [`query_relationship`](https://luansheng.github.io/visPedigree/reference/query_relationship.md)
 for querying individual pairs,
 [`expand_pedmat`](https://luansheng.github.io/visPedigree/reference/expand_pedmat.md)
