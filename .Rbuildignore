@@ -1,5 +1,6 @@
 ^renv$
 ^renv\.lock$
+^renv
 # --- 开发工具配置 ---
 ^\.Rprofile$
 ^\.Renviron$
