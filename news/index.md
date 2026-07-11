@@ -1,6 +1,6 @@
 # Changelog
 
-## Changes in version 1.9.0 under development
+## Changes in version 1.9.0 released on 11 Jul 2026
 
 ### New features
 
