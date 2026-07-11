@@ -1,4 +1,4 @@
-# Changes in version 1.9.0 under development
+# Changes in version 1.9.0 released on 11 Jul 2026
 ## New features
 1. **`visped()` SVG output**: `visped()` now writes SVG files when `file` ends in `.svg`; other file names continue to use PDF output by default.
 2. **`visped()` custom labels**: Added a `labelvar` argument to display labels from either a user-selected pedigree column or a row-aligned character vector. Compact full-sib family nodes continue to show family size.
