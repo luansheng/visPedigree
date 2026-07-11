@@ -44,7 +44,11 @@ A small pedigree is drawn in the following figure. The following code also demon
 tidy_small_ped <-
   tidyped(ped = small_ped,
           cand = c("Y", "Z1", "Z2"))
-visped(tidy_small_ped, compact = TRUE, file = tempfile(fileext = ".pdf"))
+visped(tidy_small_ped, 
+        compact = TRUE, 
+        cex=0.5, 
+        symbolsize=10, 
+        file = tempfile(fileext = ".pdf"))
 ```
 
 By default, `shapeby = "sex"` encodes individual sex by shape. Females are
@@ -66,8 +70,15 @@ rectangles in both modes. In `shapeby = "role"` mode, real individuals remain
 circles, but their fill colors still encode sex.
 
 ```{r symbol-schemes, fig.show="hold"}
-visped(tidy_small_ped, compact = TRUE)
-visped(tidy_small_ped, compact = TRUE, shapeby = "role")
+visped(tidy_small_ped, 
+      compact = TRUE,
+      cex=0.5, 
+      symbolsize=10)
+visped(tidy_small_ped, 
+        compact = TRUE, 
+        shapeby = "role",
+        cex=0.5, 
+        symbolsize=10)
 ```
 
 ### 1.1 A simple pedigree graph {#1-1}
