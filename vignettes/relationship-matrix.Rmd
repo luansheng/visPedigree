@@ -200,23 +200,35 @@ forward traversal of the pedigree. This is significantly more efficient than
 calling `pedprod()` repeatedly for each column.
 
 ```{r pedprod_AX}
-# Compare three contribution schemes side by side
+# Three ways to weight the SAME two candidates (Z1 and Z2 are full sibs)
 schemes <- cbind(
   Equal      = c(Z1 = 0.5, Z2 = 0.5),
   Z1_only    = c(Z1 = 1.0, Z2 = 0.0),
   Weighted   = c(Z1 = 0.7, Z2 = 0.3)
 )
 AX <- pedprod(tped, schemes)
-head(AX)
 
-# Relationship differences among individuals across schemes
-AX[tped$Ind[1:6], ]
+# The schemes diverge at the candidates themselves (and their descendants);
+# a shared ancestor is equally related to any weighting of two full sibs.
+AX[c("Z1", "Z2"), ]
+
+# Expected average relationship within each contributing group, 0.5 * c'A c.
+# Under random mating this equals the mean inbreeding of the resulting progeny.
+group_coancestry <- 0.5 * colSums(schemes * AX[rownames(schemes), ])
+round(group_coancestry, 5)
 ```
 
-Each column is independent — use this when evaluating many candidate sets in
-optimal contribution selection, or when the right-hand side is a design matrix
-in a mixed model. For an $n \times p$ matrix, the traversal cost is $O(np)$,
-compared to $O(p \cdot n^2)$ for explicit products with a precomputed $A$.
+The three schemes draw on the same two full sibs, yet the genetic consequence
+differs sharply. Concentrating all contribution on a single animal
+(`Z1_only`) exposes its full, partly inbred genome and inflates the group's
+expected progeny inbreeding to
+`r round(group_coancestry["Z1_only"], 3)`, whereas spreading contribution
+evenly (`Equal`) drives it down to `r round(group_coancestry["Equal"], 3)`.
+Trading a little short-term gain for a lower average relationship is exactly
+the balance struck by optimal contribution selection. `pedprod()` supplies the
+underlying $c'A c$ evaluation for every candidate column in a single $O(np)$
+traversal — compared to $O(p \cdot n^2)$ for explicit products with a
+precomputed $A$ — and never forms $A$ itself.
 
 ### 2.5 Practical Use Cases {#2-5}
 
@@ -260,25 +272,40 @@ Ainv_Z[1:5, ]
 
 #### Founder Contribution Analysis
 
-Trace the expected genetic contribution of a founder group to all descendants.
-This reveals which founders have the largest genetic footprint in the current
-population:
+Isolating one founder at a time turns `pedprod()` into a founder-origin
+decomposition: the product $A e_f$ (a unit vector on founder $f$) returns that
+founder's expected genetic contribution to every individual. Stacking the unit
+vectors into a matrix decomposes the whole population in one traversal, exposing
+which founders dominate the current gene pool and which have been lost:
 
 ```{r pedprod_geneflow}
-# Founders contribute equally to a hypothetical gene pool
+# One unit contribution vector per founder: column f isolates founder f
 founder_ids <- tped[Gen == 1, Ind]
-founder_contrib <- setNames(
-  rep(1 / length(founder_ids), length(founder_ids)),
-  founder_ids
-)
-founder_rel <- pedprod(tped, founder_contrib)
+founder_design <- diag(length(founder_ids))
+dimnames(founder_design) <- list(founder_ids, founder_ids)
 
-# Descendants most related to the founder pool (top 5)
-tail(sort(founder_rel), 5)
+# A %*% e_f is founder f's expected genetic contribution to every individual
+footprint <- pedprod(tped, founder_design, method = "A")
 
-# Descendants least related (bottom 5)
-head(sort(founder_rel), 5)
+# Founder composition of one candidate: contributions sum to one
+round(footprint["Z1", ], 4)
+
+# Average founder contribution to the youngest generation, ranked
+young <- tped[Gen == max(Gen), Ind]
+founder_share <- sort(colMeans(footprint[young, , drop = FALSE]), decreasing = TRUE)
+round(founder_share, 4)
 ```
+
+Reading across a row (`footprint["Z1", ]`) decomposes an individual's genome
+into founder origins that sum to one; reading down a column isolates a single
+founder's footprint across the pedigree. Here founder **N** accounts for more
+than half of the youngest generation, while founders **I** and **R** have
+already fallen to zero — their founder genomes are lost. Such imbalance lowers
+the effective number of founders and erodes genetic diversity faster than the
+census size implies. Because `pedprod()` never forms $A$, the same
+decomposition scales to pedigrees with millions of individuals, where it
+underpins the monitoring of founder representation and effective population
+size.
 
 ### 2.6 Performance and Scalability {#2-6}
 
