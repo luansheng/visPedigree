@@ -40,6 +40,7 @@ The main contents of this guide are as follows:
 3.6 [Customizing generation assignment](#3-6)   
 3.7 [Summarizing the pedigree](#3-7)   
 3.8 [Splitting large pedigrees](#3-8)
+3.9 [Working with plant pedigrees and selfing](#3-9)
 
 ## 1. Installation of the visPedigree package {#1}
 
@@ -247,6 +248,71 @@ summary(sub_pedigrees)
 # Access a specific sub-pedigree
 # first_sub <- sub_pedigrees[[1]]
 ```
+
+### 3.9 Working with plant pedigrees and selfing {#3-9}
+
+In plant breeding, many species are **monoecious** — a single plant produces both male and female gametes and can serve as both the male (sire) and female (dam) parent. Self-fertilization (selfing) is a common practice in crops such as rice, wheat, soybean, and maize. In a pedigree, selfing appears as the same individual listed as both Sire and Dam for one or more offspring.
+
+The `selfing` parameter in `tidyped()` controls how such pedigrees are handled:
+
+- **`selfing = FALSE`** (default): Treats any individual appearing as both Sire and Dam as a sex conflict and returns an error. This mode is suitable for animal pedigrees where bisexuality is a data error.
+- **`selfing = TRUE`**: Allows the same individual to be both Sire and Dam. These individuals are automatically assigned `Sex = "monoecious"`, and the pedigree metadata records this status.
+
+The following example demonstrates a typical self-pollinating plant breeding scenario:
+
+```{r plant-selfing}
+library(data.table)
+
+# A plant pedigree with self-fertilization:
+# P1 (male) × P2 (female) → F1
+# F1 selfs → F2_1, F2_2
+# F2_1 selfs → F3
+plant_ped <- data.table(
+  Ind  = c("P1", "P2", "F1", "F2_1", "F2_2", "F3"),
+  Sire = c(NA,   NA,   "P1", "F1",   "F1",   "F2_1"),
+  Dam  = c(NA,   NA,   "P2", "F1",   "F1",   "F2_1")
+)
+
+# Without selfing = TRUE: error — F1 and F2_1 appear as both Sire and Dam
+try(tidyped(plant_ped))
+```
+
+Setting `selfing = TRUE` resolves the issue. The monoecious individuals (`F1`, `F2_1`) are automatically identified, and their sex is assigned accordingly:
+
+```{r plant-selfing-tidy}
+tp_plant <- tidyped(plant_ped, selfing = TRUE, inbreed = TRUE)
+tp_plant[]
+
+# Check metadata
+attr(tp_plant, "ped_meta")
+```
+
+The `summary()` method reports the count of monoecious individuals:
+
+```{r plant-selfing-summary}
+summary(tp_plant)
+```
+
+In the tidied output:
+- **`P1`** → `male` (only appears as Sire)
+- **`P2`** → `female` (only appears as Dam)
+- **`F1`** → `monoecious` (appears as both Sire and Dam for `F2_1`, `F2_2`)
+- **`F2_1`** → `monoecious` (appears as both Sire and Dam for `F3`)
+
+Self-fertilization produces inbred offspring: the inbreeding coefficient *f* = 0.5 for individuals derived from a single generation of selfing, and increases with successive selfing generations (*f* = 0.75 for `F3`).
+
+```{r plant-selfing-inbreed}
+# Inbreeding coefficients
+tp_plant[, .(Ind, Sex, Gen, f)]
+```
+
+The pedigree can be visualized with `visped()`. Monoecious individuals are drawn as **hexagons** with teal edges and fill, while selfing edges are shown in the same teal color:
+
+```{r plant-selfing-plot, fig.width=5, fig.height=4}
+visped(tp_plant, compact = TRUE)
+```
+
+**Tip:** When working with large plant breeding datasets where selfing is expected, always set `selfing = TRUE` to avoid false sex-conflict errors. The `selfing` attribute is preserved through `splitped()` and other downstream operations, ensuring consistent handling across the entire workflow.
 
 ---
 **See Also:**
