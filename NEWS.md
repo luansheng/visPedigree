@@ -12,6 +12,9 @@
 5. **Clearer compact full-sib family summaries in `visped()`**: Compact full-sib family labels now use the explicit `FS×N` form instead of a bare number, avoiding confusion with an individual ID. Compact family summaries use a green-grey fill with a darker frame, while unknown-sex individuals use a neutral-grey fill with a grey frame.
 ## Bug fixes
 1. **Selfing in `Ainv`**: Corrected the sire-dam diagonal cross-term in Henderson's inverse construction when the sire and dam are the same individual. `pedmat(method = "Ainv")` now remains the numerical inverse of `A` for pedigrees created with `selfing = TRUE`.
+## Documentation
+1. **Plant pedigree example in `tidy-pedigree` vignette**: Added section 3.9 demonstrating `selfing = TRUE` for monoecious species, including sex inference, inbreeding coefficients under self-fertilization, and the `summary()` output for plant pedigrees.
+2. **Plant pedigree visualization in `draw-pedigree` vignette**: Added section 1.1.3 showing a multi-generation self-pollinating pedigree with `visped()`. Monoecious individuals are drawn as hexagons with teal edges, selfing edges are shown in teal, and inbreeding coefficients are displayed with `showf = TRUE`.
 
 # Changes in version 1.8.1 released on 28 Mar 2026
 ## New features
