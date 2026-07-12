@@ -306,11 +306,7 @@ Self-fertilization produces inbred offspring: the inbreeding coefficient *f* = 0
 tp_plant[, .(Ind, Sex, Gen, f)]
 ```
 
-The pedigree can be visualized with `visped()`. Monoecious individuals are drawn as **hexagons** with teal edges and fill, while selfing edges are shown in the same teal color:
-
-```{r plant-selfing-plot, fig.width=5, fig.height=4}
-visped(tp_plant, compact = TRUE)
-```
+See `vignette("draw-pedigree", package = "visPedigree")` for visualizing plant pedigrees — monoecious individuals are drawn as **hexagons** with teal edges and fill.
 
 **Tip:** When working with large plant breeding datasets where selfing is expected, always set `selfing = TRUE` to avoid false sex-conflict errors. The `selfing` attribute is preserved through `splitped()` and other downstream operations, ensuring consistent handling across the entire workflow.
 
