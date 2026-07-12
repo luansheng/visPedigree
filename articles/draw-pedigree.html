@@ -65,7 +65,7 @@
             
             <h4 data-toc-skip class="date">2026-07-12</h4>
       
-      <small class="dont-index">Source: <a href="https://github.com/luansheng/visPedigree/blob/v1.9.0/vignettes/draw-pedigree.Rmd" class="external-link"><code>vignettes/draw-pedigree.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/luansheng/visPedigree/blob/master/vignettes/draw-pedigree.Rmd" class="external-link"><code>vignettes/draw-pedigree.Rmd</code></a></small>
       <div class="d-none name"><code>draw-pedigree.Rmd</code></div>
     </div>
 
@@ -77,6 +77,8 @@
 1.1 <a href="#id_1-1">A simple pedigree graph</a><br>
 1.1.1 <a href="#id_1-1-1">Highlighting specific individuals</a><br>
 1.1.2 <a href="#id_1-1-2">Showing inbreeding coefficients</a><br>
+1.1.3 <a href="#id_1-1-3">Drawing a plant pedigree with monoecious
+individuals</a><br>
 1.2 <a href="#id_1-2">A reduced pedigree graph</a><br>
 1.3 <a href="#id_1-3">An outlined pedigree graph</a><br>
 1.4 <a href="#id_1-4">How to use this package in a selective breeding
@@ -125,7 +127,7 @@ in a PDF file.</p>
 <span>        cex<span class="op">=</span><span class="fl">0.5</span>, </span>
 <span>        symbolsize<span class="op">=</span><span class="fl">10</span>, </span>
 <span>        file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".pdf"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Pedigree saved to: /tmp/RtmpekXT5K/file205f5786f4ce.pdf</span></span>
+<span><span class="co">#&gt; Pedigree saved to: /tmp/RtmpPO3UkB/file207c192d4d96.pdf</span></span>
 <span><span class="co">#&gt; Label cex: 0.5. Symbol size: 10. Adjust 'cex' and 'symbolsize' if labels are too large or small.</span></span></code></pre></div>
 <p><img src="draw-pedigree_files/figure-html/smallped-1.png" class="r-plt" alt="" width="100%"></p>
 <p>By default, <code>shapeby = "sex"</code> encodes individual sex by
@@ -294,11 +296,52 @@ parameter in the <strong>tidyped</strong> function.</p>
 <span><span class="co">#&gt; Note: Inbreeding coefficients of 0 are not shown in the graph.</span></span></code></pre>
 </div>
 <div class="section level3">
+<h3 id="id_1-1-3">1.1.3 Drawing a plant pedigree with monoecious individuals<a class="anchor" aria-label="anchor" href="#id_1-1-3"></a>
+</h3>
+<p>In plant breeding, many crop species are <strong>monoecious</strong>
+— a single plant produces both male and female gametes, enabling
+<strong>self-fertilization</strong> (selfing). When a plant serves as
+both sire and dam, <code><a href="../reference/tidyped.html">tidyped()</a></code> with
+<code>selfing = TRUE</code> assigns it <code>Sex = "monoecious"</code>.
+In the graph, monoecious individuals appear as <strong>hexagons</strong>
+with teal edges and fill, and selfing edges (sire = dam) are drawn in
+teal.</p>
+<p>The following example shows a multi-generation self-pollinating
+pedigree with inbreeding coefficients displayed:</p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># P1 × P2 → F1;  F1 selfs → F2_1, F2_2;  F2_1 selfs → F3</span></span>
+<span><span class="va">plant_ped</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a></span><span class="op">(</span></span>
+<span>  Ind  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"P1"</span>, <span class="st">"P2"</span>, <span class="st">"F1"</span>, <span class="st">"F2_1"</span>, <span class="st">"F2_2"</span>, <span class="st">"F3"</span><span class="op">)</span>,</span>
+<span>  Sire <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>,   <span class="cn">NA</span>,   <span class="st">"P1"</span>, <span class="st">"F1"</span>,   <span class="st">"F1"</span>,   <span class="st">"F2_1"</span><span class="op">)</span>,</span>
+<span>  Dam  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>,   <span class="cn">NA</span>,   <span class="st">"P2"</span>, <span class="st">"F1"</span>,   <span class="st">"F1"</span>,   <span class="st">"F2_1"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">tp_plant</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tidyped.html">tidyped</a></span><span class="op">(</span><span class="va">plant_ped</span>, selfing <span class="op">=</span> <span class="cn">TRUE</span>, inbreed <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Selfing mode: 2 individual(s) appear as both Sire and Dam: F1, F2_1. These will be assigned Sex = 'monoecious'.</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/visped.html">visped</a></span><span class="op">(</span><span class="va">tp_plant</span>, compact <span class="op">=</span> <span class="cn">TRUE</span>, showf <span class="op">=</span> <span class="cn">TRUE</span>, cex<span class="op">=</span><span class="fl">0.5</span>, symbolsize<span class="op">=</span><span class="fl">10</span><span class="op">)</span></span></code></pre></div>
+<p><img src="draw-pedigree_files/figure-html/plant-selfing-draw-1.png" class="r-plt" alt="" width="100%"></p>
+<pre><code><span><span class="co">#&gt; Label cex: 0.5. Symbol size: 10. Adjust 'cex' and 'symbolsize' if labels are too large or small.</span></span>
+<span><span class="co">#&gt; Tip: Use 'file' to save as a legible vector PDF or SVG.</span></span>
+<span><span class="co">#&gt; Note: Inbreeding coefficients of 0 are not shown in the graph.</span></span></code></pre>
+<p>Self-fertilization produces rapid inbreeding: <em>f</em> = 0.5 after
+one generation of selfing (<code>F2_1</code>, <code>F2_2</code>), and
+<em>f</em> = 0.75 after two (<code>F3</code>). <code>F1</code> and
+<code>F2_1</code> are drawn as hexagons because they act as both sire
+and dam; selfing edges are shown in teal. For the general shape and
+color legend, see the introduction of Section 1.</p>
+<p>See <code><a href="../articles/tidy-pedigree.html">vignette("tidy-pedigree", package = "visPedigree")</a></code>,
+section 3.9, for preparing plant pedigrees and calculating inbreeding
+coefficients.</p>
+</div>
+<div class="section level3">
 <h3 id="id_1-2">1.2 A reduced pedigree graph<a class="anchor" aria-label="anchor" href="#id_1-2"></a>
 </h3>
 <p>Warning messages will be shown when you try to draw the pedigree
 graph of the deep_ped dataset.</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cand_J11_labels</span> <span class="op">&lt;-</span> <span class="va">deep_ped</span><span class="op">[</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/substr.html" class="external-link">substr</a></span><span class="op">(</span><span class="va">Ind</span>, <span class="fl">1</span>, <span class="fl">3</span><span class="op">)</span> <span class="op">==</span> <span class="st">"K11"</span><span class="op">)</span>, <span class="va">Ind</span><span class="op">]</span></span>
 <span><span class="fu"><a href="../reference/visped.html">visped</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="../reference/tidyped.html">tidyped</a></span><span class="op">(</span><span class="va">deep_ped</span>,</span>
@@ -318,7 +361,7 @@ parameters to simplify the pedigree.</p>
 <p>First, let’s try the <strong>compact</strong> parameter and output it
 to a PDF file. The plot on the default device may suffer from
 significant overlapping due to the high density of individuals.</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cand_J11_labels</span> <span class="op">&lt;-</span> <span class="va">deep_ped</span><span class="op">[</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/substr.html" class="external-link">substr</a></span><span class="op">(</span><span class="va">Ind</span>,<span class="fl">1</span>,<span class="fl">3</span><span class="op">)</span> <span class="op">==</span> <span class="st">"K11"</span><span class="op">)</span>,<span class="va">Ind</span><span class="op">]</span></span>
 <span><span class="fu"><a href="../reference/visped.html">visped</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="../reference/tidyped.html">tidyped</a></span><span class="op">(</span></span>
@@ -333,7 +376,7 @@ significant overlapping due to the high density of individuals.</p>
 <span>  showgraph <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".pdf"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; Pedigree saved to: /tmp/RtmpekXT5K/file205f66194063.pdf</span></span>
+<span><span class="co">#&gt; Pedigree saved to: /tmp/RtmpPO3UkB/file207c30bec13a.pdf</span></span>
 <span><span class="co">#&gt; Label cex: 0.08. Symbol size: 5.5. Adjust 'cex' and 'symbolsize' if labels are too large or small.</span></span></code></pre></div>
 <p><img src="draw-pedigree_files/figure-html/reduceped1-1.png" class="r-plt" alt="" width="100%"></p>
 <p>You can open the generated PDF file to view the high-definition
@@ -347,7 +390,7 @@ makes labels larger, while decreasing it makes them smaller. The value
 typically ranges from 0 to 1, but can be larger, and adjustments of 0.1
 are usually sufficient. The <strong>visped</strong> function reports the
 <code>cex</code> value used to draw the graph.</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/visped.html">visped</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="../reference/tidyped.html">tidyped</a></span><span class="op">(</span></span>
 <span>    <span class="va">deep_ped</span>,</span>
@@ -360,7 +403,7 @@ are usually sufficient. The <strong>visped</strong> function reports the
 <span>  showgraph <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".pdf"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; Pedigree saved to: /tmp/RtmpekXT5K/file205f7efaf849.pdf</span></span>
+<span><span class="co">#&gt; Pedigree saved to: /tmp/RtmpPO3UkB/file207cda0224a.pdf</span></span>
 <span><span class="co">#&gt; Label cex: 0.83. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.</span></span></code></pre></div>
 <p>You can open the generated PDF file to view the high-definition
 pedigree vectorgraph. The labels align better with the shapes compared
@@ -375,7 +418,7 @@ graph. Individual labels will not be shown in the graph. This is highly
 effective for large pedigrees with many individuals.</p>
 <p>The following code generates an outlined pedigree graph in a PDF
 file.</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressMessages</a></span><span class="op">(</span><span class="fu"><a href="../reference/visped.html">visped</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="../reference/tidyped.html">tidyped</a></span><span class="op">(</span></span>
 <span>    <span class="va">deep_ped</span>,</span>
@@ -401,7 +444,7 @@ hypothesis).</p>
 <p>We select the individual “K110550H” in the deep_ped dataset to
 visualize its pedigree. The following code generates the pedigree graph
 for a specific individual in a PDF file.</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings</a></span><span class="op">(</span></span>
 <span>  <span class="va">K110550H_ped</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tidyped.html">tidyped</a></span><span class="op">(</span><span class="va">deep_ped</span>, cand <span class="op">=</span> <span class="st">"K110550H"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
@@ -425,7 +468,7 @@ the contribution ratio of different families.</p>
 the nucleus breeding population in 2007. Setting
 <code>tracegen = 2</code> limits the graph to two generations (parents
 and grandparents).</p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cand_2007_G8_labels</span> <span class="op">&lt;-</span></span>
 <span>  <span class="va">big_family_size_ped</span><span class="op">[</span><span class="op">(</span><span class="va">Year</span> <span class="op">==</span> <span class="fl">2007</span><span class="op">)</span> <span class="op">&amp;</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/substr.html" class="external-link">substr</a></span><span class="op">(</span><span class="va">Ind</span>, <span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span> <span class="op">==</span> <span class="st">"G8"</span><span class="op">)</span>, <span class="va">Ind</span><span class="op">]</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings</a></span><span class="op">(</span></span>

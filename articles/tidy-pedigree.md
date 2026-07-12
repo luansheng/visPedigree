@@ -44,7 +44,8 @@ The main contents of this guide are as follows:
     3.5 [Calculating inbreeding coefficients](#id_3-5)  
     3.6 [Customizing generation assignment](#id_3-6)  
     3.7 [Summarizing the pedigree](#id_3-7)  
-    3.8 [Splitting large pedigrees](#id_3-8)
+    3.8 [Splitting large pedigrees](#id_3-8)  
+    3.9 [Working with plant pedigrees and selfing](#id_3-9)
 
 ## 1. Installation of the visPedigree package
 
@@ -595,6 +596,172 @@ summary(sub_pedigrees)
 # Access a specific sub-pedigree
 # first_sub <- sub_pedigrees[[1]]
 ```
+
+### 3.9 Working with plant pedigrees and selfing
+
+In plant breeding, many species are **monoecious** — a single plant
+produces both male and female gametes and can serve as both the male
+(sire) and female (dam) parent. Self-fertilization (selfing) is a common
+practice in crops such as rice, wheat, soybean, and maize. In a
+pedigree, selfing appears as the same individual listed as both Sire and
+Dam for one or more offspring.
+
+The `selfing` parameter in
+[`tidyped()`](https://luansheng.github.io/visPedigree/reference/tidyped.md)
+controls how such pedigrees are handled:
+
+- **`selfing = FALSE`** (default): Treats any individual appearing as
+  both Sire and Dam as a sex conflict and returns an error. This mode is
+  suitable for animal pedigrees where bisexuality is a data error.
+- **`selfing = TRUE`**: Allows the same individual to be both Sire and
+  Dam. These individuals are automatically assigned
+  `Sex = "monoecious"`, and the pedigree metadata records this status.
+
+The following example demonstrates a typical self-pollinating plant
+breeding scenario:
+
+``` r
+
+library(data.table)
+
+# A plant pedigree with self-fertilization:
+# P1 (male) × P2 (female) → F1
+# F1 selfs → F2_1, F2_2
+# F2_1 selfs → F3
+plant_ped <- data.table(
+  Ind  = c("P1", "P2", "F1", "F2_1", "F2_2", "F3"),
+  Sire = c(NA,   NA,   "P1", "F1",   "F1",   "F2_1"),
+  Dam  = c(NA,   NA,   "P2", "F1",   "F1",   "F2_1")
+)
+
+# Without selfing = TRUE: error — F1 and F2_1 appear as both Sire and Dam
+try(tidyped(plant_ped))
+#> Error : Sex conflict detected: The following individual(s) appear as both Sire and Dam: F1, F2_1. This is biologically impossible. Please check and correct the pedigree data. If this is a plant pedigree with monoecious species, set selfing = TRUE.
+```
+
+Setting `selfing = TRUE` resolves the issue. The monoecious individuals
+(`F1`, `F2_1`) are automatically identified, and their sex is assigned
+accordingly:
+
+``` r
+
+tp_plant <- tidyped(plant_ped, selfing = TRUE, inbreed = TRUE)
+#> Selfing mode: 2 individual(s) appear as both Sire and Dam: F1, F2_1. These will be assigned Sex = 'monoecious'.
+tp_plant[]
+#> Tidy Pedigree Object
+#> Indices: <Sire>, <Dam>
+#>       Ind   Sire    Dam    Family FamilySize   Gen        Sex IndNum SireNum
+#>    <char> <char> <char>    <char>      <int> <int>     <char>  <int>   <int>
+#> 1:     P1   <NA>   <NA>      <NA>          1     1       male      1       0
+#> 2:     P2   <NA>   <NA>      <NA>          1     1     female      2       0
+#> 3:     F1     P1     P2     P1xP2          1     2 monoecious      3       1
+#> 4:   F2_1     F1     F1     F1xF1          2     3 monoecious      4       3
+#> 5:   F2_2     F1     F1     F1xF1          2     3       <NA>      5       3
+#> 6:     F3   F2_1   F2_1 F2_1xF2_1          1     4       <NA>      6       4
+#>    DamNum     f
+#>     <int> <num>
+#> 1:      0  0.00
+#> 2:      0  0.00
+#> 3:      2  0.00
+#> 4:      3  0.50
+#> 5:      3  0.50
+#> 6:      4  0.75
+
+# Check metadata
+attr(tp_plant, "ped_meta")
+#> $selfing
+#> [1] TRUE
+#> 
+#> $bisexual_parents
+#> [1] "F1"   "F2_1"
+#> 
+#> $genmethod
+#> [1] "top"
+```
+
+The [`summary()`](https://rdrr.io/r/base/summary.html) method reports
+the count of monoecious individuals:
+
+``` r
+
+summary(tp_plant)
+#> Pedigree Summary
+#> ================
+#> 
+#> Total Individuals:  6 
+#>   - Males:    1 (16.7%) 
+#>   - Females:  1 (16.7%) 
+#>   - Monoecious:  2 (33.3%) 
+#>   - Unknown:  2 (33.3%) 
+#> 
+#> Pedigree Structure:
+#>   - Founders (no parents):   2 
+#>   - Both parents known:      4 
+#> 
+#> Generation:
+#>   - Maximum:  4 
+#>   - Distribution:
+#>       Gen 1: 2 individuals
+#>       Gen 2: 1 individuals
+#>       Gen 3: 2 individuals
+#>       Gen 4: 1 individuals
+#> 
+#> Reproduction:
+#>   - Individuals with offspring:  4 
+#>   - Sires:  3  (Mean=1.3, Max=2 offspring)
+#>   - Dams:   3  (Mean=1.3, Max=2 offspring)
+#> 
+#> Full-sibling Families:
+#>   - Number of families:      3 
+#>   - Mean family size:        1.33
+#>   - Maximum family size:     2 
+#>   - Top families by size:
+#>       F1xF1: 2
+#>       F2_1xF2_1: 1
+#>       P1xP2: 1
+#> 
+#> Inbreeding Coefficients:
+#>   - All individuals:
+#>       Mean = 0.2917, Min = 0.0000, Max = 0.7500
+#>       Inbred (f > 0): 3 (50.0%)
+#> 
+#> ================
+```
+
+In the tidied output: - **`P1`** → `male` (only appears as Sire) -
+**`P2`** → `female` (only appears as Dam) - **`F1`** → `monoecious`
+(appears as both Sire and Dam for `F2_1`, `F2_2`) - **`F2_1`** →
+`monoecious` (appears as both Sire and Dam for `F3`)
+
+Self-fertilization produces inbred offspring: the inbreeding coefficient
+*f* = 0.5 for individuals derived from a single generation of selfing,
+and increases with successive selfing generations (*f* = 0.75 for `F3`).
+
+``` r
+
+# Inbreeding coefficients
+tp_plant[, .(Ind, Sex, Gen, f)]
+#>       Ind        Sex   Gen     f
+#>    <char>     <char> <int> <num>
+#> 1:     P1       male     1  0.00
+#> 2:     P2     female     1  0.00
+#> 3:     F1 monoecious     2  0.00
+#> 4:   F2_1 monoecious     3  0.50
+#> 5:   F2_2       <NA>     3  0.50
+#> 6:     F3       <NA>     4  0.75
+```
+
+See
+[`vignette("draw-pedigree", package = "visPedigree")`](https://luansheng.github.io/visPedigree/articles/draw-pedigree.md)
+for visualizing plant pedigrees — monoecious individuals are drawn as
+**hexagons** with teal edges and fill.
+
+**Tip:** When working with large plant breeding datasets where selfing
+is expected, always set `selfing = TRUE` to avoid false sex-conflict
+errors. The `selfing` attribute is preserved through
+[`splitped()`](https://luansheng.github.io/visPedigree/reference/splitped.md)
+and other downstream operations, ensuring consistent handling across the
+entire workflow.
 
 ------------------------------------------------------------------------
 
