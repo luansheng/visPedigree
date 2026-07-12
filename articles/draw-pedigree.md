@@ -4,6 +4,8 @@
     1.1 [A simple pedigree graph](#id_1-1)  
     1.1.1 [Highlighting specific individuals](#id_1-1-1)  
     1.1.2 [Showing inbreeding coefficients](#id_1-1-2)  
+    1.1.3 [Drawing a plant pedigree with monoecious
+    individuals](#id_1-1-3)  
     1.2 [A reduced pedigree graph](#id_1-2)  
     1.3 [An outlined pedigree graph](#id_1-3)  
     1.4 [How to use this package in a selective breeding
@@ -54,7 +56,7 @@ visped(tidy_small_ped,
         cex=0.5, 
         symbolsize=10, 
         file = tempfile(fileext = ".pdf"))
-#> Pedigree saved to: /tmp/RtmppOVEdC/file20e033587834.pdf
+#> Pedigree saved to: /tmp/Rtmphwoo3c/file207328a6fdf0.pdf
 #> Label cex: 0.5. Symbol size: 10. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 ```
 
@@ -272,6 +274,53 @@ visped(tidy_test_ped_inbreed, showf = TRUE)
     #> Tip: Use 'file' to save as a legible vector PDF or SVG.
     #> Note: Inbreeding coefficients of 0 are not shown in the graph.
 
+### 1.1.3 Drawing a plant pedigree with monoecious individuals
+
+In plant breeding, many crop species are **monoecious** — a single plant
+produces both male and female gametes, enabling **self-fertilization**
+(selfing). When a plant serves as both sire and dam,
+[`tidyped()`](https://luansheng.github.io/visPedigree/reference/tidyped.md)
+with `selfing = TRUE` assigns it `Sex = "monoecious"`. In the graph,
+monoecious individuals appear as **hexagons** with teal edges and fill,
+and selfing edges (sire = dam) are drawn in teal.
+
+The following example shows a multi-generation self-pollinating pedigree
+with inbreeding coefficients displayed:
+
+``` r
+
+library(data.table)
+
+# P1 × P2 → F1;  F1 selfs → F2_1, F2_2;  F2_1 selfs → F3
+plant_ped <- data.table(
+  Ind  = c("P1", "P2", "F1", "F2_1", "F2_2", "F3"),
+  Sire = c(NA,   NA,   "P1", "F1",   "F1",   "F2_1"),
+  Dam  = c(NA,   NA,   "P2", "F1",   "F1",   "F2_1")
+)
+
+tp_plant <- tidyped(plant_ped, selfing = TRUE, inbreed = TRUE)
+#> Selfing mode: 2 individual(s) appear as both Sire and Dam: F1, F2_1. These will be assigned Sex = 'monoecious'.
+
+visped(tp_plant, compact = TRUE, showf = TRUE, cex=0.5, symbolsize=10)
+```
+
+![](draw-pedigree_files/figure-html/plant-selfing-draw-1.png)
+
+    #> Label cex: 0.5. Symbol size: 10. Adjust 'cex' and 'symbolsize' if labels are too large or small.
+    #> Tip: Use 'file' to save as a legible vector PDF or SVG.
+    #> Note: Inbreeding coefficients of 0 are not shown in the graph.
+
+Self-fertilization produces rapid inbreeding: *f* = 0.5 after one
+generation of selfing (`F2_1`, `F2_2`), and *f* = 0.75 after two (`F3`).
+`F1` and `F2_1` are drawn as hexagons because they act as both sire and
+dam; selfing edges are shown in teal. For the general shape and color
+legend, see the introduction of Section 1.
+
+See
+[`vignette("tidy-pedigree", package = "visPedigree")`](https://luansheng.github.io/visPedigree/articles/tidy-pedigree.md),
+section 3.9, for preparing plant pedigrees and calculating inbreeding
+coefficients.
+
 ### 1.2 A reduced pedigree graph
 
 Warning messages will be shown when you try to draw the pedigree graph
@@ -318,7 +367,7 @@ visped(
   showgraph = TRUE,
   file = tempfile(fileext = ".pdf")
 )
-#> Pedigree saved to: /tmp/RtmppOVEdC/file20e064edf6e3.pdf
+#> Pedigree saved to: /tmp/Rtmphwoo3c/file20731f3c7f1c.pdf
 #> Label cex: 0.08. Symbol size: 5.5. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 ```
 
@@ -350,7 +399,7 @@ visped(
   showgraph = FALSE,
   file = tempfile(fileext = ".pdf")
 )
-#> Pedigree saved to: /tmp/RtmppOVEdC/file20e032b59f4.pdf
+#> Pedigree saved to: /tmp/Rtmphwoo3c/file207333a40b5d.pdf
 #> Label cex: 0.83. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 ```
 
