@@ -439,9 +439,10 @@ inbreeding coefficients to a tidied pedigree:</p>
 <ol style="list-style-type: decimal">
 <li>Set <code>inbreed = TRUE</code> in the <code><a href="../reference/tidyped.html">tidyped()</a></code>
 function. This will calculate the inbreeding coefficients using an
-optimized C++ implementation of the Sargolzaei &amp; Iwaisaki (2005) LAP
-bucket algorithm and add an <code>f</code> column to the tidied
-pedigree.</li>
+optimized C++ implementation of algorithms for large populations
+(Meuwissen &amp; Luo, 1992; Sargolzaei et al., 2005), including the LAP
+bucket strategy described by Sargolzaei et al. (2005), and add an
+<code>f</code> column to the tidied pedigree.</li>
 <li>Or call <code><a href="../reference/inbreed.html">inbreed()</a></code> directly on a tidied pedigree to add
 the <code>f</code> column.</li>
 </ol>

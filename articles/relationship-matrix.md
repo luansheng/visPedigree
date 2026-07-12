@@ -39,7 +39,9 @@ supports both additive and dominance relationship matrices, as well as
 their inverses. The inverse additive relationship matrix (`Ainv`)
 follows Henderson’s rules (Henderson, 1976), while inbreeding
 coefficients use the same optimized recursive engine as
-[`inbreed()`](https://luansheng.github.io/visPedigree/reference/inbreed.md).
+[`inbreed()`](https://luansheng.github.io/visPedigree/reference/inbreed.md),
+based on algorithms for large populations described by Meuwissen & Luo
+(1992) and Sargolzaei et al. (2005).
 
 ### 1.1 Supported Methods
 
@@ -695,10 +697,6 @@ compact matrix.
 - Colleau, J. J. (2002). An indirect approach to the extensive
   calculation of relationship coefficients. *Genetics Selection
   Evolution*, 34, 409-421.
-- Colleau, J. J., Palhière, I., Rodríguez-Ramilo, S. T., & Legarra, A.
-  (2017). A fast indirect method to compute functions of genomic
-  relationships concerning genotyped and ungenotyped individuals, for
-  diversity management. *Genetics Selection Evolution*, 49, 87.
 - Henderson, C. R. (1976). A simple method for computing the inverse of
   a numerator relationship matrix used in prediction of breeding values.
   *Biometrics*, 32(1), 69-83.

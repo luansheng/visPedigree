@@ -417,8 +417,10 @@ inbreeding coefficients to a tidied pedigree:
 1.  Set `inbreed = TRUE` in the
     [`tidyped()`](https://luansheng.github.io/visPedigree/reference/tidyped.md)
     function. This will calculate the inbreeding coefficients using an
-    optimized C++ implementation of the Sargolzaei & Iwaisaki (2005) LAP
-    bucket algorithm and add an `f` column to the tidied pedigree.
+    optimized C++ implementation of algorithms for large populations
+    (Meuwissen & Luo, 1992; Sargolzaei et al., 2005), including the LAP
+    bucket strategy described by Sargolzaei et al. (2005), and add an
+    `f` column to the tidied pedigree.
 2.  Or call
     [`inbreed()`](https://luansheng.github.io/visPedigree/reference/inbreed.md)
     directly on a tidied pedigree to add the `f` column.

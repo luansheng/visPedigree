@@ -481,12 +481,12 @@ intuitive index of diversity retention.</p>
 <p>The classical <code>fe</code> and <code>fa</code> are based on
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>∑</mo><msubsup><mi>p</mi><mi>i</mi><mn>2</mn></msubsup></mrow><annotation encoding="application/x-tex">\sum p_i^2</annotation></semantics></math>
 (Hill number order
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">q = 2</annotation></semantics></math>),
-which is disproportionately influenced by a few large contributions.
-<code>visPedigree</code> also reports the information-theoretic
-counterpart at order
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">q = 2</annotation></semantics></math>;
+Hill, 1973), which is disproportionately influenced by a few large
+contributions. <code>visPedigree</code> also reports the
+information-theoretic counterpart at order
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">q = 1</annotation></semantics></math>,
-derived from Shannon entropy:</p>
+derived from Shannon entropy (Jost, 2006):</p>
 <p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>f</mi><mi>e</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>H</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo>=</mo><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mspace width="-0.167em"></mspace><mo minsize="180%" maxsize="180%" stretchy="true" form="prefix">(</mo><mo>−</mo><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>f</mi></munderover><msub><mi>p</mi><mi>i</mi></msub><mrow><mi mathvariant="normal">ln</mi><mo>⁡</mo></mrow><msub><mi>p</mi><mi>i</mi></msub><mo minsize="180%" maxsize="180%" stretchy="true" form="postfix">)</mo><mo>,</mo><mspace width="2.0em"></mspace><msubsup><mi>f</mi><mi>a</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>H</mi><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo>=</mo><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mspace width="-0.167em"></mspace><mo minsize="180%" maxsize="180%" stretchy="true" form="prefix">(</mo><mo>−</mo><munderover><mo>∑</mo><mrow><mi>j</mi><mo>=</mo><mn>1</mn></mrow><mi>a</mi></munderover><msub><mi>q</mi><mi>j</mi></msub><mrow><mi mathvariant="normal">ln</mi><mo>⁡</mo></mrow><msub><mi>q</mi><mi>j</mi></msub><mo minsize="180%" maxsize="180%" stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">
 f_e^{(H)} = \exp\!\Bigl(-\sum_{i=1}^{f} p_i \ln p_i\Bigr), \qquad
 f_a^{(H)} = \exp\!\Bigl(-\sum_{j=1}^{a} q_j \ln q_j\Bigr)
@@ -923,7 +923,10 @@ original scale:</p>
 <code>pediv()</code><a class="anchor" aria-label="anchor" href="#effective-population-size-with-pedne-and-pediv"></a>
 </h2>
 <p><code><a href="../reference/pediv.html">pediv()</a></code> reports three complementary effective population
-size definitions. Each addresses a distinct biological question.</p>
+size definitions. The pedigree-based estimators follow the
+individual-rate approach of Gutiérrez et al. (2008, 2009) and the
+coancestry-rate approach of Cervantes et al. (2011). Each addresses a
+distinct biological question.</p>
 <div class="section level3">
 <h3 id="demographic-ne">8.1 Demographic <code>Ne</code><a class="anchor" aria-label="anchor" href="#demographic-ne"></a>
 </h3>
@@ -947,10 +950,10 @@ inbreeding, and drift. It is therefore often optimistic.</p>
 <p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>N</mi><mi>e</mi></msub><mo>=</mo><mfrac><mn>1</mn><mrow><mn>2</mn><mover><mrow><mi mathvariant="normal">Δ</mi><mi>F</mi></mrow><mo accent="true">¯</mo></mover></mrow></mfrac></mrow><annotation encoding="application/x-tex">
 N_e = \frac{1}{2\overline{\Delta F}}
 </annotation></semantics></math></p>
-<p>This estimator uses the realized rate of inbreeding. <code>ECG</code>
-standardizes individuals with different pedigree depths. Use this
-estimate when the primary concern is <strong>the rate of inbreeding
-accumulation</strong>.</p>
+<p>This estimator uses the realized rate of inbreeding (Gutiérrez et
+al., 2008, 2009). <code>ECG</code> standardizes individuals with
+different pedigree depths. Use this estimate when the primary concern is
+<strong>the rate of inbreeding accumulation</strong>.</p>
 </div>
 <div class="section level3">
 <h3 id="coancestry-ne">8.3 Coancestry <code>Ne</code><a class="anchor" aria-label="anchor" href="#coancestry-ne"></a>
@@ -962,10 +965,10 @@ accumulation</strong>.</p>
 N_e = \frac{1}{2\overline{\Delta c}}
 </annotation></semantics></math></p>
 <p>This estimator is based on the rate of coancestry among members of
-the reference population. Because it captures the accumulation of
-relatedness before it is fully expressed as realized inbreeding, it is
-often the strictest and most sensitive warning signal in managed
-breeding populations.</p>
+the reference population (Cervantes et al., 2011). Because it captures
+the accumulation of relatedness before it is fully expressed as realized
+inbreeding, it is often the strictest and most sensitive warning signal
+in managed breeding populations.</p>
 </div>
 </div>
 <div class="section level2">
