@@ -21,6 +21,7 @@ src/symbols.rds
 scripts/commit-msg
 scripts/install-hooks.sh
 .claude/
+AGENTS.md
 
 # 文档生成产物 (Vignettes 生成的 HTML 通常不放源码库，除非用于展示)
 # doc/ 是 R build 生成的，源码都在 vignettes/
