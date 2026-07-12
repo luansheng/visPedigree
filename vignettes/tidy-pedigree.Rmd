@@ -39,7 +39,7 @@ The main contents of this guide are as follows:
 3.5 [Calculating inbreeding coefficients](#3-5)   
 3.6 [Customizing generation assignment](#3-6)   
 3.7 [Summarizing the pedigree](#3-7)   
-3.8 [Splitting large pedigrees](#3-8)
+3.8 [Splitting large pedigrees](#3-8)   
 3.9 [Working with plant pedigrees and selfing](#3-9)
 
 ## 1. Installation of the visPedigree package {#1}

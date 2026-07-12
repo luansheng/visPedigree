@@ -24,8 +24,8 @@ library(visPedigree)
 1. [Drawing the pedigree graph](#1)   
 1.1 [A simple pedigree graph](#1-1)   
 1.1.1 [Highlighting specific individuals](#1-1-1)   
-1.1.2 [Showing inbreeding coefficients](#1-1-2)
-1.1.3 [Drawing a plant pedigree with monoecious individuals](#1-1-3)
+1.1.2 [Showing inbreeding coefficients](#1-1-2)   
+1.1.3 [Drawing a plant pedigree with monoecious individuals](#1-1-3)   
 1.2 [A reduced pedigree graph](#1-2)   
 1.3 [An outlined pedigree graph](#1-3)   
 1.4 [How to use this package in a selective breeding program](#1-4)   
@@ -169,7 +169,7 @@ In plant breeding, many crop species are **monoecious** — a single plant produ
 
 The following example shows a multi-generation self-pollinating pedigree with inbreeding coefficients displayed:
 
-```{r plant-selfing-draw, fig.width=5.5, fig.height=4.5}
+```{r plant-selfing-draw}
 library(data.table)
 
 # P1 × P2 → F1;  F1 selfs → F2_1, F2_2;  F2_1 selfs → F3
@@ -181,7 +181,7 @@ plant_ped <- data.table(
 
 tp_plant <- tidyped(plant_ped, selfing = TRUE, inbreed = TRUE)
 
-visped(tp_plant, compact = TRUE, showf = TRUE)
+visped(tp_plant, compact = TRUE, showf = TRUE, cex=0.5, symbolsize=10)
 ```
 
 Self-fertilization produces rapid inbreeding: *f* = 0.5 after one generation of selfing (`F2_1`, `F2_2`), and *f* = 0.75 after two (`F3`). `F1` and `F2_1` are drawn as hexagons because they act as both sire and dam; selfing edges are shown in teal. For the general shape and color legend, see the introduction of Section 1.
