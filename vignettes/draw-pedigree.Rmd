@@ -165,17 +165,14 @@ visped(tidy_test_ped_inbreed, showf = TRUE)
 
 ### 1.1.3 Drawing a plant pedigree with monoecious individuals {#1-1-3}
 
-In plant breeding, many crop species are **monoecious** — a single plant produces both male and female gametes, allowing **self-fertilization** (selfing). When a plant serves as both sire and dam, `tidyped()` with `selfing = TRUE` assigns it `Sex = "monoecious"`. In the pedigree graph, monoecious individuals are drawn as **hexagons** with teal edges and fill, and selfing edges (where sire and dam are the same individual) are also rendered in teal.
+In plant breeding, many crop species are **monoecious** — a single plant produces both male and female gametes, enabling **self-fertilization** (selfing). When a plant serves as both sire and dam, `tidyped()` with `selfing = TRUE` assigns it `Sex = "monoecious"`. In the graph, monoecious individuals appear as **hexagons** with teal edges and fill, and selfing edges (sire = dam) are drawn in teal.
 
-The following example illustrates a multi-generation self-pollinating pedigree:
+The following example shows a multi-generation self-pollinating pedigree with inbreeding coefficients displayed:
 
-```{r plant-selfing-draw, fig.width=5, fig.height=4}
+```{r plant-selfing-draw, fig.width=5.5, fig.height=4.5}
 library(data.table)
 
-# A plant pedigree with self-fertilization:
-# P1 (male) × P2 (female) → F1
-# F1 selfs → F2_1, F2_2
-# F2_1 selfs → F3
+# P1 × P2 → F1;  F1 selfs → F2_1, F2_2;  F2_1 selfs → F3
 plant_ped <- data.table(
   Ind  = c("P1", "P2", "F1", "F2_1", "F2_2", "F3"),
   Sire = c(NA,   NA,   "P1", "F1",   "F1",   "F2_1"),
@@ -184,18 +181,12 @@ plant_ped <- data.table(
 
 tp_plant <- tidyped(plant_ped, selfing = TRUE, inbreed = TRUE)
 
-# Draw the pedigree: monoecious as hexagons, selfing edges in teal
-visped(tp_plant, compact = TRUE)
+visped(tp_plant, compact = TRUE, showf = TRUE)
 ```
 
-In the graph above:
-- **`P1`** (square, blue) — male founder
-- **`P2`** (circle, goldenrod) — female founder
-- **`F1`**, **`F2_1`** (hexagons, teal) — monoecious; each appears as both Sire and Dam. The green hexagon frame and teal fill distinguish them from ordinary male/female individuals.
-- **`F3`** (square, blue) — offspring of `F2_1` selfing; `Sex` is inferred as male from its role as a sire (or could also be monoecious if it later selfs).
-- Selfing edges (`F1` → `F2_1`, `F2_1` → `F3`) are drawn in teal rather than the usual sire/dam colors.
+Self-fertilization produces rapid inbreeding: *f* = 0.5 after one generation of selfing (`F2_1`, `F2_2`), and *f* = 0.75 after two (`F3`). `F1` and `F2_1` are drawn as hexagons because they act as both sire and dam; selfing edges are shown in teal. For the general shape and color legend, see the introduction of Section 1.
 
-See `vignette("tidy-pedigree", package = "visPedigree")`, section 3.9, for details on preparing plant pedigrees with `tidyped()` and calculating inbreeding coefficients under selfing.
+See `vignette("tidy-pedigree", package = "visPedigree")`, section 3.9, for preparing plant pedigrees and calculating inbreeding coefficients.
 
 ### 1.2 A reduced pedigree graph {#1-2}
 
