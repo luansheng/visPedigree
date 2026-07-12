@@ -291,9 +291,9 @@ div_res$summary[, .(fg, MeanCoan, GeneDiv)]
 ### 6.2 Shannon-entropy effective numbers: `feH` and `faH`
 
 The classical `fe` and `fa` are based on $\sum p_i^2$ (Hill number order
-$q = 2$), which is disproportionately influenced by a few large contributions.
-`visPedigree` also reports the information-theoretic counterpart at order
-$q = 1$, derived from Shannon entropy:
+$q = 2$; Hill, 1973), which is disproportionately influenced by a few large
+contributions. `visPedigree` also reports the information-theoretic counterpart
+at order $q = 1$, derived from Shannon entropy (Jost, 2006):
 
 $$
 f_e^{(H)} = \exp\!\Bigl(-\sum_{i=1}^{f} p_i \ln p_i\Bigr), \qquad
@@ -486,6 +486,8 @@ plot(hl, type = "raw")
 ## 8. Effective Population Size with `pedne()` and `pediv()`
 
 `pediv()` reports three complementary effective population size definitions.
+The pedigree-based estimators follow the individual-rate approach of Gutiérrez
+et al. (2008, 2009) and the coancestry-rate approach of Cervantes et al. (2011).
 Each addresses a distinct biological question.
 
 ### 8.1 Demographic `Ne`
@@ -508,9 +510,9 @@ $$
 N_e = \frac{1}{2\overline{\Delta F}}
 $$
 
-This estimator uses the realized rate of inbreeding. `ECG` standardizes
-individuals with different pedigree depths. Use this estimate when the primary
-concern is **the rate of inbreeding accumulation**.
+This estimator uses the realized rate of inbreeding (Gutiérrez et al., 2008,
+2009). `ECG` standardizes individuals with different pedigree depths. Use this
+estimate when the primary concern is **the rate of inbreeding accumulation**.
 
 ### 8.3 Coancestry `Ne`
 
@@ -522,10 +524,10 @@ $$
 N_e = \frac{1}{2\overline{\Delta c}}
 $$
 
-This estimator is based on the rate of coancestry among members of the
-reference population. Because it captures the accumulation of relatedness
-before it is fully expressed as realized inbreeding, it is often the strictest
-and most sensitive warning signal in managed breeding populations.
+This estimator is based on the rate of coancestry among members of the reference
+population (Cervantes et al., 2011). Because it captures the accumulation of
+relatedness before it is fully expressed as realized inbreeding, it is often the
+strictest and most sensitive warning signal in managed breeding populations.
 
 ## 9. Average Relationship Trends with `pedrel()`
 

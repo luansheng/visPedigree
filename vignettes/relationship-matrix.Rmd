@@ -49,7 +49,7 @@ Relationship matrices are fundamental tools in quantitative genetics and animal 
 
 ## 1. Calculating Relationship Matrices with `pedmat()` {#1}
 
-The `pedmat()` function is the primary tool for calculating relationship matrices. It supports both additive and dominance relationship matrices, as well as their inverses. The inverse additive relationship matrix (`Ainv`) follows Henderson's rules (Henderson, 1976), while inbreeding coefficients use the same optimized recursive engine as `inbreed()`.
+The `pedmat()` function is the primary tool for calculating relationship matrices. It supports both additive and dominance relationship matrices, as well as their inverses. The inverse additive relationship matrix (`Ainv`) follows Henderson's rules (Henderson, 1976), while inbreeding coefficients use the same optimized recursive engine as `inbreed()`, based on algorithms for large populations described by Meuwissen & Luo (1992) and Sargolzaei et al. (2005).
 
 ### 1.1 Supported Methods {#1-1}
 
@@ -544,7 +544,6 @@ compact matrix.
 ## References
 
 - Colleau, J. J. (2002). An indirect approach to the extensive calculation of relationship coefficients. *Genetics Selection Evolution*, 34, 409-421.
-- Colleau, J. J., Palhière, I., Rodríguez-Ramilo, S. T., & Legarra, A. (2017). A fast indirect method to compute functions of genomic relationships concerning genotyped and ungenotyped individuals, for diversity management. *Genetics Selection Evolution*, 49, 87.
 - Henderson, C. R. (1976). A simple method for computing the inverse of a numerator relationship matrix used in prediction of breeding values. *Biometrics*, 32(1), 69-83.
 - Meuwissen, T. H. E., & Luo, Z. (1992). Computing inbreeding coefficients in large populations. *Genetics Selection Evolution*, 24, 305-313.
 - Sargolzaei, M., Iwaisaki, H., & Colleau, J.-J. (2005). A fast algorithm for computing inbreeding coefficients in large populations. *Journal of Animal Breeding and Genetics*, 122, 325-331.
