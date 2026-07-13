@@ -194,6 +194,10 @@ test_that("visped parameter 'compact' works", {
   expect_true(all(grepl("^FS\u00d7[0-9]+$", compact_labels)))
   expect_true(all(grepl("^node_", real_labels)))
   expect_true(all(igraph::V(res_compact$g)[nodetype == "compact"]$shape == "rectangle"))
+  expect_equal(
+    igraph::V(res_compact$g)[nodetype == "compact"]$size2,
+    igraph::V(res_compact$g)[nodetype == "compact"]$size
+  )
   expect_true(all(
     igraph::V(res_compact$g)[nodetype == "compact"]$color == "#9cb383"
   ))

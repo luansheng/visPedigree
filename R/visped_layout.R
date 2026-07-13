@@ -235,7 +235,6 @@ prepare_ped_graph <- function(ped, compact = FALSE, outline = FALSE, cex = NULL,
       size2 = node_size_val,
       label.cex = current_cex
     )]
-    ped_igraph$node[nodetype == "compact", size2 := size * 0.6]
   }
 
   # Compute generation info for labels (using final layout coordinates)
