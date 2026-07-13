@@ -1,3 +1,12 @@
+#' Resolve generation-label text size
+#' @keywords internal
+resolve_visped_genlabcex <- function(node_size, genlabcex = NULL) {
+  if (!is.null(genlabcex)) {
+    return(genlabcex)
+  }
+  max(0.5, min(1.5, max(node_size, 1.5) * 0.3))
+}
+
 #' Render pedigree graph using Two-Pass strategy
 #' @importFrom igraph V E plot.igraph vertex_attr edge_attr
 #' @importFrom utils modifyList
@@ -113,17 +122,18 @@ plot_ped_igraph <- function(g, l, node_size, gen_info = NULL, genlab = FALSE,
 
   # PASS 3: Draw generation labels on the left margin
   if (genlab && !is.null(gen_info) && nrow(gen_info) > 0) {
-    gen_label_cex <- if (is.null(genlabcex)) {
-      max(0.5, min(1.5, scaling_ref * 0.3))
-    } else {
-      genlabcex
-    }
+    gen_label_cex <- resolve_visped_genlabcex(node_size, genlabcex)
     gen_label_x <- -margin - genlab_space * 0.5
+    gen_labels <- if ("label" %in% names(gen_info)) {
+      gen_info$label
+    } else {
+      paste0("G", gen_info$gen)
+    }
     for (i in seq_len(nrow(gen_info))) {
       graphics::text(
         x = gen_label_x,
         y = gen_info$y[i],
-        labels = paste0("G", gen_info$gen[i]),
+        labels = gen_labels[i],
         cex = gen_label_cex,
         col = genlab_color,
         font = 2,

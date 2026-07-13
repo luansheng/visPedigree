@@ -46,6 +46,48 @@ prepare_visped_labels <- function(ped, labelvar) {
   list(ped = ped, label_column = label_column)
 }
 
+#' Normalize generation-label display settings
+#' @keywords internal
+prepare_visped_genlab <- function(genlab) {
+  if (is.logical(genlab) && length(genlab) == 1L && !is.na(genlab)) {
+    return(list(show = genlab, labels = NULL))
+  }
+
+  if (is.character(genlab) && length(genlab) > 0L) {
+    if (anyNA(genlab) || any(!nzchar(genlab))) {
+      stop("Custom 'genlab' labels must not be NA or empty strings.")
+    }
+
+    label_names <- names(genlab)
+    if (!is.null(label_names) && any(!is.na(label_names) & nzchar(label_names))) {
+      stop("Custom 'genlab' labels must be an unnamed character vector.")
+    }
+
+    return(list(show = TRUE, labels = unname(genlab)))
+  }
+
+  stop(
+    "'genlab' must be TRUE, FALSE, or a non-empty unnamed character vector."
+  )
+}
+
+#' Attach display labels to the final plotted generation layers
+#' @keywords internal
+prepare_visped_geninfo <- function(gen_info, labels = NULL) {
+  gen_info <- copy(gen_info)
+
+  if (!is.null(labels) && length(labels) != nrow(gen_info)) {
+    stop(sprintf(
+      "Custom 'genlab' labels must have one label for each displayed generation (%d), not %d.",
+      nrow(gen_info),
+      length(labels)
+    ))
+  }
+
+  gen_info[, label := if (is.null(labels)) paste0("G", gen) else labels]
+  return(gen_info[])
+}
+
 #' Visualize a tidy pedigree
 #'
 #' \code{visped} function draws a graph of a full or compact pedigree.
@@ -104,8 +146,15 @@ prepare_visped_labels <- function(ped, labelvar) {
 #' @param pagewidth A numeric value specifying the width of the PDF file in inches. This controls the horizontal scaling of the layout. The default value is 200.
 #' @param symbolsize A numeric value specifying the scaling factor for node size relative to the label size. Values greater than 1 increase the node size (adding padding around the label), while values less than 1 decrease it. This is useful for fine-tuning the whitespace and legibility of dense graphs. The default value is 1.
 #' @param maxiter An integer specifying the maximum number of iterations for the Sugiyama layout algorithm to minimize edge crossings. Higher values (e.g., 2000 or 5000) may result in fewer crossed lines for complex pedigrees but will increase computation time. The default value is 1000.
-#' @param genlab A logical value indicating whether generation labels (G1, G2, ...) will be drawn on the left margin of the pedigree graph. This helps identify the generation of each row of nodes, especially in deep pedigrees with many generations. The default value is FALSE.
-#' @param genlabcex NULL or a numeric value controlling the size of generation labels shown when \code{genlab = TRUE}. If \code{NULL}, \code{visped()} uses an automatic size based on node scaling. Set a larger value to keep generation labels readable in deep pedigrees. The default value is NULL.
+#' @param genlab FALSE to omit generation labels; TRUE to draw the default
+#'   labels G1, G2, ...; or an unnamed, non-empty character vector of custom
+#'   labels. Custom labels are assigned from top to bottom to the final
+#'   displayed generation layers and must contain exactly one label per layer.
+#'   The default value is FALSE.
+#' @param genlabcex NULL or a numeric value controlling the size of displayed
+#'   generation labels. If \code{NULL}, \code{visped()} uses an automatic size
+#'   based on node scaling. Set a larger value to keep generation labels
+#'   readable in deep pedigrees. The default value is NULL.
 #' @param ... Additional arguments passed to \code{\link[igraph:plot.igraph]{plot.igraph}}.
 #' @return The function mainly produces a plot on the current graphics device and/or a vector file. It invisibly returns a list containing the graph object, layout coordinates, and node sizes.
 #'
@@ -126,6 +175,14 @@ prepare_visped_labels <- function(ped, labelvar) {
 #' visped(simple_ped_tidy, 
 #'        cex=0.25, 
 #'        symbolsize=5.5)
+#'
+#' # Use application-specific labels for the displayed generations.
+#' # Custom labels are assigned from top to bottom.
+#' generation_labels <- paste("Generation", sort(unique(simple_ped_tidy$Gen)))
+#' visped(simple_ped_tidy,
+#'        genlab = generation_labels,
+#'        cex = 0.25,
+#'        symbolsize = 5.5)
 #'
 #' # Highlighting an individual and its ancestors and descendants
 #' visped(simple_ped_tidy, 
@@ -226,6 +283,7 @@ visped <- function(
   label_info <- prepare_visped_labels(ped, labelvar)
   ped <- label_info$ped
   label_column <- label_info$label_column
+  genlab_info <- prepare_visped_genlab(genlab)
 
   # Automatically convert raw data to tidyped object if needed.
   # If the object already looks like a tidyped pedigree but only lost its class,
@@ -324,10 +382,6 @@ visped <- function(
     stop("'maxiter' must be a single positive integer.")
   }
   maxiter <- as.integer(maxiter)
-
-  if (!isTRUE(genlab) && !isFALSE(genlab)) {
-    stop("'genlab' must be TRUE or FALSE.")
-  }
 
   if (
     !is.null(genlabcex) &&
@@ -434,6 +488,12 @@ visped <- function(
   g <- graph_data$g
   l <- graph_data$layout
   node_size <- graph_data$node_size
+  if (genlab_info$show) {
+    graph_data$gen_info <- prepare_visped_geninfo(
+      graph_data$gen_info,
+      genlab_info$labels
+    )
+  }
 
   #===Draw the pedigree================================================================
   if (showgraph) {
@@ -442,7 +502,7 @@ visped <- function(
       l,
       node_size,
       gen_info = graph_data$gen_info,
-      genlab = genlab,
+      genlab = genlab_info$show,
       genlabcex = genlabcex,
       ...
     )
@@ -463,7 +523,7 @@ visped <- function(
       l,
       node_size,
       gen_info = graph_data$gen_info,
-      genlab = genlab,
+      genlab = genlab_info$show,
       genlabcex = genlabcex,
       ...
     )
@@ -478,12 +538,28 @@ visped <- function(
 
   if ((showgraph || !is.null(file)) && !outline) {
     current_cex <- if (is.null(cex)) graph_data$best_cex else cex
+    current_genlabcex <- if (
+      genlab_info$show &&
+        !is.null(graph_data$gen_info) &&
+        nrow(graph_data$gen_info) > 0L
+    ) {
+      resolve_visped_genlabcex(node_size, genlabcex)
+    } else {
+      NULL
+    }
     message(paste(
       "Label cex: ",
       current_cex,
       ". Symbol size: ",
       symbolsize,
-      ". Adjust 'cex' and 'symbolsize' if labels are too large or small.",
+      if (!is.null(current_genlabcex)) {
+        paste0(". Generation label cex: ", current_genlabcex)
+      },
+      if (!is.null(current_genlabcex)) {
+        ". Adjust 'cex', 'symbolsize', and 'genlabcex' if labels are too large or small."
+      } else {
+        ". Adjust 'cex' and 'symbolsize' if labels are too large or small."
+      },
       sep = ""
     ))
   }

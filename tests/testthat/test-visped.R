@@ -42,6 +42,66 @@ test_that("visped writes SVG output when requested", {
   expect_gt(file.info(svg_file)$size, 0)
 })
 
+test_that("visped supports custom generation labels in displayed-layer order", {
+  tidy_ped <- tidyped(simple_ped, addgen = TRUE, addnum = TRUE)
+  default_info <- visPedigree:::prepare_visped_geninfo(
+    data.table(gen = c(1L, 3L, 5L), y = c(0.1, 0.5, 0.9))
+  )
+  custom_info <- visPedigree:::prepare_visped_geninfo(
+    data.table(gen = c(1L, 3L, 5L), y = c(0.1, 0.5, 0.9)),
+    c("Founders", "Cycle 1", "Current")
+  )
+
+  expect_equal(default_info$label, c("G1", "G3", "G5"))
+  expect_equal(custom_info$label, c("Founders", "Cycle 1", "Current"))
+
+  custom_labels <- paste0("Layer ", seq_len(length(unique(tidy_ped$Gen))))
+  expect_silent(
+    suppressMessages(visped(
+      tidy_ped,
+      genlab = custom_labels,
+      showgraph = FALSE,
+      file = tempfile(fileext = ".pdf")
+    ))
+  )
+})
+
+test_that("visped validates custom generation labels", {
+  tidy_ped <- tidyped(simple_ped, addgen = TRUE, addnum = TRUE)
+
+  expect_error(
+    visped(tidy_ped, genlab = c("one", "two"), showgraph = FALSE, file = tempfile()),
+    "one label for each displayed generation"
+  )
+  expect_error(
+    visped(tidy_ped, genlab = c("1" = "Founders"), showgraph = FALSE, file = tempfile()),
+    "unnamed character vector"
+  )
+  expect_error(
+    visped(tidy_ped, genlab = character(), showgraph = FALSE, file = tempfile()),
+    "TRUE, FALSE, or a non-empty unnamed character vector"
+  )
+  expect_error(
+    visped(tidy_ped, genlab = 1, showgraph = FALSE, file = tempfile()),
+    "TRUE, FALSE, or a non-empty unnamed character vector"
+  )
+})
+
+test_that("visped reports the effective generation-label cex", {
+  tidy_ped <- tidyped(simple_ped, addgen = TRUE, addnum = TRUE)
+
+  expect_message(
+    visped(
+      tidy_ped,
+      genlab = TRUE,
+      genlabcex = 1.2,
+      showgraph = FALSE,
+      file = tempfile(fileext = ".pdf")
+    ),
+    "Generation label cex: 1.2"
+  )
+})
+
 test_that("visped supports custom individual labels", {
   tidy_ped <- tidyped(simple_ped, addgen = TRUE, addnum = TRUE)
   tidy_ped[, DisplayID := paste0("node_", seq_len(.N))]

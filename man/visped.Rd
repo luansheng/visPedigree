@@ -75,9 +75,16 @@ individuals. Compact family summaries are rectangles in both modes.}
 
 \item{maxiter}{An integer specifying the maximum number of iterations for the Sugiyama layout algorithm to minimize edge crossings. Higher values (e.g., 2000 or 5000) may result in fewer crossed lines for complex pedigrees but will increase computation time. The default value is 1000.}
 
-\item{genlab}{A logical value indicating whether generation labels (G1, G2, ...) will be drawn on the left margin of the pedigree graph. This helps identify the generation of each row of nodes, especially in deep pedigrees with many generations. The default value is FALSE.}
+\item{genlab}{FALSE to omit generation labels; TRUE to draw the default
+labels G1, G2, ...; or an unnamed, non-empty character vector of custom
+labels. Custom labels are assigned from top to bottom to the final
+displayed generation layers and must contain exactly one label per layer.
+The default value is FALSE.}
 
-\item{genlabcex}{NULL or a numeric value controlling the size of generation labels shown when \code{genlab = TRUE}. If \code{NULL}, \code{visped()} uses an automatic size based on node scaling. Set a larger value to keep generation labels readable in deep pedigrees. The default value is NULL.}
+\item{genlabcex}{NULL or a numeric value controlling the size of displayed
+generation labels. If \code{NULL}, \code{visped()} uses an automatic size
+based on node scaling. Set a larger value to keep generation labels
+readable in deep pedigrees. The default value is NULL.}
 
 \item{...}{Additional arguments passed to \code{\link[igraph:plot.igraph]{plot.igraph}}.}
 }
@@ -117,6 +124,14 @@ simple_ped_tidy <- tidyped(simple_ped)
 visped(simple_ped_tidy, 
        cex=0.25, 
        symbolsize=5.5)
+
+# Use application-specific labels for the displayed generations.
+# Custom labels are assigned from top to bottom.
+generation_labels <- paste("Generation", sort(unique(simple_ped_tidy$Gen)))
+visped(simple_ped_tidy,
+       genlab = generation_labels,
+       cex = 0.25,
+       symbolsize = 5.5)
 
 # Highlighting an individual and its ancestors and descendants
 visped(simple_ped_tidy, 
