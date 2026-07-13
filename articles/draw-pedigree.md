@@ -56,7 +56,7 @@ visped(tidy_small_ped,
         cex=0.5, 
         symbolsize=10, 
         file = tempfile(fileext = ".pdf"))
-#> Pedigree saved to: /tmp/RtmpXpQeTr/file2093506a9c4b.pdf
+#> Pedigree saved to: /tmp/RtmpxyGeRJ/file206710b9c0db.pdf
 #> Label cex: 0.5. Symbol size: 10. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 ```
 
@@ -139,9 +139,9 @@ generations in overlapping cohorts.
 
 ``` r
 
-generation_labels <- paste("Generation", sort(unique(tidy_simple_ped$Gen)))
-visped(tidy_simple_ped, cex = 0.3, symbolsize = 10, genlab = generation_labels)
-#> Label cex: 0.3. Symbol size: 10. Generation label cex: 0.909090909. Adjust 'cex', 'symbolsize', and 'genlabcex' if labels are too large or small.
+generation_labels <- paste0("Gen_", sort(unique(tidy_simple_ped$Gen)))
+visped(tidy_simple_ped, cex = 0.3, symbolsize = 10, genlab = generation_labels, genlabcex=0.6)
+#> Label cex: 0.3. Symbol size: 10. Generation label cex: 0.6. Adjust 'cex', 'symbolsize', and 'genlabcex' if labels are too large or small.
 #> Tip: Use 'file' to save as a legible vector PDF or SVG.
 ```
 
@@ -156,8 +156,8 @@ individuals, you can still keep the generation labels readable:
 ``` r
 
 # cex controls individual label size; genlabcex controls generation label size
-visped(tidy_simple_ped, cex = 0.3, symbolsize = 10, genlab = TRUE, genlabcex = 1.2)
-#> Label cex: 0.3. Symbol size: 10. Generation label cex: 1.2. Adjust 'cex', 'symbolsize', and 'genlabcex' if labels are too large or small.
+visped(tidy_simple_ped, cex = 0.3, symbolsize = 15, genlab = TRUE, genlabcex = 0.8)
+#> Label cex: 0.3. Symbol size: 15. Generation label cex: 0.8. Adjust 'cex', 'symbolsize', and 'genlabcex' if labels are too large or small.
 #> Tip: Use 'file' to save as a legible vector PDF or SVG.
 ```
 
@@ -384,7 +384,7 @@ visped(
   showgraph = TRUE,
   file = tempfile(fileext = ".pdf")
 )
-#> Pedigree saved to: /tmp/RtmpXpQeTr/file2093777c5a9a.pdf
+#> Pedigree saved to: /tmp/RtmpxyGeRJ/file2067411f5865.pdf
 #> Label cex: 0.08. Symbol size: 5.5. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 ```
 
@@ -416,7 +416,7 @@ visped(
   showgraph = FALSE,
   file = tempfile(fileext = ".pdf")
 )
-#> Pedigree saved to: /tmp/RtmpXpQeTr/file20935333aabf.pdf
+#> Pedigree saved to: /tmp/RtmpxyGeRJ/file20676e111c4a.pdf
 #> Label cex: 0.83. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 ```
 
