@@ -25,8 +25,14 @@
     to compute $`Ax`$, $`AX`$, $`A^{-1}x`$, and $`A^{-1}X`$ directly
     from a complete pedigree. The implementation uses the $`A = TDT'`$
     factorization and avoids materializing the dense additive
-    relationship matrix. \## Improvements
-5.  **Matrix-free
+    relationship matrix.
+5.  **[`visped()`](https://luansheng.github.io/visPedigree/reference/visped.md)
+    custom generation labels**: `genlab` now also accepts an unnamed
+    character vector, assigning one user-provided label to each
+    displayed generation from top to bottom. The existing logical values
+    retain their behavior: `TRUE` draws the default `G1`, `G2`, … labels
+    and `FALSE` omits them. \## Improvements
+6.  **Matrix-free
     [`pedrel()`](https://luansheng.github.io/visPedigree/reference/pedrel.md)
     summaries**:
     [`pedrel()`](https://luansheng.github.io/visPedigree/reference/pedrel.md)
@@ -34,7 +40,7 @@
     batched $`Ag`$ products. It traces the union of selected ancestors
     once and no longer constructs or scans a dense relationship matrix
     for each group.
-6.  **Large-group support in
+7.  **Large-group support in
     [`pedrel()`](https://luansheng.github.io/visPedigree/reference/pedrel.md)**:
     The former dense and compact matrix size guards are no longer
     needed. The development-only `force`, `max_dense`, and `max_compact`
@@ -42,7 +48,7 @@
     as a backward-compatible no-op argument. `Status` and `Message`
     continue to identify groups skipped because fewer than two
     individuals were selected or groups that failed during tracing.
-7.  **Matrix-free coancestry analyses**: `pedne(method = "coancestry")`
+8.  **Matrix-free coancestry analyses**: `pedne(method = "coancestry")`
     now obtains sampled pair relationships from batched $`AX`$ products
     instead of constructing a dense triangular relationship matrix.
     [`pediv()`](https://luansheng.github.io/visPedigree/reference/pediv.md)
@@ -50,28 +56,28 @@
     while
     [`pedhalflife()`](https://luansheng.github.io/visPedigree/reference/pedhalflife.md)
     requests only the $`f_g`$ statistic it needs.
-8.  **Matrix-free grouped heatmaps**: `vismat(tidyped_object, by = ...)`
+9.  **Matrix-free grouped heatmaps**: `vismat(tidyped_object, by = ...)`
     now computes grouped additive relationships as $`W' A W`$ without
     first constructing the full individual-level relationship matrix.
-9.  **Clearer compact full-sib family summaries in
+10. **Clearer compact full-sib family summaries in
     [`visped()`](https://luansheng.github.io/visPedigree/reference/visped.md)**:
     Compact full-sib family labels now use the explicit `FS×N` form
     instead of a bare number, avoiding confusion with an individual ID.
     Compact family summaries use a green-grey fill with a darker frame,
     while unknown-sex individuals use a neutral-grey fill with a grey
     frame. \## Bug fixes
-10. **Selfing in `Ainv`**: Corrected the sire-dam diagonal cross-term in
+11. **Selfing in `Ainv`**: Corrected the sire-dam diagonal cross-term in
     Henderson’s inverse construction when the sire and dam are the same
     individual. `pedmat(method = "Ainv")` now remains the numerical
     inverse of `A` for pedigrees created with `selfing = TRUE`. \##
     Documentation
-11. **Plant pedigree example in `tidy-pedigree` vignette**: Added
+12. **Plant pedigree example in `tidy-pedigree` vignette**: Added
     section 3.9 demonstrating `selfing = TRUE` for monoecious species,
     including sex inference, inbreeding coefficients under
     self-fertilization, and the
     [`summary()`](https://rdrr.io/r/base/summary.html) output for plant
     pedigrees.
-12. **Plant pedigree visualization in `draw-pedigree` vignette**: Added
+13. **Plant pedigree visualization in `draw-pedigree` vignette**: Added
     section 1.1.3 showing a multi-generation self-pollinating pedigree
     with
     [`visped()`](https://luansheng.github.io/visPedigree/reference/visped.md).

@@ -57,6 +57,8 @@
 <url><loc>https://luansheng.github.io/visPedigree/reference/plot_ped_igraph.html</loc></url>
 <url><loc>https://luansheng.github.io/visPedigree/reference/prepare_initial_nodes.html</loc></url>
 <url><loc>https://luansheng.github.io/visPedigree/reference/prepare_ped_graph.html</loc></url>
+<url><loc>https://luansheng.github.io/visPedigree/reference/prepare_visped_geninfo.html</loc></url>
+<url><loc>https://luansheng.github.io/visPedigree/reference/prepare_visped_genlab.html</loc></url>
 <url><loc>https://luansheng.github.io/visPedigree/reference/prepare_visped_labels.html</loc></url>
 <url><loc>https://luansheng.github.io/visPedigree/reference/print.pedcontrib.html</loc></url>
 <url><loc>https://luansheng.github.io/visPedigree/reference/print.pediv.html</loc></url>
@@ -66,6 +68,7 @@
 <url><loc>https://luansheng.github.io/visPedigree/reference/query_relationship.html</loc></url>
 <url><loc>https://luansheng.github.io/visPedigree/reference/repeloverlap.html</loc></url>
 <url><loc>https://luansheng.github.io/visPedigree/reference/require_complete_pedigree.html</loc></url>
+<url><loc>https://luansheng.github.io/visPedigree/reference/resolve_visped_genlabcex.html</loc></url>
 <url><loc>https://luansheng.github.io/visPedigree/reference/simple_ped.html</loc></url>
 <url><loc>https://luansheng.github.io/visPedigree/reference/small_ped.html</loc></url>
 <url><loc>https://luansheng.github.io/visPedigree/reference/splitped.html</loc></url>

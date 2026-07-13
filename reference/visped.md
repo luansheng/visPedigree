@@ -169,17 +169,18 @@ visped(
 
 - genlab:
 
-  A logical value indicating whether generation labels (G1, G2, ...)
-  will be drawn on the left margin of the pedigree graph. This helps
-  identify the generation of each row of nodes, especially in deep
-  pedigrees with many generations. The default value is FALSE.
+  FALSE to omit generation labels; TRUE to draw the default labels G1,
+  G2, ...; or an unnamed, non-empty character vector of custom labels.
+  Custom labels are assigned from top to bottom to the final displayed
+  generation layers and must contain exactly one label per layer. The
+  default value is FALSE.
 
 - genlabcex:
 
-  NULL or a numeric value controlling the size of generation labels
-  shown when `genlab = TRUE`. If `NULL`, `visped()` uses an automatic
-  size based on node scaling. Set a larger value to keep generation
-  labels readable in deep pedigrees. The default value is NULL.
+  NULL or a numeric value controlling the size of displayed generation
+  labels. If `NULL`, `visped()` uses an automatic size based on node
+  scaling. Set a larger value to keep generation labels readable in deep
+  pedigrees. The default value is NULL.
 
 - ...:
 
@@ -261,6 +262,17 @@ visped(simple_ped_tidy,
 #> Label cex: 0.25. Symbol size: 5.5. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 #> Tip: Use 'file' to save as a legible vector PDF or SVG.
 
+# Use application-specific labels for the displayed generations.
+# Custom labels are assigned from top to bottom.
+generation_labels <- paste("Generation", sort(unique(simple_ped_tidy$Gen)))
+visped(simple_ped_tidy,
+       genlab = generation_labels,
+       cex = 0.25,
+       symbolsize = 5.5)
+
+#> Label cex: 0.25. Symbol size: 5.5. Generation label cex: 0.909090909. Adjust 'cex', 'symbolsize', and 'genlabcex' if labels are too large or small.
+#> Tip: Use 'file' to save as a legible vector PDF or SVG.
+
 # Highlighting an individual and its ancestors and descendants
 visped(simple_ped_tidy, 
        highlight = "J5X804", 
@@ -309,7 +321,7 @@ visped(simple_ped_tidy,
        symbolsize=5.5, 
        pagewidth = 100, 
        file = tempfile(fileext = ".pdf"))
-#> Pedigree saved to: /tmp/RtmpJLQ9WH/file1c716f33d2d.pdf
+#> Pedigree saved to: /tmp/RtmpjDG1hr/file1c2c66e4b61f.pdf
 #> Label cex: 0.25. Symbol size: 5.5. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 
 
@@ -319,7 +331,7 @@ visped(simple_ped_tidy,
        symbolsize=1,
        pagewidth = 100,
        file = tempfile(fileext = ".svg"))
-#> Pedigree saved to: /tmp/RtmpJLQ9WH/file1c71f0083e7.svg
+#> Pedigree saved to: /tmp/RtmpjDG1hr/file1c2c2632e583.svg
 #> Label cex: 0.8. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 
 
@@ -349,7 +361,7 @@ visped(big_ped_tidy,
        symbolsize=5.5, 
        file = tempfile(fileext = ".pdf"))
 #> Note: Removed 351 isolated individuals (no parents, no progeny) from the plot.
-#> Pedigree saved to: /tmp/RtmpJLQ9WH/file1c712fc7e073.pdf
+#> Pedigree saved to: /tmp/RtmpjDG1hr/file1c2c6092cac9.pdf
 #> Label cex: 0.08. Symbol size: 5.5. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 
 
@@ -359,7 +371,7 @@ visped(big_ped_tidy,
        outline = TRUE, 
        file = tempfile(fileext = ".pdf"))
 #> Note: Removed 351 isolated individuals (no parents, no progeny) from the plot.
-#> Pedigree saved to: /tmp/RtmpJLQ9WH/file1c713a03bc20.pdf
+#> Pedigree saved to: /tmp/RtmpjDG1hr/file1c2c3bdb8a7f.pdf
 
 # }
 ```

@@ -56,7 +56,7 @@ visped(tidy_small_ped,
         cex=0.5, 
         symbolsize=10, 
         file = tempfile(fileext = ".pdf"))
-#> Pedigree saved to: /tmp/RtmpTrrVGW/file20a4454d20a8.pdf
+#> Pedigree saved to: /tmp/RtmpXpQeTr/file2093506a9c4b.pdf
 #> Label cex: 0.5. Symbol size: 10. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 ```
 
@@ -124,11 +124,28 @@ want to quickly identify the generation of each row.
 ``` r
 
 visped(tidy_simple_ped, cex = 0.3, symbolsize = 10, genlab = TRUE)
-#> Label cex: 0.3. Symbol size: 10. Adjust 'cex' and 'symbolsize' if labels are too large or small.
+#> Label cex: 0.3. Symbol size: 10. Generation label cex: 0.909090909. Adjust 'cex', 'symbolsize', and 'genlabcex' if labels are too large or small.
 #> Tip: Use 'file' to save as a legible vector PDF or SVG.
 ```
 
 ![](draw-pedigree_files/figure-html/vissimpleped_genlab-1.png)
+
+Instead of the default `G1`, `G2`, … labels, an unnamed character vector
+can provide one custom label for each displayed generation, from top to
+bottom. This is useful when the plotted pedigree layers have an
+application-specific interpretation. The labels are not inferred from a
+birth-year column, which may not correspond one-to-one with pedigree
+generations in overlapping cohorts.
+
+``` r
+
+generation_labels <- paste("Generation", sort(unique(tidy_simple_ped$Gen)))
+visped(tidy_simple_ped, cex = 0.3, symbolsize = 10, genlab = generation_labels)
+#> Label cex: 0.3. Symbol size: 10. Generation label cex: 0.909090909. Adjust 'cex', 'symbolsize', and 'genlabcex' if labels are too large or small.
+#> Tip: Use 'file' to save as a legible vector PDF or SVG.
+```
+
+![](draw-pedigree_files/figure-html/vissimpleped_custom_genlab-1.png)
 
 In deep pedigrees the generation labels may appear small because their
 size is tied to the node scaling. The `genlabcex` parameter lets you set
@@ -140,7 +157,7 @@ individuals, you can still keep the generation labels readable:
 
 # cex controls individual label size; genlabcex controls generation label size
 visped(tidy_simple_ped, cex = 0.3, symbolsize = 10, genlab = TRUE, genlabcex = 1.2)
-#> Label cex: 0.3. Symbol size: 10. Adjust 'cex' and 'symbolsize' if labels are too large or small.
+#> Label cex: 0.3. Symbol size: 10. Generation label cex: 1.2. Adjust 'cex', 'symbolsize', and 'genlabcex' if labels are too large or small.
 #> Tip: Use 'file' to save as a legible vector PDF or SVG.
 ```
 
@@ -367,7 +384,7 @@ visped(
   showgraph = TRUE,
   file = tempfile(fileext = ".pdf")
 )
-#> Pedigree saved to: /tmp/RtmpTrrVGW/file20a42d042c32.pdf
+#> Pedigree saved to: /tmp/RtmpXpQeTr/file2093777c5a9a.pdf
 #> Label cex: 0.08. Symbol size: 5.5. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 ```
 
@@ -399,7 +416,7 @@ visped(
   showgraph = FALSE,
   file = tempfile(fileext = ".pdf")
 )
-#> Pedigree saved to: /tmp/RtmpTrrVGW/file20a4773c82ed.pdf
+#> Pedigree saved to: /tmp/RtmpXpQeTr/file20935333aabf.pdf
 #> Label cex: 0.83. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 ```
 
