@@ -1,12 +1,20 @@
 ## Test environments
-* local macOS Tahoe 26.3, R 4.5.2
-* local `devtools::test()`: PASS / 0 FAIL / 0 SKIP
+* local macOS Tahoe 26.3, R 4.5.2, Apple clang 17.0.0
+* `devtools::test()`: PASS / 0 FAIL / 0 SKIP
 
 ## R CMD check results
 
 * local `R CMD build` + `R CMD check --as-cran`
-* 0 errors | 0 warnings | 0 notes
-* `pdflatex` is not available locally, so the check ran as `--no-manual`.
+* 0 errors | 0 warnings | 0 notes (with `--no-manual`)
+* `pdflatex` is not available locally, so the PDF manual check produces
+  1 ERROR + 1 WARNING — these are local-environment issues only and do not
+  reflect package defects. CRAN's build machines have pdflatex available.
+* Tarball size is approximately 7.4 MB, above the typical 5 MB threshold.
+  The size is due to (1) two vignettes (`draw-pedigree` and
+  `relationship-matrix`) with pedigree visualizations and heatmaps rendered
+  at 300 DPI for publication-quality output, and (2) the `big_family_size_ped`
+  example dataset (473 KB) for demonstrating large-pedigree scaling.
+  The compiled C++ source also contributes to the package footprint.
 
 This is an update from CRAN version 1.8.1 to 1.9.0.
 

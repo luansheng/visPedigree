@@ -171,7 +171,7 @@ D <- pedmat(tped, method = "D")
 AA <- pedmat(tped, method = "AA")
 
 # --- Visualization (requires display device) ---
-\dontrun{
+\donttest{
 vismat(A)                       # Heatmap of relationship matrix
 vismat(A_compact)               # Works with compact matrices
 vismat(A, by = "Gen")     # Group by generation

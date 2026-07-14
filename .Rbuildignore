@@ -2,6 +2,7 @@
 ^renv\.lock$
 ^renv
 # --- 开发工具配置 ---
+^\.claude$
 ^\.Rprofile$
 ^\.Renviron$
 ^Makefile$
@@ -42,8 +43,8 @@
 
 # --- 开发过程产生的临时文件 ---
 ^Rplots\.pdf$
-^.*\.pdf$
-^.*\.png$
+^[^/]*\.pdf$
+^[^/]*\.png$
 ^man/figures/.*\.png$
 ^sandbox$
 ^Positron\.md$

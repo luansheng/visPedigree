@@ -1,9 +1,9 @@
-# visPedigree: Tidying, Analysis, and Fast Visualization of Animal and Plant Pedigrees <img src="man/figures/logo.png" align="right" height="138" alt="" />
+# visPedigree: Tidying, Analysis, and Fast Visualization of Animal and Plant Pedigrees <img src="https://raw.githubusercontent.com/luansheng/visPedigree/main/man/figures/logo.png" align="right" height="138" alt="" />
 
 `visPedigree` provides tools for the analysis and visualization of animal and plant pedigrees. Analytical methods cover equivalent complete generations, generation intervals, effective population size, founder and ancestor contributions, partial inbreeding, genetic diversity indices, and relationship matrices (A, D, AA). Core algorithms — ancestry tracing, topological sorting, inbreeding coefficients, and matrix construction — are implemented in C++ (Rcpp/RcppArmadillo) and `data.table`, scaling to pedigrees with over one million individuals. Pedigree graphs are rendered via `igraph`; relationship matrices can be visualized as heatmaps. Complex mating systems are supported, including selfing and pedigrees in which the same individual can appear as both sire and dam.
 
 <p align="center">
-  <img src="man/figures/ped_example.png" width="800" alt="Example pedigree visualization produced by visPedigree">
+  <img src="https://raw.githubusercontent.com/luansheng/visPedigree/main/man/figures/ped_example.png" width="800" alt="Example pedigree visualization produced by visPedigree">
 </p>
 
 ## Key Features
