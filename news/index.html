@@ -53,8 +53,11 @@
 <li>
 <strong>Matrix-free relationship products</strong>: Added <code><a href="../reference/pedprod.html">pedprod()</a></code> to compute <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mi>x</mi></mrow><annotation encoding="application/x-tex">Ax</annotation></semantics></math>, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mi>X</mi></mrow><annotation encoding="application/x-tex">AX</annotation></semantics></math>, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>A</mi><mrow><mi>−</mi><mn>1</mn></mrow></msup><mi>x</mi></mrow><annotation encoding="application/x-tex">A^{-1}x</annotation></semantics></math>, and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>A</mi><mrow><mi>−</mi><mn>1</mn></mrow></msup><mi>X</mi></mrow><annotation encoding="application/x-tex">A^{-1}X</annotation></semantics></math> directly from a complete pedigree. The implementation uses the <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mo>=</mo><mi>T</mi><mi>D</mi><msup><mi>T</mi><mo>′</mo></msup></mrow><annotation encoding="application/x-tex">A = TDT'</annotation></semantics></math> factorization and avoids materializing the dense additive relationship matrix.</li>
 <li>
-<strong><code><a href="../reference/visped.html">visped()</a></code> custom generation labels</strong>: <code>genlab</code> now also accepts an unnamed character vector, assigning one user-provided label to each displayed generation from top to bottom. The existing logical values retain their behavior: <code>TRUE</code> draws the default <code>G1</code>, <code>G2</code>, … labels and <code>FALSE</code> omits them. ## Improvements</li>
-<li>
+<strong><code><a href="../reference/visped.html">visped()</a></code> custom generation labels</strong>: <code>genlab</code> now also accepts an unnamed character vector, assigning one user-provided label to each displayed generation from top to bottom. The existing logical values retain their behavior: <code>TRUE</code> draws the default <code>G1</code>, <code>G2</code>, … labels and <code>FALSE</code> omits them.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="improvements-1-9-0">Improvements<a class="anchor" aria-label="anchor" href="#improvements-1-9-0"></a></h3>
+<ol style="list-style-type: decimal"><li>
 <strong>Matrix-free <code><a href="../reference/pedrel.html">pedrel()</a></code> summaries</strong>: <code><a href="../reference/pedrel.html">pedrel()</a></code> now computes grouped mean relationships and coancestries from batched <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mi>g</mi></mrow><annotation encoding="application/x-tex">Ag</annotation></semantics></math> products. It traces the union of selected ancestors once and no longer constructs or scans a dense relationship matrix for each group.</li>
 <li>
 <strong>Large-group support in <code><a href="../reference/pedrel.html">pedrel()</a></code></strong>: The former dense and compact matrix size guards are no longer needed. The development-only <code>force</code>, <code>max_dense</code>, and <code>max_compact</code> no-op arguments were removed before release, while <code>compact</code> remains as a backward-compatible no-op argument. <code>Status</code> and <code>Message</code> continue to identify groups skipped because fewer than two individuals were selected or groups that failed during tracing.</li>
@@ -63,10 +66,16 @@
 <li>
 <strong>Matrix-free grouped heatmaps</strong>: <code>vismat(tidyped_object, by = ...)</code> now computes grouped additive relationships as <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>W</mi><mo>′</mo></msup><mi>A</mi><mi>W</mi></mrow><annotation encoding="application/x-tex">W' A W</annotation></semantics></math> without first constructing the full individual-level relationship matrix.</li>
 <li>
-<strong>Clearer compact full-sib family summaries in <code><a href="../reference/visped.html">visped()</a></code></strong>: Compact full-sib family labels now use the explicit <code>FS×N</code> form instead of a bare number, avoiding confusion with an individual ID. Compact family summaries use a green-grey fill with a darker frame, while unknown-sex individuals use a neutral-grey fill with a grey frame. ## Bug fixes</li>
-<li>
-<strong>Selfing in <code>Ainv</code></strong>: Corrected the sire-dam diagonal cross-term in Henderson’s inverse construction when the sire and dam are the same individual. <code>pedmat(method = "Ainv")</code> now remains the numerical inverse of <code>A</code> for pedigrees created with <code>selfing = TRUE</code>. ## Documentation</li>
-<li>
+<strong>Clearer compact full-sib family summaries in <code><a href="../reference/visped.html">visped()</a></code></strong>: Compact full-sib family labels now use the explicit <code>FS×N</code> form instead of a bare number, avoiding confusion with an individual ID. Compact family summaries use a green-grey fill with a darker frame, while unknown-sex individuals use a neutral-grey fill with a grey frame.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="bug-fixes-1-9-0">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-1-9-0"></a></h3>
+<ol style="list-style-type: decimal"><li>
+<strong>Selfing in <code>Ainv</code></strong>: Corrected the sire-dam diagonal cross-term in Henderson’s inverse construction when the sire and dam are the same individual. <code>pedmat(method = "Ainv")</code> now remains the numerical inverse of <code>A</code> for pedigrees created with <code>selfing = TRUE</code>.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="documentation-1-9-0">Documentation<a class="anchor" aria-label="anchor" href="#documentation-1-9-0"></a></h3>
+<ol style="list-style-type: decimal"><li>
 <strong>Plant pedigree example in <code>tidy-pedigree</code> vignette</strong>: Added section 3.9 demonstrating <code>selfing = TRUE</code> for monoecious species, including sex inference, inbreeding coefficients under self-fertilization, and the <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> output for plant pedigrees.</li>
 <li>
 <strong>Plant pedigree visualization in <code>draw-pedigree</code> vignette</strong>: Added section 1.1.3 showing a multi-generation self-pollinating pedigree with <code><a href="../reference/visped.html">visped()</a></code>. Monoecious individuals are drawn as hexagons with teal edges, selfing edges are shown in teal, and inbreeding coefficients are displayed with <code>showf = TRUE</code>.</li>
@@ -77,8 +86,11 @@
 <div class="section level3">
 <h3 id="new-features-1-8-1">New features<a class="anchor" aria-label="anchor" href="#new-features-1-8-1"></a></h3>
 <ol style="list-style-type: decimal"><li>
-<strong><code><a href="../reference/visped.html">visped()</a></code> generation labels</strong>: Added a <code>genlab</code> argument to <code><a href="../reference/visped.html">visped()</a></code> for drawing generation labels (<code>G1</code>, <code>G2</code>, …) on the left margin of pedigree plots. The default is <code>FALSE</code>, so existing plots are unchanged unless <code>genlab = TRUE</code> is requested. ## Documentation</li>
-<li>
+<strong><code><a href="../reference/visped.html">visped()</a></code> generation labels</strong>: Added a <code>genlab</code> argument to <code><a href="../reference/visped.html">visped()</a></code> for drawing generation labels (<code>G1</code>, <code>G2</code>, …) on the left margin of pedigree plots. The default is <code>FALSE</code>, so existing plots are unchanged unless <code>genlab = TRUE</code> is requested.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="documentation-1-8-1">Documentation<a class="anchor" aria-label="anchor" href="#documentation-1-8-1"></a></h3>
+<ol style="list-style-type: decimal"><li>
 <strong><code>draw-pedigree</code> vignette</strong>: Added an example showing how to display generation labels with <code>visped(..., genlab = TRUE)</code>.</li>
 </ol></div>
 </div>
@@ -95,16 +107,25 @@
 <li>
 <strong><code>pedmat(sparse = TRUE)</code> matrix coercion</strong>: The conversion from a dense numeric matrix to a <code>Matrix::dgeMatrix</code> now bypasses the S4 dispatch overhead of <code>as(mat, "dgeMatrix")</code> via a direct <code><a href="https://rdrr.io/r/methods/new.html" class="external-link">methods::new()</a></code> call backed by a package-level class cache. Benchmark on a representative subpedigree: 1.24 s to 0.60 s.</li>
 <li>
-<strong><code>pedrel(compact = TRUE)</code> safety guard</strong>: Added an early error when the number of reference individuals exceeds 200,000 in compact mode, preventing unintended O(N^2) matrix allocation. ## Bug fixes</li>
-<li>
+<strong><code>pedrel(compact = TRUE)</code> safety guard</strong>: Added an early error when the number of reference individuals exceeds 200,000 in compact mode, preventing unintended O(N^2) matrix allocation.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="bug-fixes-1-8-0">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-1-8-0"></a></h3>
+<ol style="list-style-type: decimal"><li>
 <strong><code><a href="../reference/tidyped.html">tidyped()</a></code> fast path with <code>addnum = FALSE</code> and <code>cand</code></strong>: When the input <code>tidyped</code> object was created with <code>addnum = FALSE</code>, passing <code>cand</code> could raise <code>"None of the specified candidates were found in the pedigree."</code> because the fast-path BFS looked up <code>ped_dt$IndNum</code>, which was <code>NULL</code>. The fix temporarily adds integer index columns for the BFS and removes them from the output when <code>addnum = FALSE</code>.</li>
 <li>
 <strong><code><a href="../reference/pediv.html">pediv()</a></code> and <code><a href="../reference/pedne.html">pedne()</a></code> coancestry outputs when <code>ECG</code> was not pre-computed</strong>: Internal <code>merge(..., by = "Ind", all.x = TRUE)</code> calls sorted output alphabetically by <code>Ind</code>, breaking the <code>IndNum == row-index</code> invariant used by the fast-path BFS in <code><a href="../reference/tidyped.html">tidyped()</a></code>. This could produce incorrect <code>fg</code>, <code>MeanCoan</code>, and <code>NeCoancestry</code> values, such as <code>fg</code> near 240 instead of about 19. Fixed by restoring <code>IndNum</code> order immediately after the merge.</li>
 <li>
-<strong><code><a href="../reference/summary_pedmat.html">summary_pedmat()</a></code> density for dense <code>Matrix</code> subclasses</strong>: <code><a href="../reference/summary_pedmat.html">summary_pedmat()</a></code> reported <code>Density = 100%</code> for all <code>A</code>, <code>D</code>, and <code>AA</code> matrices returned as <code>Matrix::dgeMatrix</code> objects. It now uses <code>Matrix::nnzero() / (nrow * ncol)</code> for all <code>Matrix</code> subclasses, giving the correct fill ratio for both <code>dgeMatrix</code> and <code>dgCMatrix</code>. ## Documentation</li>
-<li>
-<strong>Inbreeding references</strong>: Updated <code><a href="../reference/inbreed.html">inbreed()</a></code> and vignette references to cite Sargolzaei and Iwaisaki (2005) instead of Meuwissen and Luo (1992). ## Internal changes</li>
-<li>
+<strong><code><a href="../reference/summary_pedmat.html">summary_pedmat()</a></code> density for dense <code>Matrix</code> subclasses</strong>: <code><a href="../reference/summary_pedmat.html">summary_pedmat()</a></code> reported <code>Density = 100%</code> for all <code>A</code>, <code>D</code>, and <code>AA</code> matrices returned as <code>Matrix::dgeMatrix</code> objects. It now uses <code>Matrix::nnzero() / (nrow * ncol)</code> for all <code>Matrix</code> subclasses, giving the correct fill ratio for both <code>dgeMatrix</code> and <code>dgCMatrix</code>.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="documentation-1-8-0">Documentation<a class="anchor" aria-label="anchor" href="#documentation-1-8-0"></a></h3>
+<ol style="list-style-type: decimal"><li>
+<strong>Inbreeding references</strong>: Updated <code><a href="../reference/inbreed.html">inbreed()</a></code> and vignette references to cite Sargolzaei and Iwaisaki (2005) instead of Meuwissen and Luo (1992).</li>
+</ol></div>
+<div class="section level3">
+<h3 id="internal-changes-1-8-0">Internal changes<a class="anchor" aria-label="anchor" href="#internal-changes-1-8-0"></a></h3>
+<ol style="list-style-type: decimal"><li>
 <strong><code>align_bottom_generations()</code> helper</strong>: Consolidated the sibling and mate generation-alignment block previously duplicated between the main and fast paths of <code><a href="../reference/tidyped.html">tidyped()</a></code> into a single internal helper.</li>
 <li>
 <strong>C++11 compatibility</strong>: Replaced two C++17 structured-binding usages in the BFS functions with explicit C++11 equivalents for compatibility with GCC 8.</li>
@@ -119,8 +140,11 @@
 <ol style="list-style-type: decimal"><li>
 <strong><code><a href="../reference/pediv.html">pediv()</a></code> retained genetic diversity (<code>GeneDiv</code>)</strong>: <code>pediv()$summary</code> gains a <code>GeneDiv = 1 - MeanCoan</code> column, the pedigree-based retained genetic diversity of the reference population. Values lie in <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[0, 1]</annotation></semantics></math>, with larger values indicating more diversity retained relative to an unrelated base population. <code><a href="../reference/print.pediv.html">print.pediv()</a></code> displays it alongside <code>fg</code> and <code>MeanCoan</code>.</li>
 <li>
-<strong><code><a href="../reference/vismat.html">vismat()</a></code> large-pedigree representative view</strong>: When the original pedigree has more than 5,000 individuals, <code><a href="../reference/vismat.html">vismat()</a></code> no longer attempts a full N × N matrix expansion. It uses the compact K × K representative-individual matrix directly and adds sibling-count labels of the form <code>ID (×n)</code> to each axis tick. When <code>compact = TRUE</code> and <code>by</code> is supplied, group means are computed algebraically from the K × K matrix without expanding to N × N. ## Internal changes</li>
-<li>
+<strong><code><a href="../reference/vismat.html">vismat()</a></code> large-pedigree representative view</strong>: When the original pedigree has more than 5,000 individuals, <code><a href="../reference/vismat.html">vismat()</a></code> no longer attempts a full N × N matrix expansion. It uses the compact K × K representative-individual matrix directly and adds sibling-count labels of the form <code>ID (×n)</code> to each axis tick. When <code>compact = TRUE</code> and <code>by</code> is supplied, group means are computed algebraically from the K × K matrix without expanding to N × N.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="internal-changes-1-7-0">Internal changes<a class="anchor" aria-label="anchor" href="#internal-changes-1-7-0"></a></h3>
+<ol style="list-style-type: decimal"><li>
 <strong><code><a href="../reference/vismat.html">vismat()</a></code> threshold constants</strong>: Hardcoded values controlling large-pedigree behavior (<code>5000</code>, <code>2000</code>, and <code>50</code>) were refactored into named constants (<code>VISMAT_EXPAND_MAX</code>, <code>VISMAT_LABEL_MAX</code>, and <code>VISMAT_WARN_THRESHOLD</code>) at the top of <code>R/vismat.R</code>.</li>
 </ol></div>
 </div>
@@ -129,16 +153,25 @@
 <div class="section level3">
 <h3 id="new-features-1-6-2">New features<a class="anchor" aria-label="anchor" href="#new-features-1-6-2"></a></h3>
 <ol style="list-style-type: decimal"><li>
-<strong><code><a href="../reference/pedrel.html">pedrel()</a></code> coancestry scale</strong>: Added a <code>scale</code> parameter to <code><a href="../reference/pedrel.html">pedrel()</a></code> supporting <code>"relationship"</code> (default, returns mean <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>a</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><annotation encoding="application/x-tex">a_{ij}</annotation></semantics></math>) and <code>"coancestry"</code> (returns corrected mean coancestry <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>c</mi><mo accent="true">‾</mo></mover><annotation encoding="application/x-tex">\bar{c}</annotation></semantics></math>). The coancestry scale uses the diagonal-corrected formula of Caballero and Toro (2000), accounting for self-coancestry within the reference group. ## API changes</li>
-<li>
-<strong><code><a href="../reference/vispstat.html">vispstat()</a></code> internal-only backend</strong>: <code><a href="../reference/vispstat.html">vispstat()</a></code> is now the internal backend for <code><a href="../reference/vispstat.html">plot.pedstats()</a></code>. Users should call the standard S3 method with <code>plot(stats_obj)</code>. ## Bug fixes</li>
-<li>
+<strong><code><a href="../reference/pedrel.html">pedrel()</a></code> coancestry scale</strong>: Added a <code>scale</code> parameter to <code><a href="../reference/pedrel.html">pedrel()</a></code> supporting <code>"relationship"</code> (default, returns mean <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>a</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><annotation encoding="application/x-tex">a_{ij}</annotation></semantics></math>) and <code>"coancestry"</code> (returns corrected mean coancestry <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>c</mi><mo accent="true">‾</mo></mover><annotation encoding="application/x-tex">\bar{c}</annotation></semantics></math>). The coancestry scale uses the diagonal-corrected formula of Caballero and Toro (2000), accounting for self-coancestry within the reference group.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="api-changes-1-6-2">API changes<a class="anchor" aria-label="anchor" href="#api-changes-1-6-2"></a></h3>
+<ol style="list-style-type: decimal"><li>
+<strong><code><a href="../reference/vispstat.html">vispstat()</a></code> internal-only backend</strong>: <code><a href="../reference/vispstat.html">vispstat()</a></code> is now the internal backend for <code><a href="../reference/vispstat.html">plot.pedstats()</a></code>. Users should call the standard S3 method with <code>plot(stats_obj)</code>.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="bug-fixes-1-6-2">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-1-6-2"></a></h3>
+<ol style="list-style-type: decimal"><li>
 <strong>Spurious subsetting warnings</strong>: Internal group-by slicing in <code><a href="../reference/pedrel.html">pedrel()</a></code>, <code><a href="../reference/pedne.html">pedne()</a></code>, <code><a href="../reference/pediv.html">pediv()</a></code>, <code><a href="../reference/pedhalflife.html">pedhalflife()</a></code>, and <code><a href="../reference/pedgenint.html">pedgenint()</a></code> no longer triggers false-positive <code>[.tidyped]</code> warnings when the subset is only used for ID extraction.</li>
 <li>
 <strong>Internal class-restoration messages</strong>: <code>pedrel(compact = TRUE)</code> no longer emits class-restoration messages caused by early-return branches in <code><a href="../reference/compact_ped_for_matrix.html">compact_ped_for_matrix()</a></code>. Those branches now preserve the <code>tidyped</code> class by returning <code>data.table::copy(ped)</code>.</li>
 <li>
-<strong><code><a href="../reference/vispstat.html">vispstat()</a></code> cleanup</strong>: Removed dead-code variables and added unit tests for the <code>genint</code> branch of <code><a href="../reference/vispstat.html">vispstat()</a></code>. ## Documentation</li>
-<li>
+<strong><code><a href="../reference/vispstat.html">vispstat()</a></code> cleanup</strong>: Removed dead-code variables and added unit tests for the <code>genint</code> branch of <code><a href="../reference/vispstat.html">vispstat()</a></code>.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="documentation-1-6-2">Documentation<a class="anchor" aria-label="anchor" href="#documentation-1-6-2"></a></h3>
+<ol style="list-style-type: decimal"><li>
 <strong><code><a href="../reference/vispstat.html">vispstat()</a></code> generation-interval documentation</strong>: Updated the text to describe mean values accurately and remove the misleading “mean +/- SD” claim.</li>
 <li>
 <strong><code>pedigree-analysis.Rmd</code> section 9</strong>: Split the “Average Relationship Trends with <code><a href="../reference/pedrel.html">pedrel()</a></code>” section into two subsections covering both <code>scale</code> options. Added the Caballero and Toro (2000) diagonal-corrected coancestry formula, a worked <code>scale = "coancestry"</code> example, and guidance on choosing a scale.</li>
@@ -193,14 +226,20 @@
 <li>
 <strong>Fast candidate tracing from existing <code>tidyped</code> objects</strong>: <code><a href="../reference/tidyped.html">tidyped()</a></code> now uses a fast path when the input is already a valid <code>tidyped</code> object and <code>cand</code> is supplied, avoiding repeated global validation and preprocessing.</li>
 <li>
-<strong>Workflow coverage and developer documentation</strong>: Added a workflow vignette, a <code>tidyped</code> structure and extension vignette, and regression tests covering safe subsetting, <code>:=</code> by-reference behavior, and split workflow semantics. ## Bug fixes</li>
-<li>
+<strong>Workflow coverage and developer documentation</strong>: Added a workflow vignette, a <code>tidyped</code> structure and extension vignette, and regression tests covering safe subsetting, <code>:=</code> by-reference behavior, and split workflow semantics.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="bug-fixes-1-4-0">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-1-4-0"></a></h3>
+<ol style="list-style-type: decimal"><li>
 <strong>By-reference mutation for <code>tidyped</code></strong>: Replaced class and metadata attachment paths with <code><a href="https://rdrr.io/pkg/data.table/man/setattr.html" class="external-link">data.table::setattr()</a></code> so subsequent <code>:=</code> operations keep true by-reference behavior instead of writing into shallow copies.</li>
 <li>
 <strong>Safe row subsetting</strong>: Added <code>[.tidyped</code> interception so incomplete subsets degrade to plain <code>data.table</code> objects with a warning, while complete subsets preserve <code>tidyped</code> structure and rebuild pedigree indices.</li>
 <li>
-<strong>Class recovery</strong>: Core analysis entry points now cooperate with <code><a href="../reference/ensure_tidyped.html">ensure_tidyped()</a></code> and <code><a href="../reference/validate_tidyped.html">validate_tidyped()</a></code> to recover valid <code>tidyped</code> objects after common class-dropping operations. ## Documentation</li>
-<li>
+<strong>Class recovery</strong>: Core analysis entry points now cooperate with <code><a href="../reference/ensure_tidyped.html">ensure_tidyped()</a></code> and <code><a href="../reference/validate_tidyped.html">validate_tidyped()</a></code> to recover valid <code>tidyped</code> objects after common class-dropping operations.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="documentation-1-4-0">Documentation<a class="anchor" aria-label="anchor" href="#documentation-1-4-0"></a></h3>
+<ol style="list-style-type: decimal"><li>
 <strong>Pkgdown article navigation</strong>: Reorganized vignette order, restored <code>draw-pedigree</code> to the recommended reading sequence, and exposed <code>tidyped</code> developer notes through a dedicated pkgdown developer-documentation entry.</li>
 </ol></div>
 </div>
@@ -209,8 +248,11 @@
 <div class="section level3">
 <h3 id="new-features-1-3-5">New features<a class="anchor" aria-label="anchor" href="#new-features-1-3-5"></a></h3>
 <ol style="list-style-type: decimal"><li>
-<strong>S3 class protection</strong>: Added <code><a href="../reference/as_tidyped.html">as_tidyped()</a></code> and an internal <code><a href="../reference/ensure_tidyped.html">ensure_tidyped()</a></code> mechanism to handle cases where R operations such as <code><a href="https://rdrr.io/r/base/merge.html" class="external-link">merge()</a></code>, <code><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind()</a></code>, and <code>dplyr</code> verbs strip the custom S3 class from <code>data.table</code> objects. Major analysis functions can restore the class when the underlying data structure is still valid and inform the user. ## Bug fixes</li>
-<li>
+<strong>S3 class protection</strong>: Added <code><a href="../reference/as_tidyped.html">as_tidyped()</a></code> and an internal <code><a href="../reference/ensure_tidyped.html">ensure_tidyped()</a></code> mechanism to handle cases where R operations such as <code><a href="https://rdrr.io/r/base/merge.html" class="external-link">merge()</a></code>, <code><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind()</a></code>, and <code>dplyr</code> verbs strip the custom S3 class from <code>data.table</code> objects. Major analysis functions can restore the class when the underlying data structure is still valid and inform the user.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="bug-fixes-1-3-5">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-1-3-5"></a></h3>
+<ol style="list-style-type: decimal"><li>
 <strong>Analysis entry points</strong>: Updated core analysis functions, including <code><a href="../reference/pedstats.html">pedstats()</a></code>, <code><a href="../reference/pedne.html">pedne()</a></code>, <code><a href="../reference/pediv.html">pediv()</a></code>, and <code><a href="../reference/pedrel.html">pedrel()</a></code>, to use the class-recovery logic.</li>
 </ol></div>
 </div>
@@ -221,8 +263,11 @@
 <ol style="list-style-type: decimal"><li>
 <strong><code>data.table</code> return visibility</strong>: Functions returning <code>data.table</code> or <code>tidyped</code> objects now explicitly return with <code>[]</code> so results auto-print in the R console and knitted documents after internal <code>data.table</code> operations such as <code>:=</code> and <code>set*</code>. Affected functions included <code><a href="../reference/pedancestry.html">pedancestry()</a></code>, <code><a href="../reference/pedpartial.html">pedpartial()</a></code>, <code><a href="../reference/pedne.html">pedne()</a></code>, <code><a href="../reference/pedrel.html">pedrel()</a></code>, and <code><a href="../reference/tidyped.html">tidyped()</a></code>.</li>
 <li>
-<strong>Side-effect prevention</strong>: Updated <code>calc_ne_demographic()</code> to operate on a copy of the input pedigree instead of modifying the user’s data by reference. ## Documentation</li>
-<li>
+<strong>Side-effect prevention</strong>: Updated <code>calc_ne_demographic()</code> to operate on a copy of the input pedigree instead of modifying the user’s data by reference.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="documentation-1-3-4">Documentation<a class="anchor" aria-label="anchor" href="#documentation-1-3-4"></a></h3>
+<ol style="list-style-type: decimal"><li>
 <strong>Coding standard</strong>: Added a <code>data.table</code> return-visibility rule to <code>Positron.md</code>.</li>
 </ol></div>
 </div>
@@ -231,14 +276,20 @@
 <div class="section level3">
 <h3 id="bug-fixes-1-3-3">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-1-3-3"></a></h3>
 <ol style="list-style-type: decimal"><li>
-<strong>Vignette API synchronization</strong>: Replaced outdated <code>pedinbreed_class()</code> calls in the pedigree analysis vignette with the current <code><a href="../reference/pedfclass.html">pedfclass()</a></code> interface and aligned examples with the current <code>reference</code>, <code>foundervar</code>, and <code>cycle</code> argument names. ## Documentation</li>
-<li>
+<strong>Vignette API synchronization</strong>: Replaced outdated <code>pedinbreed_class()</code> calls in the pedigree analysis vignette with the current <code><a href="../reference/pedfclass.html">pedfclass()</a></code> interface and aligned examples with the current <code>reference</code>, <code>foundervar</code>, and <code>cycle</code> argument names.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="documentation-1-3-3">Documentation<a class="anchor" aria-label="anchor" href="#documentation-1-3-3"></a></h3>
+<ol style="list-style-type: decimal"><li>
 <strong><code>pedigree-analysis.Rmd</code> rewrite</strong>: Reorganized the main pedigree analysis vignette into thematic sections covering pedigree overview, pedigree completeness (<code><a href="../reference/pedecg.html">pedecg()</a></code>), generation intervals (<code><a href="../reference/pedgenint.html">pedgenint()</a></code>), subpopulation structure (<code><a href="../reference/pedsubpop.html">pedsubpop()</a></code>), diversity indicators (<code><a href="../reference/pediv.html">pediv()</a></code>), effective population size (<code><a href="../reference/pedne.html">pedne()</a></code>), average relationship trends (<code><a href="../reference/pedrel.html">pedrel()</a></code>), inbreeding classification (<code><a href="../reference/pedfclass.html">pedfclass()</a></code>), and ancestry / partial inbreeding diagnostics.</li>
 <li>
 <strong>Theory expansion</strong>: Added formulas, interpretation notes, and breeding-use explanations for Equivalent Complete Generations (ECG), generation intervals, effective numbers of founders / ancestors / founder genomes (<code>f_e</code>, <code>f_a</code>, <code>f_g</code>), three effective population size definitions (<code>N_e</code> by demographic, inbreeding, and coancestry methods), and average additive relationship (<code>MeanRel</code>).</li>
 <li>
-<strong>Reference update</strong>: Expanded the vignette bibliography to include Wright (1922, 1931), Lacy (1989), Boichard et al. (1997), Caballero and Toro (2000), Cervantes et al. (2011), and Gutierrez et al. (2008, 2009). ## Internal changes</li>
-<li>
+<strong>Reference update</strong>: Expanded the vignette bibliography to include Wright (1922, 1931), Lacy (1989), Boichard et al. (1997), Caballero and Toro (2000), Cervantes et al. (2011), and Gutierrez et al. (2008, 2009).</li>
+</ol></div>
+<div class="section level3">
+<h3 id="internal-changes-1-3-3">Internal changes<a class="anchor" aria-label="anchor" href="#internal-changes-1-3-3"></a></h3>
+<ol style="list-style-type: decimal"><li>
 <strong>Analysis regression coverage</strong>: Added unit tests verifying that <code><a href="../reference/pedancestry.html">pedancestry()</a></code> proportions sum to 1 in a multi-line admixture pedigree and that <code><a href="../reference/pedrel.html">pedrel()</a></code> returns identical results between <code>compact = TRUE</code> and <code>compact = FALSE</code> on the same pedigree.</li>
 </ol></div>
 </div>
@@ -249,8 +300,11 @@
 <ol style="list-style-type: decimal"><li>
 <strong>Core analysis examples</strong>: Added <code>@examples</code> to <code><a href="../reference/pedne.html">pedne()</a></code>, <code><a href="../reference/pedecg.html">pedecg()</a></code>, and <code><a href="../reference/pedsubpop.html">pedsubpop()</a></code>.</li>
 <li>
-<strong>Pedigree connectivity analysis (<code><a href="../reference/pedsubpop.html">pedsubpop()</a></code>)</strong>: Enhanced <code><a href="../reference/pedsubpop.html">pedsubpop()</a></code> to distinguish pedigree splitting via <code><a href="../reference/splitped.html">splitped()</a></code> from grouping and summary analysis. It now reports counts of total individuals, sires, dams, and founders within subgroups or connected components. ## API changes</li>
-<li>
+<strong>Pedigree connectivity analysis (<code><a href="../reference/pedsubpop.html">pedsubpop()</a></code>)</strong>: Enhanced <code><a href="../reference/pedsubpop.html">pedsubpop()</a></code> to distinguish pedigree splitting via <code><a href="../reference/splitped.html">splitped()</a></code> from grouping and summary analysis. It now reports counts of total individuals, sires, dams, and founders within subgroups or connected components.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="api-changes-1-3-2">API changes<a class="anchor" aria-label="anchor" href="#api-changes-1-3-2"></a></h3>
+<ol style="list-style-type: decimal"><li>
 <strong><code><a href="../reference/pedfclass.html">pedfclass()</a></code> rename</strong>: Renamed <code>pedinbreedclass()</code> to <code><a href="../reference/pedfclass.html">pedfclass()</a></code> to align with the package naming guide and provide a shorter API.</li>
 <li>
 <strong><code><a href="../reference/pedfclass.html">pedfclass()</a></code> output refinement</strong>: Renamed the returned class column from <code>F_Class</code> to <code>FClass</code> and added user-defined inbreeding class breakpoints through <code>breaks</code> and <code>labels</code>.</li>
@@ -259,12 +313,18 @@
 <li>
 <strong><code><a href="../reference/pedgenint.html">pedgenint()</a></code> and <code><a href="../reference/pedstats.html">pedstats()</a></code> <code>unit</code> parameter</strong>: Removed <code>"gen"</code> from <code>unit</code> options. The <code>unit</code> parameter now accepts <code>"year"</code>, <code>"month"</code>, <code>"day"</code>, or <code>"hour"</code>.</li>
 <li>
-<strong><code><a href="../reference/pedgenint.html">pedgenint()</a></code> <code>timevar</code> definition</strong>: Clarified <code>timevar</code> as a birth-date column. Numeric year inputs are converted to <code>Date</code> values using <code>"YYYY-07-01"</code> with an informational message. Character date strings are parsed with <code>as.POSIXct(..., tz = "UTC")</code>. ## Improvements</li>
-<li>
+<strong><code><a href="../reference/pedgenint.html">pedgenint()</a></code> <code>timevar</code> definition</strong>: Clarified <code>timevar</code> as a birth-date column. Numeric year inputs are converted to <code>Date</code> values using <code>"YYYY-07-01"</code> with an informational message. Character date strings are parsed with <code>as.POSIXct(..., tz = "UTC")</code>.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="improvements-1-3-2">Improvements<a class="anchor" aria-label="anchor" href="#improvements-1-3-2"></a></h3>
+<ol style="list-style-type: decimal"><li>
 <strong><code><a href="../reference/pedsubpop.html">pedsubpop()</a></code> documentation</strong>: Refined internal documentation to clarify its use cases alongside <code><a href="../reference/splitped.html">splitped()</a></code>.</li>
 <li>
-<strong><code>.parse_to_numeric_time()</code> rewrite</strong>: Rewrote the internal time parser to handle <code>Date</code>, <code>POSIXct</code>, character date strings, and numeric years. <code>POSIXct</code> conversions now use <code>tz = "UTC"</code> to avoid DST-related artifacts. ## Bug fixes</li>
-<li>
+<strong><code>.parse_to_numeric_time()</code> rewrite</strong>: Rewrote the internal time parser to handle <code>Date</code>, <code>POSIXct</code>, character date strings, and numeric years. <code>POSIXct</code> conversions now use <code>tz = "UTC"</code> to avoid DST-related artifacts.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="bug-fixes-1-3-2">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-1-3-2"></a></h3>
+<ol style="list-style-type: decimal"><li>
 <strong><code><a href="../reference/vispstat.html">vispstat()</a></code> pathway filter</strong>: Fixed an issue where the generation-interval bar chart could drop pathways because of an overly broad <code><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor()</a></code> filter. The filter now uses explicit <code>%in% c("SS", "SD", "DS", "DD")</code> subsetting.</li>
 </ol></div>
 </div>
@@ -275,12 +335,18 @@
 <ol style="list-style-type: decimal"><li>
 <strong>Selfing support in <code><a href="../reference/tidyped.html">tidyped()</a></code></strong>: Added the <code>selfing</code> argument to support plant and aquaculture pedigrees where an individual can appear as both sire and dam, resolving sex-conflict errors for biologically valid selfing pedigrees (<a href="https://github.com/luansheng/visPedigree/issues/10" class="external-link">#10</a>).</li>
 <li>
-<strong><code><a href="../reference/pedrel.html">pedrel()</a></code> ancestral tracing</strong>: <code><a href="../reference/pedrel.html">pedrel()</a></code> now uses full ancestral tracing via <code>tidyped(ped, cand = ...)</code> when calculating subgroup relationships, avoiding underestimation caused by ancestor truncation in deep-inbred populations. ## API changes</li>
-<li>
+<strong><code><a href="../reference/pedrel.html">pedrel()</a></code> ancestral tracing</strong>: <code><a href="../reference/pedrel.html">pedrel()</a></code> now uses full ancestral tracing via <code>tidyped(ped, cand = ...)</code> when calculating subgroup relationships, avoiding underestimation caused by ancestor truncation in deep-inbred populations.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="api-changes-1-3-1">API changes<a class="anchor" aria-label="anchor" href="#api-changes-1-3-1"></a></h3>
+<ol style="list-style-type: decimal"><li>
 <strong><code><a href="../reference/pedancestry.html">pedancestry()</a></code> parameter rename</strong>: Renamed <code>labelvar</code> to <code>foundervar</code> and <code>labels</code> to <code>target_labels</code> to make the ancestry-tracing interface more explicit. Old argument names are no longer supported because the function was still under active development.</li>
 <li>
-<strong><code><a href="../reference/pedecg.html">pedecg()</a></code> parameter cleanup</strong>: Removed the short-lived <code>reference</code> argument, which only filtered rows after a full ECG pass and did not define a reference population or prune the pedigree before calculation. ## Improvements</li>
-<li>
+<strong><code><a href="../reference/pedecg.html">pedecg()</a></code> parameter cleanup</strong>: Removed the short-lived <code>reference</code> argument, which only filtered rows after a full ECG pass and did not define a reference population or prune the pedigree before calculation.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="improvements-1-3-1">Improvements<a class="anchor" aria-label="anchor" href="#improvements-1-3-1"></a></h3>
+<ol style="list-style-type: decimal"><li>
 <strong>Academic nomenclature alignment</strong>: Updated documentation for <code><a href="../reference/pedrel.html">pedrel()</a></code> and <code><a href="../reference/pedne.html">pedne()</a></code> to distinguish additive genetic relationship (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>a</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><annotation encoding="application/x-tex">a_{ij}</annotation></semantics></math>) from coancestry (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>f</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><annotation encoding="application/x-tex">f_{ij}</annotation></semantics></math>). <code><a href="../reference/pedrel.html">pedrel()</a></code> now states that it returns <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>a</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo>=</mo><mn>2</mn><msub><mi>f</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub></mrow><annotation encoding="application/x-tex">a_{ij} = 2f_{ij}</annotation></semantics></math>, and <code><a href="../reference/pedne.html">pedne()</a></code> documents that its <code>"coancestry"</code> method is based on <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>f</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><annotation encoding="application/x-tex">f_{ij}</annotation></semantics></math>.</li>
 <li>
 <strong>Monoecious individuals</strong>: Individuals acting as both parents are identified as <code>"monoecious"</code> in the <code>Sex</code> column.</li>
@@ -291,8 +357,11 @@
 <li>
 <strong><code>tidyped</code> summary methods</strong>: <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> and <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> methods for <code>tidyped</code> objects now report the count and percentage of monoecious individuals.</li>
 <li>
-<strong><code><a href="../reference/pedancestry.html">pedancestry()</a></code> initialization</strong>: Optimized initialization on large pedigrees by using vectorized matrix indexing, reducing overhead for pedigrees with more than 25,000 nodes. ## Bug fixes</li>
-<li>
+<strong><code><a href="../reference/pedancestry.html">pedancestry()</a></code> initialization</strong>: Optimized initialization on large pedigrees by using vectorized matrix indexing, reducing overhead for pedigrees with more than 25,000 nodes.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="bug-fixes-1-3-1">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-1-3-1"></a></h3>
+<ol style="list-style-type: decimal"><li>
 <strong><code><a href="../reference/pedrel.html">pedrel()</a></code> deep-inbreeding regression coverage</strong>: Added a unit test verifying relationship calculation in deep-inbreeding scenarios, including Gen 4 relationships reaching 1.0.</li>
 </ol></div>
 </div>
@@ -323,10 +392,16 @@
 <ol style="list-style-type: decimal"><li>
 <strong>Unified diversity analysis (<code><a href="../reference/pediv.html">pediv()</a></code>)</strong>: Added <code><a href="../reference/pediv.html">pediv()</a></code> as a single entry point that aggregates founder contributions (<code>f_e</code>), ancestor contributions (<code>f_a</code>), and three <code>N_e</code> estimates (coancestry, inbreeding, and demographic) into a <code>pediv</code> S3 object. A <code><a href="../reference/print.pediv.html">print.pediv()</a></code> method provides a formatted summary table.</li>
 <li>
-<strong><code>complex_ped</code> dataset</strong>: Added <code>complex_ped</code>, a multi-generation pedigree dataset for testing deeper ancestry tracing and cross-generation diversity analyses. ## API changes</li>
-<li>
-<strong>Reference-population parameter rename</strong>: Standardized the reference population parameter name across relevant analysis functions: <code>pedne(..., reference = NULL)</code>, <code>pedcontrib(..., reference = NULL)</code>, and <code>pedrel(..., reference = NULL)</code>. These previously used <code>cand</code>. Old <code>cand</code> arguments are no longer supported in those functions. ## Documentation</li>
-<li>
+<strong><code>complex_ped</code> dataset</strong>: Added <code>complex_ped</code>, a multi-generation pedigree dataset for testing deeper ancestry tracing and cross-generation diversity analyses.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="api-changes-1-2-2">API changes<a class="anchor" aria-label="anchor" href="#api-changes-1-2-2"></a></h3>
+<ol style="list-style-type: decimal"><li>
+<strong>Reference-population parameter rename</strong>: Standardized the reference population parameter name across relevant analysis functions: <code>pedne(..., reference = NULL)</code>, <code>pedcontrib(..., reference = NULL)</code>, and <code>pedrel(..., reference = NULL)</code>. These previously used <code>cand</code>. Old <code>cand</code> arguments are no longer supported in those functions.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="documentation-1-2-2">Documentation<a class="anchor" aria-label="anchor" href="#documentation-1-2-2"></a></h3>
+<ol style="list-style-type: decimal"><li>
 <strong><code>pedigree-analysis.Rmd</code> rewrite</strong>: Restructured the pedigree analysis vignette with expanded theory explanations for <code>f_e</code>, <code>f_a</code>, and <code>N_e</code>, updated examples using <code><a href="../reference/pediv.html">pediv()</a></code> and <code>reference</code>, and additional interpretation for breeding decisions.</li>
 <li>
 <strong>Workspace organization</strong>: Moved development-only files (<code>MACOS_OPENMP_FIX.md</code>, <code>manuscript.md</code>, and analysis scripts) into <code>sandbox/</code>, with corresponding <code>.gitignore</code> and <code>.Rbuildignore</code> rules.</li>
@@ -345,10 +420,16 @@
 <li>
 <strong>Partial inbreeding (<code><a href="../reference/pedpartial.html">pedpartial()</a></code>)</strong>: Added <code><a href="../reference/pedpartial.html">pedpartial()</a></code> to decompose the overall inbreeding coefficient into fractions attributed to targeted ancestors, following Meuwissen and Luo (1992).</li>
 <li>
-<strong><code>half_founder_ped</code> dataset</strong>: Added <code>half_founder_ped</code>, an ENDOG-derived dataset containing records with a single known parent for testing phantom-parent corrections. ## Performance</li>
-<li>
-<strong>Peeling core engine</strong>: Rebuilt the C++ array engine backing the <code>f_a</code> and <code>f_e</code> calculations. The bounded O(K × N) array-state implementation avoids excessive latency on deep pedigrees with more than 180,000 nodes. ## Documentation</li>
-<li>
+<strong><code>half_founder_ped</code> dataset</strong>: Added <code>half_founder_ped</code>, an ENDOG-derived dataset containing records with a single known parent for testing phantom-parent corrections.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="performance-1-2-1">Performance<a class="anchor" aria-label="anchor" href="#performance-1-2-1"></a></h3>
+<ol style="list-style-type: decimal"><li>
+<strong>Peeling core engine</strong>: Rebuilt the C++ array engine backing the <code>f_a</code> and <code>f_e</code> calculations. The bounded O(K × N) array-state implementation avoids excessive latency on deep pedigrees with more than 180,000 nodes.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="documentation-1-2-1">Documentation<a class="anchor" aria-label="anchor" href="#documentation-1-2-1"></a></h3>
+<ol style="list-style-type: decimal"><li>
 <strong>Reference index</strong>: Expanded <code>_pkgdown.yml</code> mappings to expose pedigree statistical functions such as <code><a href="../reference/pedancestry.html">pedancestry()</a></code>, <code><a href="../reference/pedcontrib.html">pedcontrib()</a></code>, <code><a href="../reference/pedpartial.html">pedpartial()</a></code>, and <code><a href="../reference/pedecg.html">pedecg()</a></code> in the reference documentation.</li>
 <li>
 <strong>Analysis vignette</strong>: Updated <code>vignettes/pedigree-analysis.Rmd</code> with Boichard-style genetic bottleneck interpretations (<code>f_e</code> versus <code>f_a</code>) and examples for targeted lineage flow.</li>
@@ -361,10 +442,16 @@
 <ol style="list-style-type: decimal"><li>
 <strong>Effective population size methods in <code><a href="../reference/pedne.html">pedne()</a></code></strong>: Expanded <code><a href="../reference/pedne.html">pedne()</a></code> to support three methods for estimating <code>N_e</code>: <code>"coancestry"</code> based on the rate of coancestry (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Δ</mi><mi>c</mi></mrow><annotation encoding="application/x-tex">\Delta c</annotation></semantics></math>), <code>"inbreeding"</code> based on the individual rate of inbreeding (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Δ</mi><mi>F</mi></mrow><annotation encoding="application/x-tex">\Delta F</annotation></semantics></math>), and <code>"demographic"</code> based on the numbers of breeding males (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>N</mi><mi>m</mi></msub><annotation encoding="application/x-tex">N_m</annotation></semantics></math>) and females (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>N</mi><mi>f</mi></msub><annotation encoding="application/x-tex">N_f</annotation></semantics></math>). The coancestry method is now the default and may provide earlier signals of diversity loss in selected populations than inbreeding-based estimates.</li>
 <li>
-<strong>Parallel and sampled coancestry estimation</strong>: Added OpenMP multi-threading for the <code>method = "coancestry"</code> path via <code>ncores</code>, and added <code>nsamples</code> for sampled estimation on large pedigrees. ## Performance</li>
-<li>
-<strong>Coancestry backend</strong>: Implemented the C++ backend <code>cpp_calculate_sampled_coancestry_delta()</code> using <code>RcppArmadillo</code>, replacing previous R-level coancestry calculations for larger datasets. ## Documentation</li>
-<li>
+<strong>Parallel and sampled coancestry estimation</strong>: Added OpenMP multi-threading for the <code>method = "coancestry"</code> path via <code>ncores</code>, and added <code>nsamples</code> for sampled estimation on large pedigrees.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="performance-1-2-0">Performance<a class="anchor" aria-label="anchor" href="#performance-1-2-0"></a></h3>
+<ol style="list-style-type: decimal"><li>
+<strong>Coancestry backend</strong>: Implemented the C++ backend <code>cpp_calculate_sampled_coancestry_delta()</code> using <code>RcppArmadillo</code>, replacing previous R-level coancestry calculations for larger datasets.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="documentation-1-2-0">Documentation<a class="anchor" aria-label="anchor" href="#documentation-1-2-0"></a></h3>
+<ol style="list-style-type: decimal"><li>
 <strong><code><a href="../reference/pedne.html">pedne()</a></code> parameter scopes</strong>: Documented that <code>ncores</code> and <code>nsamples</code> apply to <code>method = "coancestry"</code>.</li>
 <li>
 <strong><code><a href="../reference/pedne.html">pedne()</a></code> method descriptions</strong>: Expanded documentation for the three <code>N_e</code> calculation methods to support method selection.</li>
@@ -375,12 +462,18 @@
 <div class="section level3">
 <h3 id="new-features-1-1-1">New features<a class="anchor" aria-label="anchor" href="#new-features-1-1-1"></a></h3>
 <ol style="list-style-type: decimal"><li>
-<strong><code><a href="../reference/pedgenint.html">pedgenint()</a></code> sex-independent pathways</strong>: Added <code>SO</code> (sire-to-offspring) and <code>DO</code> (dam-to-offspring) generation intervals alongside the standard four pathways. These pathways support settings such as aquaculture or early-stage screening where offspring sex may be unknown. ## API changes</li>
-<li>
+<strong><code><a href="../reference/pedgenint.html">pedgenint()</a></code> sex-independent pathways</strong>: Added <code>SO</code> (sire-to-offspring) and <code>DO</code> (dam-to-offspring) generation intervals alongside the standard four pathways. These pathways support settings such as aquaculture or early-stage screening where offspring sex may be unknown.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="api-changes-1-1-1">API changes<a class="anchor" aria-label="anchor" href="#api-changes-1-1-1"></a></h3>
+<ol style="list-style-type: decimal"><li>
 <strong><code><a href="../reference/pedne.html">pedne()</a></code> interface standardization</strong>: Renamed <code>timevar</code> to <code>by</code> and <code>cohort</code> to <code>cand</code>; removed unused or misleading parameters (<code>unit</code>, <code>cycle_length</code>, and <code>maxgen</code>). Old <code>timevar</code> and <code>cohort</code> arguments are retained with deprecation warnings.</li>
 <li>
-<strong><code><a href="../reference/vismat.html">vismat()</a></code> parameter alignment</strong>: Renamed <code>grouping</code> to <code>by</code> for grouping consistency. The old <code>grouping</code> argument is retained with a deprecation warning. ## Bug fixes</li>
-<li>
+<strong><code><a href="../reference/vismat.html">vismat()</a></code> parameter alignment</strong>: Renamed <code>grouping</code> to <code>by</code> for grouping consistency. The old <code>grouping</code> argument is retained with a deprecation warning.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="bug-fixes-1-1-1">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-1-1-1"></a></h3>
+<ol style="list-style-type: decimal"><li>
 <strong><code><a href="../reference/pedrel.html">pedrel()</a></code> correctness</strong>: Fixed an error where mean average relatedness was calculated by summing the full relationship matrix, including traced ancestors, and dividing by only the target subgroup size. The function now subsets the relationship matrix and handles <code>NUsed &lt; 2</code>. Output columns <code>N</code> and <code>MeanRel</code> were replaced with <code>NTotal</code>, <code>NUsed</code>, and <code>MeanRel</code>.</li>
 <li>
 <strong><code><a href="../reference/pedgenint.html">pedgenint()</a></code> aggregation</strong>: <code><a href="../reference/pedgenint.html">pedgenint()</a></code> now outputs the appropriate unweighted mixture standard deviation for generation intervals alongside the unweighted four-pathway average.</li>
@@ -435,18 +528,27 @@
 <li>
 <strong><code><a href="../reference/pedmat.html">pedmat()</a></code> default method</strong>: Changed the default <code>method</code> of <code><a href="../reference/pedmat.html">pedmat()</a></code> from <code>"f"</code> to <code>"A"</code>.</li>
 <li>
-<strong>Thread argument name</strong>: Standardized <code>n_threads</code> to <code>threads</code> across functions. ## New features</li>
-<li>
+<strong>Thread argument name</strong>: Standardized <code>n_threads</code> to <code>threads</code> across functions.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="new-features-1-0-0">New features<a class="anchor" aria-label="anchor" href="#new-features-1-0-0"></a></h3>
+<ol style="list-style-type: decimal"><li>
 <strong>Family assignment and summary</strong>: <code><a href="../reference/tidyped.html">tidyped()</a></code> now assigns a <code>Family</code> column identifying full-sib groups. <code><a href="../reference/summary.tidyped.html">summary.tidyped()</a></code> reports family counts, sizes, largest families, and offspring summaries.</li>
 <li>
 <strong>Pedigree splitting (<code><a href="../reference/splitped.html">splitped()</a></code>)</strong>: Added <code><a href="../reference/splitped.html">splitped()</a></code> to detect disconnected pedigree components, exclude isolated individuals, and return re-indexed <code>tidyped</code> objects for separate analysis or visualization.</li>
 <li>
 <strong>Relationship matrix support</strong>: <code><a href="../reference/pedmat.html">pedmat()</a></code> supports additive (<code>A</code>, <code>Ainv</code>), dominance (<code>D</code>, <code>Dinv</code>), and additive-by-additive epistatic (<code>AA</code>, <code>AAinv</code>) relationship matrices.</li>
 <li>
-<strong>Relationship matrix visualization (<code><a href="../reference/vismat.html">vismat()</a></code>)</strong>: Added <code><a href="../reference/vismat.html">vismat()</a></code> for heatmaps and histograms of <code>pedmat</code> objects, <code>tidyped</code> objects, and standard matrices. Heatmaps can be annotated with family groups when a pedigree is provided. ## Documentation</li>
-<li>
-<strong>CRAN preparation</strong>: Updated vignette generation, S3 method dispatch, and documentation for CRAN submission. ## Internal changes</li>
-<li>
+<strong>Relationship matrix visualization (<code><a href="../reference/vismat.html">vismat()</a></code>)</strong>: Added <code><a href="../reference/vismat.html">vismat()</a></code> for heatmaps and histograms of <code>pedmat</code> objects, <code>tidyped</code> objects, and standard matrices. Heatmaps can be annotated with family groups when a pedigree is provided.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="documentation-1-0-0">Documentation<a class="anchor" aria-label="anchor" href="#documentation-1-0-0"></a></h3>
+<ol style="list-style-type: decimal"><li>
+<strong>CRAN preparation</strong>: Updated vignette generation, S3 method dispatch, and documentation for CRAN submission.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="internal-changes-1-0-0">Internal changes<a class="anchor" aria-label="anchor" href="#internal-changes-1-0-0"></a></h3>
+<ol style="list-style-type: decimal"><li>
 <strong>Portable compilation</strong>: Standardized <code>src/Makevars</code> for cross-platform compatibility.</li>
 <li>
 <strong>Dependencies</strong>: Moved <code>RcppArmadillo</code> to <code>LinkingTo</code>.</li>
@@ -457,10 +559,16 @@
 <div class="section level3">
 <h3 id="breaking-changes-0-7-3">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-0-7-3"></a></h3>
 <ol style="list-style-type: decimal"><li>
-<strong><code>pedmatrix()</code> return value and method selection</strong>: <code>pedmatrix()</code> now requires a single <code>method</code> value, such as <code>method = "A"</code>. It returns the requested matrix or vector directly instead of a named list. Requesting multiple methods in one call now raises an error; use repeated calls for multiple outputs. ## New features</li>
-<li>
-<strong>Rcpp relationship calculations</strong>: Added <code>pedmatrix()</code> with Rcpp implementations for the additive relationship matrix (<code>A</code>), sparse inverse additive matrix (<code>Ainv</code>) using Henderson’s rules, dominance matrix (<code>D</code>), and inbreeding coefficients (<code>f</code>) using the Meuwissen and Luo (1992) path-tracing algorithm. ## Improvements</li>
-<li>
+<strong><code>pedmatrix()</code> return value and method selection</strong>: <code>pedmatrix()</code> now requires a single <code>method</code> value, such as <code>method = "A"</code>. It returns the requested matrix or vector directly instead of a named list. Requesting multiple methods in one call now raises an error; use repeated calls for multiple outputs.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="new-features-0-7-3">New features<a class="anchor" aria-label="anchor" href="#new-features-0-7-3"></a></h3>
+<ol style="list-style-type: decimal"><li>
+<strong>Rcpp relationship calculations</strong>: Added <code>pedmatrix()</code> with Rcpp implementations for the additive relationship matrix (<code>A</code>), sparse inverse additive matrix (<code>Ainv</code>) using Henderson’s rules, dominance matrix (<code>D</code>), and inbreeding coefficients (<code>f</code>) using the Meuwissen and Luo (1992) path-tracing algorithm.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="improvements-0-7-3">Improvements<a class="anchor" aria-label="anchor" href="#improvements-0-7-3"></a></h3>
+<ol style="list-style-type: decimal"><li>
 <strong>Default inbreeding backend</strong>: <code><a href="../reference/inbreed.html">inbreed()</a></code> now uses the native Rcpp implementation by default, moving <code>nadiv</code> to <code>Suggests</code>.</li>
 <li>
 <strong>Documentation and website</strong>: Updated package documentation and vignettes. The package website is available at <a href="https://luansheng.github.io/visPedigree/">https://luansheng.github.io/visPedigree/</a>.</li>
@@ -471,8 +579,11 @@
 <div class="section level3">
 <h3 id="new-features-0-7-2">New features<a class="anchor" aria-label="anchor" href="#new-features-0-7-2"></a></h3>
 <ol style="list-style-type: decimal"><li>
-<strong>Flexible generation assignment</strong>: Added the <code>genmethod</code> parameter to <code><a href="../reference/tidyped.html">tidyped()</a></code>. Users can choose <code>"top"</code> (top-aligned, default) or <code>"bottom"</code> (bottom-aligned) generation inference. The <code>"top"</code> method aligns founders at generation 1; the <code>"bottom"</code> method aligns terminal nodes at the bottom for visualization of unrelated introduced parents. ## Improvements</li>
-<li>
+<strong>Flexible generation assignment</strong>: Added the <code>genmethod</code> parameter to <code><a href="../reference/tidyped.html">tidyped()</a></code>. Users can choose <code>"top"</code> (top-aligned, default) or <code>"bottom"</code> (bottom-aligned) generation inference. The <code>"top"</code> method aligns founders at generation 1; the <code>"bottom"</code> method aligns terminal nodes at the bottom for visualization of unrelated introduced parents.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="improvements-0-7-2">Improvements<a class="anchor" aria-label="anchor" href="#improvements-0-7-2"></a></h3>
+<ol style="list-style-type: decimal"><li>
 <strong>Default generation assignment</strong>: Changed the default generation assignment method to <code>"top"</code>.</li>
 <li>
 <strong>Pkgdown website</strong>: Generated and published the package website at <a href="https://luansheng.github.io/visPedigree/">https://luansheng.github.io/visPedigree/</a>.</li>
@@ -487,8 +598,11 @@
 <ol style="list-style-type: decimal"><li>
 <strong>User feedback</strong>: Standardized filtering notifications. The message <code>"Note: Removed N isolated individuals..."</code> now appears consistently for all pedigree sizes when Gen 0 individuals are present.</li>
 <li>
-<strong>Trace semantics</strong>: Corrected <code>trace = "all"</code> in <code><a href="../reference/tidyped.html">tidyped()</a></code> and <code><a href="../reference/visped.html">visped()</a></code> so it returns the union of ancestors and descendants (<code>"up"</code> plus <code>"down"</code>) instead of the entire connected component. ## Performance</li>
-<li>
+<strong>Trace semantics</strong>: Corrected <code>trace = "all"</code> in <code><a href="../reference/tidyped.html">tidyped()</a></code> and <code><a href="../reference/visped.html">visped()</a></code> so it returns the union of ancestors and descendants (<code>"up"</code> plus <code>"down"</code>) instead of the entire connected component.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="performance-0-7-1">Performance<a class="anchor" aria-label="anchor" href="#performance-0-7-1"></a></h3>
+<ol style="list-style-type: decimal"><li>
 <strong>Large-pedigree <code><a href="../reference/visped.html">visped()</a></code> rendering</strong>: Optimized <code><a href="../reference/visped.html">visped()</a></code> for large pedigrees through attribute handling and vectorized rendering, reducing repeated <code>igraph</code> attribute lookups for 100,000+ individuals.</li>
 <li>
 <strong>Vectorized tracing</strong>: Refactored <code>trace_ped_candidates()</code> in <code><a href="../reference/tidyped.html">tidyped()</a></code> to use vectorized <code><a href="https://r.igraph.org/reference/ego.html" class="external-link">igraph::neighborhood()</a></code> calls. In one benchmark, 37,000 candidates in a 178,000-individual pedigree were traced in about 1.2 s.</li>
@@ -503,18 +617,27 @@
 <ol style="list-style-type: decimal"><li>
 <strong>Graph-based <code><a href="../reference/tidyped.html">tidyped()</a></code> core</strong>: Reimplemented the pedigree tidying engine around a directed acyclic graph representation, with cycle detection and generation inference based on topological sorting.</li>
 <li>
-<strong>Modular <code><a href="../reference/visped.html">visped()</a></code> architecture</strong>: Split the previous monolithic <code>visped.R</code> implementation into <code>visped_layout.R</code>, <code>visped_graph.R</code>, <code>visped_style.R</code>, and <code>visped_render.R</code>. ## New features</li>
-<li>
+<strong>Modular <code><a href="../reference/visped.html">visped()</a></code> architecture</strong>: Split the previous monolithic <code>visped.R</code> implementation into <code>visped_layout.R</code>, <code>visped_graph.R</code>, <code>visped_style.R</code>, and <code>visped_render.R</code>.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="new-features-0-7-0">New features<a class="anchor" aria-label="anchor" href="#new-features-0-7-0"></a></h3>
+<ol style="list-style-type: decimal"><li>
 <strong><code><a href="../reference/visped.html">visped()</a></code> layout parameters</strong>: Added <code>pagewidth</code> to control PDF page width and <code>symbolsize</code> to scale node sizes relative to label dimensions.</li>
 <li>
 <strong>Two-pass rendering</strong>: Added a two-pass strategy in <code><a href="../reference/plot_ped_igraph.html">plot_ped_igraph()</a></code> so edges connect at node centers in vector PDF outputs.</li>
 <li>
-<strong>Highlight tracing</strong>: Added ancestry and descendant highlighting through the <code>trace</code> parameter in <code><a href="../reference/visped.html">visped()</a></code>. ## Bug fixes</li>
-<li>
+<strong>Highlight tracing</strong>: Added ancestry and descendant highlighting through the <code>trace</code> parameter in <code><a href="../reference/visped.html">visped()</a></code>.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="bug-fixes-0-7-0">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-7-0"></a></h3>
+<ol style="list-style-type: decimal"><li>
 <strong><code>outline = TRUE</code> rendering</strong>: Fixed rendering failure by correcting graph attribute indexing.</li>
 <li>
-<strong>Coordinate precision</strong>: Improved coordinate calculation precision to reduce overlap in high-density generations. ## Internal changes</li>
-<li>
+<strong>Coordinate precision</strong>: Improved coordinate calculation precision to reduce overlap in high-density generations.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="internal-changes-0-7-0">Internal changes<a class="anchor" aria-label="anchor" href="#internal-changes-0-7-0"></a></h3>
+<ol style="list-style-type: decimal"><li>
 <strong>Testing framework</strong>: Modernized the unit testing suite to <code>testthat</code> 3rd edition and removed legacy <code>context()</code> warnings.</li>
 </ol></div>
 </div>
@@ -523,8 +646,11 @@
 <div class="section level3">
 <h3 id="new-features-0-6-2">New features<a class="anchor" aria-label="anchor" href="#new-features-0-6-2"></a></h3>
 <ol style="list-style-type: decimal"><li>
-<strong><code><a href="../reference/summary.tidyped.html">summary.tidyped()</a></code></strong>: Added a <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> method for <code>tidyped</code> objects to report counts of individuals, founders, sex distribution, and related pedigree statistics. ## Bug fixes</li>
-<li>
+<strong><code><a href="../reference/summary.tidyped.html">summary.tidyped()</a></code></strong>: Added a <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> method for <code>tidyped</code> objects to report counts of individuals, founders, sex distribution, and related pedigree statistics.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="bug-fixes-0-6-2">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-6-2"></a></h3>
+<ol style="list-style-type: decimal"><li>
 <strong><code>tidyped(..., inbreed = TRUE)</code></strong>: Fixed failure caused by incorrect class assignment order.</li>
 <li>
 <strong><code>visped(..., showf = TRUE)</code></strong>: Added a warning when the <code>f</code> column is missing instead of erroring.</li>
@@ -561,10 +687,16 @@
 <li>
 <strong><code><a href="../reference/tidyped.html">tidyped()</a></code> inbreeding calculation</strong>: Added the <code>inbreed</code> parameter to <code><a href="../reference/tidyped.html">tidyped()</a></code> to calculate inbreeding coefficients using <code>nadiv</code>.</li>
 <li>
-<strong>Standalone <code><a href="../reference/inbreed.html">inbreed()</a></code></strong>: Refactored <code><a href="../reference/inbreed.html">inbreed()</a></code> as a standalone tool that operates on <code>tidyped</code> objects. ## Performance</li>
-<li>
-<strong><code><a href="../reference/repeloverlap.html">repeloverlap()</a></code></strong>: Optimized <code><a href="../reference/repeloverlap.html">repeloverlap()</a></code> with <code>data.table</code>. ## Bug fixes</li>
-<li>
+<strong>Standalone <code><a href="../reference/inbreed.html">inbreed()</a></code></strong>: Refactored <code><a href="../reference/inbreed.html">inbreed()</a></code> as a standalone tool that operates on <code>tidyped</code> objects.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="performance-0-5-0">Performance<a class="anchor" aria-label="anchor" href="#performance-0-5-0"></a></h3>
+<ol style="list-style-type: decimal"><li>
+<strong><code><a href="../reference/repeloverlap.html">repeloverlap()</a></code></strong>: Optimized <code><a href="../reference/repeloverlap.html">repeloverlap()</a></code> with <code>data.table</code>.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="bug-fixes-0-5-0">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-5-0"></a></h3>
+<ol style="list-style-type: decimal"><li>
 <strong><code><a href="../reference/visped.html">visped()</a></code> compact-highlight-showf crash</strong>: Fixed a crash when combining <code>compact = TRUE</code>, <code>highlight</code>, and <code>showf = TRUE</code> by refactoring <code><a href="../reference/ped2igraph.html">ped2igraph()</a></code> to delay label modification until after layout calculation.</li>
 <li>
 <strong>Documentation grammar</strong>: Fixed grammar and phrasing across function documentation for CRAN compliance.</li>

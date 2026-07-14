@@ -31,8 +31,11 @@
     character vector, assigning one user-provided label to each
     displayed generation from top to bottom. The existing logical values
     retain their behavior: `TRUE` draws the default `G1`, `G2`, … labels
-    and `FALSE` omits them. \## Improvements
-6.  **Matrix-free
+    and `FALSE` omits them.
+
+### Improvements
+
+1.  **Matrix-free
     [`pedrel()`](https://luansheng.github.io/visPedigree/reference/pedrel.md)
     summaries**:
     [`pedrel()`](https://luansheng.github.io/visPedigree/reference/pedrel.md)
@@ -40,7 +43,7 @@
     batched $`Ag`$ products. It traces the union of selected ancestors
     once and no longer constructs or scans a dense relationship matrix
     for each group.
-7.  **Large-group support in
+2.  **Large-group support in
     [`pedrel()`](https://luansheng.github.io/visPedigree/reference/pedrel.md)**:
     The former dense and compact matrix size guards are no longer
     needed. The development-only `force`, `max_dense`, and `max_compact`
@@ -48,7 +51,7 @@
     as a backward-compatible no-op argument. `Status` and `Message`
     continue to identify groups skipped because fewer than two
     individuals were selected or groups that failed during tracing.
-8.  **Matrix-free coancestry analyses**: `pedne(method = "coancestry")`
+3.  **Matrix-free coancestry analyses**: `pedne(method = "coancestry")`
     now obtains sampled pair relationships from batched $`AX`$ products
     instead of constructing a dense triangular relationship matrix.
     [`pediv()`](https://luansheng.github.io/visPedigree/reference/pediv.md)
@@ -56,28 +59,33 @@
     while
     [`pedhalflife()`](https://luansheng.github.io/visPedigree/reference/pedhalflife.md)
     requests only the $`f_g`$ statistic it needs.
-9.  **Matrix-free grouped heatmaps**: `vismat(tidyped_object, by = ...)`
+4.  **Matrix-free grouped heatmaps**: `vismat(tidyped_object, by = ...)`
     now computes grouped additive relationships as $`W' A W`$ without
     first constructing the full individual-level relationship matrix.
-10. **Clearer compact full-sib family summaries in
+5.  **Clearer compact full-sib family summaries in
     [`visped()`](https://luansheng.github.io/visPedigree/reference/visped.md)**:
     Compact full-sib family labels now use the explicit `FS×N` form
     instead of a bare number, avoiding confusion with an individual ID.
     Compact family summaries use a green-grey fill with a darker frame,
     while unknown-sex individuals use a neutral-grey fill with a grey
-    frame. \## Bug fixes
-11. **Selfing in `Ainv`**: Corrected the sire-dam diagonal cross-term in
+    frame.
+
+### Bug fixes
+
+1.  **Selfing in `Ainv`**: Corrected the sire-dam diagonal cross-term in
     Henderson’s inverse construction when the sire and dam are the same
     individual. `pedmat(method = "Ainv")` now remains the numerical
-    inverse of `A` for pedigrees created with `selfing = TRUE`. \##
-    Documentation
-12. **Plant pedigree example in `tidy-pedigree` vignette**: Added
+    inverse of `A` for pedigrees created with `selfing = TRUE`.
+
+### Documentation
+
+1.  **Plant pedigree example in `tidy-pedigree` vignette**: Added
     section 3.9 demonstrating `selfing = TRUE` for monoecious species,
     including sex inference, inbreeding coefficients under
     self-fertilization, and the
     [`summary()`](https://rdrr.io/r/base/summary.html) output for plant
     pedigrees.
-13. **Plant pedigree visualization in `draw-pedigree` vignette**: Added
+2.  **Plant pedigree visualization in `draw-pedigree` vignette**: Added
     section 1.1.3 showing a multi-generation self-pollinating pedigree
     with
     [`visped()`](https://luansheng.github.io/visPedigree/reference/visped.md).
@@ -96,8 +104,11 @@ CRAN release: 2026-03-30
     [`visped()`](https://luansheng.github.io/visPedigree/reference/visped.md)
     for drawing generation labels (`G1`, `G2`, …) on the left margin of
     pedigree plots. The default is `FALSE`, so existing plots are
-    unchanged unless `genlab = TRUE` is requested. \## Documentation
-2.  **`draw-pedigree` vignette**: Added an example showing how to
+    unchanged unless `genlab = TRUE` is requested.
+
+### Documentation
+
+1.  **`draw-pedigree` vignette**: Added an example showing how to
     display generation labels with `visped(..., genlab = TRUE)`.
 
 ## Changes in version 1.8.0 released on 25 Mar 2026
@@ -137,8 +148,11 @@ CRAN release: 2026-03-30
     subpedigree: 1.24 s to 0.60 s.
 5.  **`pedrel(compact = TRUE)` safety guard**: Added an early error when
     the number of reference individuals exceeds 200,000 in compact mode,
-    preventing unintended O(N^2) matrix allocation. \## Bug fixes
-6.  **[`tidyped()`](https://luansheng.github.io/visPedigree/reference/tidyped.md)
+    preventing unintended O(N^2) matrix allocation.
+
+### Bug fixes
+
+1.  **[`tidyped()`](https://luansheng.github.io/visPedigree/reference/tidyped.md)
     fast path with `addnum = FALSE` and `cand`**: When the input
     `tidyped` object was created with `addnum = FALSE`, passing `cand`
     could raise
@@ -146,7 +160,7 @@ CRAN release: 2026-03-30
     because the fast-path BFS looked up `ped_dt$IndNum`, which was
     `NULL`. The fix temporarily adds integer index columns for the BFS
     and removes them from the output when `addnum = FALSE`.
-7.  **[`pediv()`](https://luansheng.github.io/visPedigree/reference/pediv.md)
+2.  **[`pediv()`](https://luansheng.github.io/visPedigree/reference/pediv.md)
     and
     [`pedne()`](https://luansheng.github.io/visPedigree/reference/pedne.md)
     coancestry outputs when `ECG` was not pre-computed**: Internal
@@ -157,27 +171,32 @@ CRAN release: 2026-03-30
     This could produce incorrect `fg`, `MeanCoan`, and `NeCoancestry`
     values, such as `fg` near 240 instead of about 19. Fixed by
     restoring `IndNum` order immediately after the merge.
-8.  **[`summary_pedmat()`](https://luansheng.github.io/visPedigree/reference/summary_pedmat.md)
+3.  **[`summary_pedmat()`](https://luansheng.github.io/visPedigree/reference/summary_pedmat.md)
     density for dense `Matrix` subclasses**:
     [`summary_pedmat()`](https://luansheng.github.io/visPedigree/reference/summary_pedmat.md)
     reported `Density = 100%` for all `A`, `D`, and `AA` matrices
     returned as `Matrix::dgeMatrix` objects. It now uses
     `Matrix::nnzero() / (nrow * ncol)` for all `Matrix` subclasses,
     giving the correct fill ratio for both `dgeMatrix` and `dgCMatrix`.
-    \## Documentation
-9.  **Inbreeding references**: Updated
+
+### Documentation
+
+1.  **Inbreeding references**: Updated
     [`inbreed()`](https://luansheng.github.io/visPedigree/reference/inbreed.md)
     and vignette references to cite Sargolzaei and Iwaisaki (2005)
-    instead of Meuwissen and Luo (1992). \## Internal changes
-10. **`align_bottom_generations()` helper**: Consolidated the sibling
+    instead of Meuwissen and Luo (1992).
+
+### Internal changes
+
+1.  **`align_bottom_generations()` helper**: Consolidated the sibling
     and mate generation-alignment block previously duplicated between
     the main and fast paths of
     [`tidyped()`](https://luansheng.github.io/visPedigree/reference/tidyped.md)
     into a single internal helper.
-11. **C++11 compatibility**: Replaced two C++17 structured-binding
+2.  **C++11 compatibility**: Replaced two C++17 structured-binding
     usages in the BFS functions with explicit C++11 equivalents for
     compatibility with GCC 8.
-12. **`methods` dependency**: Listed the `methods` package under
+3.  **`methods` dependency**: Listed the `methods` package under
     `Imports` in `DESCRIPTION`, as required when
     [`methods::getClass()`](https://rdrr.io/r/methods/getClass.html) and
     [`methods::new()`](https://rdrr.io/r/methods/new.html) are called at
@@ -203,9 +222,11 @@ CRAN release: 2026-03-30
     compact K × K representative-individual matrix directly and adds
     sibling-count labels of the form `ID (×n)` to each axis tick. When
     `compact = TRUE` and `by` is supplied, group means are computed
-    algebraically from the K × K matrix without expanding to N × N. \##
-    Internal changes
-3.  **[`vismat()`](https://luansheng.github.io/visPedigree/reference/vismat.md)
+    algebraically from the K × K matrix without expanding to N × N.
+
+### Internal changes
+
+1.  **[`vismat()`](https://luansheng.github.io/visPedigree/reference/vismat.md)
     threshold constants**: Hardcoded values controlling large-pedigree
     behavior (`5000`, `2000`, and `50`) were refactored into named
     constants (`VISMAT_EXPAND_MAX`, `VISMAT_LABEL_MAX`, and
@@ -222,15 +243,20 @@ CRAN release: 2026-03-30
     `"coancestry"` (returns corrected mean coancestry $`\bar{c}`$). The
     coancestry scale uses the diagonal-corrected formula of Caballero
     and Toro (2000), accounting for self-coancestry within the reference
-    group. \## API changes
-2.  **[`vispstat()`](https://luansheng.github.io/visPedigree/reference/vispstat.md)
+    group.
+
+### API changes
+
+1.  **[`vispstat()`](https://luansheng.github.io/visPedigree/reference/vispstat.md)
     internal-only backend**:
     [`vispstat()`](https://luansheng.github.io/visPedigree/reference/vispstat.md)
     is now the internal backend for
     [`plot.pedstats()`](https://luansheng.github.io/visPedigree/reference/vispstat.md).
-    Users should call the standard S3 method with `plot(stats_obj)`. \##
-    Bug fixes
-3.  **Spurious subsetting warnings**: Internal group-by slicing in
+    Users should call the standard S3 method with `plot(stats_obj)`.
+
+### Bug fixes
+
+1.  **Spurious subsetting warnings**: Internal group-by slicing in
     [`pedrel()`](https://luansheng.github.io/visPedigree/reference/pedrel.md),
     [`pedne()`](https://luansheng.github.io/visPedigree/reference/pedne.md),
     [`pediv()`](https://luansheng.github.io/visPedigree/reference/pediv.md),
@@ -239,29 +265,31 @@ CRAN release: 2026-03-30
     [`pedgenint()`](https://luansheng.github.io/visPedigree/reference/pedgenint.md)
     no longer triggers false-positive `[.tidyped]` warnings when the
     subset is only used for ID extraction.
-4.  **Internal class-restoration messages**: `pedrel(compact = TRUE)` no
+2.  **Internal class-restoration messages**: `pedrel(compact = TRUE)` no
     longer emits class-restoration messages caused by early-return
     branches in
     [`compact_ped_for_matrix()`](https://luansheng.github.io/visPedigree/reference/compact_ped_for_matrix.md).
     Those branches now preserve the `tidyped` class by returning
     `data.table::copy(ped)`.
-5.  **[`vispstat()`](https://luansheng.github.io/visPedigree/reference/vispstat.md)
+3.  **[`vispstat()`](https://luansheng.github.io/visPedigree/reference/vispstat.md)
     cleanup**: Removed dead-code variables and added unit tests for the
     `genint` branch of
     [`vispstat()`](https://luansheng.github.io/visPedigree/reference/vispstat.md).
-    \## Documentation
-6.  **[`vispstat()`](https://luansheng.github.io/visPedigree/reference/vispstat.md)
+
+### Documentation
+
+1.  **[`vispstat()`](https://luansheng.github.io/visPedigree/reference/vispstat.md)
     generation-interval documentation**: Updated the text to describe
     mean values accurately and remove the misleading “mean +/- SD”
     claim.
-7.  **`pedigree-analysis.Rmd` section 9**: Split the “Average
+2.  **`pedigree-analysis.Rmd` section 9**: Split the “Average
     Relationship Trends with
     [`pedrel()`](https://luansheng.github.io/visPedigree/reference/pedrel.md)”
     section into two subsections covering both `scale` options. Added
     the Caballero and Toro (2000) diagonal-corrected coancestry formula,
     a worked `scale = "coancestry"` example, and guidance on choosing a
     scale.
-8.  **`relationship-matrix.Rmd` updates**: Added a
+3.  **`relationship-matrix.Rmd` updates**: Added a
     compact-to-[`vismat()`](https://luansheng.github.io/visPedigree/reference/vismat.md)
     direct path, expanded the visualization examples, and replaced
     incorrect performance thresholds with a reference table.
@@ -356,23 +384,29 @@ CRAN release: 2026-03-30
 4.  **Workflow coverage and developer documentation**: Added a workflow
     vignette, a `tidyped` structure and extension vignette, and
     regression tests covering safe subsetting, `:=` by-reference
-    behavior, and split workflow semantics. \## Bug fixes
-5.  **By-reference mutation for `tidyped`**: Replaced class and metadata
+    behavior, and split workflow semantics.
+
+### Bug fixes
+
+1.  **By-reference mutation for `tidyped`**: Replaced class and metadata
     attachment paths with
     [`data.table::setattr()`](https://rdrr.io/pkg/data.table/man/setattr.html)
     so subsequent `:=` operations keep true by-reference behavior
     instead of writing into shallow copies.
-6.  **Safe row subsetting**: Added `[.tidyped` interception so
+2.  **Safe row subsetting**: Added `[.tidyped` interception so
     incomplete subsets degrade to plain `data.table` objects with a
     warning, while complete subsets preserve `tidyped` structure and
     rebuild pedigree indices.
-7.  **Class recovery**: Core analysis entry points now cooperate with
+3.  **Class recovery**: Core analysis entry points now cooperate with
     [`ensure_tidyped()`](https://luansheng.github.io/visPedigree/reference/ensure_tidyped.md)
     and
     [`validate_tidyped()`](https://luansheng.github.io/visPedigree/reference/validate_tidyped.md)
     to recover valid `tidyped` objects after common class-dropping
-    operations. \## Documentation
-8.  **Pkgdown article navigation**: Reorganized vignette order, restored
+    operations.
+
+### Documentation
+
+1.  **Pkgdown article navigation**: Reorganized vignette order, restored
     `draw-pedigree` to the recommended reading sequence, and exposed
     `tidyped` developer notes through a dedicated pkgdown
     developer-documentation entry.
@@ -390,8 +424,11 @@ CRAN release: 2026-03-30
     [`rbind()`](https://rdrr.io/r/base/cbind.html), and `dplyr` verbs
     strip the custom S3 class from `data.table` objects. Major analysis
     functions can restore the class when the underlying data structure
-    is still valid and inform the user. \## Bug fixes
-2.  **Analysis entry points**: Updated core analysis functions,
+    is still valid and inform the user.
+
+### Bug fixes
+
+1.  **Analysis entry points**: Updated core analysis functions,
     including
     [`pedstats()`](https://luansheng.github.io/visPedigree/reference/pedstats.md),
     [`pedne()`](https://luansheng.github.io/visPedigree/reference/pedne.md),
@@ -417,8 +454,11 @@ CRAN release: 2026-03-30
     [`tidyped()`](https://luansheng.github.io/visPedigree/reference/tidyped.md).
 2.  **Side-effect prevention**: Updated `calc_ne_demographic()` to
     operate on a copy of the input pedigree instead of modifying the
-    user’s data by reference. \## Documentation
-3.  **Coding standard**: Added a `data.table` return-visibility rule to
+    user’s data by reference.
+
+### Documentation
+
+1.  **Coding standard**: Added a `data.table` return-visibility rule to
     `Positron.md`.
 
 ## Changes in version 1.3.3 released on 14 Mar 2026
@@ -430,8 +470,11 @@ CRAN release: 2026-03-30
     the current
     [`pedfclass()`](https://luansheng.github.io/visPedigree/reference/pedfclass.md)
     interface and aligned examples with the current `reference`,
-    `foundervar`, and `cycle` argument names. \## Documentation
-2.  **`pedigree-analysis.Rmd` rewrite**: Reorganized the main pedigree
+    `foundervar`, and `cycle` argument names.
+
+### Documentation
+
+1.  **`pedigree-analysis.Rmd` rewrite**: Reorganized the main pedigree
     analysis vignette into thematic sections covering pedigree overview,
     pedigree completeness
     ([`pedecg()`](https://luansheng.github.io/visPedigree/reference/pedecg.md)),
@@ -448,17 +491,20 @@ CRAN release: 2026-03-30
     inbreeding classification
     ([`pedfclass()`](https://luansheng.github.io/visPedigree/reference/pedfclass.md)),
     and ancestry / partial inbreeding diagnostics.
-3.  **Theory expansion**: Added formulas, interpretation notes, and
+2.  **Theory expansion**: Added formulas, interpretation notes, and
     breeding-use explanations for Equivalent Complete Generations (ECG),
     generation intervals, effective numbers of founders / ancestors /
     founder genomes (`f_e`, `f_a`, `f_g`), three effective population
     size definitions (`N_e` by demographic, inbreeding, and coancestry
     methods), and average additive relationship (`MeanRel`).
-4.  **Reference update**: Expanded the vignette bibliography to include
+3.  **Reference update**: Expanded the vignette bibliography to include
     Wright (1922, 1931), Lacy (1989), Boichard et al. (1997), Caballero
     and Toro (2000), Cervantes et al. (2011), and Gutierrez et
-    al. (2008, 2009). \## Internal changes
-5.  **Analysis regression coverage**: Added unit tests verifying that
+    al. (2008, 2009).
+
+### Internal changes
+
+1.  **Analysis regression coverage**: Added unit tests verifying that
     [`pedancestry()`](https://luansheng.github.io/visPedigree/reference/pedancestry.md)
     proportions sum to 1 in a multi-line admixture pedigree and that
     [`pedrel()`](https://luansheng.github.io/visPedigree/reference/pedrel.md)
@@ -482,36 +528,45 @@ CRAN release: 2026-03-30
     [`splitped()`](https://luansheng.github.io/visPedigree/reference/splitped.md)
     from grouping and summary analysis. It now reports counts of total
     individuals, sires, dams, and founders within subgroups or connected
-    components. \## API changes
-3.  **[`pedfclass()`](https://luansheng.github.io/visPedigree/reference/pedfclass.md)
+    components.
+
+### API changes
+
+1.  **[`pedfclass()`](https://luansheng.github.io/visPedigree/reference/pedfclass.md)
     rename**: Renamed `pedinbreedclass()` to
     [`pedfclass()`](https://luansheng.github.io/visPedigree/reference/pedfclass.md)
     to align with the package naming guide and provide a shorter API.
-4.  **[`pedfclass()`](https://luansheng.github.io/visPedigree/reference/pedfclass.md)
+2.  **[`pedfclass()`](https://luansheng.github.io/visPedigree/reference/pedfclass.md)
     output refinement**: Renamed the returned class column from
     `F_Class` to `FClass` and added user-defined inbreeding class
     breakpoints through `breaks` and `labels`.
-5.  **[`pedgenint()`](https://luansheng.github.io/visPedigree/reference/pedgenint.md)
+3.  **[`pedgenint()`](https://luansheng.github.io/visPedigree/reference/pedgenint.md)
     parameter rename**: Renamed `cycle_length` to `cycle`.
-6.  **[`pedgenint()`](https://luansheng.github.io/visPedigree/reference/pedgenint.md)
+4.  **[`pedgenint()`](https://luansheng.github.io/visPedigree/reference/pedgenint.md)
     and
     [`pedstats()`](https://luansheng.github.io/visPedigree/reference/pedstats.md)
     `unit` parameter**: Removed `"gen"` from `unit` options. The `unit`
     parameter now accepts `"year"`, `"month"`, `"day"`, or `"hour"`.
-7.  **[`pedgenint()`](https://luansheng.github.io/visPedigree/reference/pedgenint.md)
+5.  **[`pedgenint()`](https://luansheng.github.io/visPedigree/reference/pedgenint.md)
     `timevar` definition**: Clarified `timevar` as a birth-date column.
     Numeric year inputs are converted to `Date` values using
     `"YYYY-07-01"` with an informational message. Character date strings
-    are parsed with `as.POSIXct(..., tz = "UTC")`. \## Improvements
-8.  **[`pedsubpop()`](https://luansheng.github.io/visPedigree/reference/pedsubpop.md)
+    are parsed with `as.POSIXct(..., tz = "UTC")`.
+
+### Improvements
+
+1.  **[`pedsubpop()`](https://luansheng.github.io/visPedigree/reference/pedsubpop.md)
     documentation**: Refined internal documentation to clarify its use
     cases alongside
     [`splitped()`](https://luansheng.github.io/visPedigree/reference/splitped.md).
-9.  **`.parse_to_numeric_time()` rewrite**: Rewrote the internal time
+2.  **`.parse_to_numeric_time()` rewrite**: Rewrote the internal time
     parser to handle `Date`, `POSIXct`, character date strings, and
     numeric years. `POSIXct` conversions now use `tz = "UTC"` to avoid
-    DST-related artifacts. \## Bug fixes
-10. **[`vispstat()`](https://luansheng.github.io/visPedigree/reference/vispstat.md)
+    DST-related artifacts.
+
+### Bug fixes
+
+1.  **[`vispstat()`](https://luansheng.github.io/visPedigree/reference/vispstat.md)
     pathway filter**: Fixed an issue where the generation-interval bar
     chart could drop pathways because of an overly broad
     [`factor()`](https://rdrr.io/r/base/factor.html) filter. The filter
@@ -533,18 +588,23 @@ CRAN release: 2026-03-30
     [`pedrel()`](https://luansheng.github.io/visPedigree/reference/pedrel.md)
     now uses full ancestral tracing via `tidyped(ped, cand = ...)` when
     calculating subgroup relationships, avoiding underestimation caused
-    by ancestor truncation in deep-inbred populations. \## API changes
-3.  **[`pedancestry()`](https://luansheng.github.io/visPedigree/reference/pedancestry.md)
+    by ancestor truncation in deep-inbred populations.
+
+### API changes
+
+1.  **[`pedancestry()`](https://luansheng.github.io/visPedigree/reference/pedancestry.md)
     parameter rename**: Renamed `labelvar` to `foundervar` and `labels`
     to `target_labels` to make the ancestry-tracing interface more
     explicit. Old argument names are no longer supported because the
     function was still under active development.
-4.  **[`pedecg()`](https://luansheng.github.io/visPedigree/reference/pedecg.md)
+2.  **[`pedecg()`](https://luansheng.github.io/visPedigree/reference/pedecg.md)
     parameter cleanup**: Removed the short-lived `reference` argument,
     which only filtered rows after a full ECG pass and did not define a
-    reference population or prune the pedigree before calculation. \##
-    Improvements
-5.  **Academic nomenclature alignment**: Updated documentation for
+    reference population or prune the pedigree before calculation.
+
+### Improvements
+
+1.  **Academic nomenclature alignment**: Updated documentation for
     [`pedrel()`](https://luansheng.github.io/visPedigree/reference/pedrel.md)
     and
     [`pedne()`](https://luansheng.github.io/visPedigree/reference/pedne.md)
@@ -554,25 +614,28 @@ CRAN release: 2026-03-30
     now states that it returns $`a_{ij} = 2f_{ij}`$, and
     [`pedne()`](https://luansheng.github.io/visPedigree/reference/pedne.md)
     documents that its `"coancestry"` method is based on $`f_{ij}`$.
-6.  **Monoecious individuals**: Individuals acting as both parents are
+2.  **Monoecious individuals**: Individuals acting as both parents are
     identified as `"monoecious"` in the `Sex` column.
-7.  **[`visped()`](https://luansheng.github.io/visPedigree/reference/visped.md)
+3.  **[`visped()`](https://luansheng.github.io/visPedigree/reference/visped.md)
     monoecious styling**:
     [`visped()`](https://luansheng.github.io/visPedigree/reference/visped.md)
     uses teal (`#26a69a`) for `"monoecious"` individuals.
-8.  **Role-specific pedigree edges**: Pedigree edges are colored by the
+4.  **Role-specific pedigree edges**: Pedigree edges are colored by the
     parent’s role in each mating (sire, dam, or selfing) rather than
     invariant node sex.
-9.  **`tidyped` summary methods**:
+5.  **`tidyped` summary methods**:
     [`summary()`](https://rdrr.io/r/base/summary.html) and
     [`print()`](https://rdrr.io/r/base/print.html) methods for `tidyped`
     objects now report the count and percentage of monoecious
     individuals.
-10. **[`pedancestry()`](https://luansheng.github.io/visPedigree/reference/pedancestry.md)
+6.  **[`pedancestry()`](https://luansheng.github.io/visPedigree/reference/pedancestry.md)
     initialization**: Optimized initialization on large pedigrees by
     using vectorized matrix indexing, reducing overhead for pedigrees
-    with more than 25,000 nodes. \## Bug fixes
-11. **[`pedrel()`](https://luansheng.github.io/visPedigree/reference/pedrel.md)
+    with more than 25,000 nodes.
+
+### Bug fixes
+
+1.  **[`pedrel()`](https://luansheng.github.io/visPedigree/reference/pedrel.md)
     deep-inbreeding regression coverage**: Added a unit test verifying
     relationship calculation in deep-inbreeding scenarios, including Gen
     4 relationships reaching 1.0.
@@ -627,21 +690,26 @@ CRAN release: 2026-03-30
     method provides a formatted summary table.
 2.  **`complex_ped` dataset**: Added `complex_ped`, a multi-generation
     pedigree dataset for testing deeper ancestry tracing and
-    cross-generation diversity analyses. \## API changes
-3.  **Reference-population parameter rename**: Standardized the
+    cross-generation diversity analyses.
+
+### API changes
+
+1.  **Reference-population parameter rename**: Standardized the
     reference population parameter name across relevant analysis
     functions: `pedne(..., reference = NULL)`,
     `pedcontrib(..., reference = NULL)`, and
     `pedrel(..., reference = NULL)`. These previously used `cand`. Old
-    `cand` arguments are no longer supported in those functions. \##
-    Documentation
-4.  **`pedigree-analysis.Rmd` rewrite**: Restructured the pedigree
+    `cand` arguments are no longer supported in those functions.
+
+### Documentation
+
+1.  **`pedigree-analysis.Rmd` rewrite**: Restructured the pedigree
     analysis vignette with expanded theory explanations for `f_e`,
     `f_a`, and `N_e`, updated examples using
     [`pediv()`](https://luansheng.github.io/visPedigree/reference/pediv.md)
     and `reference`, and additional interpretation for breeding
     decisions.
-5.  **Workspace organization**: Moved development-only files
+2.  **Workspace organization**: Moved development-only files
     (`MACOS_OPENMP_FIX.md`, `manuscript.md`, and analysis scripts) into
     `sandbox/`, with corresponding `.gitignore` and `.Rbuildignore`
     rules.
@@ -678,12 +746,18 @@ CRAN release: 2026-03-30
     (1992).
 5.  **`half_founder_ped` dataset**: Added `half_founder_ped`, an
     ENDOG-derived dataset containing records with a single known parent
-    for testing phantom-parent corrections. \## Performance
-6.  **Peeling core engine**: Rebuilt the C++ array engine backing the
+    for testing phantom-parent corrections.
+
+### Performance
+
+1.  **Peeling core engine**: Rebuilt the C++ array engine backing the
     `f_a` and `f_e` calculations. The bounded O(K × N) array-state
     implementation avoids excessive latency on deep pedigrees with more
-    than 180,000 nodes. \## Documentation
-7.  **Reference index**: Expanded `_pkgdown.yml` mappings to expose
+    than 180,000 nodes.
+
+### Documentation
+
+1.  **Reference index**: Expanded `_pkgdown.yml` mappings to expose
     pedigree statistical functions such as
     [`pedancestry()`](https://luansheng.github.io/visPedigree/reference/pedancestry.md),
     [`pedcontrib()`](https://luansheng.github.io/visPedigree/reference/pedcontrib.md),
@@ -691,7 +765,7 @@ CRAN release: 2026-03-30
     and
     [`pedecg()`](https://luansheng.github.io/visPedigree/reference/pedecg.md)
     in the reference documentation.
-8.  **Analysis vignette**: Updated `vignettes/pedigree-analysis.Rmd`
+2.  **Analysis vignette**: Updated `vignettes/pedigree-analysis.Rmd`
     with Boichard-style genetic bottleneck interpretations (`f_e` versus
     `f_a`) and examples for targeted lineage flow.
 
@@ -712,16 +786,21 @@ CRAN release: 2026-03-30
     than inbreeding-based estimates.
 2.  **Parallel and sampled coancestry estimation**: Added OpenMP
     multi-threading for the `method = "coancestry"` path via `ncores`,
-    and added `nsamples` for sampled estimation on large pedigrees. \##
-    Performance
-3.  **Coancestry backend**: Implemented the C++ backend
+    and added `nsamples` for sampled estimation on large pedigrees.
+
+### Performance
+
+1.  **Coancestry backend**: Implemented the C++ backend
     `cpp_calculate_sampled_coancestry_delta()` using `RcppArmadillo`,
     replacing previous R-level coancestry calculations for larger
-    datasets. \## Documentation
-4.  **[`pedne()`](https://luansheng.github.io/visPedigree/reference/pedne.md)
+    datasets.
+
+### Documentation
+
+1.  **[`pedne()`](https://luansheng.github.io/visPedigree/reference/pedne.md)
     parameter scopes**: Documented that `ncores` and `nsamples` apply to
     `method = "coancestry"`.
-5.  **[`pedne()`](https://luansheng.github.io/visPedigree/reference/pedne.md)
+2.  **[`pedne()`](https://luansheng.github.io/visPedigree/reference/pedne.md)
     method descriptions**: Expanded documentation for the three `N_e`
     calculation methods to support method selection.
 
@@ -733,43 +812,48 @@ CRAN release: 2026-03-30
     sex-independent pathways**: Added `SO` (sire-to-offspring) and `DO`
     (dam-to-offspring) generation intervals alongside the standard four
     pathways. These pathways support settings such as aquaculture or
-    early-stage screening where offspring sex may be unknown. \## API
-    changes
-2.  **[`pedne()`](https://luansheng.github.io/visPedigree/reference/pedne.md)
+    early-stage screening where offspring sex may be unknown.
+
+### API changes
+
+1.  **[`pedne()`](https://luansheng.github.io/visPedigree/reference/pedne.md)
     interface standardization**: Renamed `timevar` to `by` and `cohort`
     to `cand`; removed unused or misleading parameters (`unit`,
     `cycle_length`, and `maxgen`). Old `timevar` and `cohort` arguments
     are retained with deprecation warnings.
-3.  **[`vismat()`](https://luansheng.github.io/visPedigree/reference/vismat.md)
+2.  **[`vismat()`](https://luansheng.github.io/visPedigree/reference/vismat.md)
     parameter alignment**: Renamed `grouping` to `by` for grouping
     consistency. The old `grouping` argument is retained with a
-    deprecation warning. \## Bug fixes
-4.  **[`pedrel()`](https://luansheng.github.io/visPedigree/reference/pedrel.md)
+    deprecation warning.
+
+### Bug fixes
+
+1.  **[`pedrel()`](https://luansheng.github.io/visPedigree/reference/pedrel.md)
     correctness**: Fixed an error where mean average relatedness was
     calculated by summing the full relationship matrix, including traced
     ancestors, and dividing by only the target subgroup size. The
     function now subsets the relationship matrix and handles
     `NUsed < 2`. Output columns `N` and `MeanRel` were replaced with
     `NTotal`, `NUsed`, and `MeanRel`.
-5.  **[`pedgenint()`](https://luansheng.github.io/visPedigree/reference/pedgenint.md)
+2.  **[`pedgenint()`](https://luansheng.github.io/visPedigree/reference/pedgenint.md)
     aggregation**:
     [`pedgenint()`](https://luansheng.github.io/visPedigree/reference/pedgenint.md)
     now outputs the appropriate unweighted mixture standard deviation
     for generation intervals alongside the unweighted four-pathway
     average.
-6.  **[`pedgenint()`](https://luansheng.github.io/visPedigree/reference/pedgenint.md)
+3.  **[`pedgenint()`](https://luansheng.github.io/visPedigree/reference/pedgenint.md)
     sample size**: Fixed underestimation of the `Average` pathway `N` by
     evaluating all parent-offspring pairs through `calc_all_pathway()`.
-7.  **[`pedcontrib()`](https://luansheng.github.io/visPedigree/reference/pedcontrib.md)
+4.  **[`pedcontrib()`](https://luansheng.github.io/visPedigree/reference/pedcontrib.md)
     effective numbers**: Standardized effective founder (`Ne_f`) and
     effective ancestor (`Ne_a`) calculations so they use the full
     untruncated cohort before reporting the top-ranked rows. The result
     list now includes total and reported count variables.
-8.  **[`pedcontrib()`](https://luansheng.github.io/visPedigree/reference/pedcontrib.md)
+5.  **[`pedcontrib()`](https://luansheng.github.io/visPedigree/reference/pedcontrib.md)
     deep-pedigree latency**: Replaced a string-named-vector backward
     pass with a pure integer-indexed backward pass for large and deep
     pedigrees, including cases with more than 200,000 records.
-9.  **[`pedpartial()`](https://luansheng.github.io/visPedigree/reference/pedpartial.md)
+6.  **[`pedpartial()`](https://luansheng.github.io/visPedigree/reference/pedpartial.md)
     and
     [`pedancestry()`](https://luansheng.github.io/visPedigree/reference/pedancestry.md)
     input compatibility**: Missing numeric identifier columns in
@@ -781,7 +865,7 @@ CRAN release: 2026-03-30
     The pedigree propagation loop in
     [`pedancestry()`](https://luansheng.github.io/visPedigree/reference/pedancestry.md)
     was also simplified to use direct vector lookup.
-10. **[`pedne()`](https://luansheng.github.io/visPedigree/reference/pedne.md)
+7.  **[`pedne()`](https://luansheng.github.io/visPedigree/reference/pedne.md)
     performance bottleneck**: Removed obsolete O(N^2) individual
     traversal in `calc_ancestral_f()`, using the direct formula by
     Gutierrez et al.
@@ -857,38 +941,46 @@ CRAN release: 2026-02-23
     [`pedmat()`](https://luansheng.github.io/visPedigree/reference/pedmat.md)
     from `"f"` to `"A"`.
 3.  **Thread argument name**: Standardized `n_threads` to `threads`
-    across functions. \## New features
-4.  **Family assignment and summary**:
+    across functions.
+
+### New features
+
+1.  **Family assignment and summary**:
     [`tidyped()`](https://luansheng.github.io/visPedigree/reference/tidyped.md)
     now assigns a `Family` column identifying full-sib groups.
     [`summary.tidyped()`](https://luansheng.github.io/visPedigree/reference/summary.tidyped.md)
     reports family counts, sizes, largest families, and offspring
     summaries.
-5.  **Pedigree splitting
+2.  **Pedigree splitting
     ([`splitped()`](https://luansheng.github.io/visPedigree/reference/splitped.md))**:
     Added
     [`splitped()`](https://luansheng.github.io/visPedigree/reference/splitped.md)
     to detect disconnected pedigree components, exclude isolated
     individuals, and return re-indexed `tidyped` objects for separate
     analysis or visualization.
-6.  **Relationship matrix support**:
+3.  **Relationship matrix support**:
     [`pedmat()`](https://luansheng.github.io/visPedigree/reference/pedmat.md)
     supports additive (`A`, `Ainv`), dominance (`D`, `Dinv`), and
     additive-by-additive epistatic (`AA`, `AAinv`) relationship
     matrices.
-7.  **Relationship matrix visualization
+4.  **Relationship matrix visualization
     ([`vismat()`](https://luansheng.github.io/visPedigree/reference/vismat.md))**:
     Added
     [`vismat()`](https://luansheng.github.io/visPedigree/reference/vismat.md)
     for heatmaps and histograms of `pedmat` objects, `tidyped` objects,
     and standard matrices. Heatmaps can be annotated with family groups
-    when a pedigree is provided. \## Documentation
-8.  **CRAN preparation**: Updated vignette generation, S3 method
-    dispatch, and documentation for CRAN submission. \## Internal
-    changes
-9.  **Portable compilation**: Standardized `src/Makevars` for
+    when a pedigree is provided.
+
+### Documentation
+
+1.  **CRAN preparation**: Updated vignette generation, S3 method
+    dispatch, and documentation for CRAN submission.
+
+### Internal changes
+
+1.  **Portable compilation**: Standardized `src/Makevars` for
     cross-platform compatibility.
-10. **Dependencies**: Moved `RcppArmadillo` to `LinkingTo`.
+2.  **Dependencies**: Moved `RcppArmadillo` to `LinkingTo`.
 
 ## Changes in version 0.7.3 released on 13 Jan 2026
 
@@ -898,17 +990,23 @@ CRAN release: 2026-02-23
     now requires a single `method` value, such as `method = "A"`. It
     returns the requested matrix or vector directly instead of a named
     list. Requesting multiple methods in one call now raises an error;
-    use repeated calls for multiple outputs. \## New features
-2.  **Rcpp relationship calculations**: Added `pedmatrix()` with Rcpp
+    use repeated calls for multiple outputs.
+
+### New features
+
+1.  **Rcpp relationship calculations**: Added `pedmatrix()` with Rcpp
     implementations for the additive relationship matrix (`A`), sparse
     inverse additive matrix (`Ainv`) using Henderson’s rules, dominance
     matrix (`D`), and inbreeding coefficients (`f`) using the Meuwissen
-    and Luo (1992) path-tracing algorithm. \## Improvements
-3.  **Default inbreeding backend**:
+    and Luo (1992) path-tracing algorithm.
+
+### Improvements
+
+1.  **Default inbreeding backend**:
     [`inbreed()`](https://luansheng.github.io/visPedigree/reference/inbreed.md)
     now uses the native Rcpp implementation by default, moving `nadiv`
     to `Suggests`.
-4.  **Documentation and website**: Updated package documentation and
+2.  **Documentation and website**: Updated package documentation and
     vignettes. The package website is available at
     <https://luansheng.github.io/visPedigree/>.
 
@@ -923,12 +1021,15 @@ CRAN release: 2026-02-23
     (bottom-aligned) generation inference. The `"top"` method aligns
     founders at generation 1; the `"bottom"` method aligns terminal
     nodes at the bottom for visualization of unrelated introduced
-    parents. \## Improvements
-2.  **Default generation assignment**: Changed the default generation
+    parents.
+
+### Improvements
+
+1.  **Default generation assignment**: Changed the default generation
     assignment method to `"top"`.
-3.  **Pkgdown website**: Generated and published the package website at
+2.  **Pkgdown website**: Generated and published the package website at
     <https://luansheng.github.io/visPedigree/>.
-4.  **Automated documentation deployment**: Added a GitHub Actions
+3.  **Automated documentation deployment**: Added a GitHub Actions
     workflow for documentation updates and GitHub Pages deployment.
 
 ## Changes in version 0.7.1 released on 11 Jan 2026
@@ -945,21 +1046,24 @@ CRAN release: 2026-01-21
     and
     [`visped()`](https://luansheng.github.io/visPedigree/reference/visped.md)
     so it returns the union of ancestors and descendants (`"up"` plus
-    `"down"`) instead of the entire connected component. \## Performance
-3.  **Large-pedigree
+    `"down"`) instead of the entire connected component.
+
+### Performance
+
+1.  **Large-pedigree
     [`visped()`](https://luansheng.github.io/visPedigree/reference/visped.md)
     rendering**: Optimized
     [`visped()`](https://luansheng.github.io/visPedigree/reference/visped.md)
     for large pedigrees through attribute handling and vectorized
     rendering, reducing repeated `igraph` attribute lookups for 100,000+
     individuals.
-4.  **Vectorized tracing**: Refactored `trace_ped_candidates()` in
+2.  **Vectorized tracing**: Refactored `trace_ped_candidates()` in
     [`tidyped()`](https://luansheng.github.io/visPedigree/reference/tidyped.md)
     to use vectorized
     [`igraph::neighborhood()`](https://r.igraph.org/reference/ego.html)
     calls. In one benchmark, 37,000 candidates in a 178,000-individual
     pedigree were traced in about 1.2 s.
-5.  **Early isolated-individual filtering**: Implemented early filtering
+3.  **Early isolated-individual filtering**: Implemented early filtering
     of isolated Gen 0 individuals in
     [`prepare_ped_graph()`](https://luansheng.github.io/visPedigree/reference/prepare_ped_graph.md)
     to streamline graph conversion and layout.
@@ -977,22 +1081,30 @@ CRAN release: 2026-01-21
     [`visped()`](https://luansheng.github.io/visPedigree/reference/visped.md)
     architecture**: Split the previous monolithic `visped.R`
     implementation into `visped_layout.R`, `visped_graph.R`,
-    `visped_style.R`, and `visped_render.R`. \## New features
-3.  **[`visped()`](https://luansheng.github.io/visPedigree/reference/visped.md)
+    `visped_style.R`, and `visped_render.R`.
+
+### New features
+
+1.  **[`visped()`](https://luansheng.github.io/visPedigree/reference/visped.md)
     layout parameters**: Added `pagewidth` to control PDF page width and
     `symbolsize` to scale node sizes relative to label dimensions.
-4.  **Two-pass rendering**: Added a two-pass strategy in
+2.  **Two-pass rendering**: Added a two-pass strategy in
     [`plot_ped_igraph()`](https://luansheng.github.io/visPedigree/reference/plot_ped_igraph.md)
     so edges connect at node centers in vector PDF outputs.
-5.  **Highlight tracing**: Added ancestry and descendant highlighting
+3.  **Highlight tracing**: Added ancestry and descendant highlighting
     through the `trace` parameter in
     [`visped()`](https://luansheng.github.io/visPedigree/reference/visped.md).
-    \## Bug fixes
-6.  **`outline = TRUE` rendering**: Fixed rendering failure by
+
+### Bug fixes
+
+1.  **`outline = TRUE` rendering**: Fixed rendering failure by
     correcting graph attribute indexing.
-7.  **Coordinate precision**: Improved coordinate calculation precision
-    to reduce overlap in high-density generations. \## Internal changes
-8.  **Testing framework**: Modernized the unit testing suite to
+2.  **Coordinate precision**: Improved coordinate calculation precision
+    to reduce overlap in high-density generations.
+
+### Internal changes
+
+1.  **Testing framework**: Modernized the unit testing suite to
     `testthat` 3rd edition and removed legacy `context()` warnings.
 
 ## Changes in version 0.6.2 released on 01 Jan 2026
@@ -1002,12 +1114,15 @@ CRAN release: 2026-01-21
 1.  **[`summary.tidyped()`](https://luansheng.github.io/visPedigree/reference/summary.tidyped.md)**:
     Added a [`summary()`](https://rdrr.io/r/base/summary.html) method
     for `tidyped` objects to report counts of individuals, founders, sex
-    distribution, and related pedigree statistics. \## Bug fixes
-2.  **`tidyped(..., inbreed = TRUE)`**: Fixed failure caused by
+    distribution, and related pedigree statistics.
+
+### Bug fixes
+
+1.  **`tidyped(..., inbreed = TRUE)`**: Fixed failure caused by
     incorrect class assignment order.
-3.  **`visped(..., showf = TRUE)`**: Added a warning when the `f` column
+2.  **`visped(..., showf = TRUE)`**: Added a warning when the `f` column
     is missing instead of erroring.
-4.  **Vignette navigation**: Fixed broken internal navigation links in
+3.  **Vignette navigation**: Fixed broken internal navigation links in
     package vignettes.
 
 ## Changes in version 0.6.1 released on 30 Dec 2025
@@ -1052,20 +1167,25 @@ CRAN release: 2026-01-21
     [`inbreed()`](https://luansheng.github.io/visPedigree/reference/inbreed.md)**:
     Refactored
     [`inbreed()`](https://luansheng.github.io/visPedigree/reference/inbreed.md)
-    as a standalone tool that operates on `tidyped` objects. \##
-    Performance
-5.  **[`repeloverlap()`](https://luansheng.github.io/visPedigree/reference/repeloverlap.md)**:
+    as a standalone tool that operates on `tidyped` objects.
+
+### Performance
+
+1.  **[`repeloverlap()`](https://luansheng.github.io/visPedigree/reference/repeloverlap.md)**:
     Optimized
     [`repeloverlap()`](https://luansheng.github.io/visPedigree/reference/repeloverlap.md)
-    with `data.table`. \## Bug fixes
-6.  **[`visped()`](https://luansheng.github.io/visPedigree/reference/visped.md)
+    with `data.table`.
+
+### Bug fixes
+
+1.  **[`visped()`](https://luansheng.github.io/visPedigree/reference/visped.md)
     compact-highlight-showf crash**: Fixed a crash when combining
     `compact = TRUE`, `highlight`, and `showf = TRUE` by refactoring
     [`ped2igraph()`](https://luansheng.github.io/visPedigree/reference/ped2igraph.md)
     to delay label modification until after layout calculation.
-7.  **Documentation grammar**: Fixed grammar and phrasing across
+2.  **Documentation grammar**: Fixed grammar and phrasing across
     function documentation for CRAN compliance.
-8.  **`R CMD check` notes**: Fixed `data.table` non-standard evaluation
+3.  **`R CMD check` notes**: Fixed `data.table` non-standard evaluation
     notes by adding `R/globals.R`.
 
 ## Changes in version 0.4.1 released on 25 Dec 2025
