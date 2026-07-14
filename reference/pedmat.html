@@ -317,11 +317,16 @@ Biometrics, 32(1), 69-83.</p>
 <span class="r-in"><span><span class="va">AA</span> <span class="op">&lt;-</span> <span class="fu">pedmat</span><span class="op">(</span><span class="va">tped</span>, method <span class="op">=</span> <span class="st">"AA"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># --- Visualization (requires display device) ---</span></span></span>
-<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+<span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="vismat.html">vismat</a></span><span class="op">(</span><span class="va">A</span><span class="op">)</span>                       <span class="co"># Heatmap of relationship matrix</span></span></span>
+<span class="r-plt img"><img src="pedmat-1.png" alt="" width="1800" height="1800"></span>
 <span class="r-in"><span><span class="fu"><a href="vismat.html">vismat</a></span><span class="op">(</span><span class="va">A_compact</span><span class="op">)</span>               <span class="co"># Works with compact matrices</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Expanding compact matrix (27 -&gt; 28 individuals) for visualization.</span>
+<span class="r-plt img"><img src="pedmat-2.png" alt="" width="1800" height="1800"></span>
 <span class="r-in"><span><span class="fu"><a href="vismat.html">vismat</a></span><span class="op">(</span><span class="va">A</span>, by <span class="op">=</span> <span class="st">"Gen"</span><span class="op">)</span>     <span class="co"># Group by generation</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Aggregating 28 individuals into 6 groups based on 'Gen'...</span>
+<span class="r-plt img"><img src="pedmat-3.png" alt="" width="1800" height="1800"></span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

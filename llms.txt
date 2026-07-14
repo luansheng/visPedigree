@@ -14,7 +14,7 @@ selfing and pedigrees in which the same individual can appear as both
 sire and dam.
 
 ![Example pedigree visualization produced by
-visPedigree](reference/figures/ped_example.png)
+visPedigree](https://raw.githubusercontent.com/luansheng/visPedigree/main/man/figures/ped_example.png)
 
 ## Key Features
 

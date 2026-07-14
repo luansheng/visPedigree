@@ -344,9 +344,14 @@ D <- pedmat(tped, method = "D")
 AA <- pedmat(tped, method = "AA")
 
 # --- Visualization (requires display device) ---
-if (FALSE) { # \dontrun{
+# \donttest{
 vismat(A)                       # Heatmap of relationship matrix
+
 vismat(A_compact)               # Works with compact matrices
+#> Expanding compact matrix (27 -> 28 individuals) for visualization.
+
 vismat(A, by = "Gen")     # Group by generation
-} # }
+#> Aggregating 28 individuals into 6 groups based on 'Gen'...
+
+# }
 ```
