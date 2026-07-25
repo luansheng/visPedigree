@@ -1,4 +1,11 @@
-# 3. How to draw a pedigree
+# Pedigree Visualization in R
+
+`visPedigree` provides pedigree visualization in R for animal and plant
+breeding data. This vignette shows how to use
+[`visped()`](https://luansheng.github.io/visPedigree/reference/visped.md)
+to draw hierarchical pedigree graphs, simplify large full-sib families,
+trace or highlight individuals, display inbreeding coefficients, and
+export vector PDF or SVG graphics.
 
 1.  [Drawing the pedigree graph](#id_1)  
     1.1 [A simple pedigree graph](#id_1-1)  
@@ -56,7 +63,7 @@ visped(tidy_small_ped,
         cex=0.5, 
         symbolsize=10, 
         file = tempfile(fileext = ".pdf"))
-#> Pedigree saved to: /tmp/RtmpwSUa9X/file20f0f5958b8.pdf
+#> Pedigree saved to: /tmp/RtmpIrcGdW/file25cc797bdb21.pdf
 #> Label cex: 0.5. Symbol size: 10. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 ```
 
@@ -384,7 +391,7 @@ visped(
   showgraph = TRUE,
   file = tempfile(fileext = ".pdf")
 )
-#> Pedigree saved to: /tmp/RtmpwSUa9X/file20f0493057af.pdf
+#> Pedigree saved to: /tmp/RtmpIrcGdW/file25cc543d6b38.pdf
 #> Label cex: 0.08. Symbol size: 5.5. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 ```
 
@@ -416,7 +423,7 @@ visped(
   showgraph = FALSE,
   file = tempfile(fileext = ".pdf")
 )
-#> Pedigree saved to: /tmp/RtmpwSUa9X/file20f067fb2784.pdf
+#> Pedigree saved to: /tmp/RtmpIrcGdW/file25ccbc4098a.pdf
 #> Label cex: 0.83. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.
 ```
 

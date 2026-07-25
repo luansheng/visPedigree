@@ -5,12 +5,15 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>3. How to draw a pedigree • visPedigree</title>
+<title>Pedigree Visualization in R • visPedigree</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="3. How to draw a pedigree">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Pedigree Visualization in R">
+<meta name="description" content="Visualize animal and plant pedigrees in R with compact full-sib graphs, tracing, highlighting, inbreeding labels, and vector output.">
+<meta property="og:description" content="Visualize animal and plant pedigrees in R with compact full-sib graphs, tracing, highlighting, inbreeding labels, and vector output.">
+<meta property="og:image" content="https://luansheng.github.io/visPedigree/logo.png">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -35,9 +38,9 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/tidy-pedigree.html">1. How to tidy a pedigree</a></li>
     <li><a class="dropdown-item" href="../articles/efficient-visPedigree-workflows.html">2. Efficient visPedigree Workflows</a></li>
-    <li><a class="dropdown-item" href="../articles/draw-pedigree.html">3. How to draw a pedigree</a></li>
-    <li><a class="dropdown-item" href="../articles/pedigree-analysis.html">4. Pedigree Analysis and Population Genetics</a></li>
-    <li><a class="dropdown-item" href="../articles/relationship-matrix.html">5. Calculation and visualization of relationship matrix</a></li>
+    <li><a class="dropdown-item" href="../articles/draw-pedigree.html">Pedigree Visualization in R</a></li>
+    <li><a class="dropdown-item" href="../articles/pedigree-analysis.html">Pedigree Analysis and Genetic Diversity in R</a></li>
+    <li><a class="dropdown-item" href="../articles/relationship-matrix.html">Pedigree Relationship Matrices and Matrix-Free Products in R</a></li>
     <li><a class="dropdown-item" href="../articles/tidyped-structure.html">6. tidyped Class Structure and Extension Notes</a></li>
   </ul>
 </li>
@@ -60,7 +63,7 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.png" class="logo" alt=""><h1>3. How to draw a pedigree</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>Pedigree Visualization in R</h1>
                         <h4 data-toc-skip class="author">Sheng Luan</h4>
             
             <h4 data-toc-skip class="date">2026-07-25</h4>
@@ -71,6 +74,11 @@
 
     
     
+<p><code>visPedigree</code> provides pedigree visualization in R for
+animal and plant breeding data. This vignette shows how to use
+<code><a href="../reference/visped.html">visped()</a></code> to draw hierarchical pedigree graphs, simplify
+large full-sib families, trace or highlight individuals, display
+inbreeding coefficients, and export vector PDF or SVG graphics.</p>
 <ol style="list-style-type: decimal">
 <li>
 <a href="#id_1">Drawing the pedigree graph</a><br>
@@ -127,7 +135,7 @@ in a PDF file.</p>
 <span>        cex<span class="op">=</span><span class="fl">0.5</span>, </span>
 <span>        symbolsize<span class="op">=</span><span class="fl">10</span>, </span>
 <span>        file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".pdf"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Pedigree saved to: /tmp/RtmpwSUa9X/file20f0f5958b8.pdf</span></span>
+<span><span class="co">#&gt; Pedigree saved to: /tmp/RtmpIrcGdW/file25cc797bdb21.pdf</span></span>
 <span><span class="co">#&gt; Label cex: 0.5. Symbol size: 10. Adjust 'cex' and 'symbolsize' if labels are too large or small.</span></span></code></pre></div>
 <p><img src="draw-pedigree_files/figure-html/smallped-1.png" class="r-plt" alt="" width="100%"></p>
 <p>By default, <code>shapeby = "sex"</code> encodes individual sex by
@@ -388,7 +396,7 @@ significant overlapping due to the high density of individuals.</p>
 <span>  showgraph <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".pdf"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; Pedigree saved to: /tmp/RtmpwSUa9X/file20f0493057af.pdf</span></span>
+<span><span class="co">#&gt; Pedigree saved to: /tmp/RtmpIrcGdW/file25cc543d6b38.pdf</span></span>
 <span><span class="co">#&gt; Label cex: 0.08. Symbol size: 5.5. Adjust 'cex' and 'symbolsize' if labels are too large or small.</span></span></code></pre></div>
 <p><img src="draw-pedigree_files/figure-html/reduceped1-1.png" class="r-plt" alt="" width="100%"></p>
 <p>You can open the generated PDF file to view the high-definition
@@ -415,7 +423,7 @@ are usually sufficient. The <strong>visped</strong> function reports the
 <span>  showgraph <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".pdf"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; Pedigree saved to: /tmp/RtmpwSUa9X/file20f067fb2784.pdf</span></span>
+<span><span class="co">#&gt; Pedigree saved to: /tmp/RtmpIrcGdW/file25ccbc4098a.pdf</span></span>
 <span><span class="co">#&gt; Label cex: 0.83. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.</span></span></code></pre></div>
 <p>You can open the generated PDF file to view the high-definition
 pedigree vectorgraph. The labels align better with the shapes compared

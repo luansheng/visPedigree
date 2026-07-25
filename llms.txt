@@ -69,12 +69,12 @@ Recommended reading order:
     pedigree](https://luansheng.github.io/visPedigree/articles/tidy-pedigree.html)
 2.  [Efficient visPedigree
     Workflows](https://luansheng.github.io/visPedigree/articles/efficient-visPedigree-workflows.html)
-3.  [How to draw a
-    pedigree](https://luansheng.github.io/visPedigree/articles/draw-pedigree.html)
-4.  [Pedigree Analysis and Population
-    Genetics](https://luansheng.github.io/visPedigree/articles/pedigree-analysis.html)
-5.  [Relationship
-    Matrix](https://luansheng.github.io/visPedigree/articles/relationship-matrix.html)
+3.  [Pedigree Visualization in
+    R](https://luansheng.github.io/visPedigree/articles/draw-pedigree.html)
+4.  [Pedigree Analysis and Genetic Diversity in
+    R](https://luansheng.github.io/visPedigree/articles/pedigree-analysis.html)
+5.  [Pedigree Relationship Matrices and Matrix-Free Products in
+    R](https://luansheng.github.io/visPedigree/articles/relationship-matrix.html)
 
 ### Developer documentation
 
@@ -161,10 +161,13 @@ Main tools for processing and visualizing animal pedigrees.
 
 ## Relationship Matrices
 
-Tools for computing and analyzing genetic relationship matrices.
+Tools for computing, applying, and visualizing genetic relationship
+matrices.
 
 - [`pedmat()`](https://luansheng.github.io/visPedigree/reference/pedmat.md)
   : Genetic Relationship Matrices and Inbreeding Coefficients
+- [`pedprod()`](https://luansheng.github.io/visPedigree/reference/pedprod.md)
+  : Matrix-Free Pedigree Relationship Products
 - [`expand_pedmat()`](https://luansheng.github.io/visPedigree/reference/expand_pedmat.md)
   : Expand a Compact Pedigree Matrix to Full Dimensions
 - [`query_relationship()`](https://luansheng.github.io/visPedigree/reference/query_relationship.md)
@@ -194,16 +197,12 @@ Functions for genealogical and genetic computations.
   : Calculate Information-Theoretic Diversity Half-Life
 - [`pediv()`](https://luansheng.github.io/visPedigree/reference/pediv.md)
   : Calculate Genetic Diversity Indicators
-- [`pedmat()`](https://luansheng.github.io/visPedigree/reference/pedmat.md)
-  : Genetic Relationship Matrices and Inbreeding Coefficients
 - [`pedmeta()`](https://luansheng.github.io/visPedigree/reference/pedmeta.md)
   : Access pedigree metadata from a tidyped object
 - [`pedne()`](https://luansheng.github.io/visPedigree/reference/pedne.md)
   : Calculate Effective Population Size
 - [`pedpartial()`](https://luansheng.github.io/visPedigree/reference/pedpartial.md)
   : Calculate Partial Inbreeding
-- [`pedprod()`](https://luansheng.github.io/visPedigree/reference/pedprod.md)
-  : Matrix-Free Pedigree Relationship Products
 - [`pedrel()`](https://luansheng.github.io/visPedigree/reference/pedrel.md)
   : Calculate Mean Relationship or Coancestry Within Groups
 - [`pedstats()`](https://luansheng.github.io/visPedigree/reference/pedstats.md)
@@ -265,14 +264,28 @@ Generic methods for ‘tidyped’ and ‘pedmat’ objects.
 
 - [1. How to tidy a
   pedigree](https://luansheng.github.io/visPedigree/articles/tidy-pedigree.md):
+
 - [2. Efficient visPedigree
   Workflows](https://luansheng.github.io/visPedigree/articles/efficient-visPedigree-workflows.md):
-- [3. How to draw a
-  pedigree](https://luansheng.github.io/visPedigree/articles/draw-pedigree.md):
-- [4. Pedigree Analysis and Population
-  Genetics](https://luansheng.github.io/visPedigree/articles/pedigree-analysis.md):
-- [5. Calculation and visualization of relationship
-  matrix](https://luansheng.github.io/visPedigree/articles/relationship-matrix.md):
+
+- [Pedigree Visualization in
+  R](https://luansheng.github.io/visPedigree/articles/draw-pedigree.md):
+
+  Visualize animal and plant pedigrees in R with compact full-sib
+  graphs, tracing, highlighting, inbreeding labels, and vector output.
+
+- [Pedigree Analysis and Genetic Diversity in
+  R](https://luansheng.github.io/visPedigree/articles/pedigree-analysis.md):
+
+  Analyze pedigree completeness, genetic diversity, effective population
+  size, relatedness, inbreeding, founder contributions, and gene flow.
+
+- [Pedigree Relationship Matrices and Matrix-Free Products in
+  R](https://luansheng.github.io/visPedigree/articles/relationship-matrix.md):
+
+  Compute and visualize pedigree relationship matrices with pedmat(), or
+  use pedprod() for matrix-free additive and inverse-additive products
+  on large pedigrees.
 
 ### Developer Documentation
 

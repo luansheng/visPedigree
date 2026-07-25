@@ -1,8 +1,9 @@
-# 4. Pedigree Analysis and Population Genetics
+# Pedigree Analysis and Genetic Diversity in R
 
-This vignette summarizes a practical workflow for pedigree analysis with
-`visPedigree`, with emphasis on the interpretation of the main
-indicators used in breeding and conservation genetics.
+This vignette presents a practical workflow for pedigree analysis and
+genetic diversity assessment in R with `visPedigree`. It emphasizes the
+interpretation of the main indicators used in breeding and conservation
+genetics.
 
 The discussion is organized around five questions:
 

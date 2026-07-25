@@ -21,10 +21,13 @@ Main tools for processing and visualizing animal pedigrees.
 
 ## Relationship Matrices
 
-Tools for computing and analyzing genetic relationship matrices.
+Tools for computing, applying, and visualizing genetic relationship
+matrices.
 
 - [`pedmat()`](https://luansheng.github.io/visPedigree/reference/pedmat.md)
   : Genetic Relationship Matrices and Inbreeding Coefficients
+- [`pedprod()`](https://luansheng.github.io/visPedigree/reference/pedprod.md)
+  : Matrix-Free Pedigree Relationship Products
 - [`expand_pedmat()`](https://luansheng.github.io/visPedigree/reference/expand_pedmat.md)
   : Expand a Compact Pedigree Matrix to Full Dimensions
 - [`query_relationship()`](https://luansheng.github.io/visPedigree/reference/query_relationship.md)
@@ -54,16 +57,12 @@ Functions for genealogical and genetic computations.
   : Calculate Information-Theoretic Diversity Half-Life
 - [`pediv()`](https://luansheng.github.io/visPedigree/reference/pediv.md)
   : Calculate Genetic Diversity Indicators
-- [`pedmat()`](https://luansheng.github.io/visPedigree/reference/pedmat.md)
-  : Genetic Relationship Matrices and Inbreeding Coefficients
 - [`pedmeta()`](https://luansheng.github.io/visPedigree/reference/pedmeta.md)
   : Access pedigree metadata from a tidyped object
 - [`pedne()`](https://luansheng.github.io/visPedigree/reference/pedne.md)
   : Calculate Effective Population Size
 - [`pedpartial()`](https://luansheng.github.io/visPedigree/reference/pedpartial.md)
   : Calculate Partial Inbreeding
-- [`pedprod()`](https://luansheng.github.io/visPedigree/reference/pedprod.md)
-  : Matrix-Free Pedigree Relationship Products
 - [`pedrel()`](https://luansheng.github.io/visPedigree/reference/pedrel.md)
   : Calculate Mean Relationship or Coancestry Within Groups
 - [`pedstats()`](https://luansheng.github.io/visPedigree/reference/pedstats.md)

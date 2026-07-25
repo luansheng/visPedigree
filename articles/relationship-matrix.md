@@ -1,4 +1,13 @@
-# 5. Calculation and visualization of relationship matrix
+# Pedigree Relationship Matrices and Matrix-Free Products in R
+
+`visPedigree` supports pedigree relationship matrix computation in R
+through two complementary workflows:
+[`pedmat()`](https://luansheng.github.io/visPedigree/reference/pedmat.md)
+constructs explicit additive, dominance, and epistatic matrices, while
+[`pedprod()`](https://luansheng.github.io/visPedigree/reference/pedprod.md)
+applies $`A`$ or $`A^{-1}`$ matrix-free to vectors and matrices for
+large pedigrees. This vignette also covers matrix inspection, compact
+full-sib representations, and relationship heatmaps.
 
 1.  [Calculating Relationship Matrices with pedmat()](#id_1)  
     1.1 [Supported Methods](#id_1-1)  
@@ -24,11 +33,12 @@
 6.  [Performance Considerations](#id_6)
 
 Relationship matrices are fundamental tools in quantitative genetics and
-animal breeding. They quantify the genetic similarity between
-individuals due to shared ancestry, which is essential for estimating
-breeding values (BLUP) and managing genetic diversity. The `visPedigree`
-package provides efficient tools for calculating various relationship
-matrices and visualizing them through heatmaps and histograms.
+animal breeding. They quantify genetic similarity due to shared
+ancestry, which is essential for estimating breeding values (BLUP) and
+managing genetic diversity. Explicit matrices support coefficient
+inspection and visualization; matrix-free products are preferable when
+an analysis only needs the action of a relationship matrix and
+constructing the full matrix would be too costly.
 
 ## 1. Calculating Relationship Matrices with `pedmat()`
 

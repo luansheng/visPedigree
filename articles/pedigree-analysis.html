@@ -5,12 +5,15 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>4. Pedigree Analysis and Population Genetics • visPedigree</title>
+<title>Pedigree Analysis and Genetic Diversity in R • visPedigree</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="4. Pedigree Analysis and Population Genetics">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Pedigree Analysis and Genetic Diversity in R">
+<meta name="description" content="Analyze pedigree completeness, genetic diversity, effective population size, relatedness, inbreeding, founder contributions, and gene flow.">
+<meta property="og:description" content="Analyze pedigree completeness, genetic diversity, effective population size, relatedness, inbreeding, founder contributions, and gene flow.">
+<meta property="og:image" content="https://luansheng.github.io/visPedigree/logo.png">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -35,9 +38,9 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/tidy-pedigree.html">1. How to tidy a pedigree</a></li>
     <li><a class="dropdown-item" href="../articles/efficient-visPedigree-workflows.html">2. Efficient visPedigree Workflows</a></li>
-    <li><a class="dropdown-item" href="../articles/draw-pedigree.html">3. How to draw a pedigree</a></li>
-    <li><a class="dropdown-item" href="../articles/pedigree-analysis.html">4. Pedigree Analysis and Population Genetics</a></li>
-    <li><a class="dropdown-item" href="../articles/relationship-matrix.html">5. Calculation and visualization of relationship matrix</a></li>
+    <li><a class="dropdown-item" href="../articles/draw-pedigree.html">Pedigree Visualization in R</a></li>
+    <li><a class="dropdown-item" href="../articles/pedigree-analysis.html">Pedigree Analysis and Genetic Diversity in R</a></li>
+    <li><a class="dropdown-item" href="../articles/relationship-matrix.html">Pedigree Relationship Matrices and Matrix-Free Products in R</a></li>
     <li><a class="dropdown-item" href="../articles/tidyped-structure.html">6. tidyped Class Structure and Extension Notes</a></li>
   </ul>
 </li>
@@ -60,7 +63,7 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.png" class="logo" alt=""><h1>4. Pedigree Analysis and Population Genetics</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>Pedigree Analysis and Genetic Diversity in R</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/luansheng/visPedigree/blob/main/vignettes/pedigree-analysis.Rmd" class="external-link"><code>vignettes/pedigree-analysis.Rmd</code></a></small>
@@ -69,9 +72,10 @@
 
     
     
-<p>This vignette summarizes a practical workflow for pedigree analysis
-with <code>visPedigree</code>, with emphasis on the interpretation of
-the main indicators used in breeding and conservation genetics.</p>
+<p>This vignette presents a practical workflow for pedigree analysis and
+genetic diversity assessment in R with <code>visPedigree</code>. It
+emphasizes the interpretation of the main indicators used in breeding
+and conservation genetics.</p>
 <p>The discussion is organized around five questions:</p>
 <ol style="list-style-type: decimal">
 <li>How complete and deep is the pedigree?</li>

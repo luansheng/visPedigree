@@ -5,12 +5,15 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>5. Calculation and visualization of relationship matrix • visPedigree</title>
+<title>Pedigree Relationship Matrices and Matrix-Free Products in R • visPedigree</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="5. Calculation and visualization of relationship matrix">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Pedigree Relationship Matrices and Matrix-Free Products in R">
+<meta name="description" content="Compute and visualize pedigree relationship matrices with pedmat(), or use pedprod() for matrix-free additive and inverse-additive products on large pedigrees.">
+<meta property="og:description" content="Compute and visualize pedigree relationship matrices with pedmat(), or use pedprod() for matrix-free additive and inverse-additive products on large pedigrees.">
+<meta property="og:image" content="https://luansheng.github.io/visPedigree/logo.png">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -35,9 +38,9 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/tidy-pedigree.html">1. How to tidy a pedigree</a></li>
     <li><a class="dropdown-item" href="../articles/efficient-visPedigree-workflows.html">2. Efficient visPedigree Workflows</a></li>
-    <li><a class="dropdown-item" href="../articles/draw-pedigree.html">3. How to draw a pedigree</a></li>
-    <li><a class="dropdown-item" href="../articles/pedigree-analysis.html">4. Pedigree Analysis and Population Genetics</a></li>
-    <li><a class="dropdown-item" href="../articles/relationship-matrix.html">5. Calculation and visualization of relationship matrix</a></li>
+    <li><a class="dropdown-item" href="../articles/draw-pedigree.html">Pedigree Visualization in R</a></li>
+    <li><a class="dropdown-item" href="../articles/pedigree-analysis.html">Pedigree Analysis and Genetic Diversity in R</a></li>
+    <li><a class="dropdown-item" href="../articles/relationship-matrix.html">Pedigree Relationship Matrices and Matrix-Free Products in R</a></li>
     <li><a class="dropdown-item" href="../articles/tidyped-structure.html">6. tidyped Class Structure and Extension Notes</a></li>
   </ul>
 </li>
@@ -60,7 +63,7 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.png" class="logo" alt=""><h1>5. Calculation and visualization of relationship matrix</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>Pedigree Relationship Matrices and Matrix-Free Products in R</h1>
                         <h4 data-toc-skip class="author">Sheng Luan</h4>
             
             <h4 data-toc-skip class="date">2026-07-25</h4>
@@ -71,6 +74,16 @@
 
     
     
+<p><code>visPedigree</code> supports pedigree relationship matrix
+computation in R through two complementary workflows:
+<code><a href="../reference/pedmat.html">pedmat()</a></code> constructs explicit additive, dominance, and
+epistatic matrices, while <code><a href="../reference/pedprod.html">pedprod()</a></code> applies
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math>
+or
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>A</mi><mrow><mi>−</mi><mn>1</mn></mrow></msup><annotation encoding="application/x-tex">A^{-1}</annotation></semantics></math>
+matrix-free to vectors and matrices for large pedigrees. This vignette
+also covers matrix inspection, compact full-sib representations, and
+relationship heatmaps.</p>
 <ol style="list-style-type: decimal">
 <li>
 <a href="#id_1">Calculating Relationship Matrices with
@@ -113,12 +126,12 @@ vismat()</a><br>
 <li><a href="#id_6">Performance Considerations</a></li>
 </ol>
 <p>Relationship matrices are fundamental tools in quantitative genetics
-and animal breeding. They quantify the genetic similarity between
-individuals due to shared ancestry, which is essential for estimating
-breeding values (BLUP) and managing genetic diversity. The
-<code>visPedigree</code> package provides efficient tools for
-calculating various relationship matrices and visualizing them through
-heatmaps and histograms.</p>
+and animal breeding. They quantify genetic similarity due to shared
+ancestry, which is essential for estimating breeding values (BLUP) and
+managing genetic diversity. Explicit matrices support coefficient
+inspection and visualization; matrix-free products are preferable when
+an analysis only needs the action of a relationship matrix and
+constructing the full matrix would be too costly.</p>
 <div class="section level2">
 <h2 id="id_1">1. Calculating Relationship Matrices with <code>pedmat()</code><a class="anchor" aria-label="anchor" href="#id_1"></a>
 </h2>
