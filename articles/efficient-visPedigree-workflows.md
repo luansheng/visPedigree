@@ -1,4 +1,4 @@
-# 2. Efficient visPedigree Workflows
+# Efficient Pedigree Data Workflows in R
 
 This vignette summarizes efficient day-to-day workflows for
 `visPedigree` after the `tidyped` architecture updates. The goal is

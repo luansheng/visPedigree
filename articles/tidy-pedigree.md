@@ -1,4 +1,4 @@
-# 1. How to tidy a pedigree
+# Preparing and Validating Pedigree Data in R
 
 Pedigrees are fundamental to both animal and plant breeding. They are
 used to improve the accuracy of breeding value estimation, to monitor

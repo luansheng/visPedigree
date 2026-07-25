@@ -18,12 +18,12 @@
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/tidy-pedigree.html">1. How to tidy a pedigree</a></li>
-    <li><a class="dropdown-item" href="../articles/efficient-visPedigree-workflows.html">2. Efficient visPedigree Workflows</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/tidy-pedigree.html">Preparing and Validating Pedigree Data in R</a></li>
+    <li><a class="dropdown-item" href="../articles/efficient-visPedigree-workflows.html">Efficient Pedigree Data Workflows in R</a></li>
     <li><a class="dropdown-item" href="../articles/draw-pedigree.html">Pedigree Visualization in R</a></li>
     <li><a class="dropdown-item" href="../articles/pedigree-analysis.html">Pedigree Analysis and Genetic Diversity in R</a></li>
     <li><a class="dropdown-item" href="../articles/relationship-matrix.html">Pedigree Relationship Matrices and Matrix-Free Products in R</a></li>
-    <li><a class="dropdown-item" href="../articles/tidyped-structure.html">6. tidyped Class Structure and Extension Notes</a></li>
+    <li><a class="dropdown-item" href="../articles/tidyped-structure.html">tidyped: Pedigree Data Structure and Extension Guide</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/index.html">More articles...</a></li>
   </ul></li>
@@ -275,7 +275,7 @@ highlighted individuals rather than sex.</p>
 <span class="r-in"><span>       symbolsize<span class="op">=</span><span class="fl">5.5</span>, </span></span>
 <span class="r-in"><span>       pagewidth <span class="op">=</span> <span class="fl">100</span>, </span></span>
 <span class="r-in"><span>       file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".pdf"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Pedigree saved to: /tmp/RtmpM1gFen/file1bc45d1abba6.pdf</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Pedigree saved to: /tmp/RtmpgQF5Gd/file1b8414709dca.pdf</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Label cex: 0.25. Symbol size: 5.5. Adjust 'cex' and 'symbolsize' if labels are too large or small.</span>
 <span class="r-plt img"><img src="visped-6.png" alt="" width="1800" height="1800"></span>
 <span class="r-in"><span></span></span>
@@ -285,7 +285,7 @@ highlighted individuals rather than sex.</p>
 <span class="r-in"><span>       symbolsize<span class="op">=</span><span class="fl">1</span>,</span></span>
 <span class="r-in"><span>       pagewidth <span class="op">=</span> <span class="fl">100</span>,</span></span>
 <span class="r-in"><span>       file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".svg"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Pedigree saved to: /tmp/RtmpM1gFen/file1bc470ce3dd5.svg</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Pedigree saved to: /tmp/RtmpgQF5Gd/file1b845e80b9e3.svg</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Label cex: 0.8. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.</span>
 <span class="r-plt img"><img src="visped-7.png" alt="" width="1800" height="1800"></span>
 <span class="r-in"><span></span></span>
@@ -315,7 +315,7 @@ highlighted individuals rather than sex.</p>
 <span class="r-in"><span>       symbolsize<span class="op">=</span><span class="fl">5.5</span>, </span></span>
 <span class="r-in"><span>       file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".pdf"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Note: Removed 351 isolated individuals (no parents, no progeny) from the plot.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Pedigree saved to: /tmp/RtmpM1gFen/file1bc41706d2fc.pdf</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Pedigree saved to: /tmp/RtmpgQF5Gd/file1b845219dc54.pdf</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Label cex: 0.08. Symbol size: 5.5. Adjust 'cex' and 'symbolsize' if labels are too large or small.</span>
 <span class="r-plt img"><img src="visped-9.png" alt="" width="1800" height="1800"></span>
 <span class="r-in"><span></span></span>
@@ -325,7 +325,7 @@ highlighted individuals rather than sex.</p>
 <span class="r-in"><span>       outline <span class="op">=</span> <span class="cn">TRUE</span>, </span></span>
 <span class="r-in"><span>       file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".pdf"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Note: Removed 351 isolated individuals (no parents, no progeny) from the plot.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Pedigree saved to: /tmp/RtmpM1gFen/file1bc42ed26059.pdf</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Pedigree saved to: /tmp/RtmpgQF5Gd/file1b84261a079f.pdf</span>
 <span class="r-plt img"><img src="visped-10.png" alt="" width="1800" height="1800"></span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>

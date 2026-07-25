@@ -36,12 +36,12 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/tidy-pedigree.html">1. How to tidy a pedigree</a></li>
-    <li><a class="dropdown-item" href="../articles/efficient-visPedigree-workflows.html">2. Efficient visPedigree Workflows</a></li>
+<li><a class="dropdown-item" href="../articles/tidy-pedigree.html">Preparing and Validating Pedigree Data in R</a></li>
+    <li><a class="dropdown-item" href="../articles/efficient-visPedigree-workflows.html">Efficient Pedigree Data Workflows in R</a></li>
     <li><a class="dropdown-item" href="../articles/draw-pedigree.html">Pedigree Visualization in R</a></li>
     <li><a class="dropdown-item" href="../articles/pedigree-analysis.html">Pedigree Analysis and Genetic Diversity in R</a></li>
     <li><a class="dropdown-item" href="../articles/relationship-matrix.html">Pedigree Relationship Matrices and Matrix-Free Products in R</a></li>
-    <li><a class="dropdown-item" href="../articles/tidyped-structure.html">6. tidyped Class Structure and Extension Notes</a></li>
+    <li><a class="dropdown-item" href="../articles/tidyped-structure.html">tidyped: Pedigree Data Structure and Extension Guide</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/index.html">More articles...</a></li>
   </ul>
@@ -138,7 +138,7 @@ in a PDF file.</p>
 <span>        cex<span class="op">=</span><span class="fl">0.5</span>, </span>
 <span>        symbolsize<span class="op">=</span><span class="fl">10</span>, </span>
 <span>        file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".pdf"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Pedigree saved to: /tmp/RtmpzBkhDt/file27b16105d3c.pdf</span></span>
+<span><span class="co">#&gt; Pedigree saved to: /tmp/RtmpWtJxsf/file276e1e8bc38d.pdf</span></span>
 <span><span class="co">#&gt; Label cex: 0.5. Symbol size: 10. Adjust 'cex' and 'symbolsize' if labels are too large or small.</span></span></code></pre></div>
 <p><img src="draw-pedigree_files/figure-html/smallped-1.png" class="r-plt" alt="" width="100%"></p>
 <p>By default, <code>shapeby = "sex"</code> encodes individual sex by
@@ -399,7 +399,7 @@ significant overlapping due to the high density of individuals.</p>
 <span>  showgraph <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".pdf"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; Pedigree saved to: /tmp/RtmpzBkhDt/file27b16a3147aa.pdf</span></span>
+<span><span class="co">#&gt; Pedigree saved to: /tmp/RtmpWtJxsf/file276e3e266ff6.pdf</span></span>
 <span><span class="co">#&gt; Label cex: 0.08. Symbol size: 5.5. Adjust 'cex' and 'symbolsize' if labels are too large or small.</span></span></code></pre></div>
 <p><img src="draw-pedigree_files/figure-html/reduceped1-1.png" class="r-plt" alt="" width="100%"></p>
 <p>You can open the generated PDF file to view the high-definition
@@ -426,7 +426,7 @@ are usually sufficient. The <strong>visped</strong> function reports the
 <span>  showgraph <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".pdf"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; Pedigree saved to: /tmp/RtmpzBkhDt/file27b156810812.pdf</span></span>
+<span><span class="co">#&gt; Pedigree saved to: /tmp/RtmpWtJxsf/file276e3865828c.pdf</span></span>
 <span><span class="co">#&gt; Label cex: 0.83. Symbol size: 1. Adjust 'cex' and 'symbolsize' if labels are too large or small.</span></span></code></pre></div>
 <p>You can open the generated PDF file to view the high-definition
 pedigree vectorgraph. The labels align better with the shapes compared

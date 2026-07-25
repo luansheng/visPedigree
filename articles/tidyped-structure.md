@@ -1,4 +1,4 @@
-# 6. tidyped Class Structure and Extension Notes
+# tidyped: Pedigree Data Structure and Extension Guide
 
 This document describes the structural contract of the `tidyped` class
 in visPedigree 1.8.0. It is intended for maintenance and extension work.
