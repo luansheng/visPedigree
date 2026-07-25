@@ -1,10 +1,11 @@
 ---
-title: "3. How to draw a pedigree"
+title: "Pedigree Visualization in R"
+description: "Visualize animal and plant pedigrees in R with compact full-sib graphs, tracing, highlighting, inbreeding labels, and vector output."
 author: "Sheng Luan"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{3. How to draw a pedigree}
+  %\VignetteIndexEntry{Pedigree Visualization in R}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -20,6 +21,12 @@ knitr::opts_chunk$set(
 )
 library(visPedigree)
 ```
+
+`visPedigree` provides pedigree visualization in R for animal and plant
+breeding data. This vignette shows how to use `visped()` to draw hierarchical
+pedigree graphs, simplify large full-sib families, trace or highlight
+individuals, display inbreeding coefficients, and export vector PDF or SVG
+graphics.
 
 1. [Drawing the pedigree graph](#1)   
 1.1 [A simple pedigree graph](#1-1)   

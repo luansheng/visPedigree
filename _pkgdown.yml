@@ -19,9 +19,10 @@ reference:
   - visped
   - splitped
 - title: Relationship Matrices
-  desc: Tools for computing and analyzing genetic relationship matrices.
+  desc: Tools for computing, applying, and visualizing genetic relationship matrices.
   contents:
   - pedmat
+  - pedprod
   - expand_pedmat
   - query_relationship
   - vismat
@@ -30,6 +31,8 @@ reference:
   contents:
   - inbreed
   - starts_with("ped")
+  - "-pedmat"
+  - "-pedprod"
 - title: Datasets
   desc: Built-in pedigree examples for testing and demonstration.
   contents: ends_with("_ped")

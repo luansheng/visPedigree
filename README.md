@@ -38,9 +38,9 @@ Recommended reading order:
 
 1. [How to tidy a pedigree](https://luansheng.github.io/visPedigree/articles/tidy-pedigree.html)
 2. [Efficient visPedigree Workflows](https://luansheng.github.io/visPedigree/articles/efficient-visPedigree-workflows.html)
-3. [How to draw a pedigree](https://luansheng.github.io/visPedigree/articles/draw-pedigree.html)
-4. [Pedigree Analysis and Population Genetics](https://luansheng.github.io/visPedigree/articles/pedigree-analysis.html)
-5. [Relationship Matrix](https://luansheng.github.io/visPedigree/articles/relationship-matrix.html)
+3. [Pedigree Visualization in R](https://luansheng.github.io/visPedigree/articles/draw-pedigree.html)
+4. [Pedigree Analysis and Genetic Diversity in R](https://luansheng.github.io/visPedigree/articles/pedigree-analysis.html)
+5. [Pedigree Relationship Matrices and Matrix-Free Products in R](https://luansheng.github.io/visPedigree/articles/relationship-matrix.html)
 
 ### Developer documentation
 

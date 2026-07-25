@@ -1,8 +1,9 @@
 ---
-title: "4. Pedigree Analysis and Population Genetics"
+title: "Pedigree Analysis and Genetic Diversity in R"
+description: "Analyze pedigree completeness, genetic diversity, effective population size, relatedness, inbreeding, founder contributions, and gene flow."
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{4. Pedigree Analysis and Population Genetics}
+  %\VignetteIndexEntry{Pedigree Analysis and Genetic Diversity in R}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -14,9 +15,9 @@ knitr::opts_chunk$set(
 )
 ```
 
-This vignette summarizes a practical workflow for pedigree analysis with
-`visPedigree`, with emphasis on the interpretation of the main indicators used
-in breeding and conservation genetics.
+This vignette presents a practical workflow for pedigree analysis and genetic
+diversity assessment in R with `visPedigree`. It emphasizes the interpretation
+of the main indicators used in breeding and conservation genetics.
 
 The discussion is organized around five questions:
 
