@@ -27,6 +27,14 @@
   use pedprod() for matrix-free additive and inverse-additive products
   on large pedigrees.
 
+### Research Applications
+
+- [Research using
+  visPedigree](https://luansheng.github.io/visPedigree/articles/applications.md):
+
+  Verified applications of visPedigree across breeding, conservation
+  genetics, human genealogy, and large-scale pedigree quality control.
+
 ### Developer Documentation
 
 - [6. tidyped Class Structure and Extension
