@@ -1,8 +1,8 @@
 ---
-title: "6. tidyped Class Structure and Extension Notes"
+title: "tidyped: Pedigree Data Structure and Extension Guide"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{6. tidyped Class Structure and Extension Notes}
+  %\VignetteIndexEntry{tidyped: Pedigree Data Structure and Extension Guide}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

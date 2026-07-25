@@ -1,8 +1,8 @@
 ---
-title: "2. Efficient visPedigree Workflows"
+title: "Efficient Pedigree Data Workflows in R"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{2. Efficient visPedigree Workflows}
+  %\VignetteIndexEntry{Efficient Pedigree Data Workflows in R}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
