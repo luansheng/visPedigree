@@ -6,6 +6,8 @@ large-scale pedigree research. This page includes only applications
 documented in a paper’s methods, supplementary material, or source code;
 citation alone is not treated as evidence of use.
 
+*Evidence last reviewed: July 2026.*
+
 ## Featured applications
 
 Conservation genetics
@@ -53,13 +55,14 @@ pedigrees*
 
 Genetics Selection Evolution, 2025
 
-**Documented use:** Located the two individuals responsible for pedigree
-loops; both loops resulted from incorrect sire assignments.
+**Documented use:** Used to locate the two individuals involved in
+pedigree loops; both loops were subsequently traced to incorrect sire
+assignments.
 
 [Article](https://doi.org/10.1186/s12711-025-00994-y) · [Results
 evidence](https://pmc.ncbi.nlm.nih.gov/articles/PMC12392600/)
 
-## Explore the corresponding workflows
+## Explore related visPedigree workflows
 
 - [Pedigree
   visualization](https://luansheng.github.io/visPedigree/articles/draw-pedigree.md)
@@ -95,9 +98,9 @@ p. 9](https://eprints.gla.ac.uk/352795/4/352795.pdf)).
 pedigrees](https://doi.org/10.1186/s12711-025-00994-y).  
 *Genetics Selection Evolution*, 57, 46.
 
-**Verified use:** Location of the two individuals responsible for
-pedigree loops in 1,486,764 Labrador Retriever records. The paper
-reports that both loops were caused by incorrect sire assignments
+**Verified use:** Used to locate the two individuals involved in
+pedigree loops among 1,486,764 Labrador Retriever records. Both loops
+were subsequently traced to incorrect sire assignments
 ([Results](https://pmc.ncbi.nlm.nih.gov/articles/PMC12392600/)).
 
 ------------------------------------------------------------------------
