@@ -2,6 +2,8 @@
 
 ## Changes in version 1.9.0 released on 11 Jul 2026
 
+CRAN release: 2026-07-15
+
 ### New features
 
 1.  **[`visped()`](https://luansheng.github.io/visPedigree/reference/visped.md)
