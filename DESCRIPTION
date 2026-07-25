@@ -42,5 +42,6 @@ Suggests:
 URL: https://github.com/luansheng/visPedigree, https://luansheng.github.io/visPedigree/
 BugReports: https://github.com/luansheng/visPedigree/issues
 VignetteBuilder: knitr
+Config/Needs/website: rmarkdown
 Config/testthat/edition: 3
 RoxygenNote: 7.3.3

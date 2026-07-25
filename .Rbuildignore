@@ -14,6 +14,7 @@
 ^_pkgdown\.yml$
 ^pkgdown$
 ^docs$
+^vignettes/articles$
 
 # --- R 包构建产物 ---
 ^doc$

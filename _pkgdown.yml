@@ -7,6 +7,14 @@ figures:
   dpi: 300
   fig.width: 6
   fig.height: 6
+navbar:
+  structure:
+    left: [reference, articles, applications, news]
+    right: [search, github]
+  components:
+    applications:
+      text: Applications
+      href: articles/applications.html
 reference:
 - title: Core Functions
   desc: Main tools for processing and visualizing animal pedigrees.
@@ -55,6 +63,9 @@ articles:
   - draw-pedigree
   - pedigree-analysis
   - relationship-matrix
+- title: Research Applications
+  contents:
+  - articles/applications
 - title: Developer Documentation
   navbar: ~
   contents:
