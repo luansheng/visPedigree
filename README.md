@@ -102,5 +102,5 @@ summary(split_list[[1]])
 ```
 
 ## Citation
-If you use visPedigree in published work, please cite:
+If you use visPedigree in published work, please cite:    
 Luan S, Kong J, Xia Z, Kang Z, Qiang G, Luo K, Sui J. 2026. visPedigree: a comprehensive R package for tidying, analyzing, and visualizing breeding pedigrees. Bioinformatics Advances. DOI: [10.1093/bioadv/vbag210](https://doi.org/10.1093/bioadv/vbag210).
