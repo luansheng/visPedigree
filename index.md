@@ -134,6 +134,8 @@ summary(split_list[[1]])
 
 ## Citation
 
-Luan Sheng (2026). visPedigree: Tidying, Analysis, and Fast
-Visualization of Animal and Plant Pedigrees. R package version 1.9.0,
-<https://github.com/luansheng/visPedigree>.
+If you use visPedigree in published work, please cite: Luan S, Kong J,
+Xia Z, Kang Z, Qiang G, Luo K, Sui J. 2026. visPedigree: a comprehensive
+R package for tidying, analyzing, and visualizing breeding pedigrees.
+Bioinformatics Advances. DOI:
+[10.1093/bioadv/vbag210](https://doi.org/10.1093/bioadv/vbag210).
