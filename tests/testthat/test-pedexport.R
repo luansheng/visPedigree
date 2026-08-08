@@ -43,11 +43,23 @@ test_that("pedexport returns 3-column data.table for asreml", {
   expect_equal(nrow(out), nrow(tp))
 })
 
-test_that("pedexport wombat is identical to blupf90", {
+test_that("pedexport wombat returns character columns with '0' missing", {
   tp   <- tidyped(make_simple_ped())
-  b90  <- pedexport(tp, software = "blupf90")
   womb <- pedexport(tp, software = "wombat")
-  expect_equal(b90, womb)
+
+  # Wombat accepts alphanumeric IDs (recoding them internally), so the
+  # export keeps character IDs rather than renumbering.
+  expect_named(womb, c("animal", "sire", "dam"))
+  expect_type(womb$animal, "character")
+  expect_type(womb$sire,  "character")
+
+  founders <- tp[is.na(Sire) & is.na(Dam), Ind]
+  expect_true(all(womb[animal %in% founders, sire] == "0"))
+  expect_true(all(womb[animal %in% founders, dam]  == "0"))
+
+  # Non-missing parents retain their character IDs
+  expect_equal(womb[animal == "C", sire], "A")
+  expect_equal(womb[animal == "C", dam],  "B")
 })
 
 test_that("pedexport mtdfreml is identical to blupf90", {
@@ -143,7 +155,7 @@ test_that("pedexport writes a readable file for blupf90", {
   expect_true(all(!is.na(suppressWarnings(as.integer(tokens)))))
 })
 
-test_that("asreml file has no header by default", {
+test_that("asreml file writes a header by default", {
   tp  <- tidyped(make_simple_ped())
   tmp <- tempfile(fileext = ".txt")
   on.exit(unlink(tmp), add = TRUE)
@@ -151,23 +163,36 @@ test_that("asreml file has no header by default", {
   pedexport(tp, software = "asreml", file = tmp)
 
   lines <- readLines(tmp)
-  # ASReml reads pedigree files in free format; a header line would be
-  # parsed as data unless the !SKIP qualifier is used.
-  expect_equal(length(lines), nrow(tp))
-  expect_false(lines[[1]] == "animal sire dam")
+  # A header is written by default for readability; when reading the file
+  # back, ASReml needs the !SKIP 1 qualifier.
+  expect_equal(lines[[1]], "animal sire dam")
+  expect_equal(length(lines), nrow(tp) + 1L)
 })
 
-test_that("asreml file writes a header only when explicitly requested", {
+test_that("asreml file omits the header when header = FALSE", {
   tp  <- tidyped(make_simple_ped())
   tmp <- tempfile(fileext = ".txt")
   on.exit(unlink(tmp), add = TRUE)
 
-  pedexport(tp, software = "asreml", file = tmp, header = TRUE)
+  pedexport(tp, software = "asreml", file = tmp, header = FALSE)
 
   lines <- readLines(tmp)
-  # With a header kept, ASReml needs the !SKIP 1 qualifier
-  expect_equal(lines[[1]], "animal sire dam")
-  expect_equal(length(lines), nrow(tp) + 1L)
+  expect_equal(length(lines), nrow(tp))
+  expect_false(lines[[1]] == "animal sire dam")
+})
+
+test_that("wombat file has no header by default", {
+  tp  <- tidyped(make_simple_ped())
+  tmp <- tempfile(fileext = ".txt")
+  on.exit(unlink(tmp), add = TRUE)
+
+  pedexport(tp, software = "wombat", file = tmp)
+
+  lines <- readLines(tmp)
+  # Wombat reads the pedigree in free format; a header line would be
+  # parsed as data, so none is written by default.
+  expect_equal(length(lines), nrow(tp))
+  expect_false(lines[[1]] == "animal sire dam")
 })
 
 test_that("pedexport returns invisible result even when writing file", {
@@ -349,7 +374,7 @@ test_that("sommer always codes missing parents as NA regardless of 'missing'", {
 
 test_that("numeric exports carry an xref mapping attribute", {
   tp <- tidyped(make_simple_ped())
-  for (sw in c("blupf90", "wombat", "mtdfreml", "dmu", "numeric")) {
+  for (sw in c("blupf90", "mtdfreml", "dmu", "numeric")) {
     out <- pedexport(tp, software = sw)
     xr  <- attr(out, "xref")
     expect_s3_class(xr, "data.table")
@@ -362,6 +387,7 @@ test_that("numeric exports carry an xref mapping attribute", {
 test_that("character formats carry no xref attribute", {
   tp <- tidyped(make_simple_ped())
   expect_null(attr(pedexport(tp, software = "asreml"), "xref"))
+  expect_null(attr(pedexport(tp, software = "wombat"), "xref"))
   expect_null(attr(pedexport(tp, software = "sommer"), "xref"))
 })
 

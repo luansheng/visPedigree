@@ -26,13 +26,15 @@ and \code{Dam} identifier must be present in \code{Ind}.}
     precede offspring rows.  Compatible with BLUPF90, REMLF90,
     GIBBSF90, and related programs.}
   \item{\code{"asreml"}}{Three character columns (\code{animal},
+    \code{sire}, \code{dam}), with a one-line header by default, missing
+    parents encoded as \code{"0"}.  Rows are sorted by generation
+    (\code{Gen}) so founders appear first.  Compatible with ASReml-R
+    and ASReml-SA (character IDs require the \code{!ALPHA} qualifier;
+    the header line requires the \code{!SKIP 1} qualifier).}
+  \item{\code{"wombat"}}{Three character columns (\code{animal},
     \code{sire}, \code{dam}), no header, missing parents encoded as
-    \code{"0"}.  Rows are sorted by generation (\code{Gen}) so founders
-    appear first.  Compatible with ASReml-R and ASReml-SA (character
-    IDs require the \code{!ALPHA} qualifier; a kept header requires
-    \code{!SKIP 1}).}
-  \item{\code{"wombat"}}{Identical integer layout to \code{"blupf90"}.
-    Compatible with Wombat.}
+    \code{"0"}.  Wombat accepts alphanumeric IDs and recodes them
+    internally.  Rows are sorted so parents precede offspring.}
   \item{\code{"mtdfreml"}}{Identical integer layout to \code{"blupf90"}.
     Compatible with MTDFREML and MTGSAM.}
   \item{\code{"dmu"}}{Identical integer layout to \code{"blupf90"}.
@@ -58,19 +60,19 @@ TAB separators.}
 
 \item{header}{Logical scalar or \code{NULL}.  Whether to include a column
 header line.  \code{NULL} (default) uses the software-specific default:
-\code{TRUE} for \code{"numeric"} and \code{"sommer"}, \code{FALSE} for
-all others.  In particular \code{"asreml"} defaults to no header:
-ASReml reads pedigree files in free format, and a header line would be
-read as data unless the \code{!SKIP} qualifier is used.}
+\code{TRUE} for \code{"asreml"}, \code{"numeric"} and \code{"sommer"},
+\code{FALSE} for \code{"blupf90"}, \code{"wombat"}, \code{"mtdfreml"}
+and \code{"dmu"}.  Note for ASReml: a header line is read as data
+unless the \code{!SKIP 1} qualifier is used in the ASReml command file.}
 
 \item{missing}{Character or integer scalar.  Symbol for missing parents.
 \code{NULL} (default) uses the software-specific default: \code{0L} for
-numeric formats, \code{"0"} for \code{"asreml"}.  Numeric formats
-(\code{"blupf90"}, \code{"wombat"}, \code{"mtdfreml"}, \code{"dmu"},
-\code{"numeric"}) require a single integer value; \code{"asreml"}
-accepts a character value (numeric values are converted to character).
-Ignored for \code{"sommer"}, which always codes missing parents as
-\code{NA}.}
+numeric formats, \code{"0"} for \code{"asreml"} and \code{"wombat"}.
+Numeric formats (\code{"blupf90"}, \code{"mtdfreml"}, \code{"dmu"},
+\code{"numeric"}) require a single integer value; \code{"asreml"} and
+\code{"wombat"} accept a character value (numeric values are converted
+to character).  Ignored for \code{"sommer"}, which always codes missing
+parents as \code{NA}.}
 }
 \value{
 A \code{data.table} in the target format, returned invisibly.
@@ -93,9 +95,9 @@ result as a \code{data.table} or writes it to a plain-text file.
 \tabular{llll}{
   \strong{software} \tab \strong{Col 1} \tab \strong{Col 2} \tab
     \strong{Col 3} \cr
-  blupf90 / wombat / mtdfreml / dmu / numeric \tab \code{IndNum} (integer) \tab
+  blupf90 / mtdfreml / dmu / numeric \tab \code{IndNum} (integer) \tab
     \code{SireNum} (integer) \tab \code{DamNum} (integer) \cr
-  asreml \tab \code{animal} (character) \tab \code{sire} (character) \tab
+  asreml / wombat \tab \code{animal} (character) \tab \code{sire} (character) \tab
     \code{dam} (character) \cr
   sommer \tab \code{ID} (character) \tab \code{Sire} (character) \tab
     \code{Dam} (character) \cr
@@ -112,12 +114,12 @@ uses to meet those expectations.
     \strong{missing} \tab \strong{IDs} \tab \strong{notes} \cr
   blupf90 \tab no \tab spaces only \tab \code{0} \tab integer \tab
     TAB separators rejected \cr
-  wombat \tab no \tab blanks \tab \code{0} \tab char or integer \tab
-    recoded internally \cr
+  wombat \tab no \tab blanks \tab \code{"0"} \tab character \tab
+    alphanumeric accepted, recoded internally \cr
   mtdfreml \tab no \tab blanks \tab \code{0} \tab integer \tab \cr
   dmu \tab no \tab blanks \tab \code{0} \tab integer \tab \cr
-  asreml \tab no \tab blanks \tab \code{"0"} \tab char or integer \tab
-    character IDs need \code{!ALPHA}; kept header needs \code{!SKIP 1} \cr
+  asreml \tab yes \tab blanks \tab \code{"0"} \tab char or integer \tab
+    character IDs need \code{!ALPHA}; header needs \code{!SKIP 1} \cr
   sommer \tab n/a \tab n/a \tab \code{NA} \tab character \tab returned
     as a data.table, not a file \cr
   numeric \tab optional \tab any \tab \code{0} \tab integer \tab generic
@@ -129,8 +131,8 @@ uses to meet those expectations.
 All numeric formats sort by \code{IndNum} ascending, which guarantees that
 parent rows appear before offspring rows (parents always receive a smaller
 integer index after \code{tidyped()} topological sorting).  The
-\code{"asreml"} and \code{"sommer"} formats sort by \code{Gen} ascending
-for the same reason.
+\code{"asreml"}, \code{"wombat"} and \code{"sommer"} formats sort by
+\code{Gen} ascending for the same reason.
 
 \strong{Optional \code{tidyped()} columns:}
 
