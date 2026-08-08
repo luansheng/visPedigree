@@ -8,11 +8,13 @@ library(data.table)
 # ---------------------------------------------------------------------------
 
 make_simple_ped <- function() {
-  # A -> C, B -> C, C -> D (simple 3-generation chain with one inbred offspring)
+  # A -> C, B -> C; C and E -> D (simple 3-generation chain).
+  # D has distinct parents (C x E): an individual must not appear as both
+  # sire and dam unless tidyped(selfing = TRUE).
   data.frame(
-    Ind  = c("A", "B", "C", "D"),
-    Sire = c(NA,  NA,  "A", "C"),
-    Dam  = c(NA,  NA,  "B", "C"),
+    Ind  = c("A", "B", "C", "D", "E"),
+    Sire = c(NA,  NA,  "A", "C", NA),
+    Dam  = c(NA,  NA,  "B", "E", NA),
     stringsAsFactors = FALSE
   )
 }
@@ -223,16 +225,71 @@ test_that("pedexport handles big_family_size_ped without error", {
 # ---------------------------------------------------------------------------
 
 test_that("pedexport handles a pedigree of only founders", {
+  # tidyped() rejects all-founder input ("All parents are missing"), so the
+  # export layer cannot receive one through that path.  Build a complete
+  # all-founder tidyped object directly with as_tidyped() instead.
   only_founders <- data.frame(
-    Ind  = c("F1", "F2", "F3"),
-    Sire = c(NA, NA, NA),
-    Dam  = c(NA, NA, NA),
+    Ind     = c("F1", "F2", "F3"),
+    Sire    = c(NA,  NA,  NA),
+    Dam     = c(NA,  NA,  NA),
+    Sex     = c("male", "female", "male"),
+    Gen     = c(0L, 0L, 0L),
+    IndNum  = c(1L, 2L, 3L),
+    SireNum = c(0L, 0L, 0L),
+    DamNum  = c(0L, 0L, 0L),
     stringsAsFactors = FALSE
   )
-  tp  <- tidyped(only_founders)
+  tp  <- as_tidyped(only_founders)
   out <- pedexport(tp, software = "blupf90")
 
   expect_equal(nrow(out), 3L)
   expect_true(all(out$SireNum == 0L))
   expect_true(all(out$DamNum  == 0L))
+})
+
+# ---------------------------------------------------------------------------
+# 8. Optional tidyped columns (addnum = FALSE / addgen = FALSE)
+# ---------------------------------------------------------------------------
+
+test_that("numeric exports reconstruct indices when addnum = FALSE", {
+  tp  <- tidyped(make_simple_ped(), addnum = FALSE)
+  out <- pedexport(tp, software = "blupf90")
+
+  expect_named(out, c("IndNum", "SireNum", "DamNum"))
+  expect_type(out$IndNum, "integer")
+  expect_equal(out$IndNum, sort(out$IndNum))
+  # Parents still precede offspring after reconstruction
+  non_f <- out[SireNum > 0L]
+  expect_true(all(non_f$SireNum < non_f$IndNum))
+})
+
+test_that("asreml export orders founders first when addgen = FALSE", {
+  tp  <- tidyped(make_simple_ped(), addgen = FALSE)
+  out <- pedexport(tp, software = "asreml")
+
+  founders <- tp[is.na(Sire) & is.na(Dam), Ind]
+  first_rows <- head(out$animal, length(founders))
+  expect_true(all(founders %in% first_rows))
+})
+
+test_that("exports work when both addnum and addgen are FALSE", {
+  tp  <- tidyped(make_simple_ped(), addnum = FALSE, addgen = FALSE)
+  out <- pedexport(tp, software = "blupf90")
+
+  expect_equal(nrow(out), nrow(tp))
+  expect_equal(out$IndNum, seq_len(nrow(out)))
+})
+
+test_that("numeric formats reject non-integer missing symbols", {
+  tp <- tidyped(make_simple_ped())
+  expect_error(pedexport(tp, software = "blupf90", missing = "."),
+               regexp = "integer")
+  expect_error(pedexport(tp, software = "blupf90", missing = "0"),
+               regexp = "integer")
+
+  # Integer-valued numerics are accepted and replace the internal 0 sentinel
+  out <- pedexport(tp, software = "blupf90", missing = -99)
+  founders <- tp[is.na(Sire) & is.na(Dam), IndNum]
+  expect_true(all(out[IndNum %in% founders, SireNum] == -99L))
+  expect_true(all(out[IndNum %in% founders, DamNum]  == -99L))
 })

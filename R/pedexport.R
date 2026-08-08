@@ -39,7 +39,10 @@
 #'   all others.
 #' @param missing Character or integer scalar.  Symbol for missing parents.
 #'   \code{NULL} (default) uses the software-specific default: \code{0L} for
-#'   numeric formats, \code{"0"} for \code{"asreml"}.
+#'   numeric formats, \code{"0"} for \code{"asreml"}.  Numeric formats
+#'   (\code{"blupf90"}, \code{"wombat"}, \code{"mtdfreml"}, \code{"numeric"})
+#'   require a single integer value; \code{"asreml"} accepts a character
+#'   value (numeric values are converted to character).
 #'
 #' @return A \code{data.table} in the target format, returned invisibly.
 #'   When \code{file} is not \code{NULL}, the table is also written to that
@@ -63,6 +66,14 @@
 #' parent rows appear before offspring rows (parents always receive a smaller
 #' integer index after \code{tidyped()} topological sorting).  The
 #' \code{"asreml"} format sorts by \code{Gen} ascending for the same reason.
+#'
+#' \strong{Optional \code{tidyped()} columns:}
+#'
+#' \code{tidyped(..., addnum = FALSE)} omits \code{IndNum}/\code{SireNum}/
+#' \code{DamNum} and \code{tidyped(..., addgen = FALSE)} omits \code{Gen}.
+#' When these columns are absent, \code{pedexport()} reconstructs them from
+#' \code{Ind}/\code{Sire}/\code{Dam}.  Because \code{tidyped()} always
+#' topologically sorts rows, parents still precede offspring in the output.
 #'
 #' \strong{Relationship to \code{tidyped()}:}
 #'
@@ -126,14 +137,35 @@ pedexport <- function(ped,
   if (is.null(header))  header  <- def_header
   if (is.null(missing)) missing <- def_miss
 
-  # ---- 3. Build output table ----
-  out <- if (use_char) {
-    .pedexport_char(ped, missing = as.character(missing))
+  # ---- 3. Validate 'missing' per format ----
+  if (use_char) {
+    if ((!is.character(missing) && !is.numeric(missing)) ||
+        length(missing) != 1L || is.na(missing)) {
+      stop("For the 'asreml' format, 'missing' must be a single character ",
+           "(or numeric) value.", call. = FALSE)
+    }
+    missing <- as.character(missing)
   } else {
-    .pedexport_num(ped, missing = as.integer(missing))
+    missing_int <- suppressWarnings(as.integer(missing))
+    if (!is.numeric(missing) || length(missing) != 1L || is.na(missing) ||
+        is.na(missing_int) || missing_int != missing) {
+      stop("For numeric formats (blupf90, wombat, mtdfreml, numeric), ",
+           "'missing' must be a single integer value.", call. = FALSE)
+    }
+    missing <- missing_int
   }
 
-  # ---- 4. Write file if requested ----
+  # ---- 4. Build output table ----
+  # tidyped(..., addnum = FALSE) / addgen = FALSE omit the ordering columns;
+  # reconstruct them from Ind/Sire/Dam (see .ensure_export_cols).
+  ped <- .ensure_export_cols(ped)
+  out <- if (use_char) {
+    .pedexport_char(ped, missing = missing)
+  } else {
+    .pedexport_num(ped, missing = missing)
+  }
+
+  # ---- 5. Write file if requested ----
   if (!is.null(file)) {
     data.table::fwrite(out, file = file, sep = sep, col.names = header,
                        quote = FALSE)
@@ -145,6 +177,38 @@ pedexport <- function(ped,
 
 
 # ---- Internal helpers --------------------------------------------------------
+
+#' Ensure the ordering columns needed for export are present
+#'
+#' \code{tidyped(..., addnum = FALSE)} omits \code{IndNum}, \code{SireNum},
+#' and \code{DamNum}, and \code{tidyped(..., addgen = FALSE)} omits
+#' \code{Gen}.  These columns are optional upstream, but the export formats
+#' rely on them for parent-before-offspring ordering.  When absent they are
+#' reconstructed from \code{Ind}/\code{Sire}/\code{Dam} on a copy of the
+#' object, leaving the caller's \code{ped} untouched.
+#'
+#' @param ped A complete tidyped object.
+#' @return \code{ped} itself (when complete) or a copy with the missing
+#'   columns filled in.
+#' @keywords internal
+.ensure_export_cols <- function(ped) {
+  if (!is.null(ped$IndNum) && !is.null(ped$Gen)) return(ped)
+
+  ped <- data.table::copy(ped)
+  if (is.null(ped$IndNum)) {
+    # tidyped() always topologically sorts rows, so .I is already
+    # parent-before-offspring; match() encodes missing parents as 0L.
+    ped[, IndNum  := .I]
+    ped[, SireNum := match(Sire, Ind, nomatch = 0L)]
+    ped[, DamNum  := match(Dam, Ind, nomatch = 0L)]
+  }
+  if (is.null(ped$Gen)) {
+    # Without generation numbers, numeric index order is the correct
+    # parent-before-offspring order for the ASReml export.
+    ped[, Gen := IndNum]
+  }
+  ped[]
+}
 
 #' Build a numeric (integer) export table
 #' @param ped A complete tidyped object.
