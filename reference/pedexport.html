@@ -296,8 +296,8 @@ avoid redundant validation.</p>
 <span class="r-in"><span><span class="co"># Write to a file (numeric formats also write &lt;file&gt;.xref)</span></span></span>
 <span class="r-in"><span><span class="va">tmp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".txt"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">pedexport</span><span class="op">(</span><span class="va">tp</span>, software <span class="op">=</span> <span class="st">"blupf90"</span>, file <span class="op">=</span> <span class="va">tmp</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Written ID mapping to: /tmp/RtmpgWc7jQ/file1c4551c85467.txt.xref</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Written 28 individuals to: /tmp/RtmpgWc7jQ/file1c4551c85467.txt</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Written ID mapping to: /tmp/RtmpTO2xjF/file1c3e2ab314d0.txt.xref</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Written 28 individuals to: /tmp/RtmpTO2xjF/file1c3e2ab314d0.txt</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/readLines.html" class="external-link">readLines</a></span><span class="op">(</span><span class="va">tmp</span>, n <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "1 0 0" "2 0 0" "3 0 0" "4 0 0" "5 0 0"</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/readLines.html" class="external-link">readLines</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">tmp</span>, <span class="st">".xref"</span><span class="op">)</span>, n <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>

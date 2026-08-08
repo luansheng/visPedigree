@@ -49,8 +49,6 @@
 <h3 id="new-features-1-10-0">New features<a class="anchor" aria-label="anchor" href="#new-features-1-10-0"></a></h3>
 <ol style="list-style-type: decimal"><li>
 <strong><code><a href="../reference/pedexport.html">pedexport()</a></code> for breeding software formats</strong>: New function <code><a href="../reference/pedexport.html">pedexport()</a></code> converts a <code>tidyped</code> pedigree into the file format of common animal and plant breeding programs - BLUPF90, ASReml, Echidna, WOMBAT, MTDFREML, DMU - plus a generic <code>numeric</code> layout and an in-memory <code>sommer</code> format. Character formats (<code>asreml</code>, <code>echidna</code>, <code>wombat</code>, <code>sommer</code>) keep the original character IDs; numeric formats (<code>blupf90</code>, <code>mtdfreml</code>, <code>dmu</code>, <code>numeric</code>) renumber the pedigree and carry an <code>xref</code> mapping back to the original IDs (attribute on the returned table, and a <code>&lt;file&gt;.xref</code> file when <code>file</code> is given), mirroring RENUMF90’s <code>_XrefID</code> file. Defaults follow each program’s conventions for header, separator, and missing-parent symbol, and every format sorts rows so parents precede offspring.</li>
-<li>
-<strong>Echidna pedigree export</strong>: Added <code>software = "echidna"</code> with the same character columns, header, missing-parent encoding, row order, and separator support as the ASReml format.</li>
 </ol></div>
 <div class="section level3">
 <h3 id="improvements-1-10-0">Improvements<a class="anchor" aria-label="anchor" href="#improvements-1-10-0"></a></h3>

@@ -18,9 +18,6 @@
     mirroring RENUMF90’s `_XrefID` file. Defaults follow each program’s
     conventions for header, separator, and missing-parent symbol, and
     every format sorts rows so parents precede offspring.
-2.  **Echidna pedigree export**: Added `software = "echidna"` with the
-    same character columns, header, missing-parent encoding, row order,
-    and separator support as the ASReml format.
 
 ### Improvements
 
