@@ -141,7 +141,7 @@ test_that("asreml: founders appear in first rows (Gen ordering)", {
 test_that("pedexport writes a readable file for blupf90", {
   tp  <- tidyped(make_simple_ped())
   tmp <- tempfile(fileext = ".txt")
-  on.exit(unlink(tmp), add = TRUE)
+  on.exit(unlink(c(tmp, paste0(tmp, ".xref"))), add = TRUE)
 
   pedexport(tp, software = "blupf90", file = tmp)
 
@@ -198,7 +198,7 @@ test_that("wombat file has no header by default", {
 test_that("pedexport returns invisible result even when writing file", {
   tp  <- tidyped(make_simple_ped())
   tmp <- tempfile(fileext = ".txt")
-  on.exit(unlink(tmp), add = TRUE)
+  on.exit(unlink(c(tmp, paste0(tmp, ".xref"))), add = TRUE)
 
   # withVisible to check invisibility
   res <- withVisible(pedexport(tp, software = "blupf90", file = tmp))
@@ -223,6 +223,7 @@ test_that("pedexport errors on invalid file argument", {
   tp <- tidyped(make_simple_ped())
   expect_error(pedexport(tp, file = 123), regexp = "file")
   expect_error(pedexport(tp, file = ""),  regexp = "file")
+  expect_error(pedexport(tp, file = NA_character_), regexp = "file")
 })
 
 test_that("pedexport errors on invalid header argument", {
@@ -230,10 +231,22 @@ test_that("pedexport errors on invalid header argument", {
   expect_error(pedexport(tp, header = "yes"), regexp = "header")
 })
 
-test_that("blupf90 rejects TAB separators", {
+test_that("pedexport validates separators by software format", {
   tp <- tidyped(make_simple_ped())
   expect_error(pedexport(tp, software = "blupf90", sep = "\t"),
-               regexp = "TAB")
+               regexp = "require")
+  expect_error(pedexport(tp, software = "wombat", sep = ","),
+               regexp = "space or TAB")
+  expect_error(pedexport(tp, software = "asreml", sep = "|"),
+               regexp = "space, TAB, or comma")
+  expect_error(pedexport(tp, software = "numeric", sep = ""),
+               regexp = "sep")
+  expect_error(pedexport(tp, software = "numeric", sep = "::"),
+               regexp = "sep")
+  expect_error(pedexport(tp, software = "numeric", sep = NA_character_),
+               regexp = "sep")
+  expect_error(pedexport(tp, software = "numeric", sep = intToUtf8(0xFF0C)),
+               regexp = "sep")
 })
 
 # ---------------------------------------------------------------------------
@@ -311,6 +324,20 @@ test_that("exports work when both addnum and addgen are FALSE", {
   expect_equal(out$IndNum, seq_len(nrow(out)))
 })
 
+test_that("numeric exports rebuild all indices when one index column is missing", {
+  tp       <- tidyped(make_simple_ped())
+  expected <- pedexport(tp, software = "blupf90")
+
+  for (col in c("IndNum", "SireNum", "DamNum")) {
+    partial <- data.table::copy(tp)
+    partial[, (col) := NULL]
+    out <- pedexport(partial, software = "blupf90")
+
+    expect_named(out, c("IndNum", "SireNum", "DamNum"))
+    expect_equal(out, expected)
+  }
+})
+
 test_that("numeric formats reject non-integer missing symbols", {
   tp <- tidyped(make_simple_ped())
   expect_error(pedexport(tp, software = "blupf90", missing = "."),
@@ -370,6 +397,74 @@ test_that("sommer always codes missing parents as NA regardless of 'missing'", {
 
   founders <- tp[is.na(Sire) & is.na(Dam), Ind]
   expect_true(all(out[ID %in% founders, is.na(Sire)]))
+})
+
+test_that("sommer rejects file output", {
+  tp  <- tidyped(make_simple_ped())
+  tmp <- tempfile(fileext = ".txt")
+  on.exit(unlink(tmp), add = TRUE)
+
+  expect_error(pedexport(tp, software = "sommer", file = tmp),
+               regexp = "not supported")
+  expect_false(file.exists(tmp))
+})
+
+test_that("asreml supports explicit comma-separated output", {
+  tp  <- tidyped(make_simple_ped())
+  tmp <- tempfile(fileext = ".csv")
+  on.exit(unlink(tmp), add = TRUE)
+
+  pedexport(tp, software = "asreml", file = tmp, sep = ",")
+
+  lines <- readLines(tmp)
+  expect_equal(lines[[1]], "animal,sire,dam")
+  expect_true(all(lengths(strsplit(lines, ",", fixed = TRUE)) == 3L))
+})
+
+test_that("file output rejects whitespace and separator characters in IDs", {
+  ped_space <- data.frame(
+    Ind  = c("A A", "B", "C"),
+    Sire = c(NA, NA, "A A"),
+    Dam  = c(NA, NA, "B"),
+    stringsAsFactors = FALSE
+  )
+  tp_space <- tidyped(ped_space)
+  tmp <- tempfile(fileext = ".txt")
+  on.exit(unlink(c(tmp, paste0(tmp, ".xref"))), add = TRUE)
+
+  expect_error(pedexport(tp_space, software = "asreml", file = tmp),
+               regexp = "whitespace")
+  expect_error(pedexport(tp_space, software = "blupf90", file = tmp),
+               regexp = "whitespace")
+
+  ped_comma <- data.frame(
+    Ind  = c("A,1", "B", "C"),
+    Sire = c(NA, NA, "A,1"),
+    Dam  = c(NA, NA, "B"),
+    stringsAsFactors = FALSE
+  )
+  tp_comma <- tidyped(ped_comma)
+  expect_error(
+    pedexport(tp_comma, software = "asreml", file = tmp, sep = ","),
+    regexp = "selected separator"
+  )
+})
+
+test_that("character missing symbols must be non-empty and file-safe", {
+  tp  <- tidyped(make_simple_ped())
+  tmp <- tempfile(fileext = ".txt")
+  on.exit(unlink(tmp), add = TRUE)
+
+  expect_error(pedexport(tp, software = "asreml", missing = ""),
+               regexp = "must not be empty")
+  expect_error(
+    pedexport(tp, software = "asreml", file = tmp, missing = "N A"),
+    regexp = "whitespace"
+  )
+  expect_error(
+    pedexport(tp, software = "asreml", file = tmp, sep = ",", missing = ","),
+    regexp = "selected separator"
+  )
 })
 
 test_that("numeric exports carry an xref mapping attribute", {

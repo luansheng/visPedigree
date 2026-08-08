@@ -51,19 +51,25 @@ and \code{Dam} identifier must be present in \code{Ind}.}
 
 \item{file}{Character scalar.  Path to the output file.  When \code{NULL}
 (default) the formatted \code{data.table} is returned invisibly and no
-file is written.}
+file is written.  File output is not supported for \code{"sommer"},
+which is intended for direct use as an R \code{data.table}.}
 
 \item{sep}{Character scalar.  Field separator used when writing to
 \code{file}.  Defaults to a single space (\code{" "}), which every
-supported program accepts.  Note that the BLUPF90 family rejects
-TAB separators.}
+file-based format accepts.  BLUPF90 requires a space; WOMBAT, MTDFREML,
+and DMU accept spaces or TABs; ASReml accepts spaces, TABs, or commas;
+and the generic \code{"numeric"} format accepts any single-byte,
+non-empty separator supported by \code{\link[data.table]{fwrite}}.
+ASReml comma-delimited output requires a \code{.csv} file extension or
+the \code{!CSV} qualifier.}
 
 \item{header}{Logical scalar or \code{NULL}.  Whether to include a column
 header line.  \code{NULL} (default) uses the software-specific default:
-\code{TRUE} for \code{"asreml"}, \code{"numeric"} and \code{"sommer"},
+\code{TRUE} for \code{"asreml"} and \code{"numeric"},
 \code{FALSE} for \code{"blupf90"}, \code{"wombat"}, \code{"mtdfreml"}
-and \code{"dmu"}.  Note for ASReml: a header line is read as data
-unless the \code{!SKIP 1} qualifier is used in the ASReml command file.}
+and \code{"dmu"}.  Ignored for \code{"sommer"}.  Note for ASReml: a
+header line is read as data unless the \code{!SKIP 1} qualifier is used
+in the ASReml command file.}
 
 \item{missing}{Character or integer scalar.  Symbol for missing parents.
 \code{NULL} (default) uses the software-specific default: \code{0L} for
@@ -80,9 +86,9 @@ A \code{data.table} in the target format, returned invisibly.
   back to its original character ID (columns \code{IndNum} and
   \code{Ind}), and when \code{file} is given the mapping is also written
   to \code{paste0(file, ".xref")} without a header, mirroring RENUMF90's
-  \code{_XrefID} file.  When \code{file} is not \code{NULL}, the table is
-  also written to that path and a message reports the number of
-  individuals written.
+  \code{_XrefID} file.  For file-based formats, when \code{file} is not
+  \code{NULL}, the table is also written to that path and a message reports
+  the number of individuals written.
 }
 \description{
 Converts a \code{tidyped} pedigree into the tabular format expected by
@@ -105,21 +111,22 @@ result as a \code{data.table} or writes it to a plain-text file.
 
 \strong{Software format requirements:}
 
-All file-based formats are space-delimited plain text.  The table below
-summarises what each program expects, and the defaults \code{pedexport()}
-uses to meet those expectations.
+All file-based formats use unquoted, free-format plain text.  The table
+below summarises what each program expects, and the defaults
+\code{pedexport()} uses to meet those expectations.
 
 \tabular{llllll}{
   \strong{software} \tab \strong{header} \tab \strong{separator} \tab
     \strong{missing} \tab \strong{IDs} \tab \strong{notes} \cr
   blupf90 \tab no \tab spaces only \tab \code{0} \tab integer \tab
     TAB separators rejected \cr
-  wombat \tab no \tab blanks \tab \code{"0"} \tab character \tab
+  wombat \tab no \tab space / TAB \tab \code{"0"} \tab character \tab
     alphanumeric accepted, recoded internally \cr
-  mtdfreml \tab no \tab blanks \tab \code{0} \tab integer \tab \cr
-  dmu \tab no \tab blanks \tab \code{0} \tab integer \tab \cr
-  asreml \tab yes \tab blanks \tab \code{"0"} \tab char or integer \tab
-    character IDs need \code{!ALPHA}; header needs \code{!SKIP 1} \cr
+  mtdfreml \tab no \tab space / TAB \tab \code{0} \tab integer \tab \cr
+  dmu \tab no \tab space / TAB \tab \code{0} \tab integer \tab \cr
+  asreml \tab yes \tab space / TAB / comma \tab \code{"0"} \tab
+    char or integer \tab character IDs need \code{!ALPHA}; header needs
+    \code{!SKIP 1}; comma needs \code{.csv} or \code{!CSV} \cr
   sommer \tab n/a \tab n/a \tab \code{NA} \tab character \tab returned
     as a data.table, not a file \cr
   numeric \tab optional \tab any \tab \code{0} \tab integer \tab generic
@@ -141,6 +148,15 @@ integer index after \code{tidyped()} topological sorting).  The
 When these columns are absent, \code{pedexport()} reconstructs them from
 \code{Ind}/\code{Sire}/\code{Dam}.  Because \code{tidyped()} always
 topologically sorts rows, parents still precede offspring in the output.
+
+\strong{Identifiers in written files:}
+
+Output is deliberately unquoted because the supported breeding programs
+read pedigree files as free-format text.  Therefore, identifiers and
+character missing-parent symbols must not contain whitespace.  They also
+must not contain the selected non-whitespace separator.  Numeric formats
+apply the same restriction to original identifiers written to the
+companion \code{.xref} file.
 
 \strong{Relationship to \code{tidyped()}:}
 

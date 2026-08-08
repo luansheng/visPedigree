@@ -41,17 +41,23 @@
 #'   }
 #' @param file Character scalar.  Path to the output file.  When \code{NULL}
 #'   (default) the formatted \code{data.table} is returned invisibly and no
-#'   file is written.
+#'   file is written.  File output is not supported for \code{"sommer"},
+#'   which is intended for direct use as an R \code{data.table}.
 #' @param sep Character scalar.  Field separator used when writing to
 #'   \code{file}.  Defaults to a single space (\code{" "}), which every
-#'   supported program accepts.  Note that the BLUPF90 family rejects
-#'   TAB separators.
+#'   file-based format accepts.  BLUPF90 requires a space; WOMBAT, MTDFREML,
+#'   and DMU accept spaces or TABs; ASReml accepts spaces, TABs, or commas;
+#'   and the generic \code{"numeric"} format accepts any single-byte,
+#'   non-empty separator supported by \code{\link[data.table]{fwrite}}.
+#'   ASReml comma-delimited output requires a \code{.csv} file extension or
+#'   the \code{!CSV} qualifier.
 #' @param header Logical scalar or \code{NULL}.  Whether to include a column
 #'   header line.  \code{NULL} (default) uses the software-specific default:
-#'   \code{TRUE} for \code{"asreml"}, \code{"numeric"} and \code{"sommer"},
+#'   \code{TRUE} for \code{"asreml"} and \code{"numeric"},
 #'   \code{FALSE} for \code{"blupf90"}, \code{"wombat"}, \code{"mtdfreml"}
-#'   and \code{"dmu"}.  Note for ASReml: a header line is read as data
-#'   unless the \code{!SKIP 1} qualifier is used in the ASReml command file.
+#'   and \code{"dmu"}.  Ignored for \code{"sommer"}.  Note for ASReml: a
+#'   header line is read as data unless the \code{!SKIP 1} qualifier is used
+#'   in the ASReml command file.
 #' @param missing Character or integer scalar.  Symbol for missing parents.
 #'   \code{NULL} (default) uses the software-specific default: \code{0L} for
 #'   numeric formats, \code{"0"} for \code{"asreml"} and \code{"wombat"}.
@@ -66,9 +72,9 @@
 #'   back to its original character ID (columns \code{IndNum} and
 #'   \code{Ind}), and when \code{file} is given the mapping is also written
 #'   to \code{paste0(file, ".xref")} without a header, mirroring RENUMF90's
-#'   \code{_XrefID} file.  When \code{file} is not \code{NULL}, the table is
-#'   also written to that path and a message reports the number of
-#'   individuals written.
+#'   \code{_XrefID} file.  For file-based formats, when \code{file} is not
+#'   \code{NULL}, the table is also written to that path and a message reports
+#'   the number of individuals written.
 #'
 #' @details
 #' \strong{Column semantics by format:}
@@ -86,21 +92,22 @@
 #'
 #' \strong{Software format requirements:}
 #'
-#' All file-based formats are space-delimited plain text.  The table below
-#' summarises what each program expects, and the defaults \code{pedexport()}
-#' uses to meet those expectations.
+#' All file-based formats use unquoted, free-format plain text.  The table
+#' below summarises what each program expects, and the defaults
+#' \code{pedexport()} uses to meet those expectations.
 #'
 #' \tabular{llllll}{
 #'   \strong{software} \tab \strong{header} \tab \strong{separator} \tab
 #'     \strong{missing} \tab \strong{IDs} \tab \strong{notes} \cr
 #'   blupf90 \tab no \tab spaces only \tab \code{0} \tab integer \tab
 #'     TAB separators rejected \cr
-#'   wombat \tab no \tab blanks \tab \code{"0"} \tab character \tab
+#'   wombat \tab no \tab space / TAB \tab \code{"0"} \tab character \tab
 #'     alphanumeric accepted, recoded internally \cr
-#'   mtdfreml \tab no \tab blanks \tab \code{0} \tab integer \tab \cr
-#'   dmu \tab no \tab blanks \tab \code{0} \tab integer \tab \cr
-#'   asreml \tab yes \tab blanks \tab \code{"0"} \tab char or integer \tab
-#'     character IDs need \code{!ALPHA}; header needs \code{!SKIP 1} \cr
+#'   mtdfreml \tab no \tab space / TAB \tab \code{0} \tab integer \tab \cr
+#'   dmu \tab no \tab space / TAB \tab \code{0} \tab integer \tab \cr
+#'   asreml \tab yes \tab space / TAB / comma \tab \code{"0"} \tab
+#'     char or integer \tab character IDs need \code{!ALPHA}; header needs
+#'     \code{!SKIP 1}; comma needs \code{.csv} or \code{!CSV} \cr
 #'   sommer \tab n/a \tab n/a \tab \code{NA} \tab character \tab returned
 #'     as a data.table, not a file \cr
 #'   numeric \tab optional \tab any \tab \code{0} \tab integer \tab generic
@@ -122,6 +129,15 @@
 #' When these columns are absent, \code{pedexport()} reconstructs them from
 #' \code{Ind}/\code{Sire}/\code{Dam}.  Because \code{tidyped()} always
 #' topologically sorts rows, parents still precede offspring in the output.
+#'
+#' \strong{Identifiers in written files:}
+#'
+#' Output is deliberately unquoted because the supported breeding programs
+#' read pedigree files as free-format text.  Therefore, identifiers and
+#' character missing-parent symbols must not contain whitespace.  They also
+#' must not contain the selected non-whitespace separator.  Numeric formats
+#' apply the same restriction to original identifiers written to the
+#' companion \code{.xref} file.
 #'
 #' \strong{Relationship to \code{tidyped()}:}
 #'
@@ -179,24 +195,29 @@ pedexport <- function(ped,
   software <- match.arg(software)
 
   if (!is.null(file)) {
-    if (!is.character(file) || length(file) != 1L || nchar(file) == 0L)
+    if (!is.character(file) || length(file) != 1L || is.na(file) ||
+        !nzchar(file)) {
       stop("'file' must be a non-empty character string or NULL.", call. = FALSE)
+    }
+    if (software == "sommer") {
+      stop("File output is not supported for software = \"sommer\"; ",
+           "use the returned data.table directly.", call. = FALSE)
+    }
   }
 
-  if (!is.character(sep) || length(sep) != 1L)
-    stop("'sep' must be a single character string.", call. = FALSE)
-
-  if (software == "blupf90" && grepl("\t", sep)) {
-    stop("The BLUPF90 family rejects TAB separators; use sep = \" \".",
+  if (!is.character(sep) || length(sep) != 1L || is.na(sep) ||
+      nchar(sep, type = "bytes") != 1L || sep %in% c("\r", "\n")) {
+    stop("'sep' must be one non-empty, non-newline, single-byte character.",
          call. = FALSE)
   }
+  .validate_export_sep(software, sep)
 
   if (!is.null(header) && (!is.logical(header) || length(header) != 1L || is.na(header)))
     stop("'header' must be TRUE, FALSE, or NULL.", call. = FALSE)
 
   # ---- 2. Software-specific defaults ----
   use_char   <- software %in% c("asreml", "wombat", "sommer")
-  def_header <- software %in% c("asreml", "numeric", "sommer")
+  def_header <- software %in% c("asreml", "numeric")
   def_miss   <- if (use_char) "0" else 0L
 
   if (is.null(header))  header  <- def_header
@@ -213,6 +234,10 @@ pedexport <- function(ped,
            "single character (or numeric) value.", call. = FALSE)
     }
     missing <- as.character(missing)
+    if (!nzchar(missing)) {
+      stop("For the 'asreml' and 'wombat' formats, 'missing' must not be empty.",
+           call. = FALSE)
+    }
   } else {
     missing_int <- suppressWarnings(as.integer(missing))
     if (!is.numeric(missing) || length(missing) != 1L || is.na(missing) ||
@@ -242,6 +267,7 @@ pedexport <- function(ped,
 
   # ---- 6. Write file if requested ----
   if (!is.null(file)) {
+    .validate_export_fields(ped, software, missing, sep)
     data.table::fwrite(out, file = file, sep = sep, col.names = header,
                        quote = FALSE)
     if (!use_char) {
@@ -273,17 +299,24 @@ pedexport <- function(ped,
 #'   columns filled in.
 #' @keywords internal
 .ensure_export_cols <- function(ped) {
-  if (!is.null(ped$IndNum) && !is.null(ped$Gen)) return(ped)
+  num_cols <- c("IndNum", "SireNum", "DamNum")
+  has_num  <- all(num_cols %in% names(ped))
+  has_gen  <- "Gen" %in% names(ped)
+  if (has_num && has_gen) return(ped)
 
   ped <- data.table::copy(ped)
-  if (is.null(ped$IndNum)) {
+  if (!has_num) {
     # tidyped() always topologically sorts rows, so .I is already
     # parent-before-offspring; match() encodes missing parents as 0L.
+    old_num_cols <- intersect(num_cols, names(ped))
+    if (length(old_num_cols) > 0L) {
+      ped[, (old_num_cols) := NULL]
+    }
     ped[, IndNum  := .I]
     ped[, SireNum := match(Sire, Ind, nomatch = 0L)]
     ped[, DamNum  := match(Dam, Ind, nomatch = 0L)]
   }
-  if (is.null(ped$Gen)) {
+  if (!has_gen) {
     # Without generation numbers, numeric index order is the correct
     # parent-before-offspring order for the ASReml export.
     ped[, Gen := IndNum]
@@ -338,4 +371,56 @@ pedexport <- function(ped,
   out[, Gen := NULL]
   data.table::setnames(out, c("animal", "sire", "dam"), cols)
   out[]
+}
+
+#' Validate the separator supported by an export format
+#' @param software Target software name.
+#' @param sep Single-character field separator.
+#' @return \code{NULL}, invisibly.
+#' @noRd
+.validate_export_sep <- function(software, sep) {
+  if (software == "blupf90" && sep != " ") {
+    stop("BLUPF90 pedigree files require sep = \" \".", call. = FALSE)
+  }
+
+  whitespace_formats <- c("wombat", "mtdfreml", "dmu")
+  if (software %in% whitespace_formats && !(sep %in% c(" ", "\t"))) {
+    stop(sprintf("%s pedigree files require a space or TAB separator.",
+                 toupper(software)), call. = FALSE)
+  }
+
+  if (software == "asreml" && !(sep %in% c(" ", "\t", ","))) {
+    stop("ASReml pedigree files require a space, TAB, or comma separator.",
+         call. = FALSE)
+  }
+
+  invisible(NULL)
+}
+
+#' Validate unquoted text fields before writing
+#' @param ped A complete tidyped object with export columns.
+#' @param software Target software name.
+#' @param missing Missing-parent symbol.
+#' @param sep Single-character field separator.
+#' @return \code{NULL}, invisibly.
+#' @noRd
+.validate_export_fields <- function(ped, software, missing, sep) {
+  fields <- ped$Ind
+  if (software %in% c("asreml", "wombat")) {
+    fields <- c(fields, ped$Sire, ped$Dam, missing)
+  }
+  fields <- as.character(fields[!is.na(fields)])
+
+  if (any(grepl("[[:space:]]", fields))) {
+    stop("Identifiers and character missing-parent symbols must not contain ",
+         "whitespace when writing an export file.", call. = FALSE)
+  }
+
+  if (!(sep %in% c(" ", "\t")) &&
+      any(grepl(sep, fields, fixed = TRUE))) {
+    stop("Identifiers and character missing-parent symbols must not contain ",
+         "the selected separator.", call. = FALSE)
+  }
+
+  invisible(NULL)
 }
