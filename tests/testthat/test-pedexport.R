@@ -43,6 +43,14 @@ test_that("pedexport returns 3-column data.table for asreml", {
   expect_equal(nrow(out), nrow(tp))
 })
 
+test_that("pedexport echidna is identical to asreml", {
+  tp       <- tidyped(make_simple_ped())
+  asreml   <- pedexport(tp, software = "asreml")
+  echidna  <- pedexport(tp, software = "echidna")
+
+  expect_equal(echidna, asreml)
+})
+
 test_that("pedexport wombat returns character columns with '0' missing", {
   tp   <- tidyped(make_simple_ped())
   womb <- pedexport(tp, software = "wombat")
@@ -181,6 +189,18 @@ test_that("asreml file omits the header when header = FALSE", {
   expect_false(lines[[1]] == "animal sire dam")
 })
 
+test_that("echidna file uses ASReml defaults", {
+  tp  <- tidyped(make_simple_ped())
+  tmp <- tempfile(fileext = ".txt")
+  on.exit(unlink(tmp), add = TRUE)
+
+  pedexport(tp, software = "echidna", file = tmp)
+
+  lines <- readLines(tmp)
+  expect_equal(lines[[1]], "animal sire dam")
+  expect_equal(length(lines), nrow(tp) + 1L)
+})
+
 test_that("wombat file has no header by default", {
   tp  <- tidyped(make_simple_ped())
   tmp <- tempfile(fileext = ".txt")
@@ -238,6 +258,8 @@ test_that("pedexport validates separators by software format", {
   expect_error(pedexport(tp, software = "wombat", sep = ","),
                regexp = "space or TAB")
   expect_error(pedexport(tp, software = "asreml", sep = "|"),
+               regexp = "space, TAB, or comma")
+  expect_error(pedexport(tp, software = "echidna", sep = "|"),
                regexp = "space, TAB, or comma")
   expect_error(pedexport(tp, software = "numeric", sep = ""),
                regexp = "sep")
@@ -380,13 +402,14 @@ test_that("sommer format returns a character pedigree with NA missing", {
   expect_true(which(out$ID == "C") < which(out$ID == "D"))
 })
 
-test_that("sommer output pairs with the pedmat relationship matrix", {
+test_that("sommer output pairs with a dense pedmat relationship matrix", {
   tp  <- tidyped(make_simple_ped())
   out <- pedexport(tp, software = "sommer")
-  A   <- pedmat(tp, method = "A")
+  A   <- pedmat(tp, method = "A", sparse = FALSE)
 
-  # pedmat() rownames are the character IDs in the same order as out$ID,
-  # so the matrix can be passed directly to sommer::mmer(..., Gu = A).
+  # sommer::vsr(Gu = A) requires a base matrix, not the Matrix object returned
+  # by pedmat() with its default sparse = TRUE.
+  expect_true(is.matrix(A))
   expect_equal(rownames(A), out$ID)
   expect_equal(colnames(A), out$ID)
 })
@@ -421,6 +444,18 @@ test_that("asreml supports explicit comma-separated output", {
   expect_true(all(lengths(strsplit(lines, ",", fixed = TRUE)) == 3L))
 })
 
+test_that("echidna supports explicit comma-separated output", {
+  tp  <- tidyped(make_simple_ped())
+  tmp <- tempfile(fileext = ".csv")
+  on.exit(unlink(tmp), add = TRUE)
+
+  pedexport(tp, software = "echidna", file = tmp, sep = ",")
+
+  lines <- readLines(tmp)
+  expect_equal(lines[[1]], "animal,sire,dam")
+  expect_true(all(lengths(strsplit(lines, ",", fixed = TRUE)) == 3L))
+})
+
 test_that("file output rejects whitespace and separator characters in IDs", {
   ped_space <- data.frame(
     Ind  = c("A A", "B", "C"),
@@ -433,6 +468,8 @@ test_that("file output rejects whitespace and separator characters in IDs", {
   on.exit(unlink(c(tmp, paste0(tmp, ".xref"))), add = TRUE)
 
   expect_error(pedexport(tp_space, software = "asreml", file = tmp),
+               regexp = "whitespace")
+  expect_error(pedexport(tp_space, software = "echidna", file = tmp),
                regexp = "whitespace")
   expect_error(pedexport(tp_space, software = "blupf90", file = tmp),
                regexp = "whitespace")
@@ -482,6 +519,7 @@ test_that("numeric exports carry an xref mapping attribute", {
 test_that("character formats carry no xref attribute", {
   tp <- tidyped(make_simple_ped())
   expect_null(attr(pedexport(tp, software = "asreml"), "xref"))
+  expect_null(attr(pedexport(tp, software = "echidna"), "xref"))
   expect_null(attr(pedexport(tp, software = "wombat"), "xref"))
   expect_null(attr(pedexport(tp, software = "sommer"), "xref"))
 })

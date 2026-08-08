@@ -6,7 +6,8 @@
 \usage{
 pedexport(
   ped,
-  software = c("blupf90", "asreml", "wombat", "mtdfreml", "dmu", "numeric", "sommer"),
+  software = c("blupf90", "asreml", "echidna", "wombat", "mtdfreml", "dmu", "numeric",
+    "sommer"),
   file = NULL,
   sep = " ",
   header = NULL,
@@ -31,6 +32,10 @@ and \code{Dam} identifier must be present in \code{Ind}.}
     (\code{Gen}) so founders appear first.  Compatible with ASReml-R
     and ASReml-SA (character IDs require the \code{!ALPHA} qualifier;
     the header line requires the \code{!SKIP 1} qualifier).}
+  \item{\code{"echidna"}}{Identical character layout and defaults to
+    \code{"asreml"}: columns \code{animal}, \code{sire}, and \code{dam},
+    a header by default, missing parents encoded as \code{"0"}, and rows
+    sorted by generation.}
   \item{\code{"wombat"}}{Three character columns (\code{animal},
     \code{sire}, \code{dam}), no header, missing parents encoded as
     \code{"0"}.  Wombat accepts alphanumeric IDs and recodes them
@@ -45,7 +50,8 @@ and \code{Dam} identifier must be present in \code{Ind}.}
   \item{\code{"sommer"}}{Three character columns (\code{ID}, \code{Sire},
     \code{Dam}), missing parents coded as \code{NA}.  Rows are sorted so
     parents precede offspring.  Returned as a data.table ready to pair
-    with \code{\link{pedmat}} for the relationship matrix used by
+    with a base R relationship matrix from
+    \code{\link{pedmat}(..., sparse = FALSE)} for use in
     \code{sommer::mmer(..., random = ~vsr(animal, Gu = A))}.}
 }}
 
@@ -57,28 +63,29 @@ which is intended for direct use as an R \code{data.table}.}
 \item{sep}{Character scalar.  Field separator used when writing to
 \code{file}.  Defaults to a single space (\code{" "}), which every
 file-based format accepts.  BLUPF90 requires a space; WOMBAT, MTDFREML,
-and DMU accept spaces or TABs; ASReml accepts spaces, TABs, or commas;
-and the generic \code{"numeric"} format accepts any single-byte,
-non-empty separator supported by \code{\link[data.table]{fwrite}}.
-ASReml comma-delimited output requires a \code{.csv} file extension or
-the \code{!CSV} qualifier.}
+and DMU accept spaces or TABs; ASReml and Echidna accept spaces, TABs,
+or commas; and the generic \code{"numeric"} format accepts any
+single-byte, non-empty separator supported by
+\code{\link[data.table]{fwrite}}.  ASReml/Echidna comma-delimited output
+requires a \code{.csv} file extension or the \code{!CSV} qualifier.}
 
 \item{header}{Logical scalar or \code{NULL}.  Whether to include a column
 header line.  \code{NULL} (default) uses the software-specific default:
-\code{TRUE} for \code{"asreml"} and \code{"numeric"},
+\code{TRUE} for \code{"asreml"}, \code{"echidna"}, and \code{"numeric"},
 \code{FALSE} for \code{"blupf90"}, \code{"wombat"}, \code{"mtdfreml"}
-and \code{"dmu"}.  Ignored for \code{"sommer"}.  Note for ASReml: a
-header line is read as data unless the \code{!SKIP 1} qualifier is used
-in the ASReml command file.}
+and \code{"dmu"}.  Ignored for \code{"sommer"}.  Note for ASReml and
+Echidna: a header line is read as data unless the \code{!SKIP 1}
+qualifier is used in the command file.}
 
 \item{missing}{Character or integer scalar.  Symbol for missing parents.
 \code{NULL} (default) uses the software-specific default: \code{0L} for
-numeric formats, \code{"0"} for \code{"asreml"} and \code{"wombat"}.
+numeric formats, \code{"0"} for \code{"asreml"}, \code{"echidna"}, and
+\code{"wombat"}.
 Numeric formats (\code{"blupf90"}, \code{"mtdfreml"}, \code{"dmu"},
-\code{"numeric"}) require a single integer value; \code{"asreml"} and
-\code{"wombat"} accept a character value (numeric values are converted
-to character).  Ignored for \code{"sommer"}, which always codes missing
-parents as \code{NA}.}
+\code{"numeric"}) require a single integer value; \code{"asreml"},
+\code{"echidna"}, and \code{"wombat"} accept a character value (numeric
+values are converted to character).  Ignored for \code{"sommer"}, which
+always codes missing parents as \code{NA}.}
 }
 \value{
 A \code{data.table} in the target format, returned invisibly.
@@ -103,8 +110,8 @@ result as a \code{data.table} or writes it to a plain-text file.
     \strong{Col 3} \cr
   blupf90 / mtdfreml / dmu / numeric \tab \code{IndNum} (integer) \tab
     \code{SireNum} (integer) \tab \code{DamNum} (integer) \cr
-  asreml / wombat \tab \code{animal} (character) \tab \code{sire} (character) \tab
-    \code{dam} (character) \cr
+  asreml / echidna / wombat \tab \code{animal} (character) \tab
+    \code{sire} (character) \tab \code{dam} (character) \cr
   sommer \tab \code{ID} (character) \tab \code{Sire} (character) \tab
     \code{Dam} (character) \cr
 }
@@ -127,6 +134,8 @@ below summarises what each program expects, and the defaults
   asreml \tab yes \tab space / TAB / comma \tab \code{"0"} \tab
     char or integer \tab character IDs need \code{!ALPHA}; header needs
     \code{!SKIP 1}; comma needs \code{.csv} or \code{!CSV} \cr
+  echidna \tab yes \tab space / TAB / comma \tab \code{"0"} \tab
+    char or integer \tab same pedigree layout and defaults as ASReml \cr
   sommer \tab n/a \tab n/a \tab \code{NA} \tab character \tab returned
     as a data.table, not a file \cr
   numeric \tab optional \tab any \tab \code{0} \tab integer \tab generic
@@ -138,8 +147,8 @@ below summarises what each program expects, and the defaults
 All numeric formats sort by \code{IndNum} ascending, which guarantees that
 parent rows appear before offspring rows (parents always receive a smaller
 integer index after \code{tidyped()} topological sorting).  The
-\code{"asreml"}, \code{"wombat"} and \code{"sommer"} formats sort by
-\code{Gen} ascending for the same reason.
+\code{"asreml"}, \code{"echidna"}, \code{"wombat"} and \code{"sommer"}
+formats sort by \code{Gen} ascending for the same reason.
 
 \strong{Optional \code{tidyped()} columns:}
 
@@ -157,6 +166,15 @@ character missing-parent symbols must not contain whitespace.  They also
 must not contain the selected non-whitespace separator.  Numeric formats
 apply the same restriction to original identifiers written to the
 companion \code{.xref} file.
+
+\strong{Sommer compatibility:}
+
+The \code{Gu} argument of \code{sommer::vsr()} requires a base R matrix.
+Because \code{pedmat()} defaults to \code{sparse = TRUE} and returns a
+\pkg{Matrix} object for \code{method = "A"}, use
+\code{pedmat(ped, method = "A", sparse = FALSE)} or explicitly convert the
+result with \code{as.matrix()}.  The matrix row and column names match the
+\code{ID} column returned by \code{pedexport(..., software = "sommer")}.
 
 \strong{Relationship to \code{tidyped()}:}
 
@@ -177,16 +195,21 @@ head(out_blupf90)
 out_asreml <- pedexport(tp, software = "asreml")
 head(out_asreml)
 
+# Echidna uses the same pedigree layout as ASReml
+out_echidna <- pedexport(tp, software = "echidna")
+identical(out_echidna, out_asreml)
+
 # Numeric formats carry the ID mapping back to character IDs
 out_dmu <- pedexport(tp, software = "dmu")
 head(attr(out_dmu, "xref"))
 
 # sommer: character pedigree + visPedigree's own relationship matrix.
 # pedmat() rownames match pedexport(..., software = "sommer")$ID, so the
-# matrix is ready for sommer::mmer(y ~ 1, random = ~vsr(animal, Gu = A)).
+# dense matrix is ready for sommer::mmer(..., Gu = A).
 out_sommer <- pedexport(tp, software = "sommer")
 head(out_sommer)
-A <- pedmat(tp, method = "A")
+A <- pedmat(tp, method = "A", sparse = FALSE)
+identical(rownames(A), out_sommer$ID)
 
 \donttest{
 # Write to a file (numeric formats also write <file>.xref)
