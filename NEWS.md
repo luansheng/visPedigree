@@ -1,3 +1,7 @@
+# Changes in version 1.10.0 (unreleased)
+## New features
+1. **`pedexport()` for breeding software formats**: New function `pedexport()` converts a `tidyped` pedigree into the file format of common animal and plant breeding programs - BLUPF90, ASReml, WOMBAT, MTDFREML, DMU - plus a generic `numeric` layout and an in-memory `sommer` format. Character formats (`asreml`, `wombat`, `sommer`) keep the original character IDs; numeric formats (`blupf90`, `mtdfreml`, `dmu`, `numeric`) renumber the pedigree and carry an `xref` mapping back to the original IDs (attribute on the returned table, and a `<file>.xref` file when `file` is given), mirroring RENUMF90's `_XrefID` file. Defaults follow each program's conventions for header, separator, and missing-parent symbol, and every format sorts rows so parents precede offspring.
+
 # Changes in version 1.9.0 released on 11 Jul 2026
 ## New features
 1. **`visped()` SVG output**: `visped()` now writes SVG files when `file` ends in `.svg`; other file names continue to use PDF output by default.
