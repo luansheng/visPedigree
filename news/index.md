@@ -1,5 +1,43 @@
 # Changelog
 
+## Changes in version 1.10.0 released on 8 Aug 2026
+
+### New features
+
+1.  **[`pedexport()`](https://luansheng.github.io/visPedigree/reference/pedexport.md)
+    for breeding software formats**: New function
+    [`pedexport()`](https://luansheng.github.io/visPedigree/reference/pedexport.md)
+    converts a `tidyped` pedigree into the file format of common animal
+    and plant breeding programs - BLUPF90, ASReml, Echidna, WOMBAT,
+    MTDFREML, DMU - plus a generic `numeric` layout and an in-memory
+    `sommer` format. Character formats (`asreml`, `echidna`, `wombat`,
+    `sommer`) keep the original character IDs; numeric formats
+    (`blupf90`, `mtdfreml`, `dmu`, `numeric`) renumber the pedigree and
+    carry an `xref` mapping back to the original IDs (attribute on the
+    returned table, and a `<file>.xref` file when `file` is given),
+    mirroring RENUMF90’s `_XrefID` file. Defaults follow each program’s
+    conventions for header, separator, and missing-parent symbol, and
+    every format sorts rows so parents precede offspring.
+2.  **Echidna pedigree export**: Added `software = "echidna"` with the
+    same character columns, header, missing-parent encoding, row order,
+    and separator support as the ASReml format.
+
+### Improvements
+
+1.  **Safer
+    [`pedexport()`](https://luansheng.github.io/visPedigree/reference/pedexport.md)
+    files**: Export validation now rejects unsupported or malformed
+    separators, invalid file paths, and unquoted identifiers or
+    missing-parent symbols that would split into extra fields. Partially
+    missing numeric index columns are rebuilt as a consistent
+    `IndNum`/`SireNum`/`DamNum` set, while `sommer` remains an
+    in-memory-only format.
+2.  **Sommer relationship-matrix compatibility**: Documented and tested
+    the complete workflow using
+    `pedmat(..., method = "A", sparse = FALSE)`. This returns the base R
+    matrix required by `sommer::vsr(Gu = A)`, with row and column names
+    aligned to `pedexport(..., software = "sommer")$ID`.
+
 ## Changes in version 1.9.0 released on 11 Jul 2026
 
 CRAN release: 2026-07-15

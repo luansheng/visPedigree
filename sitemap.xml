@@ -20,6 +20,9 @@
 <url><loc>https://luansheng.github.io/visPedigree/reference/compact_pedigree.html</loc></url>
 <url><loc>https://luansheng.github.io/visPedigree/reference/complex_ped.html</loc></url>
 <url><loc>https://luansheng.github.io/visPedigree/reference/deep_ped.html</loc></url>
+<url><loc>https://luansheng.github.io/visPedigree/reference/dot-ensure_export_cols.html</loc></url>
+<url><loc>https://luansheng.github.io/visPedigree/reference/dot-pedexport_char.html</loc></url>
+<url><loc>https://luansheng.github.io/visPedigree/reference/dot-pedexport_num.html</loc></url>
 <url><loc>https://luansheng.github.io/visPedigree/reference/ensure_complete_tidyped.html</loc></url>
 <url><loc>https://luansheng.github.io/visPedigree/reference/ensure_tidyped.html</loc></url>
 <url><loc>https://luansheng.github.io/visPedigree/reference/expand_pedmat.html</loc></url>
@@ -42,6 +45,7 @@
 <url><loc>https://luansheng.github.io/visPedigree/reference/pedancestry.html</loc></url>
 <url><loc>https://luansheng.github.io/visPedigree/reference/pedcontrib.html</loc></url>
 <url><loc>https://luansheng.github.io/visPedigree/reference/pedecg.html</loc></url>
+<url><loc>https://luansheng.github.io/visPedigree/reference/pedexport.html</loc></url>
 <url><loc>https://luansheng.github.io/visPedigree/reference/pedfclass.html</loc></url>
 <url><loc>https://luansheng.github.io/visPedigree/reference/pedgenint.html</loc></url>
 <url><loc>https://luansheng.github.io/visPedigree/reference/pedhalflife.html</loc></url>

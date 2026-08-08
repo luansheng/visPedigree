@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">visPedigree</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.9.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.10.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -43,6 +43,23 @@
       <small>Source: <a href="https://github.com/luansheng/visPedigree/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.10.0" id="changes-in-version-1100-released-on-8-aug-2026">Changes in version 1.10.0 released on 8 Aug 2026<a class="anchor" aria-label="anchor" href="#changes-in-version-1100-released-on-8-aug-2026"></a></h2>
+<div class="section level3">
+<h3 id="new-features-1-10-0">New features<a class="anchor" aria-label="anchor" href="#new-features-1-10-0"></a></h3>
+<ol style="list-style-type: decimal"><li>
+<strong><code><a href="../reference/pedexport.html">pedexport()</a></code> for breeding software formats</strong>: New function <code><a href="../reference/pedexport.html">pedexport()</a></code> converts a <code>tidyped</code> pedigree into the file format of common animal and plant breeding programs - BLUPF90, ASReml, Echidna, WOMBAT, MTDFREML, DMU - plus a generic <code>numeric</code> layout and an in-memory <code>sommer</code> format. Character formats (<code>asreml</code>, <code>echidna</code>, <code>wombat</code>, <code>sommer</code>) keep the original character IDs; numeric formats (<code>blupf90</code>, <code>mtdfreml</code>, <code>dmu</code>, <code>numeric</code>) renumber the pedigree and carry an <code>xref</code> mapping back to the original IDs (attribute on the returned table, and a <code>&lt;file&gt;.xref</code> file when <code>file</code> is given), mirroring RENUMF90’s <code>_XrefID</code> file. Defaults follow each program’s conventions for header, separator, and missing-parent symbol, and every format sorts rows so parents precede offspring.</li>
+<li>
+<strong>Echidna pedigree export</strong>: Added <code>software = "echidna"</code> with the same character columns, header, missing-parent encoding, row order, and separator support as the ASReml format.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="improvements-1-10-0">Improvements<a class="anchor" aria-label="anchor" href="#improvements-1-10-0"></a></h3>
+<ol style="list-style-type: decimal"><li>
+<strong>Safer <code><a href="../reference/pedexport.html">pedexport()</a></code> files</strong>: Export validation now rejects unsupported or malformed separators, invalid file paths, and unquoted identifiers or missing-parent symbols that would split into extra fields. Partially missing numeric index columns are rebuilt as a consistent <code>IndNum</code>/<code>SireNum</code>/<code>DamNum</code> set, while <code>sommer</code> remains an in-memory-only format.</li>
+<li>
+<strong>Sommer relationship-matrix compatibility</strong>: Documented and tested the complete workflow using <code>pedmat(..., method = "A", sparse = FALSE)</code>. This returns the base R matrix required by <code>sommer::vsr(Gu = A)</code>, with row and column names aligned to <code>pedexport(..., software = "sommer")$ID</code>.</li>
+</ol></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.9.0" id="changes-in-version-190-released-on-11-jul-2026">Changes in version 1.9.0 released on 11 Jul 2026<a class="anchor" aria-label="anchor" href="#changes-in-version-190-released-on-11-jul-2026"></a></h2><p class="text-muted">CRAN release: 2026-07-15</p>
 <div class="section level3">

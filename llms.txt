@@ -189,6 +189,8 @@ Functions for genealogical and genetic computations.
   : Calculate Founder and Ancestor Contributions
 - [`pedecg()`](https://luansheng.github.io/visPedigree/reference/pedecg.md)
   : Calculate Equi-Generate Coefficient
+- [`pedexport()`](https://luansheng.github.io/visPedigree/reference/pedexport.md)
+  : Export a pedigree to a breeding software format
 - [`pedfclass()`](https://luansheng.github.io/visPedigree/reference/pedfclass.md)
   : Summarize Inbreeding Levels
 - [`pedgenint()`](https://luansheng.github.io/visPedigree/reference/pedgenint.md)
