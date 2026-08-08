@@ -143,7 +143,7 @@ test_that("pedexport writes a readable file for blupf90", {
   expect_true(all(!is.na(suppressWarnings(as.integer(tokens)))))
 })
 
-test_that("pedexport writes a file with header for asreml", {
+test_that("asreml file has no header by default", {
   tp  <- tidyped(make_simple_ped())
   tmp <- tempfile(fileext = ".txt")
   on.exit(unlink(tmp), add = TRUE)
@@ -151,23 +151,23 @@ test_that("pedexport writes a file with header for asreml", {
   pedexport(tp, software = "asreml", file = tmp)
 
   lines <- readLines(tmp)
-  # First line is header
-  expect_equal(lines[[1]], "animal sire dam")
-  # Total lines = header + n individuals
-  expect_equal(length(lines), nrow(tp) + 1L)
+  # ASReml reads pedigree files in free format; a header line would be
+  # parsed as data unless the !SKIP qualifier is used.
+  expect_equal(length(lines), nrow(tp))
+  expect_false(lines[[1]] == "animal sire dam")
 })
 
-test_that("pedexport respects header = FALSE for asreml", {
+test_that("asreml file writes a header only when explicitly requested", {
   tp  <- tidyped(make_simple_ped())
   tmp <- tempfile(fileext = ".txt")
   on.exit(unlink(tmp), add = TRUE)
 
-  pedexport(tp, software = "asreml", file = tmp, header = FALSE)
+  pedexport(tp, software = "asreml", file = tmp, header = TRUE)
 
   lines <- readLines(tmp)
-  expect_equal(length(lines), nrow(tp))
-  # First line must NOT be the header
-  expect_false(lines[[1]] == "animal sire dam")
+  # With a header kept, ASReml needs the !SKIP 1 qualifier
+  expect_equal(lines[[1]], "animal sire dam")
+  expect_equal(length(lines), nrow(tp) + 1L)
 })
 
 test_that("pedexport returns invisible result even when writing file", {
@@ -203,6 +203,12 @@ test_that("pedexport errors on invalid file argument", {
 test_that("pedexport errors on invalid header argument", {
   tp <- tidyped(make_simple_ped())
   expect_error(pedexport(tp, header = "yes"), regexp = "header")
+})
+
+test_that("blupf90 rejects TAB separators", {
+  tp <- tidyped(make_simple_ped())
+  expect_error(pedexport(tp, software = "blupf90", sep = "\t"),
+               regexp = "TAB")
 })
 
 # ---------------------------------------------------------------------------

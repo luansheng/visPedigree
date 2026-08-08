@@ -17,9 +17,11 @@
 #'       precede offspring rows.  Compatible with BLUPF90, REMLF90,
 #'       GIBBSF90, and related programs.}
 #'     \item{\code{"asreml"}}{Three character columns (\code{animal},
-#'       \code{sire}, \code{dam}), with a one-line header, missing parents
-#'       encoded as \code{"0"}.  Rows are sorted by generation (\code{Gen})
-#'       so founders appear first.  Compatible with ASReml-R and ASReml-SA.}
+#'       \code{sire}, \code{dam}), no header, missing parents encoded as
+#'       \code{"0"}.  Rows are sorted by generation (\code{Gen}) so founders
+#'       appear first.  Compatible with ASReml-R and ASReml-SA (character
+#'       IDs require the \code{!ALPHA} qualifier; a kept header requires
+#'       \code{!SKIP 1}).}
 #'     \item{\code{"wombat"}}{Identical integer layout to \code{"blupf90"}.
 #'       Compatible with Wombat.}
 #'     \item{\code{"mtdfreml"}}{Identical integer layout to \code{"blupf90"}.
@@ -39,11 +41,15 @@
 #'   (default) the formatted \code{data.table} is returned invisibly and no
 #'   file is written.
 #' @param sep Character scalar.  Field separator used when writing to
-#'   \code{file}.  Defaults to a single space (\code{" "}).
+#'   \code{file}.  Defaults to a single space (\code{" "}), which every
+#'   supported program accepts.  Note that the BLUPF90 family rejects
+#'   TAB separators.
 #' @param header Logical scalar or \code{NULL}.  Whether to include a column
 #'   header line.  \code{NULL} (default) uses the software-specific default:
-#'   \code{TRUE} for \code{"asreml"} and \code{"numeric"}, \code{FALSE} for
-#'   all others.
+#'   \code{TRUE} for \code{"numeric"} and \code{"sommer"}, \code{FALSE} for
+#'   all others.  In particular \code{"asreml"} defaults to no header:
+#'   ASReml reads pedigree files in free format, and a header line would be
+#'   read as data unless the \code{!SKIP} qualifier is used.
 #' @param missing Character or integer scalar.  Symbol for missing parents.
 #'   \code{NULL} (default) uses the software-specific default: \code{0L} for
 #'   numeric formats, \code{"0"} for \code{"asreml"}.  Numeric formats
@@ -74,6 +80,29 @@
 #'     \code{dam} (character) \cr
 #'   sommer \tab \code{ID} (character) \tab \code{Sire} (character) \tab
 #'     \code{Dam} (character) \cr
+#' }
+#'
+#' \strong{Software format requirements:}
+#'
+#' All file-based formats are space-delimited plain text.  The table below
+#' summarises what each program expects, and the defaults \code{pedexport()}
+#' uses to meet those expectations.
+#'
+#' \tabular{llllll}{
+#'   \strong{software} \tab \strong{header} \tab \strong{separator} \tab
+#'     \strong{missing} \tab \strong{IDs} \tab \strong{notes} \cr
+#'   blupf90 \tab no \tab spaces only \tab \code{0} \tab integer \tab
+#'     TAB separators rejected \cr
+#'   wombat \tab no \tab blanks \tab \code{0} \tab char or integer \tab
+#'     recoded internally \cr
+#'   mtdfreml \tab no \tab blanks \tab \code{0} \tab integer \tab \cr
+#'   dmu \tab no \tab blanks \tab \code{0} \tab integer \tab \cr
+#'   asreml \tab no \tab blanks \tab \code{"0"} \tab char or integer \tab
+#'     character IDs need \code{!ALPHA}; kept header needs \code{!SKIP 1} \cr
+#'   sommer \tab n/a \tab n/a \tab \code{NA} \tab character \tab returned
+#'     as a data.table, not a file \cr
+#'   numeric \tab optional \tab any \tab \code{0} \tab integer \tab generic
+#'     software-agnostic layout \cr
 #' }
 #'
 #' \strong{Row order:}
@@ -155,12 +184,17 @@ pedexport <- function(ped,
   if (!is.character(sep) || length(sep) != 1L)
     stop("'sep' must be a single character string.", call. = FALSE)
 
+  if (software == "blupf90" && grepl("\t", sep)) {
+    stop("The BLUPF90 family rejects TAB separators; use sep = \" \".",
+         call. = FALSE)
+  }
+
   if (!is.null(header) && (!is.logical(header) || length(header) != 1L || is.na(header)))
     stop("'header' must be TRUE, FALSE, or NULL.", call. = FALSE)
 
   # ---- 2. Software-specific defaults ----
   use_char   <- software %in% c("asreml", "sommer")
-  def_header <- use_char || software == "numeric"
+  def_header <- software %in% c("numeric", "sommer")
   def_miss   <- if (use_char) "0" else 0L
 
   if (is.null(header))  header  <- def_header

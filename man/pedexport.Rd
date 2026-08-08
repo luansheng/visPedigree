@@ -26,9 +26,11 @@ and \code{Dam} identifier must be present in \code{Ind}.}
     precede offspring rows.  Compatible with BLUPF90, REMLF90,
     GIBBSF90, and related programs.}
   \item{\code{"asreml"}}{Three character columns (\code{animal},
-    \code{sire}, \code{dam}), with a one-line header, missing parents
-    encoded as \code{"0"}.  Rows are sorted by generation (\code{Gen})
-    so founders appear first.  Compatible with ASReml-R and ASReml-SA.}
+    \code{sire}, \code{dam}), no header, missing parents encoded as
+    \code{"0"}.  Rows are sorted by generation (\code{Gen}) so founders
+    appear first.  Compatible with ASReml-R and ASReml-SA (character
+    IDs require the \code{!ALPHA} qualifier; a kept header requires
+    \code{!SKIP 1}).}
   \item{\code{"wombat"}}{Identical integer layout to \code{"blupf90"}.
     Compatible with Wombat.}
   \item{\code{"mtdfreml"}}{Identical integer layout to \code{"blupf90"}.
@@ -50,12 +52,16 @@ and \code{Dam} identifier must be present in \code{Ind}.}
 file is written.}
 
 \item{sep}{Character scalar.  Field separator used when writing to
-\code{file}.  Defaults to a single space (\code{" "}).}
+\code{file}.  Defaults to a single space (\code{" "}), which every
+supported program accepts.  Note that the BLUPF90 family rejects
+TAB separators.}
 
 \item{header}{Logical scalar or \code{NULL}.  Whether to include a column
 header line.  \code{NULL} (default) uses the software-specific default:
-\code{TRUE} for \code{"asreml"} and \code{"numeric"}, \code{FALSE} for
-all others.}
+\code{TRUE} for \code{"numeric"} and \code{"sommer"}, \code{FALSE} for
+all others.  In particular \code{"asreml"} defaults to no header:
+ASReml reads pedigree files in free format, and a header line would be
+read as data unless the \code{!SKIP} qualifier is used.}
 
 \item{missing}{Character or integer scalar.  Symbol for missing parents.
 \code{NULL} (default) uses the software-specific default: \code{0L} for
@@ -93,6 +99,29 @@ result as a \code{data.table} or writes it to a plain-text file.
     \code{dam} (character) \cr
   sommer \tab \code{ID} (character) \tab \code{Sire} (character) \tab
     \code{Dam} (character) \cr
+}
+
+\strong{Software format requirements:}
+
+All file-based formats are space-delimited plain text.  The table below
+summarises what each program expects, and the defaults \code{pedexport()}
+uses to meet those expectations.
+
+\tabular{llllll}{
+  \strong{software} \tab \strong{header} \tab \strong{separator} \tab
+    \strong{missing} \tab \strong{IDs} \tab \strong{notes} \cr
+  blupf90 \tab no \tab spaces only \tab \code{0} \tab integer \tab
+    TAB separators rejected \cr
+  wombat \tab no \tab blanks \tab \code{0} \tab char or integer \tab
+    recoded internally \cr
+  mtdfreml \tab no \tab blanks \tab \code{0} \tab integer \tab \cr
+  dmu \tab no \tab blanks \tab \code{0} \tab integer \tab \cr
+  asreml \tab no \tab blanks \tab \code{"0"} \tab char or integer \tab
+    character IDs need \code{!ALPHA}; kept header needs \code{!SKIP 1} \cr
+  sommer \tab n/a \tab n/a \tab \code{NA} \tab character \tab returned
+    as a data.table, not a file \cr
+  numeric \tab optional \tab any \tab \code{0} \tab integer \tab generic
+    software-agnostic layout \cr
 }
 
 \strong{Row order:}
