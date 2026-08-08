@@ -6,7 +6,7 @@
 \usage{
 pedexport(
   ped,
-  software = c("blupf90", "asreml", "wombat", "mtdfreml", "numeric"),
+  software = c("blupf90", "asreml", "wombat", "mtdfreml", "dmu", "numeric", "sommer"),
   file = NULL,
   sep = " ",
   header = NULL,
@@ -33,9 +33,16 @@ and \code{Dam} identifier must be present in \code{Ind}.}
     Compatible with Wombat.}
   \item{\code{"mtdfreml"}}{Identical integer layout to \code{"blupf90"}.
     Compatible with MTDFREML and MTGSAM.}
+  \item{\code{"dmu"}}{Identical integer layout to \code{"blupf90"}.
+    Compatible with DMU.}
   \item{\code{"numeric"}}{Integer layout with an optional header
     (\code{IndNum SireNum DamNum}).  A portable, software-agnostic
     choice when the target program is not listed above.}
+  \item{\code{"sommer"}}{Three character columns (\code{ID}, \code{Sire},
+    \code{Dam}), missing parents coded as \code{NA}.  Rows are sorted so
+    parents precede offspring.  Returned as a data.table ready to pair
+    with \code{\link{pedmat}} for the relationship matrix used by
+    \code{sommer::mmer(..., random = ~vsr(animal, Gu = A))}.}
 }}
 
 \item{file}{Character scalar.  Path to the output file.  When \code{NULL}
@@ -53,14 +60,21 @@ all others.}
 \item{missing}{Character or integer scalar.  Symbol for missing parents.
 \code{NULL} (default) uses the software-specific default: \code{0L} for
 numeric formats, \code{"0"} for \code{"asreml"}.  Numeric formats
-(\code{"blupf90"}, \code{"wombat"}, \code{"mtdfreml"}, \code{"numeric"})
-require a single integer value; \code{"asreml"} accepts a character
-value (numeric values are converted to character).}
+(\code{"blupf90"}, \code{"wombat"}, \code{"mtdfreml"}, \code{"dmu"},
+\code{"numeric"}) require a single integer value; \code{"asreml"}
+accepts a character value (numeric values are converted to character).
+Ignored for \code{"sommer"}, which always codes missing parents as
+\code{NA}.}
 }
 \value{
 A \code{data.table} in the target format, returned invisibly.
-  When \code{file} is not \code{NULL}, the table is also written to that
-  path and a message reports the number of individuals written.
+  Numeric formats carry an \code{xref} attribute mapping each numeric ID
+  back to its original character ID (columns \code{IndNum} and
+  \code{Ind}), and when \code{file} is given the mapping is also written
+  to \code{paste0(file, ".xref")} without a header, mirroring RENUMF90's
+  \code{_XrefID} file.  When \code{file} is not \code{NULL}, the table is
+  also written to that path and a message reports the number of
+  individuals written.
 }
 \description{
 Converts a \code{tidyped} pedigree into the tabular format expected by
@@ -73,10 +87,12 @@ result as a \code{data.table} or writes it to a plain-text file.
 \tabular{llll}{
   \strong{software} \tab \strong{Col 1} \tab \strong{Col 2} \tab
     \strong{Col 3} \cr
-  blupf90 / wombat / mtdfreml / numeric \tab \code{IndNum} (integer) \tab
+  blupf90 / wombat / mtdfreml / dmu / numeric \tab \code{IndNum} (integer) \tab
     \code{SireNum} (integer) \tab \code{DamNum} (integer) \cr
   asreml \tab \code{animal} (character) \tab \code{sire} (character) \tab
     \code{dam} (character) \cr
+  sommer \tab \code{ID} (character) \tab \code{Sire} (character) \tab
+    \code{Dam} (character) \cr
 }
 
 \strong{Row order:}
@@ -84,7 +100,8 @@ result as a \code{data.table} or writes it to a plain-text file.
 All numeric formats sort by \code{IndNum} ascending, which guarantees that
 parent rows appear before offspring rows (parents always receive a smaller
 integer index after \code{tidyped()} topological sorting).  The
-\code{"asreml"} format sorts by \code{Gen} ascending for the same reason.
+\code{"asreml"} and \code{"sommer"} formats sort by \code{Gen} ascending
+for the same reason.
 
 \strong{Optional \code{tidyped()} columns:}
 
@@ -113,11 +130,23 @@ head(out_blupf90)
 out_asreml <- pedexport(tp, software = "asreml")
 head(out_asreml)
 
+# Numeric formats carry the ID mapping back to character IDs
+out_dmu <- pedexport(tp, software = "dmu")
+head(attr(out_dmu, "xref"))
+
+# sommer: character pedigree + visPedigree's own relationship matrix.
+# pedmat() rownames match pedexport(..., software = "sommer")$ID, so the
+# matrix is ready for sommer::mmer(y ~ 1, random = ~vsr(animal, Gu = A)).
+out_sommer <- pedexport(tp, software = "sommer")
+head(out_sommer)
+A <- pedmat(tp, method = "A")
+
 \donttest{
-# Write to a file
+# Write to a file (numeric formats also write <file>.xref)
 tmp <- tempfile(fileext = ".txt")
 pedexport(tp, software = "blupf90", file = tmp)
 readLines(tmp, n = 5)
+readLines(paste0(tmp, ".xref"), n = 5)
 }
 
 }

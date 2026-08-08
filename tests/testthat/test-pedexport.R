@@ -293,3 +293,84 @@ test_that("numeric formats reject non-integer missing symbols", {
   expect_true(all(out[IndNum %in% founders, SireNum] == -99L))
   expect_true(all(out[IndNum %in% founders, DamNum]  == -99L))
 })
+
+# ---------------------------------------------------------------------------
+# 9. dmu and sommer formats; numeric ID mapping (xref)
+# ---------------------------------------------------------------------------
+
+test_that("pedexport dmu is identical to blupf90", {
+  tp  <- tidyped(make_simple_ped())
+  b90 <- pedexport(tp, software = "blupf90")
+  dmu <- pedexport(tp, software = "dmu")
+  expect_equal(b90, dmu)
+})
+
+test_that("sommer format returns a character pedigree with NA missing", {
+  tp  <- tidyped(make_simple_ped())
+  out <- pedexport(tp, software = "sommer")
+
+  expect_s3_class(out, "data.table")
+  expect_named(out, c("ID", "Sire", "Dam"))
+  expect_type(out$ID, "character")
+  # Missing parents are NA (R convention), non-missing keep character IDs
+  founders <- tp[is.na(Sire) & is.na(Dam), Ind]
+  expect_true(all(out[ID %in% founders, is.na(Sire)]))
+  expect_true(all(out[ID %in% founders, is.na(Dam)]))
+  expect_equal(out[ID == "C", Sire], "A")
+  expect_equal(out[ID == "C", Dam],  "B")
+  # Parents precede offspring
+  expect_true(which(out$ID == "C") < which(out$ID == "D"))
+})
+
+test_that("sommer output pairs with the pedmat relationship matrix", {
+  tp  <- tidyped(make_simple_ped())
+  out <- pedexport(tp, software = "sommer")
+  A   <- pedmat(tp, method = "A")
+
+  # pedmat() rownames are the character IDs in the same order as out$ID,
+  # so the matrix can be passed directly to sommer::mmer(..., Gu = A).
+  expect_equal(rownames(A), out$ID)
+  expect_equal(colnames(A), out$ID)
+})
+
+test_that("sommer always codes missing parents as NA regardless of 'missing'", {
+  tp  <- tidyped(make_simple_ped())
+  out <- pedexport(tp, software = "sommer", missing = "0")
+
+  founders <- tp[is.na(Sire) & is.na(Dam), Ind]
+  expect_true(all(out[ID %in% founders, is.na(Sire)]))
+})
+
+test_that("numeric exports carry an xref mapping attribute", {
+  tp <- tidyped(make_simple_ped())
+  for (sw in c("blupf90", "wombat", "mtdfreml", "dmu", "numeric")) {
+    out <- pedexport(tp, software = sw)
+    xr  <- attr(out, "xref")
+    expect_s3_class(xr, "data.table")
+    expect_named(xr, c("IndNum", "Ind"))
+    expect_equal(xr$IndNum, seq_len(nrow(tp)))
+    expect_equal(xr$Ind, tp$Ind)
+  }
+})
+
+test_that("character formats carry no xref attribute", {
+  tp <- tidyped(make_simple_ped())
+  expect_null(attr(pedexport(tp, software = "asreml"), "xref"))
+  expect_null(attr(pedexport(tp, software = "sommer"), "xref"))
+})
+
+test_that("writing a numeric file also writes the .xref mapping file", {
+  tp  <- tidyped(make_simple_ped())
+  tmp <- tempfile(fileext = ".txt")
+  on.exit(unlink(c(tmp, paste0(tmp, ".xref"))), add = TRUE)
+
+  pedexport(tp, software = "blupf90", file = tmp)
+
+  xr_file <- paste0(tmp, ".xref")
+  expect_true(file.exists(xr_file))
+  xr <- read.table(xr_file, header = FALSE, stringsAsFactors = FALSE)
+  expect_equal(ncol(xr), 2L)
+  # Row 1 maps numeric 1 to the first individual
+  expect_equal(xr[1, 1], 1L)
+  expect_equal(xr[1, 2], tp$Ind[1])
+})

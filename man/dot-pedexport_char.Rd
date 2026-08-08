@@ -2,19 +2,23 @@
 % Please edit documentation in R/pedexport.R
 \name{.pedexport_char}
 \alias{.pedexport_char}
-\title{Build a character export table (ASReml format)}
+\title{Build a character export table (ASReml or sommer format)}
 \usage{
-.pedexport_char(ped, missing = "0")
+.pedexport_char(ped, missing = "0", cols = c("animal", "sire", "dam"))
 }
 \arguments{
 \item{ped}{A complete tidyped object.}
 
-\item{missing}{Character scalar for missing parents.}
+\item{missing}{Character scalar for missing parents.  When \code{NA},
+missing parents are left as \code{NA} (the R convention used by the
+\code{"sommer"} format).}
+
+\item{cols}{Character vector of length 3 with the output column names.}
 }
 \value{
-A data.table with columns animal, sire, dam.
+A data.table with the requested character columns.
 }
 \description{
-Build a character export table (ASReml format)
+Build a character export table (ASReml or sommer format)
 }
 \keyword{internal}
