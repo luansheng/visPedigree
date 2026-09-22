@@ -6,8 +6,8 @@
 \usage{
 pedexport(
   ped,
-  software = c("blupf90", "asreml", "echidna", "wombat", "mtdfreml", "dmu", "numeric",
-    "sommer"),
+  software = c("blupf90", "asreml", "echidna", "hiblup", "wombat", "mtdfreml", "dmu",
+    "numeric", "sommer"),
   file = NULL,
   sep = " ",
   header = NULL,
@@ -31,15 +31,23 @@ and \code{Dam} identifier must be present in \code{Ind}.}
     parents encoded as \code{"0"}.  Rows are sorted by generation
     (\code{Gen}) so founders appear first.  Compatible with ASReml-R
     and ASReml-SA (character IDs require the \code{!ALPHA} qualifier;
-    the header line requires the \code{!SKIP 1} qualifier).}
+    the header line requires the \code{!SKIP 1} qualifier, placed
+    immediately after the pedigree file name).}
   \item{\code{"echidna"}}{Identical character layout and defaults to
     \code{"asreml"}: columns \code{animal}, \code{sire}, and \code{dam},
     a header by default, missing parents encoded as \code{"0"}, and rows
     sorted by generation.}
-  \item{\code{"wombat"}}{Three character columns (\code{animal},
-    \code{sire}, \code{dam}), no header, missing parents encoded as
-    \code{"0"}.  Wombat accepts alphanumeric IDs and recodes them
-    internally.  Rows are sorted so parents precede offspring.}
+  \item{\code{"hiblup"}}{Three character columns (\code{animal},
+    \code{sire}, \code{dam}), no header by default, missing parents
+    encoded as \code{"0"}, and rows sorted by generation.  Compatible
+    with HIBLUP's \code{--pedigree} file.}
+  \item{\code{"wombat"}}{Integer layout identical to \code{"blupf90"}
+    (\code{IndNum}, \code{SireNum}, \code{DamNum}), no header, missing
+    parents encoded as \code{0}.  WOMBAT requires integer codes in the
+    range 0 to 2147483647, with every offspring numerically larger than
+    either parent and unknown parents coded \code{0} (WOMBAT manual
+    section 6.3); the \code{tidyped()} integer index satisfies both
+    ordering constraints by construction.}
   \item{\code{"mtdfreml"}}{Identical integer layout to \code{"blupf90"}.
     Compatible with MTDFREML and MTGSAM.}
   \item{\code{"dmu"}}{Identical integer layout to \code{"blupf90"}.
@@ -63,8 +71,8 @@ which is intended for direct use as an R \code{data.table}.}
 \item{sep}{Character scalar.  Field separator used when writing to
 \code{file}.  Defaults to a single space (\code{" "}), which every
 file-based format accepts.  BLUPF90 requires a space; WOMBAT, MTDFREML,
-and DMU accept spaces or TABs; ASReml and Echidna accept spaces, TABs,
-or commas; and the generic \code{"numeric"} format accepts any
+DMU, and HIBLUP accept spaces or TABs; ASReml and Echidna accept spaces,
+TABs, or commas; and the generic \code{"numeric"} format accepts any
 single-byte, non-empty separator supported by
 \code{\link[data.table]{fwrite}}.  ASReml/Echidna comma-delimited output
 requires a \code{.csv} file extension or the \code{!CSV} qualifier.}
@@ -72,20 +80,22 @@ requires a \code{.csv} file extension or the \code{!CSV} qualifier.}
 \item{header}{Logical scalar or \code{NULL}.  Whether to include a column
 header line.  \code{NULL} (default) uses the software-specific default:
 \code{TRUE} for \code{"asreml"}, \code{"echidna"}, and \code{"numeric"},
-\code{FALSE} for \code{"blupf90"}, \code{"wombat"}, \code{"mtdfreml"}
-and \code{"dmu"}.  Ignored for \code{"sommer"}.  Note for ASReml and
-Echidna: a header line is read as data unless the \code{!SKIP 1}
-qualifier is used in the command file.}
+\code{FALSE} for \code{"blupf90"}, \code{"wombat"}, \code{"mtdfreml"},
+\code{"dmu"}, and \code{"hiblup"}.  Ignored for \code{"sommer"}.  Note
+for ASReml and Echidna: a header line is read as data unless the
+\code{!SKIP 1} qualifier is used in the command file (it must be placed
+immediately after the pedigree file name — trailing \code{!SKIP} after
+other qualifiers is silently ignored by ASReml-SA).}
 
 \item{missing}{Character or integer scalar.  Symbol for missing parents.
 \code{NULL} (default) uses the software-specific default: \code{0L} for
 numeric formats, \code{"0"} for \code{"asreml"}, \code{"echidna"}, and
-\code{"wombat"}.
-Numeric formats (\code{"blupf90"}, \code{"mtdfreml"}, \code{"dmu"},
-\code{"numeric"}) require a single integer value; \code{"asreml"},
-\code{"echidna"}, and \code{"wombat"} accept a character value (numeric
-values are converted to character).  Ignored for \code{"sommer"}, which
-always codes missing parents as \code{NA}.}
+\code{"hiblup"}.
+Numeric formats (\code{"blupf90"}, \code{"wombat"}, \code{"mtdfreml"},
+\code{"dmu"}, \code{"numeric"}) require a single integer value;
+\code{"asreml"}, \code{"echidna"}, and \code{"hiblup"} accept a
+character value (numeric values are converted to character).  Ignored
+for \code{"sommer"}, which always codes missing parents as \code{NA}.}
 }
 \value{
 A \code{data.table} in the target format, returned invisibly.
@@ -108,9 +118,9 @@ result as a \code{data.table} or writes it to a plain-text file.
 \tabular{llll}{
   \strong{software} \tab \strong{Col 1} \tab \strong{Col 2} \tab
     \strong{Col 3} \cr
-  blupf90 / mtdfreml / dmu / numeric \tab \code{IndNum} (integer) \tab
-    \code{SireNum} (integer) \tab \code{DamNum} (integer) \cr
-  asreml / echidna / wombat \tab \code{animal} (character) \tab
+  blupf90 / wombat / mtdfreml / dmu / numeric \tab \code{IndNum}
+    (integer) \tab \code{SireNum} (integer) \tab \code{DamNum} (integer) \cr
+  asreml / echidna / hiblup \tab \code{animal} (character) \tab
     \code{sire} (character) \tab \code{dam} (character) \cr
   sommer \tab \code{ID} (character) \tab \code{Sire} (character) \tab
     \code{Dam} (character) \cr
@@ -127,8 +137,11 @@ below summarises what each program expects, and the defaults
     \strong{missing} \tab \strong{IDs} \tab \strong{notes} \cr
   blupf90 \tab no \tab spaces only \tab \code{0} \tab integer \tab
     TAB separators rejected \cr
-  wombat \tab no \tab space / TAB \tab \code{"0"} \tab character \tab
-    alphanumeric accepted, recoded internally \cr
+  wombat \tab no \tab space / TAB \tab \code{0} \tab integer \tab
+    integer codes 0..2147483647; offspring code must exceed both parent
+    codes (manual section 6.3) \cr
+  hiblup \tab no \tab space / TAB \tab \code{"0"} \tab character \tab
+    alphanumeric accepted; missing parents may also be \code{NA} \cr
   mtdfreml \tab no \tab space / TAB \tab \code{0} \tab integer \tab \cr
   dmu \tab no \tab space / TAB \tab \code{0} \tab integer \tab \cr
   asreml \tab yes \tab space / TAB / comma \tab \code{"0"} \tab
@@ -147,7 +160,7 @@ below summarises what each program expects, and the defaults
 All numeric formats sort by \code{IndNum} ascending, which guarantees that
 parent rows appear before offspring rows (parents always receive a smaller
 integer index after \code{tidyped()} topological sorting).  The
-\code{"asreml"}, \code{"echidna"}, \code{"wombat"} and \code{"sommer"}
+\code{"asreml"}, \code{"echidna"}, \code{"hiblup"} and \code{"sommer"}
 formats sort by \code{Gen} ascending for the same reason.
 
 \strong{Optional \code{tidyped()} columns:}
@@ -198,6 +211,16 @@ head(out_asreml)
 # Echidna uses the same pedigree layout as ASReml
 out_echidna <- pedexport(tp, software = "echidna")
 identical(out_echidna, out_asreml)
+
+# HIBLUP: character IDs, no header by default
+out_hiblup <- pedexport(tp, software = "hiblup")
+head(out_hiblup)
+
+# WOMBAT requires integer codes (manual section 6.3): same integer
+# layout as BLUPF90, with the xref mapping back to original IDs
+out_wombat <- pedexport(tp, software = "wombat")
+head(out_wombat)
+head(attr(out_wombat, "xref"))
 
 # Numeric formats carry the ID mapping back to character IDs
 out_dmu <- pedexport(tp, software = "dmu")

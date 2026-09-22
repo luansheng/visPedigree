@@ -51,23 +51,48 @@ test_that("pedexport echidna is identical to asreml", {
   expect_equal(echidna, asreml)
 })
 
-test_that("pedexport wombat returns character columns with '0' missing", {
+test_that("pedexport wombat uses the integer layout (WOMBAT manual 6.3)", {
   tp   <- tidyped(make_simple_ped())
   womb <- pedexport(tp, software = "wombat")
 
-  # Wombat accepts alphanumeric IDs (recoding them internally), so the
-  # export keeps character IDs rather than renumbering.
-  expect_named(womb, c("animal", "sire", "dam"))
-  expect_type(womb$animal, "character")
-  expect_type(womb$sire,  "character")
+  # WOMBAT requires integer codes 0..2147483647, offspring code larger than
+  # either parent, unknown parents coded 0 (manual section 6.3).
+  expect_named(womb, c("IndNum", "SireNum", "DamNum"))
+  expect_type(womb$IndNum, "integer")
+  expect_identical(womb$IndNum, seq_len(nrow(tp)))
+  expect_true(all(womb$SireNum == 0L | womb$SireNum < womb$IndNum))
+  expect_true(all(womb$DamNum == 0L | womb$DamNum < womb$IndNum))
+
+  founders <- tp[is.na(Sire) & is.na(Dam), IndNum]
+  expect_true(all(womb$SireNum[founders] == 0L))
+  expect_true(all(womb$DamNum[founders] == 0L))
+
+  # numeric formats carry the xref mapping back to original IDs
+  xr <- attr(womb, "xref")
+  expect_equal(nrow(xr), nrow(tp))
+  expect_identical(xr$Ind[xr$IndNum], tp$Ind[order(tp$IndNum)])
+})
+
+test_that("pedexport hiblup returns character columns with '0' missing", {
+  tp  <- tidyped(make_simple_ped())
+  hib <- pedexport(tp, software = "hiblup")
+
+  # HIBLUP's --pedigree file: character IDs, no header by default, "0" for
+  # unknown parents.
+  expect_named(hib, c("animal", "sire", "dam"))
+  expect_type(hib$animal, "character")
+  expect_type(hib$sire,  "character")
 
   founders <- tp[is.na(Sire) & is.na(Dam), Ind]
-  expect_true(all(womb[animal %in% founders, sire] == "0"))
-  expect_true(all(womb[animal %in% founders, dam]  == "0"))
+  expect_true(all(hib[animal %in% founders, sire] == "0"))
+  expect_true(all(hib[animal %in% founders, dam]  == "0"))
 
   # Non-missing parents retain their character IDs
-  expect_equal(womb[animal == "C", sire], "A")
-  expect_equal(womb[animal == "C", dam],  "B")
+  expect_equal(hib[animal == "C", sire], "A")
+  expect_equal(hib[animal == "C", dam],  "B")
+
+  # character format: no xref attribute
+  expect_null(attr(hib, "xref"))
 })
 
 test_that("pedexport mtdfreml is identical to blupf90", {
@@ -75,6 +100,13 @@ test_that("pedexport mtdfreml is identical to blupf90", {
   b90  <- pedexport(tp, software = "blupf90")
   mtd  <- pedexport(tp, software = "mtdfreml")
   expect_equal(b90, mtd)
+})
+
+test_that("pedexport wombat is identical to blupf90", {
+  tp   <- tidyped(make_simple_ped())
+  b90  <- pedexport(tp, software = "blupf90")
+  womb <- pedexport(tp, software = "wombat")
+  expect_equal(b90, womb)
 })
 
 test_that("pedexport numeric returns integer columns with header by default", {
@@ -201,15 +233,34 @@ test_that("echidna file uses ASReml defaults", {
   expect_equal(length(lines), nrow(tp) + 1L)
 })
 
-test_that("wombat file has no header by default", {
+test_that("wombat file has no header by default and writes an .xref file", {
   tp  <- tidyped(make_simple_ped())
   tmp <- tempfile(fileext = ".txt")
-  on.exit(unlink(tmp), add = TRUE)
+  on.exit(unlink(c(tmp, paste0(tmp, ".xref"))), add = TRUE)
 
   pedexport(tp, software = "wombat", file = tmp)
 
   lines <- readLines(tmp)
-  # Wombat reads the pedigree in free format; a header line would be
+  # WOMBAT reads the pedigree as three integer columns; a header line would
+  # be parsed as data, so none is written by default.
+  expect_equal(length(lines), nrow(tp))
+  expect_true(all(grepl("^[0-9]+ [0-9]+ [0-9]+$", lines)))
+
+  xr_file <- paste0(tmp, ".xref")
+  expect_true(file.exists(xr_file))
+  xr <- read.table(xr_file, header = FALSE, stringsAsFactors = FALSE)
+  expect_equal(nrow(xr), nrow(tp))
+})
+
+test_that("hiblup file has no header by default", {
+  tp  <- tidyped(make_simple_ped())
+  tmp <- tempfile(fileext = ".txt")
+  on.exit(unlink(tmp), add = TRUE)
+
+  pedexport(tp, software = "hiblup", file = tmp)
+
+  lines <- readLines(tmp)
+  # HIBLUP reads the pedigree in free format; a header line would be
   # parsed as data, so none is written by default.
   expect_equal(length(lines), nrow(tp))
   expect_false(lines[[1]] == "animal sire dam")
@@ -256,6 +307,8 @@ test_that("pedexport validates separators by software format", {
   expect_error(pedexport(tp, software = "blupf90", sep = "\t"),
                regexp = "require")
   expect_error(pedexport(tp, software = "wombat", sep = ","),
+               regexp = "space or TAB")
+  expect_error(pedexport(tp, software = "hiblup", sep = ","),
                regexp = "space or TAB")
   expect_error(pedexport(tp, software = "asreml", sep = "|"),
                regexp = "space, TAB, or comma")
@@ -506,7 +559,7 @@ test_that("character missing symbols must be non-empty and file-safe", {
 
 test_that("numeric exports carry an xref mapping attribute", {
   tp <- tidyped(make_simple_ped())
-  for (sw in c("blupf90", "mtdfreml", "dmu", "numeric")) {
+  for (sw in c("blupf90", "wombat", "mtdfreml", "dmu", "numeric")) {
     out <- pedexport(tp, software = sw)
     xr  <- attr(out, "xref")
     expect_s3_class(xr, "data.table")
@@ -520,7 +573,7 @@ test_that("character formats carry no xref attribute", {
   tp <- tidyped(make_simple_ped())
   expect_null(attr(pedexport(tp, software = "asreml"), "xref"))
   expect_null(attr(pedexport(tp, software = "echidna"), "xref"))
-  expect_null(attr(pedexport(tp, software = "wombat"), "xref"))
+  expect_null(attr(pedexport(tp, software = "hiblup"), "xref"))
   expect_null(attr(pedexport(tp, software = "sommer"), "xref"))
 })
 
