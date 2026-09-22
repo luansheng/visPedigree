@@ -9,8 +9,8 @@ a `data.table` or writes it to a plain-text file.
 ``` r
 pedexport(
   ped,
-  software = c("blupf90", "asreml", "echidna", "wombat", "mtdfreml", "dmu", "numeric",
-    "sommer"),
+  software = c("blupf90", "asreml", "echidna", "hiblup", "wombat", "mtdfreml", "dmu",
+    "numeric", "sommer"),
   file = NULL,
   sep = " ",
   header = NULL,
@@ -44,7 +44,8 @@ pedexport(
       header by default, missing parents encoded as `"0"`. Rows are
       sorted by generation (`Gen`) so founders appear first. Compatible
       with ASReml-R and ASReml-SA (character IDs require the `!ALPHA`
-      qualifier; the header line requires the `!SKIP 1` qualifier).
+      qualifier; the header line requires the `!SKIP 1` qualifier,
+      placed immediately after the pedigree file name).
 
   `"echidna"`
 
@@ -52,12 +53,21 @@ pedexport(
       `animal`, `sire`, and `dam`, a header by default, missing parents
       encoded as `"0"`, and rows sorted by generation.
 
+  `"hiblup"`
+
+  :   Three character columns (`animal`, `sire`, `dam`), no header by
+      default, missing parents encoded as `"0"`, and rows sorted by
+      generation. Compatible with HIBLUP's `--pedigree` file.
+
   `"wombat"`
 
-  :   Three character columns (`animal`, `sire`, `dam`), no header,
-      missing parents encoded as `"0"`. Wombat accepts alphanumeric IDs
-      and recodes them internally. Rows are sorted so parents precede
-      offspring.
+  :   Integer layout identical to `"blupf90"` (`IndNum`, `SireNum`,
+      `DamNum`), no header, missing parents encoded as `0`. WOMBAT
+      requires integer codes in the range 0 to 2147483647, with every
+      offspring numerically larger than either parent and unknown
+      parents coded `0` (WOMBAT manual section 6.3); the
+      [`tidyped()`](https://luansheng.github.io/visPedigree/reference/tidyped.md)
+      integer index satisfies both ordering constraints by construction.
 
   `"mtdfreml"`
 
@@ -94,10 +104,10 @@ pedexport(
 
   Character scalar. Field separator used when writing to `file`.
   Defaults to a single space (`" "`), which every file-based format
-  accepts. BLUPF90 requires a space; WOMBAT, MTDFREML, and DMU accept
-  spaces or TABs; ASReml and Echidna accept spaces, TABs, or commas; and
-  the generic `"numeric"` format accepts any single-byte, non-empty
-  separator supported by
+  accepts. BLUPF90 requires a space; WOMBAT, MTDFREML, DMU, and HIBLUP
+  accept spaces or TABs; ASReml and Echidna accept spaces, TABs, or
+  commas; and the generic `"numeric"` format accepts any single-byte,
+  non-empty separator supported by
   [`fwrite`](https://rdrr.io/pkg/data.table/man/fwrite.html).
   ASReml/Echidna comma-delimited output requires a `.csv` file extension
   or the `!CSV` qualifier.
@@ -107,19 +117,23 @@ pedexport(
   Logical scalar or `NULL`. Whether to include a column header line.
   `NULL` (default) uses the software-specific default: `TRUE` for
   `"asreml"`, `"echidna"`, and `"numeric"`, `FALSE` for `"blupf90"`,
-  `"wombat"`, `"mtdfreml"` and `"dmu"`. Ignored for `"sommer"`. Note for
-  ASReml and Echidna: a header line is read as data unless the `!SKIP 1`
-  qualifier is used in the command file.
+  `"wombat"`, `"mtdfreml"`, `"dmu"`, and `"hiblup"`. Ignored for
+  `"sommer"`. Note for ASReml and Echidna: a header line is read as data
+  unless the `!SKIP 1` qualifier is used in the command file (it must be
+  placed immediately after the pedigree file name — trailing `!SKIP`
+  after other qualifiers is silently ignored by ASReml-SA).
 
 - missing:
 
   Character or integer scalar. Symbol for missing parents. `NULL`
   (default) uses the software-specific default: `0L` for numeric
-  formats, `"0"` for `"asreml"`, `"echidna"`, and `"wombat"`. Numeric
-  formats (`"blupf90"`, `"mtdfreml"`, `"dmu"`, `"numeric"`) require a
-  single integer value; `"asreml"`, `"echidna"`, and `"wombat"` accept a
-  character value (numeric values are converted to character). Ignored
-  for `"sommer"`, which always codes missing parents as `NA`.
+  formats, `"0"` for `"asreml"`, `"echidna"`, and `"hiblup"`. Numeric
+  formats (`"blupf90"`, `"wombat"`, `"mtdfreml"`, `"dmu"`, `"numeric"`)
+  require a single integer value, and for `"wombat"` the value must be
+  `0` (WOMBAT manual section 6.3); `"asreml"`, `"echidna"`, and
+  `"hiblup"` accept a character value (numeric values are converted to
+  character). Ignored for `"sommer"`, which always codes missing parents
+  as `NA`.
 
 ## Value
 
@@ -138,8 +152,8 @@ reports the number of individuals written.
 |  |  |  |  |
 |----|----|----|----|
 | **software** | **Col 1** | **Col 2** | **Col 3** |
-| blupf90 / mtdfreml / dmu / numeric | `IndNum` (integer) | `SireNum` (integer) | `DamNum` (integer) |
-| asreml / echidna / wombat | `animal` (character) | `sire` (character) | `dam` (character) |
+| blupf90 / wombat / mtdfreml / dmu / numeric | `IndNum` (integer) | `SireNum` (integer) | `DamNum` (integer) |
+| asreml / echidna / hiblup | `animal` (character) | `sire` (character) | `dam` (character) |
 | sommer | `ID` (character) | `Sire` (character) | `Dam` (character) |
 
 **Software format requirements:**
@@ -152,7 +166,8 @@ below summarises what each program expects, and the defaults
 |----|----|----|----|----|----|
 | **software** | **header** | **separator** | **missing** | **IDs** | **notes** |
 | blupf90 | no | spaces only | `0` | integer | TAB separators rejected |
-| wombat | no | space / TAB | `"0"` | character | alphanumeric accepted, recoded internally |
+| wombat | no | space / TAB | `0` | integer | integer codes 0..2147483647; offspring code must exceed both parent codes (manual section 6.3) |
+| hiblup | no | space / TAB | `"0"` | character | alphanumeric accepted; missing parents may also be `NA` |
 | mtdfreml | no | space / TAB | `0` | integer |  |
 | dmu | no | space / TAB | `0` | integer |  |
 | asreml | yes | space / TAB / comma | `"0"` | char or integer | character IDs need `!ALPHA`; header needs `!SKIP 1`; comma needs `.csv` or `!CSV` |
@@ -166,7 +181,7 @@ All numeric formats sort by `IndNum` ascending, which guarantees that
 parent rows appear before offspring rows (parents always receive a
 smaller integer index after
 [`tidyped()`](https://luansheng.github.io/visPedigree/reference/tidyped.md)
-topological sorting). The `"asreml"`, `"echidna"`, `"wombat"` and
+topological sorting). The `"asreml"`, `"echidna"`, `"hiblup"` and
 `"sommer"` formats sort by `Gen` ascending for the same reason.
 
 **Optional
@@ -251,6 +266,40 @@ out_echidna <- pedexport(tp, software = "echidna")
 identical(out_echidna, out_asreml)
 #> [1] TRUE
 
+# HIBLUP: character IDs, no header by default
+out_hiblup <- pedexport(tp, software = "hiblup")
+head(out_hiblup)
+#>    animal   sire    dam
+#>    <char> <char> <char>
+#> 1:      A      0      0
+#> 2:      B      0      0
+#> 3:      F      0      0
+#> 4:      I      0      0
+#> 5:     J1      0      0
+#> 6:     J2      0      0
+
+# WOMBAT requires integer codes (manual section 6.3): same integer
+# layout as BLUPF90, with the xref mapping back to original IDs
+out_wombat <- pedexport(tp, software = "wombat")
+head(out_wombat)
+#>    IndNum SireNum DamNum
+#>     <int>   <int>  <int>
+#> 1:      1       0      0
+#> 2:      2       0      0
+#> 3:      3       0      0
+#> 4:      4       0      0
+#> 5:      5       0      0
+#> 6:      6       0      0
+head(attr(out_wombat, "xref"))
+#>    IndNum    Ind
+#>     <int> <char>
+#> 1:      1      A
+#> 2:      2      B
+#> 3:      3      F
+#> 4:      4      I
+#> 5:      5     J1
+#> 6:      6     J2
+
 # Numeric formats carry the ID mapping back to character IDs
 out_dmu <- pedexport(tp, software = "dmu")
 head(attr(out_dmu, "xref"))
@@ -284,8 +333,8 @@ identical(rownames(A), out_sommer$ID)
 # Write to a file (numeric formats also write <file>.xref)
 tmp <- tempfile(fileext = ".txt")
 pedexport(tp, software = "blupf90", file = tmp)
-#> Written ID mapping to: /tmp/RtmpTO2xjF/file1c3e2ab314d0.txt.xref
-#> Written 28 individuals to: /tmp/RtmpTO2xjF/file1c3e2ab314d0.txt
+#> Written ID mapping to: /tmp/RtmpCTGP6C/file5ac149f87c48.txt.xref
+#> Written 28 individuals to: /tmp/RtmpCTGP6C/file5ac149f87c48.txt
 readLines(tmp, n = 5)
 #> [1] "1 0 0" "2 0 0" "3 0 0" "4 0 0" "5 0 0"
 readLines(paste0(tmp, ".xref"), n = 5)

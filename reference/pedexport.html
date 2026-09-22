@@ -11,7 +11,7 @@ result as a data.table or writes it to a plain-text file."><meta property="og:im
 
     <a class="navbar-brand me-2" href="../index.html">visPedigree</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.10.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.10.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -58,8 +58,8 @@ result as a <code>data.table</code> or writes it to a plain-text file.</p>
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">pedexport</span><span class="op">(</span></span>
 <span>  <span class="va">ped</span>,</span>
-<span>  software <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"blupf90"</span>, <span class="st">"asreml"</span>, <span class="st">"echidna"</span>, <span class="st">"wombat"</span>, <span class="st">"mtdfreml"</span>, <span class="st">"dmu"</span>, <span class="st">"numeric"</span>,</span>
-<span>    <span class="st">"sommer"</span><span class="op">)</span>,</span>
+<span>  software <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"blupf90"</span>, <span class="st">"asreml"</span>, <span class="st">"echidna"</span>, <span class="st">"hiblup"</span>, <span class="st">"wombat"</span>, <span class="st">"mtdfreml"</span>, <span class="st">"dmu"</span>,</span>
+<span>    <span class="st">"numeric"</span>, <span class="st">"sommer"</span><span class="op">)</span>,</span>
 <span>  file <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  sep <span class="op">=</span> <span class="st">" "</span>,</span>
 <span>  header <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -91,7 +91,8 @@ and <code>Dam</code> identifier must be present in <code>Ind</code>.</p></dd>
     parents encoded as <code>"0"</code>.  Rows are sorted by generation
     (<code>Gen</code>) so founders appear first.  Compatible with ASReml-R
     and ASReml-SA (character IDs require the <code>!ALPHA</code> qualifier;
-    the header line requires the <code>!SKIP 1</code> qualifier).</p></dd>
+    the header line requires the <code>!SKIP 1</code> qualifier, placed
+    immediately after the pedigree file name).</p></dd>
 
   <dt><code>"echidna"</code></dt>
 <dd><p>Identical character layout and defaults to
@@ -99,11 +100,20 @@ and <code>Dam</code> identifier must be present in <code>Ind</code>.</p></dd>
     a header by default, missing parents encoded as <code>"0"</code>, and rows
     sorted by generation.</p></dd>
 
-  <dt><code>"wombat"</code></dt>
+  <dt><code>"hiblup"</code></dt>
 <dd><p>Three character columns (<code>animal</code>,
-    <code>sire</code>, <code>dam</code>), no header, missing parents encoded as
-    <code>"0"</code>.  Wombat accepts alphanumeric IDs and recodes them
-    internally.  Rows are sorted so parents precede offspring.</p></dd>
+    <code>sire</code>, <code>dam</code>), no header by default, missing parents
+    encoded as <code>"0"</code>, and rows sorted by generation.  Compatible
+    with HIBLUP's <code>--pedigree</code> file.</p></dd>
+
+  <dt><code>"wombat"</code></dt>
+<dd><p>Integer layout identical to <code>"blupf90"</code>
+    (<code>IndNum</code>, <code>SireNum</code>, <code>DamNum</code>), no header, missing
+    parents encoded as <code>0</code>.  WOMBAT requires integer codes in the
+    range 0 to 2147483647, with every offspring numerically larger than
+    either parent and unknown parents coded <code>0</code> (WOMBAT manual
+    section 6.3); the <code><a href="tidyped.html">tidyped()</a></code> integer index satisfies both
+    ordering constraints by construction.</p></dd>
 
   <dt><code>"mtdfreml"</code></dt>
 <dd><p>Identical integer layout to <code>"blupf90"</code>.
@@ -141,8 +151,8 @@ which is intended for direct use as an R <code>data.table</code>.</p></dd>
 <dd><p>Character scalar.  Field separator used when writing to
 <code>file</code>.  Defaults to a single space (<code>" "</code>), which every
 file-based format accepts.  BLUPF90 requires a space; WOMBAT, MTDFREML,
-and DMU accept spaces or TABs; ASReml and Echidna accept spaces, TABs,
-or commas; and the generic <code>"numeric"</code> format accepts any
+DMU, and HIBLUP accept spaces or TABs; ASReml and Echidna accept spaces,
+TABs, or commas; and the generic <code>"numeric"</code> format accepts any
 single-byte, non-empty separator supported by
 <code><a href="https://rdrr.io/pkg/data.table/man/fwrite.html" class="external-link">fwrite</a></code>.  ASReml/Echidna comma-delimited output
 requires a <code>.csv</code> file extension or the <code>!CSV</code> qualifier.</p></dd>
@@ -152,22 +162,25 @@ requires a <code>.csv</code> file extension or the <code>!CSV</code> qualifier.<
 <dd><p>Logical scalar or <code>NULL</code>.  Whether to include a column
 header line.  <code>NULL</code> (default) uses the software-specific default:
 <code>TRUE</code> for <code>"asreml"</code>, <code>"echidna"</code>, and <code>"numeric"</code>,
-<code>FALSE</code> for <code>"blupf90"</code>, <code>"wombat"</code>, <code>"mtdfreml"</code>
-and <code>"dmu"</code>.  Ignored for <code>"sommer"</code>.  Note for ASReml and
-Echidna: a header line is read as data unless the <code>!SKIP 1</code>
-qualifier is used in the command file.</p></dd>
+<code>FALSE</code> for <code>"blupf90"</code>, <code>"wombat"</code>, <code>"mtdfreml"</code>,
+<code>"dmu"</code>, and <code>"hiblup"</code>.  Ignored for <code>"sommer"</code>.  Note
+for ASReml and Echidna: a header line is read as data unless the
+<code>!SKIP 1</code> qualifier is used in the command file (it must be placed
+immediately after the pedigree file name — trailing <code>!SKIP</code> after
+other qualifiers is silently ignored by ASReml-SA).</p></dd>
 
 
 <dt id="arg-missing">missing<a class="anchor" aria-label="anchor" href="#arg-missing"></a></dt>
 <dd><p>Character or integer scalar.  Symbol for missing parents.
 <code>NULL</code> (default) uses the software-specific default: <code>0L</code> for
 numeric formats, <code>"0"</code> for <code>"asreml"</code>, <code>"echidna"</code>, and
-<code>"wombat"</code>.
-Numeric formats (<code>"blupf90"</code>, <code>"mtdfreml"</code>, <code>"dmu"</code>,
-<code>"numeric"</code>) require a single integer value; <code>"asreml"</code>,
-<code>"echidna"</code>, and <code>"wombat"</code> accept a character value (numeric
-values are converted to character).  Ignored for <code>"sommer"</code>, which
-always codes missing parents as <code>NA</code>.</p></dd>
+<code>"hiblup"</code>.
+Numeric formats (<code>"blupf90"</code>, <code>"wombat"</code>, <code>"mtdfreml"</code>,
+<code>"dmu"</code>, <code>"numeric"</code>) require a single integer value, and for
+<code>"wombat"</code> the value must be <code>0</code> (WOMBAT manual section 6.3);
+<code>"asreml"</code>, <code>"echidna"</code>, and <code>"hiblup"</code> accept a
+character value (numeric values are converted to character).  Ignored
+for <code>"sommer"</code>, which always codes missing parents as <code>NA</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -184,18 +197,20 @@ always codes missing parents as <code>NA</code>.</p></dd>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p><strong>Column semantics by format:</strong></p>
-<table class="table table"><tr><td><strong>software</strong></td><td><strong>Col 1</strong></td><td><strong>Col 2</strong></td><td><strong>Col 3</strong></td></tr><tr><td>blupf90 / mtdfreml / dmu / numeric</td><td><code>IndNum</code> (integer)</td><td><code>SireNum</code> (integer)</td><td><code>DamNum</code> (integer)</td></tr><tr><td>asreml / echidna / wombat</td><td><code>animal</code> (character)</td><td><code>sire</code> (character)</td><td><code>dam</code> (character)</td></tr><tr><td>sommer</td><td><code>ID</code> (character)</td><td><code>Sire</code> (character)</td><td><code>Dam</code> (character)</td></tr></table><p><strong>Software format requirements:</strong></p>
+<table class="table table"><tr><td><strong>software</strong></td><td><strong>Col 1</strong></td><td><strong>Col 2</strong></td><td><strong>Col 3</strong></td></tr><tr><td>blupf90 / wombat / mtdfreml / dmu / numeric</td><td><code>IndNum</code>
+    (integer)</td><td><code>SireNum</code> (integer)</td><td><code>DamNum</code> (integer)</td></tr><tr><td>asreml / echidna / hiblup</td><td><code>animal</code> (character)</td><td><code>sire</code> (character)</td><td><code>dam</code> (character)</td></tr><tr><td>sommer</td><td><code>ID</code> (character)</td><td><code>Sire</code> (character)</td><td><code>Dam</code> (character)</td></tr></table><p><strong>Software format requirements:</strong></p>
 <p>All file-based formats use unquoted, free-format plain text.  The table
 below summarises what each program expects, and the defaults
 <code>pedexport()</code> uses to meet those expectations.</p>
-<table class="table table"><tr><td><strong>software</strong></td><td><strong>header</strong></td><td><strong>separator</strong></td><td><strong>missing</strong></td><td><strong>IDs</strong></td><td><strong>notes</strong></td></tr><tr><td>blupf90</td><td>no</td><td>spaces only</td><td><code>0</code></td><td>integer</td><td>TAB separators rejected</td></tr><tr><td>wombat</td><td>no</td><td>space / TAB</td><td><code>"0"</code></td><td>character</td><td>alphanumeric accepted, recoded internally</td></tr><tr><td>mtdfreml</td><td>no</td><td>space / TAB</td><td><code>0</code></td><td>integer</td><td></td></tr><tr><td>dmu</td><td>no</td><td>space / TAB</td><td><code>0</code></td><td>integer</td><td></td></tr><tr><td>asreml</td><td>yes</td><td>space / TAB / comma</td><td><code>"0"</code></td><td>char or integer</td><td>character IDs need <code>!ALPHA</code>; header needs
+<table class="table table"><tr><td><strong>software</strong></td><td><strong>header</strong></td><td><strong>separator</strong></td><td><strong>missing</strong></td><td><strong>IDs</strong></td><td><strong>notes</strong></td></tr><tr><td>blupf90</td><td>no</td><td>spaces only</td><td><code>0</code></td><td>integer</td><td>TAB separators rejected</td></tr><tr><td>wombat</td><td>no</td><td>space / TAB</td><td><code>0</code></td><td>integer</td><td>integer codes 0..2147483647; offspring code must exceed both parent
+    codes (manual section 6.3)</td></tr><tr><td>hiblup</td><td>no</td><td>space / TAB</td><td><code>"0"</code></td><td>character</td><td>alphanumeric accepted; missing parents may also be <code>NA</code></td></tr><tr><td>mtdfreml</td><td>no</td><td>space / TAB</td><td><code>0</code></td><td>integer</td><td></td></tr><tr><td>dmu</td><td>no</td><td>space / TAB</td><td><code>0</code></td><td>integer</td><td></td></tr><tr><td>asreml</td><td>yes</td><td>space / TAB / comma</td><td><code>"0"</code></td><td>char or integer</td><td>character IDs need <code>!ALPHA</code>; header needs
     <code>!SKIP 1</code>; comma needs <code>.csv</code> or <code>!CSV</code></td></tr><tr><td>echidna</td><td>yes</td><td>space / TAB / comma</td><td><code>"0"</code></td><td>char or integer</td><td>same pedigree layout and defaults as ASReml</td></tr><tr><td>sommer</td><td>n/a</td><td>n/a</td><td><code>NA</code></td><td>character</td><td>returned
     as a data.table, not a file</td></tr><tr><td>numeric</td><td>optional</td><td>any</td><td><code>0</code></td><td>integer</td><td>generic
     software-agnostic layout</td></tr></table><p><strong>Row order:</strong></p>
 <p>All numeric formats sort by <code>IndNum</code> ascending, which guarantees that
 parent rows appear before offspring rows (parents always receive a smaller
 integer index after <code><a href="tidyped.html">tidyped()</a></code> topological sorting).  The
-<code>"asreml"</code>, <code>"echidna"</code>, <code>"wombat"</code> and <code>"sommer"</code>
+<code>"asreml"</code>, <code>"echidna"</code>, <code>"hiblup"</code> and <code>"sommer"</code>
 formats sort by <code>Gen</code> ascending for the same reason.</p>
 <p><strong>Optional <code><a href="tidyped.html">tidyped()</a></code> columns:</strong></p>
 <p><code>tidyped(..., addnum = FALSE)</code> omits <code>IndNum</code>/<code>SireNum</code>/
@@ -263,6 +278,40 @@ avoid redundant validation.</p>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="va">out_echidna</span>, <span class="va">out_asreml</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
 <span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># HIBLUP: character IDs, no header by default</span></span></span>
+<span class="r-in"><span><span class="va">out_hiblup</span> <span class="op">&lt;-</span> <span class="fu">pedexport</span><span class="op">(</span><span class="va">tp</span>, software <span class="op">=</span> <span class="st">"hiblup"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">out_hiblup</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    animal   sire    dam</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    &lt;char&gt; &lt;char&gt; &lt;char&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1:      A      0      0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2:      B      0      0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3:      F      0      0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4:      I      0      0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5:     J1      0      0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6:     J2      0      0</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># WOMBAT requires integer codes (manual section 6.3): same integer</span></span></span>
+<span class="r-in"><span><span class="co"># layout as BLUPF90, with the xref mapping back to original IDs</span></span></span>
+<span class="r-in"><span><span class="va">out_wombat</span> <span class="op">&lt;-</span> <span class="fu">pedexport</span><span class="op">(</span><span class="va">tp</span>, software <span class="op">=</span> <span class="st">"wombat"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">out_wombat</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    IndNum SireNum DamNum</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     &lt;int&gt;   &lt;int&gt;  &lt;int&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1:      1       0      0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2:      2       0      0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3:      3       0      0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4:      4       0      0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5:      5       0      0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6:      6       0      0</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">out_wombat</span>, <span class="st">"xref"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    IndNum    Ind</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     &lt;int&gt; &lt;char&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1:      1      A</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2:      2      B</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3:      3      F</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4:      4      I</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5:      5     J1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6:      6     J2</span>
+<span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Numeric formats carry the ID mapping back to character IDs</span></span></span>
 <span class="r-in"><span><span class="va">out_dmu</span> <span class="op">&lt;-</span> <span class="fu">pedexport</span><span class="op">(</span><span class="va">tp</span>, software <span class="op">=</span> <span class="st">"dmu"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">out_dmu</span>, <span class="st">"xref"</span><span class="op">)</span><span class="op">)</span></span></span>
@@ -296,8 +345,8 @@ avoid redundant validation.</p>
 <span class="r-in"><span><span class="co"># Write to a file (numeric formats also write &lt;file&gt;.xref)</span></span></span>
 <span class="r-in"><span><span class="va">tmp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".txt"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">pedexport</span><span class="op">(</span><span class="va">tp</span>, software <span class="op">=</span> <span class="st">"blupf90"</span>, file <span class="op">=</span> <span class="va">tmp</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Written ID mapping to: /tmp/RtmpTO2xjF/file1c3e2ab314d0.txt.xref</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Written 28 individuals to: /tmp/RtmpTO2xjF/file1c3e2ab314d0.txt</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Written ID mapping to: /tmp/RtmpCTGP6C/file5ac149f87c48.txt.xref</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Written 28 individuals to: /tmp/RtmpCTGP6C/file5ac149f87c48.txt</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/readLines.html" class="external-link">readLines</a></span><span class="op">(</span><span class="va">tmp</span>, n <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "1 0 0" "2 0 0" "3 0 0" "4 0 0" "5 0 0"</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/readLines.html" class="external-link">readLines</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">tmp</span>, <span class="st">".xref"</span><span class="op">)</span>, n <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>

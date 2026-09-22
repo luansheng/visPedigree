@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">visPedigree</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.10.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.10.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -43,6 +43,19 @@
       <small>Source: <a href="https://github.com/luansheng/visPedigree/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.10.1" id="changes-in-version-1101">Changes in version 1.10.1<a class="anchor" aria-label="anchor" href="#changes-in-version-1101"></a></h2>
+<div class="section level3">
+<h3 id="bug-fixes-1-10-1">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-1-10-1"></a></h3>
+<ol style="list-style-type: decimal"><li>
+<strong><code>pedexport(software = "wombat")</code> now uses the integer layout</strong>: The 1.10.0 character-ID WOMBAT format was rejected by the real WOMBAT program — the WOMBAT manual (section 6.3) requires three integer variables with codes in 0..2147483647, offspring codes numerically larger than either parent, and unknown parents coded <code>0</code>. The <code>wombat</code> format now shares the integer layout with <code>blupf90</code> (including the <code>xref</code> attribute and <code>&lt;file&gt;.xref</code> mapping file), satisfying these requirements by construction. Non-zero custom <code>missing</code> symbols are rejected for <code>wombat</code>. Verified end-to-end against the WOMBAT 26-05-2025 binary.</li>
+</ol></div>
+<div class="section level3">
+<h3 id="new-features-1-10-1">New features<a class="anchor" aria-label="anchor" href="#new-features-1-10-1"></a></h3>
+<ol style="list-style-type: decimal"><li>
+<strong><code>pedexport(software = "hiblup")</code></strong>: New format for HIBLUP’s <code>--pedigree</code> file: character columns <code>animal</code>/<code>sire</code>/<code>dam</code>, no header by default, missing parents coded <code>"0"</code>. Verified end-to-end against the HIBLUP binary (estimated additive variance and EBVs identical to ASReml/WOMBAT on the same pedigree).</li>
+</ol></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.10.0" id="changes-in-version-1100-released-on-8-aug-2026">Changes in version 1.10.0 released on 8 Aug 2026<a class="anchor" aria-label="anchor" href="#changes-in-version-1100-released-on-8-aug-2026"></a></h2>
 <div class="section level3">

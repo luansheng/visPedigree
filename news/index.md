@@ -1,5 +1,28 @@
 # Changelog
 
+## Changes in version 1.10.1
+
+### Bug fixes
+
+1.  **`pedexport(software = "wombat")` now uses the integer layout**:
+    The 1.10.0 character-ID WOMBAT format was rejected by the real
+    WOMBAT program — the WOMBAT manual (section 6.3) requires three
+    integer variables with codes in 0..2147483647, offspring codes
+    numerically larger than either parent, and unknown parents coded
+    `0`. The `wombat` format now shares the integer layout with
+    `blupf90` (including the `xref` attribute and `<file>.xref` mapping
+    file), satisfying these requirements by construction. Non-zero
+    custom `missing` symbols are rejected for `wombat`. Verified
+    end-to-end against the WOMBAT 26-05-2025 binary.
+
+### New features
+
+1.  **`pedexport(software = "hiblup")`**: New format for HIBLUP’s
+    `--pedigree` file: character columns `animal`/`sire`/`dam`, no
+    header by default, missing parents coded `"0"`. Verified end-to-end
+    against the HIBLUP binary (estimated additive variance and EBVs
+    identical to ASReml/WOMBAT on the same pedigree).
+
 ## Changes in version 1.10.0 released on 8 Aug 2026
 
 ### New features
