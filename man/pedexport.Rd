@@ -92,7 +92,8 @@ other qualifiers is silently ignored by ASReml-SA).}
 numeric formats, \code{"0"} for \code{"asreml"}, \code{"echidna"}, and
 \code{"hiblup"}.
 Numeric formats (\code{"blupf90"}, \code{"wombat"}, \code{"mtdfreml"},
-\code{"dmu"}, \code{"numeric"}) require a single integer value;
+\code{"dmu"}, \code{"numeric"}) require a single integer value, and for
+\code{"wombat"} the value must be \code{0} (WOMBAT manual section 6.3);
 \code{"asreml"}, \code{"echidna"}, and \code{"hiblup"} accept a
 character value (numeric values are converted to character).  Ignored
 for \code{"sommer"}, which always codes missing parents as \code{NA}.}

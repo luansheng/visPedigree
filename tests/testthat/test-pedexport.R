@@ -427,6 +427,17 @@ test_that("numeric formats reject non-integer missing symbols", {
   expect_true(all(out[IndNum %in% founders, DamNum]  == -99L))
 })
 
+test_that("wombat requires missing parents coded 0 (manual 6.3)", {
+  tp <- tidyped(make_simple_ped())
+  expect_error(pedexport(tp, software = "wombat", missing = -99L),
+               regexp = "coded 0")
+  expect_error(pedexport(tp, software = "wombat", missing = 9L),
+               regexp = "coded 0")
+  # the default and an explicit 0 are accepted
+  expect_no_error(pedexport(tp, software = "wombat"))
+  expect_no_error(pedexport(tp, software = "wombat", missing = 0L))
+})
+
 # ---------------------------------------------------------------------------
 # 9. dmu and sommer formats; numeric ID mapping (xref)
 # ---------------------------------------------------------------------------

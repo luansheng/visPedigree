@@ -78,7 +78,8 @@
 #'   numeric formats, \code{"0"} for \code{"asreml"}, \code{"echidna"}, and
 #'   \code{"hiblup"}.
 #'   Numeric formats (\code{"blupf90"}, \code{"wombat"}, \code{"mtdfreml"},
-#'   \code{"dmu"}, \code{"numeric"}) require a single integer value;
+#'   \code{"dmu"}, \code{"numeric"}) require a single integer value, and for
+#'   \code{"wombat"} the value must be \code{0} (WOMBAT manual section 6.3);
 #'   \code{"asreml"}, \code{"echidna"}, and \code{"hiblup"} accept a
 #'   character value (numeric values are converted to character).  Ignored
 #'   for \code{"sommer"}, which always codes missing parents as \code{NA}.
@@ -293,6 +294,11 @@ pedexport <- function(ped,
            "'missing' must be a single integer value.", call. = FALSE)
     }
     missing <- missing_int
+    if (software == "wombat" && missing != 0L) {
+      stop("WOMBAT requires unknown parents to be coded 0 (manual section ",
+           "6.3); 'missing' must be 0 for software = \"wombat\".",
+           call. = FALSE)
+    }
   }
 
   # ---- 4. Build output table ----
