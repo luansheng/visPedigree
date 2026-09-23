@@ -43,7 +43,9 @@
 ^papers$
 
 # --- 开发过程产生的临时文件 ---
-^Rplots\.pdf$
+# Rplots.pdf 由测试绘图时自动生成；须匹配任意层级，否则
+# tests/testthat/Rplots.pdf 会被静默打进 tarball
+(^|/)Rplots\.pdf$
 ^[^/]*\.pdf$
 ^[^/]*\.png$
 ^man/figures/.*\.png$
