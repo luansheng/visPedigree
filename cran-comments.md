@@ -2,7 +2,7 @@
 * local macOS Tahoe 26.6.2, R 4.5.2 (2025-10-31), aarch64-apple-darwin20,
   Apple clang 17.0.0 (clang-1700.0.13.5)
 * `R CMD check --as-cran --no-manual`: 0 errors | 0 warnings | 0 notes
-* testthat: FAIL 0 | WARN 2 | SKIP 1 | PASS 1471
+* testthat: FAIL 0 | WARN 0 | SKIP 1 | PASS 1473
 
 ## R CMD check results
 
@@ -20,9 +20,9 @@ artifacts of this local machine rather than package defects:
 * The HTML manual check is skipped because the local `tidy` is older than
   required and the `V8` package is unavailable (1 NOTE).
 
-The two test warnings are intentional: the package warns when subsetting a
-`tidyped` object removes parent records, and two tests exercise that path
-without wrapping it in `expect_warning()`.
+The one skipped test guards a 25,001-individual dense-matrix case with
+`skip_on_cran()`; it is too heavy for CRAN's check farm and is exercised
+locally instead.
 
 This is an update from CRAN version 1.9.0 to 1.10.1.
 
