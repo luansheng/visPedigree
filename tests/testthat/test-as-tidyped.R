@@ -21,7 +21,13 @@ test_that("as_tidyped restores class from plain data.frame", {
   expect_false(inherits(tp_sub, "tidyped"))
   expect_false(inherits(tp_sub, "data.table"))
 
-  tp_restored <- as_tidyped(tp_sub)
+  # Dropping generation 1 removes parent records, which the package warns
+  # about; as_tidyped() still restores the class from the surviving rows.
+  tp_restored <- NULL
+  expect_warning(
+    tp_restored <- as_tidyped(tp_sub),
+    "removed parent records"
+  )
   expect_s3_class(tp_restored, "tidyped")
   expect_s3_class(tp_restored, "data.table")
 })
@@ -47,7 +53,13 @@ test_that("as_tidyped rebuilds IndNum from data.frame subset", {
   tp <- tidyped(simple_ped)
   tp_df <- as.data.frame(tp)
   tp_sub <- tp_df[tp_df$Gen > 1, ]
-  tp_restored <- as_tidyped(tp_sub)
+
+  # Same missing-parent warning as above.
+  tp_restored <- NULL
+  expect_warning(
+    tp_restored <- as_tidyped(tp_sub),
+    "removed parent records"
+  )
 
   expect_equal(tp_restored$IndNum, seq_len(nrow(tp_restored)))
   expect_true(all(tp_restored$SireNum >= 0L))
