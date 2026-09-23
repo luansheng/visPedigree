@@ -1,4 +1,11 @@
-RENV_PATHS_ROOT=${RENV_PATHS_ROOT-renv}
+# renv's global cache is left at renv's platform default
+# (~/Library/Caches/org.R-project.R/R/renv on macOS).
+#
+# RENV_PATHS_ROOT used to be redirected to `renv`, which pulled ~500 MB of
+# cache into the package directory -- a directory iCloud syncs, and which
+# `R CMD build` copies in full before applying .Rbuildignore, so every build
+# spent minutes copying it. Export RENV_PATHS_ROOT if a custom location is
+# ever needed.
 RENV_PATHS_LIBRARY=${RENV_PATHS_LIBRARY-renv/library}
 RENV_PATHS_SANDBOX=${RENV_PATHS_SANDBOX-renv/sandbox}
 RENV_CONFIG_SANDBOX_ENABLED=${RENV_CONFIG_SANDBOX_ENABLED-FALSE}
