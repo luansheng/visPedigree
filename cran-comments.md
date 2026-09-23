@@ -1,41 +1,61 @@
 ## Test environments
-* local macOS Tahoe 26.3, R 4.5.2, Apple clang 17.0.0
-* `devtools::test()`: PASS / 0 FAIL / 0 SKIP
+* local macOS Tahoe 26.6.2, R 4.5.2 (2025-10-31), aarch64-apple-darwin20,
+  Apple clang 17.0.0 (clang-1700.0.13.5)
+* `R CMD check --as-cran --no-manual`: 0 errors | 0 warnings | 0 notes
+* testthat: FAIL 0 | WARN 2 | SKIP 1 | PASS 1471
 
 ## R CMD check results
 
-* local `R CMD build` + `R CMD check --as-cran`
-* 0 errors | 0 warnings | 0 notes (with `--no-manual`)
-* `pdflatex` is not available locally, so the PDF manual check produces
-  1 ERROR + 1 WARNING — these are local-environment issues only and do not
-  reflect package defects. CRAN's build machines have pdflatex available.
-* Tarball size is approximately 7.4 MB, above the typical 5 MB threshold.
-  The size is due to (1) two vignettes (`draw-pedigree` and
-  `relationship-matrix`) with pedigree visualizations and heatmaps rendered
-  at 300 DPI for publication-quality output, and (2) the `big_family_size_ped`
-  example dataset (473 KB) for demonstrating large-pedigree scaling.
-  The compiled C++ source also contributes to the package footprint.
+Ran locally with `R CMD build` + `R CMD check --as-cran`.
 
-This is an update from CRAN version 1.8.1 to 1.9.0.
+With `--no-manual` the check is clean: 0 errors | 0 warnings | 0 notes.
 
-## Changes since last CRAN version (1.8.1)
+Without `--no-manual` there are 1 ERROR, 1 WARNING and 2 NOTEs, all of them
+artifacts of this local machine rather than package defects:
 
-This is a feature update with a restructured NEWS.md and expanded vignette
-examples:
+* `pdflatex` is not installed locally, so the PDF version of the manual cannot
+  be built (1 ERROR + 1 WARNING) and the failed run leaves
+  `visPedigree-manual.tex` in the check directory (1 NOTE). CRAN's build
+  machines have pdflatex.
+* The HTML manual check is skipped because the local `tidy` is older than
+  required and the `V8` package is unavailable (1 NOTE).
 
-* Restructured NEWS.md with consistent section headers and concise entries
-  for all historical releases.
-* Added `shapeby` argument to `visped()` for choosing between sex-based
-  and role-based node shape encoding.
-* Added `labelvar` argument to `visped()` for custom node labels from a
-  pedigree column or character vector.
-* Added SVG output support in `visped()` via file names ending in `.svg`.
-* Added `pedprod()` for matrix-free A x, A X, A^{-1} x, and A^{-1} X
-  products directly from a pedigree, avoiding materialization of the dense
-  relationship matrix.
-* Expanded the `pedprod()` vignette section with group coancestry calculation
-  and founder-origin decomposition examples.
-* Fixed `size2` global variable declaration for R CMD check compliance.
+The two test warnings are intentional: the package warns when subsetting a
+`tidyped` object removes parent records, and two tests exercise that path
+without wrapping it in `expect_warning()`.
+
+This is an update from CRAN version 1.9.0 to 1.10.1.
+
+## Changes since last CRAN version (1.9.0)
+
+This release adds `pedexport()` for writing pedigrees to breeding-software
+formats, plus follow-up fixes to the new formats.
+
+### New features
+
+* `pedexport()` converts a `tidyped` pedigree into the input format of common
+  animal and plant breeding programs: BLUPF90, ASReml, Echidna, WOMBAT,
+  MTDFREML, DMU, a generic numeric layout, and an in-memory `sommer` table.
+  Character formats keep the original IDs; numeric formats renumber the
+  pedigree and carry an `xref` mapping back to the original IDs, both as an
+  attribute and as a `<file>.xref` file, mirroring RENUMF90's `_XrefID`.
+* `pedexport(software = "hiblup")` writes HIBLUP `--pedigree` files.
+* Export validation rejects malformed separators, invalid file paths, and
+  unquoted identifiers or missing-parent symbols that would split into extra
+  fields.
+
+### Bug fixes
+
+* `pedexport(software = "wombat")` now uses the integer layout required by the
+  WOMBAT manual (section 6.3): three integer columns, offspring codes
+  numerically larger than either parent, and unknown parents coded `0`. This
+  replaces the 1.10.0 character-ID layout, which the WOMBAT program itself
+  rejected.
+
+### Documentation
+
+* Documented the `sommer` workflow using
+  `pedmat(..., method = "A", sparse = FALSE)`.
 
 ## Downstream dependencies
 None.
