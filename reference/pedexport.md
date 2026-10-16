@@ -333,8 +333,8 @@ identical(rownames(A), out_sommer$ID)
 # Write to a file (numeric formats also write <file>.xref)
 tmp <- tempfile(fileext = ".txt")
 pedexport(tp, software = "blupf90", file = tmp)
-#> Written ID mapping to: /tmp/Rtmpir4iWc/file27ad7b0e837a.txt.xref
-#> Written 28 individuals to: /tmp/Rtmpir4iWc/file27ad7b0e837a.txt
+#> Written ID mapping to: /tmp/RtmpgPbJ3X/file66ef2c67d036.txt.xref
+#> Written 28 individuals to: /tmp/RtmpgPbJ3X/file66ef2c67d036.txt
 readLines(tmp, n = 5)
 #> [1] "1 0 0" "2 0 0" "3 0 0" "4 0 0" "5 0 0"
 readLines(paste0(tmp, ".xref"), n = 5)

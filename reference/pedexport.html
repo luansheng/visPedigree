@@ -44,7 +44,7 @@ result as a data.table or writes it to a plain-text file."><meta property="og:im
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Export a pedigree to a breeding software format</h1>
-      <small class="dont-index">Source: <a href="https://github.com/luansheng/visPedigree/blob/main/R/pedexport.R" class="external-link"><code>R/pedexport.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/luansheng/visPedigree/blob/v1.10.1/R/pedexport.R" class="external-link"><code>R/pedexport.R</code></a></small>
       <div class="d-none name"><code>pedexport.Rd</code></div>
     </div>
 
@@ -345,8 +345,8 @@ avoid redundant validation.</p>
 <span class="r-in"><span><span class="co"># Write to a file (numeric formats also write &lt;file&gt;.xref)</span></span></span>
 <span class="r-in"><span><span class="va">tmp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".txt"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">pedexport</span><span class="op">(</span><span class="va">tp</span>, software <span class="op">=</span> <span class="st">"blupf90"</span>, file <span class="op">=</span> <span class="va">tmp</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Written ID mapping to: /tmp/Rtmpir4iWc/file27ad7b0e837a.txt.xref</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Written 28 individuals to: /tmp/Rtmpir4iWc/file27ad7b0e837a.txt</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Written ID mapping to: /tmp/RtmpgPbJ3X/file66ef2c67d036.txt.xref</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Written 28 individuals to: /tmp/RtmpgPbJ3X/file66ef2c67d036.txt</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/readLines.html" class="external-link">readLines</a></span><span class="op">(</span><span class="va">tmp</span>, n <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "1 0 0" "2 0 0" "3 0 0" "4 0 0" "5 0 0"</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/readLines.html" class="external-link">readLines</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">tmp</span>, <span class="st">".xref"</span><span class="op">)</span>, n <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>

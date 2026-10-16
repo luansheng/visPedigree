@@ -2,6 +2,8 @@
 
 ## Changes in version 1.10.1
 
+CRAN release: 2026-09-24
+
 ### Bug fixes
 
 1.  **`pedexport(software = "wombat")` now uses the integer layout**:
